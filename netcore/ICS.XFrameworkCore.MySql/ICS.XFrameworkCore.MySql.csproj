@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Data\SqlClient\.gitkeep" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\ICS.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs" Link="Data\SqlClient\MySqlBuilder.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.MySql\Data\SqlClient\MySqlDbTypeInfo.cs" Link="Data\SqlClient\MySqlDbTypeInfo.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="0.53.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\SqlClient\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICS.XFrameworkCore\ICS.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>

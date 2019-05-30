@@ -1,0 +1,373 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E5450DF-ED7F-4926-88EE-36F4923AE1F8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ICS.XFramework</RootNamespace>
+    <AssemblyName>ICS.XFramework</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0108,1591,1571,1572,1573,1574,1587,1711</NoWarn>
+    <DocumentationFile>bin\Debug\ICS.XFramework.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0108,1591,1571,1572,1573,1574,1587,1711</NoWarn>
+    <DocumentationFile>bin\Release\ICS.XFramework.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\ICS.XFramework\Caching\ExpirationCache.cs">
+      <Link>Caching\ExpirationCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Caching\ICache.cs">
+      <Link>Caching\ICache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Caching\MemberInfoComparer.cs">
+      <Link>Caching\MemberInfoComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Caching\ReaderWriterCache.cs">
+      <Link>Caching\ReaderWriterCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Caching\SimpleCache.cs">
+      <Link>Caching\SimpleCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Collection\IPagedList.cs">
+      <Link>Common\Collection\IPagedList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Collection\PagedList.cs">
+      <Link>Common\Collection\PagedList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Common.cs">
+      <Link>Common\Common.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\HashFluent.cs">
+      <Link>Common\HashFluent.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\ConvertHelper.cs">
+      <Link>Common\Helper\ConvertHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\FileHelper.cs">
+      <Link>Common\Helper\FileHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\GZipHelper.cs">
+      <Link>Common\Helper\GZipHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\PhoneticizeHelper.cs">
+      <Link>Common\Helper\PhoneticizeHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\SecurityHelper.cs">
+      <Link>Common\Helper\SecurityHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\SerializeHelper.cs">
+      <Link>Common\Helper\SerializeHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\WebHelper .cs">
+      <Link>Common\Helper\WebHelper .cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Helper\XmlHelper.cs">
+      <Link>Common\Helper\XmlHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Ioc\IContainer.cs">
+      <Link>Common\Ioc\IContainer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Ioc\XfwContainer.cs">
+      <Link>Common\Ioc\XfwContainer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\Mailer.cs">
+      <Link>Common\Mailer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\MetadataTypesRegister.cs">
+      <Link>Common\MetadataTypesRegister.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\XFrameworkException.cs">
+      <Link>Common\XFrameworkException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\XFrameworkExtensions.cs">
+      <Link>Common\XFrameworkExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Common\XFrameworkValidator.cs">
+      <Link>Common\XFrameworkValidator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Annotation\ColumnAttribute.cs">
+      <Link>Data\Annotation\ColumnAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Annotation\ForeignKeyAttribute.cs">
+      <Link>Data\Annotation\ForeignKeyAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Annotation\TableAttribute.cs">
+      <Link>Data\Annotation\TableAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\BulkInsertInfo.cs">
+      <Link>Data\BulkInsertInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Constant.cs">
+      <Link>Data\Constant.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDatabase.cs">
+      <Link>Data\Contract\IDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbCommandInterceptor.cs">
+      <Link>Data\Contract\IDbCommandInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbContext.cs">
+      <Link>Data\Contract\IDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryable.cs">
+      <Link>Data\Contract\IDbQueryable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo.cs">
+      <Link>Data\Contract\IDbQueryableInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo_Delete.cs">
+      <Link>Data\Contract\IDbQueryableInfo_Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo_Insert.cs">
+      <Link>Data\Contract\IDbQueryableInfo_Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo_Select.cs">
+      <Link>Data\Contract\IDbQueryableInfo_Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo_Update.cs">
+      <Link>Data\Contract\IDbQueryableInfo_Update.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryableInfo`1.cs">
+      <Link>Data\Contract\IDbQueryableInfo`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryable`1.cs">
+      <Link>Data\Contract\IDbQueryable`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IDbQueryProvider.cs">
+      <Link>Data\Contract\IDbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\IMethodCallExressionVisitor.cs">
+      <Link>Data\Contract\IMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Contract\ISqlBuilder.cs">
+      <Link>Data\Contract\ISqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbCommandException.cs">
+      <Link>Data\DbCommandException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbCommandInterceptor.cs">
+      <Link>Data\DbCommandInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbExpression.cs">
+      <Link>Data\DbExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbExpressionType.cs">
+      <Link>Data\DbExpressionType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbInterception.cs">
+      <Link>Data\DbInterception.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbQueryableExtensions.cs">
+      <Link>Data\DbQueryableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\DbQueryParser.cs">
+      <Link>Data\DbQueryParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\ConstructorInvoker.cs">
+      <Link>Data\Emit\ConstructorInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\EmitHelper.cs">
+      <Link>Data\Emit\EmitHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\FieldInvoker.cs">
+      <Link>Data\Emit\FieldInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\MemberInfoComparer.cs">
+      <Link>Data\Emit\MemberInfoComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\MemberInvokerBase.cs">
+      <Link>Data\Emit\MemberInvokerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\MethodInvoker.cs">
+      <Link>Data\Emit\MethodInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\PropertyInvoker.cs">
+      <Link>Data\Emit\PropertyInvoker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\TypeRuntimeInfo.cs">
+      <Link>Data\Emit\TypeRuntimeInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\TypeRuntimeInfoCache.cs">
+      <Link>Data\Emit\TypeRuntimeInfoCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Emit\TypeUtils.cs">
+      <Link>Data\Emit\TypeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\ColumnExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\ExpressionVisitorBase.cs">
+      <Link>Data\ExpressionVisitor\ExpressionVisitorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\GroupByExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\GroupByExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\HavingExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\HavingExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\JoinExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\Nominator.cs">
+      <Link>Data\ExpressionVisitor\Nominator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\OrderByExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\StatisExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\StatisExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\UpdateExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\VisitedMemberList.cs">
+      <Link>Data\ExpressionVisitor\VisitedMemberList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\WhereExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\Database.cs">
+      <Link>Data\Impl\Database.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbContextBase.cs">
+      <Link>Data\Impl\DbContextBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryable.cs">
+      <Link>Data\Impl\DbQueryable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo.cs">
+      <Link>Data\Impl\DbQueryableInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo_Delete.cs">
+      <Link>Data\Impl\DbQueryableInfo_Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo_Insert.cs">
+      <Link>Data\Impl\DbQueryableInfo_Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo_Select.cs">
+      <Link>Data\Impl\DbQueryableInfo_Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo_Update.cs">
+      <Link>Data\Impl\DbQueryableInfo_Update.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryableInfo`1.cs">
+      <Link>Data\Impl\DbQueryableInfo`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryable`1.cs">
+      <Link>Data\Impl\DbQueryable`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbQueryProvider.cs">
+      <Link>Data\Impl\DbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\DbTypeInfo.cs">
+      <Link>Data\Impl\DbTypeInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\MethodCallExressionVisitor.cs">
+      <Link>Data\Impl\MethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\Impl\SqlBuilderBase.cs">
+      <Link>Data\Impl\SqlBuilderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\SqlClient\SqlBuilder.cs">
+      <Link>Data\SqlClient\SqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\SqlClient\SqlDbContext.cs">
+      <Link>Data\SqlClient\SqlDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\SqlClient\SqlDbQueryProvider.cs">
+      <Link>Data\SqlClient\SqlDbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\SqlClient\SqlDbTypeInfo.cs">
+      <Link>Data\SqlClient\SqlDbTypeInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs">
+      <Link>Data\SqlClient\SqlMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TableAliasCache.cs">
+      <Link>Data\TableAliasCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\Column.cs">
+      <Link>Data\TypeDeserialize\Column.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\DbCommandDefinition.cs">
+      <Link>Data\TypeDeserialize\DbCommandDefinition.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\DbCommandDefinition_Select.cs">
+      <Link>Data\TypeDeserialize\DbCommandDefinition_Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\Navigation.cs">
+      <Link>Data\TypeDeserialize\Navigation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\NavigationCollection.cs">
+      <Link>Data\TypeDeserialize\NavigationCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\None.cs">
+      <Link>Data\TypeDeserialize\None.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\SqlMethod.cs">
+      <Link>Data\TypeDeserialize\SqlMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\TypeDeserializer.cs">
+      <Link>Data\TypeDeserialize\TypeDeserializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs">
+      <Link>Data\TypeDeserialize\TypeDeserializer`1.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

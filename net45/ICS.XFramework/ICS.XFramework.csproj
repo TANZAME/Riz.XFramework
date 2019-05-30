@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{77FAC559-B1F6-4972-814F-9BE09FCAFB1C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ICS.XFramework</RootNamespace>
+    <AssemblyName>ICS.XFramework</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0108,1591,1571,1572,1573,1574,1587,1711</NoWarn>
+    <DocumentationFile>bin\Debug\ICS.XFramework.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Caching\ExpirationCache.cs" />
+    <Compile Include="Caching\ICache.cs" />
+    <Compile Include="Caching\MemberInfoComparer.cs" />
+    <Compile Include="Common\Collection\IPagedList.cs" />
+    <Compile Include="Common\Collection\PagedList.cs" />
+    <Compile Include="Caching\ReaderWriterCache.cs" />
+    <Compile Include="Caching\SimpleCache.cs" />
+    <Compile Include="Common\HashFluent.cs" />
+    <Compile Include="Common\Helper\ConvertHelper.cs" />
+    <Compile Include="Common\Helper\FileHelper.cs" />
+    <Compile Include="Common\Helper\GZipHelper.cs" />
+    <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
+    <Compile Include="Common\Helper\XmlHelper.cs" />
+    <Compile Include="Common\KatamaNodeLocator.cs" />
+    <Compile Include="Common\MetadataTypesRegister.cs" />
+    <Compile Include="Common\Common.cs" />
+    <Compile Include="Common\Helper\SecurityHelper.cs" />
+    <Compile Include="Common\Helper\SerializeHelper.cs" />
+    <Compile Include="Common\Helper\WebHelper .cs" />
+    <Compile Include="Common\Ioc\XfwContainer.cs" />
+    <Compile Include="Common\Ioc\IContainer.cs" />
+    <Compile Include="Common\Mailer.cs" />
+    <Compile Include="Common\Helper\WebHelper45.cs" />
+    <Compile Include="Common\XFrameworkExtensions.cs" />
+    <Compile Include="Common\XFrameworkException.cs" />
+    <Compile Include="Common\XFrameworkValidator.cs" />
+    <Compile Include="Data\BulkInsertInfo.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo_Delete.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo_Update.cs" />
+    <Compile Include="Data\Impl\SqlBuilderBase.cs" />
+    <Compile Include="Data\Impl\DbContextBase.cs" />
+    <Compile Include="Data\Impl\DbContextBase45.cs" />
+    <Compile Include="Data\Constant.cs" />
+    <Compile Include="Data\Contract\IDbContext45.cs" />
+    <Compile Include="Data\Contract\IDbContext.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo_Select.cs" />
+    <Compile Include="Data\Contract\IDatabase.cs" />
+    <Compile Include="Data\Contract\IDatabase45.cs" />
+    <Compile Include="Data\Contract\IDbQueryProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Contract\ISqlBuilder.cs" />
+    <Compile Include="Data\DbCommandException.cs" />
+    <Compile Include="Data\DbCommandInterceptor.cs" />
+    <Compile Include="Data\DbExpression.cs" />
+    <Compile Include="Data\DbExpressionType.cs" />
+    <Compile Include="Data\DbInterception.cs" />
+    <Compile Include="Data\Impl\DbQueryable.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo.cs" />
+    <Compile Include="Data\Impl\DbQueryable`1.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo`1.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo_Delete.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo_Insert.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo_Select.cs" />
+    <Compile Include="Data\Impl\DbQueryableInfo_Update.cs" />
+    <Compile Include="Data\DbQueryParser.cs" />
+    <Compile Include="Data\Impl\Database.cs" />
+    <Compile Include="Data\Impl\DbQueryProvider.cs" />
+    <Compile Include="Data\ExpressionVisitor\ColumnExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\ExpressionVisitorBase.cs" />
+    <Compile Include="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
+    <Compile Include="Data\Contract\IMethodCallExressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\VisitedMemberList.cs" />
+    <Compile Include="Data\ExpressionVisitor\Nominator.cs" />
+    <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
+    <Compile Include="Data\DbQueryableExtensions.cs" />
+    <Compile Include="Data\Contract\IDbCommandInterceptor.cs" />
+    <Compile Include="Data\Contract\IDbQueryable.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo_Insert.cs" />
+    <Compile Include="Data\Contract\IDbQueryableInfo`1.cs" />
+    <Compile Include="Data\Contract\IDbQueryable`1.cs" />
+    <Compile Include="Data\Annotation\ColumnAttribute.cs" />
+    <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />
+    <Compile Include="Data\Annotation\TableAttribute.cs" />
+    <Compile Include="Data\Impl\DbTypeInfo.cs" />
+    <Compile Include="Data\Impl\MethodCallExressionVisitor.cs" />
+    <Compile Include="Data\SqlClient\SqlBuilder.cs" />
+    <Compile Include="Data\SqlClient\SqlDbContext.cs" />
+    <Compile Include="Data\SqlClient\SqlDbTypeInfo.cs" />
+    <Compile Include="Data\TypeDeserialize\Column.cs" />
+    <Compile Include="Data\TypeDeserialize\Navigation.cs" />
+    <Compile Include="Data\TypeDeserialize\DbCommandDefinition.cs" />
+    <Compile Include="Data\TypeDeserialize\DbCommandDefinition_Select.cs" />
+    <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
+    <Compile Include="Data\TypeDeserialize\None.cs" />
+    <Compile Include="Data\TypeDeserialize\SqlMethod.cs" />
+    <Compile Include="Data\TypeDeserialize\TypeDeserializer45.cs" />
+    <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
+    <Compile Include="Data\TypeDeserialize\TypeDeserializer`145.cs" />
+    <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
+    <Compile Include="Data\SqlClient\SqlDbQueryProvider.cs" />
+    <Compile Include="Data\SqlClient\SqlMethodCallExressionVisitor.cs" />
+    <Compile Include="Data\TableAliasCache.cs" />
+    <Compile Include="Data\Impl\Database45.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Data\Emit\FieldInvoker.cs" />
+    <Compile Include="Data\Emit\PropertyInvoker.cs" />
+    <Compile Include="Data\Emit\ConstructorInvoker.cs" />
+    <Compile Include="Data\Emit\EmitHelper.cs" />
+    <Compile Include="Data\Emit\MethodInvoker.cs" />
+    <Compile Include="Data\Emit\MemberInvokerBase.cs" />
+    <Compile Include="Data\Emit\MemberInfoComparer.cs" />
+    <Compile Include="Data\Emit\TypeRuntimeInfo.cs" />
+    <Compile Include="Data\Emit\TypeRuntimeInfoCache.cs" />
+    <Compile Include="Data\Emit\TypeUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

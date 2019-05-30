@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{26A42A18-0632-4EBA-9A39-CFFA834ECF77}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Inte.XFramework.UnitTest</RootNamespace>
+    <AssemblyName>Inte.XFramework.UnitTest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;0472</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ICS.XFramework.MySql\lib\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\ICS.XFramework.Postgre\lib\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\ICS.XFramework.Oracle\lib\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+      </ItemGroup>
+    </When>
+    <Otherwise />
+  </Choose>
+  <ItemGroup>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\DbType.cs">
+      <Link>DbType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Model.cs">
+      <Link>Model.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\MySql\MySqlModel.cs">
+      <Link>MySql\MySqlModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\MySql\MySqlTest.cs">
+      <Link>MySql\MySqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Oracle\OracleModel.cs">
+      <Link>Oracle\OracleModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Oracle\OracleTest.cs">
+      <Link>Oracle\OracleTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Postgre\PostgreModel.cs">
+      <Link>Postgre\PostgreModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Postgre\PostgreTest.cs">
+      <Link>Postgre\PostgreTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\SqlServer\SqlServerModel.cs">
+      <Link>SqlServer\SqlServerModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\SqlServer\SqlServerTest.cs">
+      <Link>SqlServer\SqlServerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\ICS.XFramework.UnitTest\TestBase.cs">
+      <Link>TestBase.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ICS.XFramework.MySql\ICS.XFramework.MySql.csproj">
+      <Project>{c6d2452a-24a6-4ad2-a3b2-7ee89f1e4e9c}</Project>
+      <Name>ICS.XFramework.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICS.XFramework.Oracle\ICS.XFramework.Oracle.csproj">
+      <Project>{ae1811db-fd61-4884-acc1-ae2a2872f50d}</Project>
+      <Name>ICS.XFramework.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICS.XFramework.Postgre\ICS.XFramework.Postgre.csproj">
+      <Project>{b21281be-bd14-46ab-921c-e46564507f20}</Project>
+      <Name>ICS.XFramework.Postgre</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICS.XFramework\ICS.XFramework.csproj">
+      <Project>{2e5450df-ed7f-4926-88ee-36f4923ae1f8}</Project>
+      <Name>ICS.XFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

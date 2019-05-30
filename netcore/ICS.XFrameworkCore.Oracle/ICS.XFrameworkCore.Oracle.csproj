@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\Impl\OracleDatabase.cs" Link="Data\Impl\OracleDatabase.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\Impl\OracleDatabase45.cs" Link="Data\Impl\OracleDatabase45.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs" Link="Data\SqlClient\OracleDbContext.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\SqlClient\OracleDbQueryProvider.cs" Link="Data\SqlClient\OracleDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\SqlClient\OracleDbTypeInfo.cs" Link="Data\SqlClient\OracleDbTypeInfo.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs" Link="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs" Link="Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs" />
+    <Compile Include="..\..\net45\ICS.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs" Link="Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Annotation\" />
+    <Folder Include="Data\ExpressionVisitor\" />
+    <Folder Include="Data\Impl\" />
+    <Folder Include="Data\SqlClient\" />
+    <Folder Include="Data\TypeDeserialize\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICS.XFrameworkCore\ICS.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>
