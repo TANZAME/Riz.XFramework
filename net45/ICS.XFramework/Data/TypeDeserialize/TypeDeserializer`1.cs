@@ -433,8 +433,8 @@ namespace ICS.XFramework.Data
                     // 本地变量赋值
                     il.Emit(OpCodes.Ldc_I4, index);                             // [target][index]
                     il.Emit(OpCodes.Stloc_0);                                   // [target]
-                    il.Emit(OpCodes.Ldnull);                                    // [target][null]
-                    il.Emit(OpCodes.Stloc_2);                                   // [target]
+                    //il.Emit(OpCodes.Ldnull);                                    // [target][null]
+                    //il.Emit(OpCodes.Stloc_2);                                   // [target]
 
                     // 如果导航属性分割列=DbNull，那么此导航属性赋空值
                     if (memberName == Constant.NAVIGATIONSPLITONNAME)
@@ -467,13 +467,13 @@ namespace ICS.XFramework.Data
                     il.Emit(OpCodes.Ldc_I4, index);                             // stack is now [target][target][reader][index]
                     il.Emit(OpCodes.Callvirt, readMethod);                      // stack is now [target][target][value-or-object]
 
-                    // =>object = value，记录当前处理的值
-                    // 除了string类型之外，其它的都需要要装箱，这里会有性能损失，100w笔记录大概会损失0.8s~
-                    bool useBoxed = readMethod != _getValue && columnType != typeof(string);
-                    il.Emit(OpCodes.Dup);                                       // stack is now [target][target][value-or-object][value-or-object]
-                    if (useBoxed) il.Emit(OpCodes.Box, columnType);             // stack is now [target][target][value-or-object][value-as-object]
-                    else il.Emit(OpCodes.Castclass, typeof(object));            // stack is now [target][target][value][value-as-object]
-                    il.Emit(OpCodes.Stloc_2);                                   // stack is now [target][target][value-or-object]
+                    //// =>object = value，记录当前处理的值
+                    //// 除了string类型之外，其它的都需要要装箱，这里会有性能损失，100w笔记录大概会损失0.8s~
+                    //bool useBoxed = readMethod != _getValue && columnType != typeof(string);
+                    //il.Emit(OpCodes.Dup);                                       // stack is now [target][target][value-or-object][value-or-object]
+                    //if (useBoxed) il.Emit(OpCodes.Box, columnType);             // stack is now [target][target][value-or-object][value-as-object]
+                    //else il.Emit(OpCodes.Castclass, typeof(object));            // stack is now [target][target][value][value-as-object]
+                    //il.Emit(OpCodes.Stloc_2);                                   // stack is now [target][target][value-or-object]
 
                     if (memberType == typeof(char) || memberType == typeof(char?))
                     {

@@ -55,6 +55,7 @@ namespace ICS.XFramework.UnitTest
 
                     writer.Close();
                 },
+                OnExecuted = cmd => { }
             };
             DbInterception.Add(interceptor);
 
