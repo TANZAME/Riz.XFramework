@@ -391,6 +391,14 @@ namespace ICS.XFramework.Data
         /// <summary>
         ///  通过合并元素的索引将序列的每个元素投影到新表中
         /// </summary>
+        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source)
+        {
+            return source.Select<TSource, TResult>(null);
+        }
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
         public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
             return source.CreateQuery<TResult>(DbExpressionType.Select, selector);

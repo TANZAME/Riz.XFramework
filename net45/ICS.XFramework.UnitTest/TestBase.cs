@@ -117,6 +117,9 @@ namespace ICS.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
+            var result5 = context.GetTable<TDemo>().Select<TDemo, dynamic>().ToList();
+            result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo");
+
             // Date,DateTime,DateTime2 支持
             var query =
                 from a in context.GetTable<TDemo>()

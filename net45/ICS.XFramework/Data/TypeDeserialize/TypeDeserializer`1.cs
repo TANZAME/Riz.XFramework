@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Dynamic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Generic;
@@ -64,6 +65,23 @@ namespace ICS.XFramework.Data
                 }
 
                 return (T)obj;
+            }
+
+            #endregion
+
+            #region 动态类型
+
+            if (typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object))
+            {
+                ExpandoObject obj = new ExpandoObject();
+                var result = ((IDictionary<string, object>)obj);
+                for (int i = 0; i < _reader.FieldCount; i++)
+                {
+                    var value = _reader.GetValue(i);
+                    if (value == DBNull.Value) value = null;
+                    result.Add(_reader.GetName(i), value);
+                }
+                return (dynamic)obj;
             }
 
             #endregion

@@ -127,7 +127,7 @@ namespace ICS.XFramework.Data
                         orderBy.Add(curExp);
                         continue;
                     case DbExpressionType.Select:
-                        select = curExp.Expressions[0];
+                        select = curExp.Expressions != null ? curExp.Expressions[0] : null;
                         continue;
 
                     case DbExpressionType.SelectMany:
