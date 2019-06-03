@@ -46,5 +46,36 @@ namespace ICS.XFramework.Data
             }
             return node;
         }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            // 匿名类的New
+            if (node == null) return node;
+            if (node.Arguments == null || node.Arguments.Count == 0)
+                throw new XFrameworkException("'NewExpression' do not have any argument.");
+
+            for (int index = 0; index < node.Arguments.Count; index++)
+            {
+                Expression argument = node.Arguments[index];
+                Type type = argument.Type;
+
+                var member = node.Members[index];
+                _builder.AppendMember("t0", member.Name);
+                _builder.Append(" = ");
+
+                if (node.Arguments[index].CanEvaluate())
+                    _builder.Append(node.Arguments[index].Evaluate().Value, member, node.Type);
+                else
+                    base.Visit(node.Arguments[index]);
+
+                if (index < node.Arguments.Count - 1)
+                {
+                    _builder.Append(",");
+                    _builder.AppendNewLine();
+                }
+            }
+
+            return node;
+        }
     }
 }

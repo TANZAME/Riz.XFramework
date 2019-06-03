@@ -298,8 +298,9 @@ namespace ICS.XFramework.Data
             // MemberInit的New
             // 匿名类的New
             if (node == null) return node;
+            if (node.Arguments == null || node.Arguments.Count == 0)
+                throw new XFrameworkException("'NewExpression' do not have any argument.");
 
-            if (node.Arguments.Count == 0) throw new XFrameworkException("'NewExpression' arguments empty.");
             this.VisitNewImpl(node);
 
             return node;
@@ -310,38 +311,38 @@ namespace ICS.XFramework.Data
         {
             for (int i = 0; i < node.Arguments.Count; i++)
             {
-                Expression p = node.Arguments[i];
-                Type type = p.Type;
+                Expression argument = node.Arguments[i];
+                Type type = argument.Type;
 
-                if (p.NodeType == ExpressionType.Parameter)
+                if (argument.NodeType == ExpressionType.Parameter)
                 {
                     //例： new Client(a)
-                    string alias = _aliases.GetTableAlias(p);
+                    string alias = _aliases.GetTableAlias(argument);
                     this.VisitAllMember(type, alias);
                 }
-                else if (p.CanEvaluate())
+                else if (argument.CanEvaluate())
                 {
                     //例： DateTime.Now
-                    _builder.Append(p.Evaluate().Value, node.Members[i], node.Type);
-                    string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (p as MemberExpression).Member.Name);
+                    _builder.Append(argument.Evaluate().Value, node.Members[i], node.Type);
+                    string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name);
                     _builder.AppendAs(newName);
                     _builder.Append(',');
                     _builder.AppendNewLine();
                 }
-                else if (p.NodeType == ExpressionType.MemberAccess || p.NodeType == ExpressionType.Call)
+                else if (argument.NodeType == ExpressionType.MemberAccess || argument.NodeType == ExpressionType.Call)
                 {
                     if (TypeUtils.IsPrimitiveType(type))
                     {
                         // new Client(a.ClientId)
-                        this.Visit(p);
-                        string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (p as MemberExpression).Member.Name);
+                        this.Visit(argument);
+                        string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name);
                         _builder.AppendAs(newName);
                         _builder.Append(',');
                         _builder.AppendNewLine();
                     }
-                    else this.VisitNavigation(p as MemberExpression, false);
+                    else this.VisitNavigation(argument as MemberExpression, false);
                 }
-                else throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", p.NodeType);
+                else throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", argument.NodeType);
 
                 base._visitedMember.Clear();
             }

@@ -1221,11 +1221,10 @@ namespace ICS.XFramework.UnitTest
                     from a in context.GetTable<Model.Client>()
                     where a.CloudServer.CloudServerId != 0
                     select a;
-                context.Update<Model.Client>(a => new Model.Client
+                context.Update<Model.Client>(a => new // Model.Client
                 {
                     Remark = "001.TAN"
                 }, query);
-                context.SubmitChanges();
                 //SQL=> 
                 //UPDATE t0 SET
                 //t0.[DemoCode] = 'Code0000004',
@@ -1261,6 +1260,20 @@ namespace ICS.XFramework.UnitTest
                 context.Update<Model.Client, Model.CloudServer>((a, b) => new Model.Client
                 {
                     CloudServerId = b.CloudServerId,
+                    Remark = "001.TAN"
+                }, query);
+
+                // 更新本表值等于从表的字段值
+                query =
+                    from a in context.GetTable<Model.Client>()
+                    join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                    join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
+                    where c.AccountId == "12"
+                    select a;
+                context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
+                {
+                    CloudServerId = b.CloudServerId,
+                    Qty = c.Qty,
                     Remark = "001.TAN"
                 }, query);
             }

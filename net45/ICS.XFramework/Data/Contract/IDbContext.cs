@@ -66,27 +66,27 @@ namespace ICS.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T>(Expression<Func<T, T>> action, Expression<Func<T, bool>> predicate);
+        void Update<T>(Expression<Func<T, object>> action, Expression<Func<T, bool>> predicate);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T>(Expression<Func<T, T>> action, IDbQueryable<T> query);
+        void Update<T>(Expression<Func<T, object>> action, IDbQueryable<T> query);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TFrom>(Expression<Func<T, TFrom, T>> action, IDbQueryable<T> query);
+        void Update<T, TSource>(Expression<Func<T, TSource, object>> action, IDbQueryable<T> query);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TFrom1, TFrom2>(Expression<Func<T, TFrom1, TFrom2, T>> action, IDbQueryable<T> query);
+        void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> action, IDbQueryable<T> query);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TFrom1, TFrom2, TFrom3>(Expression<Func<T, TFrom1, TFrom2, TFrom3, T>> action, IDbQueryable<T> query);
+        void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> action, IDbQueryable<T> query);
 
         /// <summary>
         /// 附加查询项

@@ -144,14 +144,14 @@ namespace ICS.XFramework.Data
         /// </summary>
         public void Delete<T>(T TEntity)
         {
-            IDbQueryable<T> table = this.GetTable<T>();
-            table.DbExpressions.Add(new DbExpression
+            IDbQueryable<T> query = this.GetTable<T>();
+            query.DbExpressions.Add(new DbExpression
             {
                 DbExpressionType = DbExpressionType.Delete,
                 Expressions = new[] { Expression.Constant(TEntity) }
             });
             lock (this._oLock)
-                _dbQueryables.Add(table);
+                _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -159,7 +159,8 @@ namespace ICS.XFramework.Data
         /// </summary>
         public void Delete<T>(Expression<Func<T, bool>> predicate)
         {
-            this.Delete<T>(p => p.Where(predicate));
+            IDbQueryable<T> query = this.GetTable<T>();
+            this.Delete<T>(query.Where(predicate));
         }
 
         /// <summary>
@@ -175,77 +176,62 @@ namespace ICS.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T>(T TEntity)
+        public void Update<T>(T TEntity)
         {
-            IDbQueryable<T> table = this.GetTable<T>();
-            table.DbExpressions.Add(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { Expression.Constant(TEntity) }
-            });
-            lock (this._oLock)
-                _dbQueryables.Add(table);
+            IDbQueryable<T> query = this.GetTable<T>();
+            this.Update<T>(Expression.Constant(TEntity), query);
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T>(Expression<Func<T, T>> action, Expression<Func<T, bool>> predicate)
+        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, Expression<Func<T, bool>> predicate)
         {
-            this.Update<T>(action, p => p.Where(predicate));
+            IDbQueryable<T> query = this.GetTable<T>();
+            this.Update<T>((Expression)updateExpression, query.Where(predicate));
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T>(Expression<Func<T, T>> action, IDbQueryable<T> query)
+        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> query)
+        {
+            this.Update<T>((Expression)updateExpression, query);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> query)
+        {
+            this.Update<T>((Expression)updateExpression, query);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> query)
+        {
+            this.Update<T>((Expression)updateExpression, query);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> query)
+        {
+            this.Update<T>((Expression)updateExpression, query);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        protected void Update<T>(Expression updateExpression, IDbQueryable<T> query)
         {
             query = query.CreateQuery<T>(new DbExpression
             {
                 DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { action }
-            });
-            lock (this._oLock)
-                _dbQueryables.Add(query);
-        }
-
-        /// <summary>
-        /// 更新记录
-        /// </summary>
-        public virtual void Update<T, TFrom>(Expression<Func<T, TFrom, T>> action, IDbQueryable<T> query)
-        {
-            query = query.CreateQuery<T>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { action }
-            });
-            lock (this._oLock)
-                _dbQueryables.Add(query);
-        }
-
-        /// <summary>
-        /// 更新记录
-        /// </summary>
-        public virtual void Update<T, TFrom1, TFrom2>(Expression<Func<T, TFrom1, TFrom2, T>> action, IDbQueryable<T> query)
-        {
-            query = query.CreateQuery<T>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { action }
-            });
-            lock (this._oLock)
-                _dbQueryables.Add(query);
-        }
-
-        /// <summary>
-        /// 更新记录
-        /// </summary>
-        public virtual void Update<T, TFrom1, TFrom2, TFrom3>(Expression<Func<T, TFrom1, TFrom2, TFrom3, T>> action, IDbQueryable<T> query)
-        {
-            query = query.CreateQuery<T>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { action }
+                Expressions = new[] { updateExpression }
             });
             lock (this._oLock)
                 _dbQueryables.Add(query);
@@ -382,21 +368,6 @@ namespace ICS.XFramework.Data
         /// </summary>
         /// <returns></returns>
         protected abstract IDbQueryProvider CreateQueryProvider();
-
-        //更新记录
-        private void Update<T>(Expression<Func<T, T>> action, Func<IDbQueryable<T>, IDbQueryable<T>> predicate)
-        {
-            IDbQueryable<T> table = this.GetTable<T>();
-            IDbQueryable<T> query = predicate(table);
-            this.Update<T>(action, query);
-        }
-
-        // 删除记录
-        private void Delete<T>(Func<IDbQueryable<T>, IDbQueryable<T>> predicate)
-        {
-            IDbQueryable<T> table = this.GetTable<T>();
-            this.Delete<T>(predicate(table));
-        }
 
         // 更新自增列
         private void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
