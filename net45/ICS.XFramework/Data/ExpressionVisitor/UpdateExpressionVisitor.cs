@@ -24,7 +24,8 @@ namespace ICS.XFramework.Data
         //{new App() {Id = p.Id}} 
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            if (node.Bindings.Count == 0) throw new XFrameworkException("Update<T>(Expression<Func<T, T>> action, Expression<Func<T, bool>> predicate) at least update one member.");
+            if (node.Bindings == null || node.Bindings.Count == 0)
+                throw new XFrameworkException("Update<T> at least update one member.");
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {
@@ -52,13 +53,10 @@ namespace ICS.XFramework.Data
             // 匿名类的New
             if (node == null) return node;
             if (node.Arguments == null || node.Arguments.Count == 0)
-                throw new XFrameworkException("'NewExpression' do not have any argument.");
+                throw new XFrameworkException("Update<T> at least update one member.");
 
             for (int index = 0; index < node.Arguments.Count; index++)
             {
-                Expression argument = node.Arguments[index];
-                Type type = argument.Type;
-
                 var member = node.Members[index];
                 _builder.AppendMember("t0", member.Name);
                 _builder.Append(" = ");
