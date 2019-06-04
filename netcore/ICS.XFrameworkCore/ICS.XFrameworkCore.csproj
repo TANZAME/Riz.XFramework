@@ -8,6 +8,10 @@
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Data\Other\**" />
     <EmbeddedResource Remove="Data\Other\**" />
