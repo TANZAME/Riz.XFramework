@@ -5,12 +5,13 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("XFramework")]
-[assembly: AssemblyDescription("a lightway hight performance orm,base on .net")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyTitle("ICS.XFramework")]
+[assembly: AssemblyDescription("a light weight & high performance ORM base on .NET")]
+[assembly: AssemblyCompany("TANZAME")]
 [assembly: AssemblyProduct("ICS.XFramework")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyConfiguration("")]
+// 商标
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
