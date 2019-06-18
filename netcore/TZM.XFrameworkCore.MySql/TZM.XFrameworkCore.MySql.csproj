@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Authors>TANZAME</Authors>
+    <Description>a light weight &amp; high performance orm base on .net</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Data\SqlClient\.gitkeep" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs" Link="Data\SqlClient\MySqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbTypeInfo.cs" Link="Data\SqlClient\MySqlDbTypeInfo.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="0.53.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\SqlClient\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>

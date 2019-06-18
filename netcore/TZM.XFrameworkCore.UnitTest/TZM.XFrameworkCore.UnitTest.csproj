@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;0472;0618</NoWarn>
+    <DefineConstants>TRACE;netcore</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Model\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="Model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="MySql\.gitkeep" />
+    <None Remove="Oracle\.gitkeep" />
+    <None Remove="Postgre\.gitkeep" />
+    <None Remove="SqlServer\.gitkeep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DbType.cs" Link="DbType.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Model.cs" Link="Model.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlModel.cs" Link="MySql\MySqlModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlTest.cs" Link="MySql\MySqlTest.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Oracle\OracleModel.cs" Link="Oracle\OracleModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Oracle\OracleTest.cs" Link="Oracle\OracleTest.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreModel.cs" Link="Postgre\PostgreModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreTest.cs" Link="Postgre\PostgreTest.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Program.cs" Link="Program.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerModel.cs" Link="SqlServer\SqlServerModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerTest.cs" Link="SqlServer\SqlServerTest.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\TestBase.cs" Link="TestBase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\net45\TZM.XFramework.UnitTest\App.config" Link="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SqlServer\" />
+    <Folder Include="MySql\" />
+    <Folder Include="Oracle\" />
+    <Folder Include="Postgre\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj" />
+    <ProjectReference Include="..\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj" />
+    <ProjectReference Include="..\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj" />
+    <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>

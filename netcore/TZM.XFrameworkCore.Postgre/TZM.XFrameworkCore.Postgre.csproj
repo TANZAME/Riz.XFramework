@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Authors>TANZAME</Authors>
+    <Description>a light weight &amp; high performance orm base on .net</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;0618</NoWarn>
+    <DefineConstants>TRACE;netcore</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="lib\**" />
+    <EmbeddedResource Remove="lib\**" />
+    <None Remove="lib\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ExpressionVisitor\.gitkeep" />
+    <None Remove="SqlClient\.gitkeep" />
+    <None Remove="TypeDeserialize\.gitkeep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" Link="ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" Link="ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" Link="ExpressionVisitor\NpgWhereExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbContext.cs" Link="SqlClient\NpgDbContext.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs" Link="SqlClient\NpgDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbTypeInfo.cs" Link="SqlClient\NpgDbTypeInfo.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs" Link="SqlClient\NpgMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs" Link="SqlClient\NpgSqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs" Link="TypeDeserialize\NpgCommandType.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgDbCommandDefinition_Delete.cs" Link="TypeDeserialize\NpgDbCommandDefinition_Delete.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ExpressionVisitor\" />
+    <Folder Include="SqlClient\" />
+    <Folder Include="TypeDeserialize\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>
