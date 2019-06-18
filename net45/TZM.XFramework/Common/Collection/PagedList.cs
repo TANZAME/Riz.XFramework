@@ -87,7 +87,7 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 初始化<see cref="PagedList"/>类的新实例
+        /// 初始化 PagedList 类的新实例
         /// </summary>
         public PagedList()
           : this(new T[0], 1, 10, 0)
@@ -95,7 +95,7 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 初始化<see cref="PagedList"/>类的新实例
+        /// 初始化 PagedList 类的新实例
         /// </summary>
         public PagedList(IList<T> source, int index, int pageSize, int totalCount)
         {

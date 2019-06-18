@@ -9,7 +9,14 @@ namespace TZM.XFramework.Caching
     /// </summary>
     public class ReaderWriterCache<TKey, TValue> : ICache<TKey, TValue>, IDisposable
     {
+        /// <summary>
+        /// 管理资源访问的锁定状态
+        /// </summary>
         protected readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
+
+        /// <summary>
+        /// 内部管理的字典缓存
+        /// </summary>
         protected readonly IDictionary<TKey, TValue> _innerCache;
 
         /// <summary>
@@ -43,7 +50,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="ReaderWriterCache"/> 类的新实例
+        /// 实例化 ReaderWriterCache 类的新实例
         /// </summary>
         public ReaderWriterCache()
             : this(null)
@@ -51,7 +58,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="ReaderWriterCache"/> 类的新实例
+        /// 实例化 ReaderWriterCache 类的新实例
         /// </summary>
         public ReaderWriterCache(IEqualityComparer<TKey> comparer)
         {

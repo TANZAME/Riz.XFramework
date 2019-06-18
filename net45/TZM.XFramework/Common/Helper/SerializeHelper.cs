@@ -37,9 +37,6 @@ namespace TZM.XFramework
         /// <summary>
         /// Json字符串反序列化成对象
         /// </summary>
-        /// <typeparam name="T">T</typeparam>
-        /// <param name="json">Json字符串</param>
-        /// <returns></returns>
         public static T DeserializeFromJson<T>(string json, string format = null)
         {
 #if net40
@@ -73,6 +70,7 @@ namespace TZM.XFramework
         /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <param name="obj">要序列化的对象</param>
+        /// <param name="ns">命名空间</param>
         /// <returns></returns>
         public static string SerializeToXml<T>(T obj, XmlSerializerNamespaces ns) where T : class
         {
@@ -113,6 +111,7 @@ namespace TZM.XFramework
         /// <typeparam name="T">T</typeparam>
         /// <param name="serializer">序列化器</param>
         /// <param name="obj">要序列化的对象</param>
+        /// <param name="ns">命名空间</param>
         /// <returns></returns>
         public static string SerializeToXml<T>(XmlSerializer serializer, T obj, XmlSerializerNamespaces ns) where T : class
         {
@@ -164,7 +163,6 @@ namespace TZM.XFramework
         /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <param name="xml">xml内容</param>
-        /// <param name="root">指定根对象的名称</param>
         /// <returns></returns>
         public static T DeserializeFromXml<T>(string xml) where T : class
         {

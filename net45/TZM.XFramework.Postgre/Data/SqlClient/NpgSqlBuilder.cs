@@ -123,10 +123,7 @@ namespace TZM.XFramework.Data
             // Npgsql 的显示都是以本地时区显示的？###
         }
 
-        /// <summary>
-        /// 获取 Boolean 类型的 SQL 片断
-        /// </summary>
-        /// <returns></returns>
+        // 获取 Boolean 类型的 SQL 片断
         protected override string GetSqlValueByBoolean(object value, object dbType)
         {
             return ((bool)value) ? "TRUE" : "FALSE";

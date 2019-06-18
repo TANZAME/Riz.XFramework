@@ -148,6 +148,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="member">成员</param>
+        /// <param name="runtimeType">成员所属类型</param>
         /// <returns></returns>
         string GetSqlValue(object value, MemberInfo member, Type runtimeType);
 

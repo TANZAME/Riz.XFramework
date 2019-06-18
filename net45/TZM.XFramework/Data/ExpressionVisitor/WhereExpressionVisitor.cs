@@ -49,6 +49,9 @@ namespace TZM.XFramework.Data
             return base.Visit(node);
         }
 
+        /// <summary>
+        /// 访问 Lambda 表达式
+        /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             LambdaExpression lambda = node as LambdaExpression;
@@ -58,6 +61,9 @@ namespace TZM.XFramework.Data
             return base.VisitLambda<T>(node);
         }
 
+        /// <summary>
+        /// 写入SQL字符
+        /// </summary>
         protected virtual void WriteImpl(ISqlBuilder builder)
         {
             base.Write(builder);

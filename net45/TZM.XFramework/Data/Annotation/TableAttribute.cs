@@ -2,6 +2,9 @@
 
 namespace TZM.XFramework.Data
 {
+    /// <summary>
+    /// 对应数据库表的说明特性
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public class TableAttribute : Attribute
     {

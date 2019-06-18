@@ -244,6 +244,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 返回指定序列的元素；如果序列为空，则返回单一实例集合中的类型参数的默认值
         /// </summary>
+        /// <param name="source">查询语义</param>
         /// <param name="g">是否为右联</param>
         /// <returns></returns>
         public static IDbQueryable<TSource> DefaultIfEmpty<TSource>(this IDbQueryable<TSource> source, bool g)

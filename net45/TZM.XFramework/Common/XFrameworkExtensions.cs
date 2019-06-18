@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace TZM.XFramework
 {
+    /// <summary>
+    /// 扩展帮助类
+    /// </summary>
     public static class XFrameworkExtensions
     {
         #region 表达式树

@@ -178,11 +178,10 @@ namespace TZM.XFramework
         /// <summary>
         /// 通过使用验证上下文、验证结果集合和用于指定是否验证所有属性的值，确定指定的属性是否有效。
         /// </summary>
-        /// <param name="instance">要验证的对象</param>
+        /// <param name="value">要验证的对象</param>
         /// <param name="context">用于描述要验证的对象的上下文</param>
         /// <param name="validationResults">用于包含每个失败的验证的集合</param>
         /// <param name="breakOnFirstError">当第一个错误产生时，是否不再进行后续验证</param>
-        /// <param name="metadataType">实体类的元数据描述类，如果传空值，则从实体类的 <see cref="MetadataTypeAttribute"/> 特性上找</param>
         /// <returns></returns>
         public static bool TryValidateProperty(object value, ValidationContext context, ICollection<ValidationResult> validationResults, bool breakOnFirstError)
         {

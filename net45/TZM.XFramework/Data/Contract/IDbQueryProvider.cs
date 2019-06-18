@@ -43,9 +43,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析 SQL 命令
         /// </summary>
-        /// <param name="query">查询语句</param>
-        /// <param name="paramQueryCount">参数化查询数量</param>
-        /// <returns></returns>
+        /// <param name="dbQueryables">查询语句</param>
         List<DbCommandDefinition> Resolve(List<object> dbQueryables);
 
         /// <summary>

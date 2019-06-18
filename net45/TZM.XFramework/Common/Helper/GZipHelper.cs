@@ -65,6 +65,9 @@ namespace TZM.XFramework
             return Encoding.UTF8.GetString(buffer);
         }
 
+        /// <summary>
+        /// 压缩流
+        /// </summary>
         public static T GZip<T>(Stream stream, CompressionMode mode) where T : Stream
         {
             byte[] writeData = new byte[4096];

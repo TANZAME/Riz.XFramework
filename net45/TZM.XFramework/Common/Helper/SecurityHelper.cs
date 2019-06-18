@@ -5,6 +5,9 @@ using System.Security.Cryptography;
 
 namespace TZM.XFramework
 {
+    /// <summary>
+    /// 安全帮助类
+    /// </summary>
     public class SecurityHelper
     {
         private const string _rgbKey = "XFRMWORK";

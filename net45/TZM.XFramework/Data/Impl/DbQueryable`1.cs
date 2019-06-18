@@ -1,8 +1,5 @@
 ﻿
-using System;
 using System.Data;
-using System.Text;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace TZM.XFramework.Data

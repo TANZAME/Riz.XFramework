@@ -118,6 +118,7 @@ namespace TZM.XFramework.Data
         /// <typeparam name="T1">T</typeparam>
         /// <typeparam name="T2">T</typeparam>
         /// <param name="result1">提交更改并查询数据</param>
+        /// <param name="result2">提交更改并查询数据</param>
         /// <returns></returns>
         int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2);
 

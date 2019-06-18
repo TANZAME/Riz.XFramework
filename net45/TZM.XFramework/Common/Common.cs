@@ -7,6 +7,9 @@ using System.Collections.Specialized;
 
 namespace TZM.XFramework
 {
+    /// <summary>
+    /// 公共帮助类
+    /// </summary>
     public class XfwCommon
     {
         // Mono.Cecil
@@ -317,7 +320,7 @@ namespace TZM.XFramework
         /// <summary>
         /// 根据页长计算总页码
         /// </summary>
-        /// <param name="collection">数据集合</param>
+        /// <param name="count">数据总数</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
         public static int Page(int count, int pageSize)
@@ -343,17 +346,17 @@ namespace TZM.XFramework
         //    return image;
         //}
 
-        /// <summary>
-        /// @从视频文件截图,生成在视频文件所在文件夹
-        /// 在Web.Config 中需要两个前置配置项:
-        /// 1.ffmpeg.exe文件的路径
-        /// <add key="ffmpeg" value="E:\ffmpeg\ffmpeg.exe" />
-        /// 2.截图的尺寸大小
-        /// <add key="CatchFlvImgSize" value="240x180" />
-        /// 3.视频处理程序ffmpeg.exe
-        /// </summary>
-        /// <param name="vFileName">视频文件地址,如:/Web/FlvFile/User1/00001.Flv</param>
-        /// <returns>成功:返回图片虚拟地址; 失败:返回空字符串</returns>
+        ///// <summary>
+        ///// 从视频文件截图,生成在视频文件所在文件夹
+        ///// 在Web.Config 中需要两个前置配置项:
+        ///// 1.ffmpeg.exe文件的路径
+        ///// <add key="ffmpeg" value="E:\ffmpeg\ffmpeg.exe" />
+        ///// 2.截图的尺寸大小
+        ///// <add key="CatchFlvImgSize" value="240x180" />
+        ///// 3.视频处理程序ffmpeg.exe
+        ///// </summary>
+        ///// <param name="vFileName">视频文件地址,如:/Web/FlvFile/User1/00001.Flv</param>
+        ///// <returns>成功:返回图片虚拟地址; 失败:返回空字符串</returns>
         //public string CatchImg(string vFileName)
         // {
         //    //取得ffmpeg.exe的路径,路径配置在Web.Config中,如:<add key="ffmpeg" value="E:\ffmpeg\ffmpeg.exe" />

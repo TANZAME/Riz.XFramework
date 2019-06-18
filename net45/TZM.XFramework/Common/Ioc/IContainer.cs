@@ -2,6 +2,9 @@
 
 namespace TZM.XFramework
 {
+    /// <summary>
+    /// IOC 简单容器接口
+    /// </summary>
     public interface IContainer
     {
         /// <summary>

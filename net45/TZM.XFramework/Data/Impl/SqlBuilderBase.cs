@@ -282,7 +282,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="node">成员访问表达式</param>
-        /// <param name="useConvert">true 时生成 CAST 函数。主要用于字符串转日期类型</param>
         /// <returns></returns>
         public string GetSqlValue(object value, MemberExpression node = null)
         {
@@ -294,7 +293,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="member">成员</param>
-        /// <param name="useConvert">true 时生成 CAST 函数。主要用于字符串转日期类型</param>
+        /// <param name="runtimeType">成员所在类型</param>
         /// <returns></returns>
         public string GetSqlValue(object value, MemberInfo member, Type runtimeType)
         {
@@ -344,8 +343,7 @@ namespace TZM.XFramework.Data
         /// 生成 value 对应的 SQL 片断
         /// </summary>
         /// <param name="value">SQL值</param>
-        /// <param name="member">成员</param>
-        /// <param name="useConvert">true 时生成 CAST 函数。主要用于字符串转日期类型</param>
+        /// <param name="column">数据列特性</param>
         /// <returns></returns>
         public string GetSqlValue(object value, ColumnAttribute column)
         {

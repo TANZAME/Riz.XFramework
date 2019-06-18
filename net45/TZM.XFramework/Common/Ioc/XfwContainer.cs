@@ -32,6 +32,10 @@ namespace TZM.XFramework
         }
 
         private static ICache<Type, Activator> _cache = new ReaderWriterCache<Type, Activator>(MemberInfoComparer<Type>.Default);
+
+        /// <summary>
+        /// 简单容器-默认实例
+        /// </summary>
         public static readonly IContainer Default = new XfwContainer();
 
         /// <summary>

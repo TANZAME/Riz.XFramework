@@ -101,8 +101,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 判断给定类型是否是ORM支持的泛型列表类型
-        /// <see cref="IList"/>接口及其继承类
+        /// 判断给定类型是否是ORM支持的泛型列表类型  IList 接口及其继承类
         /// </summary>
         public static bool IsCollectionType(Type type)
         {

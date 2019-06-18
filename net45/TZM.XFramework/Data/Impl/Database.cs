@@ -542,7 +542,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="cmd">SQL 命令</param>
-        /// <param name="descriptor">命令定义对象，用于解析实体的外键</param>
         /// <returns></returns>
         public List<T> ExecuteList<T>(IDbCommand cmd)
         {
@@ -655,7 +654,6 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
         /// <param name="cmd">SQL 命令</param>
-        /// <param name="trans">事务对象</param>
         /// <returns></returns>
         public DataSet ExecuteDataSet(IDbCommand cmd)
         {
@@ -726,14 +724,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建命令参数
         /// </summary>
-        /// <param name="name">参数名称</param>
-        /// <param name="value">参数值</param>
-        /// <param name="dbType">数据类型</param>
-        /// <param name="size">参数大小</param>
-        /// <param name="precision">精度</param>
-        /// <param name="scale">小数位</param>
-        /// <param name="direction">方向</param>
-        /// <returns></returns>
         public static IDbDataParameter CreateParameter(DbProviderFactory dbProvider, string name, object value,
             DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
@@ -765,7 +755,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            ///返回创建的参数
+            // 返回创建的参数
             return parameter;
         }
 
@@ -802,7 +792,9 @@ namespace TZM.XFramework.Data
             return this.DoSubmit<T1, T2>(sqlList, out result1, out result2);
         }
 
-        // 执行提交
+        /// <summary>
+        /// 执行提交
+        /// </summary>
         protected virtual List<int> DoSubmit(List<DbCommandDefinition> sqlList)
         {
             IDataReader reader = null;
@@ -839,7 +831,9 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 执行提交
+        /// <summary>
+        /// 执行提交
+        /// </summary>
         protected virtual List<int> DoSubmit<T>(List<DbCommandDefinition> sqlList, out List<T> result)
         {
             IDataReader reader = null;
@@ -884,7 +878,9 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 执行提交
+        /// <summary>
+        /// 执行提交
+        /// </summary>
         protected virtual List<int> DoSubmit<T1, T2>(List<DbCommandDefinition> sqlList, out List<T1> result1, out List<T2> result2)
         {
             IDataReader reader = null;
@@ -957,7 +953,9 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 执行 SQL 命令
+        /// <summary>
+        /// 执行 SQL 命令
+        /// </summary>
         protected T DoExecute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
@@ -1062,7 +1060,9 @@ namespace TZM.XFramework.Data
 
         }
 
-        // 执行 SQL 命令
+        /// <summary>
+        /// 执行 SQL 命令
+        /// </summary>
         protected T DoExecute<T>(IDbCommand cmd, Func<IDbCommand, T> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);

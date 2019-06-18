@@ -61,11 +61,10 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpClient 用POST方法访问指定URI
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="uri">请求发送到的 URI。</param>
         /// <param name="content">发送到服务器的 HTTP 请求内容。</param>
+        /// <param name="token">请求的验证信息</param>
         /// <param name="headers">请求的头部信息</param>
-        /// <param name="authentication">请求的验证信息</param>
         /// <returns></returns>
         public static async Task<HttpContent> PostAsync(string uri, string content,string token, IDictionary<string, string> headers)
         {
@@ -151,7 +150,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpClient 用GET方法访问指定URI <c>用完注意调用HttpContent.Dispose方法</c>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="uri">请求发送到的 URI。</param>
         /// <param name="token">Basic 验证模式的令牌</param>
         /// <param name="headers">请求的头部信息</param>

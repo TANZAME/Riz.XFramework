@@ -140,6 +140,9 @@ namespace TZM.XFramework.Data.SqlClient
 
         #region 虚有函数
 
+        /// <summary>
+        /// 访问 ToString 方法
+        /// </summary>
         protected virtual Expression VisitSTRToString(MethodCallExpression m)
         {
             // => a.ID.ToString()
@@ -168,6 +171,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 Contains 方法
+        /// </summary>
         protected virtual Expression VisitSTRContains(MethodCallExpression m)
         {
             // https://www.cnblogs.com/yangmingyu/p/6928209.html
@@ -208,6 +214,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 StartWidth 方法
+        /// </summary>
         protected virtual Expression VisitSTRStartsWith(MethodCallExpression m)
         {
             if (m != null)
@@ -243,6 +252,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 EndWidth 方法
+        /// </summary>
         protected virtual Expression VisitSTREndsWith(MethodCallExpression m)
         {
             if (m != null)
@@ -278,6 +290,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 TrimStart 方法
+        /// </summary>
         protected virtual Expression VisitSTRTrimStart(MethodCallExpression m)
         {
             if (m != null)
@@ -290,6 +305,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 TrimEnd 方法
+        /// </summary>
         protected virtual Expression VisitSTRTrimEnd(MethodCallExpression m)
         {
             if (m != null)
@@ -302,6 +320,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 Trim 方法
+        /// </summary>
         protected virtual Expression VisitSTRTrim(MethodCallExpression m)
         {
             if (m != null)
@@ -314,6 +335,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 SubString 方法
+        /// </summary>
         protected virtual Expression VisitSTRSubstring(MethodCallExpression m)
         {
             if (m != null)
@@ -353,6 +377,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 Length 属性
+        /// </summary>
         protected virtual Expression VisitSTRLength(MemberExpression m)
         {
             _builder.Append("LEN(");
@@ -362,6 +389,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 Contains 方法
+        /// </summary>
         protected virtual Expression VisitENMContains(MethodCallExpression m)
         {
             if (m == null) return m;
@@ -419,6 +449,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 RowNumber 方法
+        /// </summary>
         protected virtual Expression VisitSQLRowNumber(MethodCallExpression m)
         {
             if (m == null) return m;
@@ -430,6 +463,9 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <summary>
+        /// 访问 new Guid 方法
+        /// </summary>
         protected virtual Expression VisitSQLNewGuid(MethodCallExpression m)
         {
             _builder.Append("NEWID()");
@@ -440,6 +476,9 @@ namespace TZM.XFramework.Data.SqlClient
 
         #region 辅助函数
 
+        /// <summary>
+        /// 生成SQL片断
+        /// </summary>
         protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             var member = _visitedMember.Current;
@@ -462,6 +501,9 @@ namespace TZM.XFramework.Data.SqlClient
             }
         }
 
+        /// <summary>
+        /// 判断指定类型是否是unicode
+        /// </summary>
         protected virtual bool IsUnicode(object dbType)
         {
             return SqlDbTypeInfo.IsUnicode2(dbType);

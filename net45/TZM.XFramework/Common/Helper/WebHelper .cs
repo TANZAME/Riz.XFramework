@@ -79,13 +79,13 @@ namespace TZM.XFramework
         /// 设置COOKIE
         /// </summary>
         /// <param name="key">cookie键</param>
-        /// <param name="TCookie">cookie值</param>
+        /// <param name="cookie">cookie值</param>
         /// <param name="expires">过期时间，分钟为单位，默认一天</param>
         /// <param name="encrypt">是否加密cookie</param>
-        public static void SetCookie<T>(string key, T cookieObj, DateTime expires, bool encrypt = true)
+        public static void SetCookie<T>(string key, T cookie, DateTime expires, bool encrypt = true)
             where T : class, new()
         {
-            string json = SerializeHelper.SerializeToJson(cookieObj);
+            string json = SerializeHelper.SerializeToJson(cookie);
             WebHelper.SetCookie(key, json, expires, encrypt);
         }
 
@@ -106,9 +106,6 @@ namespace TZM.XFramework
         /// <summary>
         /// 取指定KEY值的Cookie
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static string GetCookie(string key, bool decrypt = true)
         {
             HttpCookie cookie = HttpContext.Current.Request.Cookies[key];
@@ -616,11 +613,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用POST方法访问指定URI
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">POST内容</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
         public static T HttpPost<T>(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null)
         {
             //application/x-www-form-urlencoded
@@ -728,10 +720,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用GET方法访问指定URI
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
         public static T HttpGet<T>(string uri, IDictionary<string, string> headers, string contentType)
         {
             StreamReader reader = null;
@@ -762,10 +750,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用GET方法访问指定URI
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
         public static T HttpGet<T>(string uri, IDictionary<string, string> headers, string contentType, WebProxy proxy)
         {
             StreamReader reader = null;
@@ -796,7 +780,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用GET方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="uri">请求发送到的 URI。</param>
         /// <param name="headers">请求的头部信息</param>
         /// <param name="contentType">请求的验证信息</param>
@@ -835,10 +818,12 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="uri">请求发送到的 URI。</param>
         /// <param name="content">POST内容</param>
         /// <param name="headers">请求的头部信息</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码类型</param>
         /// <returns></returns>
         public static Stream HttpPost(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
         {
@@ -887,11 +872,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">POST内容</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
         public static Stream HttpDelete(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
         {
             //application/x-www-form-urlencoded
@@ -939,11 +919,6 @@ namespace TZM.XFramework
         /// <summary>
         /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">POST内容</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
         public static HttpWebResponse HttpResponse(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
         {
             //application/x-www-form-urlencoded

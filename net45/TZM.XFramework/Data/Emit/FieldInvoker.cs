@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data
         /// 动态访问成员
         /// </summary>
         /// <param name="target">拥有该成员的类实例</param>
-        /// <param name="value">字段/属性值</param>
+        /// <param name="parameters">参数列表</param>
         public override object Invoke(object target, params object[] parameters)
         {
             if (parameters != null && parameters.Length == 0)

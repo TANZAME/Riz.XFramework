@@ -83,7 +83,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
-        /// <param name="parameterized">是否需要参数化</param>
+        /// <param name="parameters">是否需要参数化</param>
         /// <returns></returns>
         public override ISqlBuilder CreateSqlBuilder(List<IDbDataParameter> parameters = null)
         {

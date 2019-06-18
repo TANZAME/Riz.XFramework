@@ -59,7 +59,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="ExpirationCache"/> 类的新实例
+        /// 实例化 ExpirationCache 类的新实例
         /// </summary>
         public ExpirationCache()
             : this(TimeSpan.FromMinutes(30.0), TimeSpan.FromSeconds(1))
@@ -67,7 +67,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="ExpirationCache"/> 类的新实例
+        /// 实例化 ExpirationCache 类的新实例
         /// </summary>
         public ExpirationCache(TimeSpan timeout, TimeSpan period)
             : this(null, timeout, period)
@@ -75,7 +75,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="ExpirationCache"/> 类的新实例
+        /// 实例化 ExpirationCache 类的新实例
         /// </summary>
         public ExpirationCache(IEqualityComparer<TKey> comparer, TimeSpan timeout, TimeSpan period)
             : base(comparer)

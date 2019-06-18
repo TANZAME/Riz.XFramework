@@ -22,7 +22,7 @@ namespace TZM.XFramework.Caching
         }
 
         /// <summary>
-        /// 实例化 <see cref="SimpleCache"/> 类的新实例
+        /// 实例化 SimpleCache 类的新实例
         /// </summary>
         public SimpleCache()
         {

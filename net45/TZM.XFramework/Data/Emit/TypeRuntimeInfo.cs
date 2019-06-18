@@ -272,7 +272,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问成员
         /// </summary>
+        /// <param name="target">实例</param>
         /// <param name="memberName">成员名称</param>
+        /// <param name="parameters">参数列表</param>
         /// <returns></returns>
         public object Invoke(object target, string memberName, params object[] parameters)
         {

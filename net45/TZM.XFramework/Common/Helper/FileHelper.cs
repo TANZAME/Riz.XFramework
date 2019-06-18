@@ -193,7 +193,6 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="bytes">要生成文件的二进制数组</param>
         /// <param name="path">要生成的文件全路径</param>
-        /// <param name="dispose">如果存在同名文件，是否先删除</param>
         public static void SaveFile(byte[] bytes, string path)
         {
             // 把 byte[] 写入文件 
