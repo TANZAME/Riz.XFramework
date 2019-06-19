@@ -538,7 +538,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 命令
-        protected async Task<T> DoExecuteAsync<T>(List<DbCommandDefinition> sqlList, Func<DbCommand, Task<T>> func)
+        protected virtual async Task<T> DoExecuteAsync<T>(List<DbCommandDefinition> sqlList, Func<DbCommand, Task<T>> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -643,7 +643,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 命令
-        protected async Task<T> DoExecuteAsync<T>(IDbCommand cmd, Func<DbCommand, Task<T>> func, bool wasClosed, bool interceptException = true)
+        protected virtual async Task<T> DoExecuteAsync<T>(IDbCommand cmd, Func<DbCommand, Task<T>> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);
 

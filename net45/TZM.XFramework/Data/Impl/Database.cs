@@ -956,7 +956,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令
         /// </summary>
-        protected T DoExecute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
+        protected virtual T DoExecute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -1063,7 +1063,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令
         /// </summary>
-        protected T DoExecute<T>(IDbCommand cmd, Func<IDbCommand, T> func, bool wasClosed, bool interceptException = true)
+        protected virtual T DoExecute<T>(IDbCommand cmd, Func<IDbCommand, T> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);
 
