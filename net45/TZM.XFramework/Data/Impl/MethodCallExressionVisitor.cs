@@ -458,6 +458,39 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("ROW_NUMBER() Over(Order By ");
             _visitor.Visit(m.Arguments[0]);
+            if (m.Arguments.Count > 1)
+            {
+                var c = (ConstantExpression)m.Arguments[1];
+                if (!((bool)c.Value)) _builder.Append(" DESC");
+            }
+
+            _builder.Append(')');
+
+            return m;
+        }        
+        
+        /// <summary>
+        /// 访问 RowNumber 方法
+        /// </summary>
+        protected virtual Expression VisitSQLPartitionRowNumber(MethodCallExpression m)
+        {
+            if (m == null) return m;
+
+            _builder.Append("ROW_NUMBER() Over(");
+
+            // PARTITION BY
+            _builder.Append("PARTITION BY ");
+            _visitor.Visit(m.Arguments[0]);
+
+            // ORDER BY
+            _builder.Append(" ORDER BY ");
+            _visitor.Visit(m.Arguments[1]);
+            if (m.Arguments.Count > 2)
+            {
+                var c = (ConstantExpression)m.Arguments[2];
+                if (!((bool)c.Value)) _builder.Append(" DESC");
+            }
+
             _builder.Append(')');
 
             return m;

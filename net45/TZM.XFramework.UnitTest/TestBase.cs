@@ -442,13 +442,22 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = SqlMethod.RowNumber<long>(x => a.DemoCode)
+                    RowNumber = SqlMethod.RowNumber<long>(x => a.DemoCode,false)
                 });
             var reuslt1 = query1.ToList();
             //SQL=>
             //SELECT 
             //ROW_NUMBER() Over(Order By t0.[DemoCode]) AS [RowNumber]
             //FROM [Sys_Demo] t0 
+
+            query1 =
+            context
+            .GetTable<Model.ClientAccount>()
+            .Select(a => new
+            {
+                RowNumber = SqlMethod.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId,true)
+            });
+            reuslt1 = query1.ToList();
 
             // DataTable
             query = from a in context.GetTable<TDemo>()

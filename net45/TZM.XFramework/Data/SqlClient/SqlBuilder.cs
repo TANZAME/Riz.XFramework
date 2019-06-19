@@ -3,7 +3,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// MSSQL 语句建造器

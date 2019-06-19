@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("TZM.XFramework")]
-[assembly: AssemblyDescription("a light weight & high performance orm base on .net")]
+[assembly: AssemblyDescription("a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.")]
 [assembly: AssemblyCompany("TANZAME")]
 [assembly: AssemblyProduct("TZM.XFramework")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]

@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using TZM.XFramework.Data;
+using TZM.XFramework.Data.SqlClient;
 
 namespace TZM.XFramework.UnitTest.SqlServer
 {
