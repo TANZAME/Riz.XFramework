@@ -315,6 +315,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlBuilderBase.cs">
       <Link>Data\Impl\SqlBuilderBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlMethod.cs">
+      <Link>Data\Impl\SqlMethod.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlBuilder.cs">
       <Link>Data\SqlClient\SqlBuilder.cs</Link>
     </Compile>
@@ -350,9 +353,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\SqlMethod.cs">
-      <Link>Data\TypeDeserialize\SqlMethod.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer.cs</Link>

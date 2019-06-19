@@ -152,7 +152,7 @@
     <Compile Include="Data\TypeDeserialize\DbCommandDefinition_Select.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
-    <Compile Include="Data\TypeDeserialize\SqlMethod.cs" />
+    <Compile Include="Data\Impl\SqlMethod.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`145.cs" />

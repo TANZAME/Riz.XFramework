@@ -114,6 +114,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbTypeInfo.cs" Link="Data\Impl\DbTypeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\MethodCallExressionVisitor.cs" Link="Data\Impl\MethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlBuilderBase.cs" Link="Data\Impl\SqlBuilderBase.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlMethod.cs" Link="Data\Impl\SqlMethod.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlBuilder.cs" Link="Data\SqlClient\SqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbContext.cs" Link="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbQueryProvider.cs" Link="Data\SqlClient\SqlDbQueryProvider.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs" Link="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs" Link="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\SqlMethod.cs" Link="Data\TypeDeserialize\SqlMethod.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer45.cs" Link="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
