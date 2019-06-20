@@ -21,10 +21,6 @@ namespace TZM.XFramework.Data
         private DbProviderFactory _dbProviderFactory = null;
         private IDbConnection _connection = null;
         private IDbTransaction _transaction = null;
-        //// 是否显式指定了一个外部事务
-        //private bool _hasSetTransaction = false;
-        //// 是否使用 BeginTransaction 开启了事务
-        //private bool _hasOpenTransaction = false;
         // 如果不是外部调用BeginTransaction，则执行完命令后需要自动提交-释放事务
         private bool _autoComplete = false;
 

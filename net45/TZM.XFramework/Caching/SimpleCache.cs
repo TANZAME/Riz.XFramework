@@ -5,6 +5,7 @@ namespace TZM.XFramework.Caching
 {
     /// <summary>
     /// 简单键值对缓存器，键 一般为字符类型
+    /// <para>非线程安全</para>
     /// </summary>
     public class SimpleCache<TKey, TValue> : ICache<TKey, TValue>
     {

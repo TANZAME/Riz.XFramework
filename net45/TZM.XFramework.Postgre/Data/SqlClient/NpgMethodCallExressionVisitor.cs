@@ -218,7 +218,7 @@ namespace TZM.XFramework.Data.SqlClient
 
         protected override Expression VisitSQLNewGuid(MethodCallExpression m)
         {
-            Guid guid = System.Guid.NewGuid();
+            System.Guid guid = System.Guid.NewGuid();
             _builder.Append(guid, null);
             return m;
         }
