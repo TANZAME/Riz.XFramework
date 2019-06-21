@@ -106,7 +106,11 @@ namespace TZM.XFramework.Data
                 _connection = this.DbProviderFactory.CreateConnection();
                 _connection.ConnectionString = this.ConnectionString;
             }
-            if (isOpen && _connection.State != ConnectionState.Open) _connection.Open();
+            if (isOpen && _connection.State != ConnectionState.Open)
+            {
+                if (string.IsNullOrEmpty(_connection.ConnectionString)) _connection.ConnectionString = _connString;
+                _connection.Open();
+            }
             return _connection;
         }
 
@@ -482,7 +486,7 @@ namespace TZM.XFramework.Data
 
                             break;
 
-                        #endregion
+                            #endregion
                     }
                 }
                 while (reader.NextResult());
@@ -1075,7 +1079,11 @@ namespace TZM.XFramework.Data
                 }
 
                 if (cmd.Connection == null) cmd.Connection = this.CreateConnection();
-                if (cmd.Connection.State != ConnectionState.Open) cmd.Connection.Open();
+                if (cmd.Connection.State != ConnectionState.Open)
+                {
+                    if (string.IsNullOrEmpty(cmd.Connection.ConnectionString)) cmd.Connection.ConnectionString = _connString;
+                    cmd.Connection.Open();
+                }
 
                 if (interceptException) DbInterception.OnExecuting(cmd);
                 TResult = func(cmd);
@@ -1143,6 +1151,4 @@ namespace TZM.XFramework.Data
 
         #endregion
     }
-
-
 }

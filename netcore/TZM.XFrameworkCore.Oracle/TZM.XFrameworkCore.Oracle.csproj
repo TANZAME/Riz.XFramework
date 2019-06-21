@@ -11,6 +11,10 @@
     <DefineConstants>TRACE;netcore</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" />
