@@ -7,8 +7,8 @@
     <ProjectGuid>{7F583ADB-FEB4-4FA9-BEB0-74931370AD6A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ICS.XFramework.Postgre</RootNamespace>
-    <AssemblyName>ICS.XFramework.Postgre</AssemblyName>
+    <RootNamespace>TZM.XFramework.Postgre</RootNamespace>
+    <AssemblyName>TZM.XFramework.Postgre</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

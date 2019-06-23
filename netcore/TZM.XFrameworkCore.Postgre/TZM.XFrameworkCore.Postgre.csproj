@@ -3,8 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Authors>TANZAME</Authors>
-    <Description>a light weight &amp; high performance orm base on .net</Description>
+    <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
