@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(OracleDeleteDbCommandDefinition cmd)
+        public void Write(OracleDbCommandDefinition_Delete cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder on = cmd.OnPhrase;

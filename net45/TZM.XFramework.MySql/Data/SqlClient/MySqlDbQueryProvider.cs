@@ -93,7 +93,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override DbCommandDefinition ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
         {
-            var cmd = (SelectDbCommandDefinition)this.ParseSelectCommandImpl(sQuery, indent, isOuter, parameters);
+            var cmd = (DbCommandDefinition_Select)this.ParseSelectCommandImpl(sQuery, indent, isOuter, parameters);
             cmd.Convergence();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -125,7 +125,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            SelectDbCommandDefinition cmd = new SelectDbCommandDefinition(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            DbCommandDefinition_Select cmd = new DbCommandDefinition_Select(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             ISqlBuilder sf = null;
@@ -493,7 +493,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectDbCommandDefinition cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, true, builder.Parameters) as SelectDbCommandDefinition;
+                DbCommandDefinition_Select cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, true, builder.Parameters) as DbCommandDefinition_Select;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -551,7 +551,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new SelectDbCommandDefinition(this, aliases, builder.Parameters) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new DbCommandDefinition_Select(this, aliases, builder.Parameters) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -634,7 +634,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd2 = new SelectDbCommandDefinition(this, aliases, builder.Parameters) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new DbCommandDefinition_Select(this, aliases, builder.Parameters) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);

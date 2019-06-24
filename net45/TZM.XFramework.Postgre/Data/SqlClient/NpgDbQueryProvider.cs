@@ -94,7 +94,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override DbCommandDefinition ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
         {
-            var cmd = (SelectDbCommandDefinition)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, parameters);
+            var cmd = (DbCommandDefinition_Select)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, parameters);
             cmd.Convergence();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -125,7 +125,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            SelectDbCommandDefinition cmd = new SelectDbCommandDefinition(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            DbCommandDefinition_Select cmd = new DbCommandDefinition_Select(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -427,7 +427,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectDbCommandDefinition cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, builder.Parameters) as SelectDbCommandDefinition;
+                DbCommandDefinition_Select cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, builder.Parameters) as DbCommandDefinition_Select;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var kvp in cmd2.Columns)
                 {
@@ -486,7 +486,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new NpgDeleteDbCommandDefinition(this, aliases, NpgCommandType.DELETE, builder.Parameters);
+                var cmd2 = new NpgDbCommandDefinition_Delete(this, aliases, NpgCommandType.DELETE, builder.Parameters);
                 cmd2.HaveListNavigation = dQuery.SelectInfo.HaveListNavigation;
 
                 var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, NpgCommandType.DELETE);
@@ -571,7 +571,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new NpgUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new NpgDeleteDbCommandDefinition(this, aliases, NpgCommandType.UPDATE, builder.Parameters);
+                var cmd2 = new NpgDbCommandDefinition_Delete(this, aliases, NpgCommandType.UPDATE, builder.Parameters);
                 cmd2.HaveListNavigation = uQuery.SelectInfo.HaveListNavigation;
 
                 var visitor0 = new NpgJoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, NpgCommandType.UPDATE);

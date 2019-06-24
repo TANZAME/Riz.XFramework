@@ -155,7 +155,6 @@
     <Compile Include="Data\Impl\SqlMethod.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializer`145.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
     <Compile Include="Data\SqlClient\SqlDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\SqlMethodCallExressionVisitor.cs" />

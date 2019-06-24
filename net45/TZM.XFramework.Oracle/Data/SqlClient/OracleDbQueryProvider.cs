@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (parameters == null) parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, parameters);
-                    if (cmd2 is SelectDbCommandDefinition)
+                    if (cmd2 is DbCommandDefinition_Select)
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
 
@@ -248,7 +248,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            SelectDbCommandDefinition cmd = new SelectDbCommandDefinition(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            DbCommandDefinition_Select cmd = new DbCommandDefinition_Select(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -679,7 +679,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectDbCommandDefinition cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, false, builder.Parameters) as SelectDbCommandDefinition;
+                DbCommandDefinition_Select cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, false, builder.Parameters) as DbCommandDefinition_Select;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -693,7 +693,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var cmd = new OracleInsertDbCommandDefinition(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            var cmd = new OracleDbCommandDefinition_Insert(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
             cmd.HaveSEQ = useSEQ;
             return cmd;
         }
@@ -739,7 +739,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new OracleDeleteDbCommandDefinition(this, aliases, builder.Parameters);
+                var cmd2 = new OracleDbCommandDefinition_Delete(this, aliases, builder.Parameters);
                 cmd2.HaveListNavigation = dQuery.SelectInfo.HaveListNavigation;
 
                 var visitor0 = new OracleJoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, dQuery.SelectInfo.Where);
@@ -834,7 +834,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new OracleUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new OracleDeleteDbCommandDefinition(this, aliases, builder.Parameters);
+                var cmd2 = new OracleDbCommandDefinition_Delete(this, aliases, builder.Parameters);
                 cmd2.HaveListNavigation = uQuery.SelectInfo.HaveListNavigation;
 
                 var visitor0 = new OracleJoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, uQuery.SelectInfo.Where);

@@ -135,7 +135,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer45.cs" Link="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`145.cs" Link="Data\TypeDeserialize\TypeDeserializer`145.cs" />
 
   </ItemGroup>
 

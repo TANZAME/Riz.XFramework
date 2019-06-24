@@ -126,7 +126,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            SelectDbCommandDefinition cmd = new SelectDbCommandDefinition(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            DbCommandDefinition_Select cmd = new DbCommandDefinition_Select(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
 
@@ -431,7 +431,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectDbCommandDefinition cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, true, builder.Parameters) as SelectDbCommandDefinition;
+                DbCommandDefinition_Select cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, true, builder.Parameters) as DbCommandDefinition_Select;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -489,7 +489,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 IDbQueryable dbQueryable = dQuery.SourceQuery;
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new SelectDbCommandDefinition(this, aliases, builder.Parameters) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new DbCommandDefinition_Select(this, aliases, builder.Parameters) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -583,7 +583,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new SelectDbCommandDefinition(this, aliases, builder.Parameters) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new DbCommandDefinition_Select(this, aliases, builder.Parameters) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);

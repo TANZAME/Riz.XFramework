@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data
         {
             DbCommandDefinition definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
-            return this.Execute<T>(cmd, definition as SelectDbCommandDefinition);
+            return this.Execute<T>(cmd, definition as DbCommandDefinition_Select);
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(List<DbCommandDefinition> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is SelectDbCommandDefinition) as SelectDbCommandDefinition));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand cmd, SelectDbCommandDefinition definition)
+        T Execute<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
         {
             IDataReader reader = null;
 
@@ -384,7 +384,7 @@ namespace TZM.XFramework.Data
         {
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectDbCommandDefinition)));
+                cmd => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -398,7 +398,7 @@ namespace TZM.XFramework.Data
         {
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectDbCommandDefinition)));
+                cmd => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -412,7 +412,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<SelectDbCommandDefinition> defines = null)
+        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<DbCommandDefinition_Select> defines = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -523,18 +523,18 @@ namespace TZM.XFramework.Data
         {
             DbCommandDefinition definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
-            return this.ExecuteList<T>(cmd, definition as SelectDbCommandDefinition);
+            return this.ExecuteList<T>(cmd, definition as DbCommandDefinition_Select);
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="SelectDbCommandDefinition"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="DbCommandDefinition_Select"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
         public List<T> ExecuteList<T>(List<DbCommandDefinition> sqlList)
         {
-            return this.DoExecute<List<T>>(sqlList, cmd => this.ExecuteList<T>(cmd, sqlList.FirstOrDefault(x => x is SelectDbCommandDefinition) as SelectDbCommandDefinition));
+            return this.DoExecute<List<T>>(sqlList, cmd => this.ExecuteList<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
         }
 
         /// <summary>
@@ -549,7 +549,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        List<T> ExecuteList<T>(IDbCommand cmd, SelectDbCommandDefinition definition)
+        List<T> ExecuteList<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();
@@ -888,7 +888,7 @@ namespace TZM.XFramework.Data
             result1 = null;
             List<T1> q1 = null;
             List<T2> q2 = null;
-            List<SelectDbCommandDefinition> defines = sqlList.ToList(x => x as SelectDbCommandDefinition, x => x is SelectDbCommandDefinition);
+            List<DbCommandDefinition_Select> defines = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {

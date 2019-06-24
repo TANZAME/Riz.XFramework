@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
-            List<SelectDbCommandDefinition> shapes = sqlList.ToList(x => x as SelectDbCommandDefinition, x => x is SelectDbCommandDefinition);
+            List<DbCommandDefinition_Select> shapes = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;

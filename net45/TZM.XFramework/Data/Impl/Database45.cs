@@ -143,7 +143,7 @@ namespace TZM.XFramework.Data
         {
             DbCommandDefinition definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
-            return await this.ExecuteAsync<T>(cmd, definition as SelectDbCommandDefinition);
+            return await this.ExecuteAsync<T>(cmd, definition as DbCommandDefinition_Select);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public async Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList)
         {
-            return await this.DoExecuteAsync<T>(sqlList, async cmd => await this.ExecuteAsync<T>(cmd, sqlList.FirstOrDefault(x => x is SelectDbCommandDefinition) as SelectDbCommandDefinition));
+            return await this.DoExecuteAsync<T>(sqlList, async cmd => await this.ExecuteAsync<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        async Task<T> ExecuteAsync<T>(IDbCommand cmd, SelectDbCommandDefinition definition)
+        async Task<T> ExecuteAsync<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
         {
             IDataReader reader = null;
             IDbConnection conn = null;
@@ -197,7 +197,7 @@ namespace TZM.XFramework.Data
         {
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-               async cmd => await this.ExecuteMultipleAsync<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectDbCommandDefinition)));
+               async cmd => await this.ExecuteMultipleAsync<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -211,7 +211,7 @@ namespace TZM.XFramework.Data
         {
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                async cmd => await this.ExecuteMultipleAsync<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectDbCommandDefinition)));
+                async cmd => await this.ExecuteMultipleAsync<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -225,7 +225,7 @@ namespace TZM.XFramework.Data
         }
 
         // 异步执行 SQL 语句，并返回多个实体集合
-        async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<SelectDbCommandDefinition> defines = null)
+        async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<DbCommandDefinition_Select> defines = null)
         {
             IDataReader reader = null;
             IDbConnection conn = null;
@@ -337,7 +337,7 @@ namespace TZM.XFramework.Data
         {
             DbCommandDefinition definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition.CommandText, definition.CommandType, definition.Parameters);
-            return await this.ExecuteListAsync<T>(cmd, definition as SelectDbCommandDefinition);
+            return await this.ExecuteListAsync<T>(cmd, definition as DbCommandDefinition_Select);
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public async Task<List<T>> ExecuteListAsync<T>(List<DbCommandDefinition> sqlList)
         {
-            return await this.DoExecuteAsync<List<T>>(sqlList, async cmd => await this.ExecuteListAsync<T>(cmd, sqlList.FirstOrDefault(x => x is SelectDbCommandDefinition) as SelectDbCommandDefinition));
+            return await this.DoExecuteAsync<List<T>>(sqlList, async cmd => await this.ExecuteListAsync<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace TZM.XFramework.Data
         /// <param name="cmd">SQL 命令</param>
         /// <param name="definition">命令定义对象，用于解析实体的外键</param>
         /// <returns></returns>
-        async Task<List<T>> ExecuteListAsync<T>(IDbCommand cmd, SelectDbCommandDefinition definition)
+        async Task<List<T>> ExecuteListAsync<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();

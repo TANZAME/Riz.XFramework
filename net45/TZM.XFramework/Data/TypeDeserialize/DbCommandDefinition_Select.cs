@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SELECT 语义的SQL命令描述
     /// </summary>
-    public class SelectDbCommandDefinition : DbCommandDefinition
+    public class DbCommandDefinition_Select : DbCommandDefinition
     {
         private bool _haveListNavigation = false;
         private bool _convergence = false;
@@ -84,12 +84,12 @@ namespace TZM.XFramework.Data
         public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
 
         /// <summary>
-        /// 实例化 <see cref="SelectDbCommandDefinition"/> 类的新实例
+        /// 实例化 <see cref="DbCommandDefinition_Select"/> 类的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="parameters">已存在的参数列表</param>
-        public SelectDbCommandDefinition(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
+        public DbCommandDefinition_Select(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;
