@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = _provider.Resolve(_dbQueryables);
+            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = await _database.SubmitAsync(sqlList);
             // 回写自增列的ID值
             SetAutoIncrementValue(_dbQueryables, identitys);

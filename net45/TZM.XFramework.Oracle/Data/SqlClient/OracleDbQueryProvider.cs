@@ -1,12 +1,11 @@
 ﻿
 using System;
 using System.Data;
-using System.Linq;
-using System.Data.Common;
-using System.Threading.Tasks;
+
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
+using System.Data.Common;
 
 namespace TZM.XFramework.Data.SqlClient
 {
@@ -16,9 +15,14 @@ namespace TZM.XFramework.Data.SqlClient
     public sealed class OracleDbQueryProvider : DbQueryProvider
     {
         /// <summary>
-        /// 查询提供者单例
+        /// 查询语义提供者 单例
         /// </summary>
         public static OracleDbQueryProvider Instance = new OracleDbQueryProvider();
+
+        /// <summary>
+        /// 数据源类的提供程序实现的实例
+        /// </summary>
+        public override DbProviderFactory DbProviderFactory { get { return OracleClientFactory.Instance; } }
 
         /// <summary>
         /// 数据库安全字符 左
@@ -76,6 +80,14 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 实例化 <see cref="OracleDbQueryProvider"/> 类的新实例
+        /// </summary>
+        private OracleDbQueryProvider() : base()
+        {
+
+        }
+
+        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <returns></returns>
@@ -88,7 +100,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor)
+        public override IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor)
         {
             return new OracleMethodCallExressionVisitor(this, visitor);
         }

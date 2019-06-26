@@ -18,19 +18,15 @@ namespace TZM.XFramework.Data
         private readonly List<object> _dbQueryables = new List<object>();
         private readonly object _oLock = new object();
         private Database _database = null;
-        private IDbQueryProvider _provider = null;
 
         #endregion
 
         #region 公开属性
 
         /// <summary>
-        /// <see cref="IDbQueryable"/> 的解析执行提供程序
+        /// 查询语义提供者
         /// </summary>
-        public IDbQueryProvider Provider
-        {
-            get { return _provider; }
-        }
+        public abstract IDbQueryProvider Provider { get; }
 
         /// <summary>
         /// 数据库对象，持有当前上下文的会话
@@ -72,8 +68,8 @@ namespace TZM.XFramework.Data
         public DbContextBase(string connString, int? commandTimeout)
         {
             _database = (Database)this.CreateDatabase(connString, commandTimeout);
-            _provider = this.CreateQueryProvider();
-            _provider.DbProviderFactory = _database.DbProviderFactory;
+            //_provider = this.CreateQueryProvider();
+            //_provider.DbProviderFactory = _database.DbProviderFactory;
         }
 
         #endregion
@@ -242,7 +238,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void AddQuery(string query, params object[] args)
         {
-            var builder = _provider.CreateSqlBuilder(null);
+            var builder = this.Provider.CreateSqlBuilder(null);
             if (args != null && !string.IsNullOrEmpty(query))
             {
                 for (int i = 0; i < args.Length; i++) args[i] = builder.GetSqlValue(args[i]);
@@ -270,7 +266,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = _provider.Resolve(_dbQueryables);
+            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = _database.Submit(sqlList);
             SetAutoIncrementValue(_dbQueryables, identitys);
             this.InternalDispose();
@@ -290,7 +286,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = _provider.Resolve(_dbQueryables);
+            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = _database.Submit<T>(sqlList, out result);
             SetAutoIncrementValue(_dbQueryables, identitys);
             this.InternalDispose();
@@ -312,7 +308,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = _provider.Resolve(_dbQueryables);
+            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = _database.Submit<T1, T2>(sqlList, out result1, out result2);
             SetAutoIncrementValue(_dbQueryables, identitys);
             this.InternalDispose();
@@ -363,14 +359,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected abstract IDatabase CreateDatabase(string connString, int? commandTimeout);
 
-        /// <summary>
-        /// 创建 <see cref="IDbQueryProvider"/> 对象实例
-        /// </summary>
-        /// <returns></returns>
-        protected abstract IDbQueryProvider CreateQueryProvider();
-
         // 更新自增列
-        private void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
+        protected virtual void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
         {
             if (identitys == null || identitys.Count == 0) return;
 

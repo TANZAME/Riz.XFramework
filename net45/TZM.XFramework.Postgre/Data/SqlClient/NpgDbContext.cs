@@ -1,13 +1,18 @@
 ﻿
 using Npgsql;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据上下文，表示 Xfw 框架的主入口点
     /// </summary>
     public class NpgDbContext : DbContextBase
     {
+        /// <summary>
+        /// 查询语义提供者
+        /// </summary>
+        public override IDbQueryProvider Provider { get { return NpgDbQueryProvider.Instance; } }
+
         /// <summary>
         /// 初始化 <see cref="NpgDbContext"/> 类的新实例
         /// <para>
@@ -45,12 +50,6 @@ namespace TZM.XFramework.Data
             {
                 CommandTimeout = commandTimeout
             };
-        }
-
-        // 创建数据查询提供者对象实例
-        protected override IDbQueryProvider CreateQueryProvider()
-        {
-            return SqlClient.NpgDbQueryProvider.Instance;
         }
     }
 }

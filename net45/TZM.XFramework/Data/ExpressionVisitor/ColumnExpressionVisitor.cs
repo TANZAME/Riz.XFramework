@@ -61,7 +61,7 @@ namespace TZM.XFramework.Data
             if (base.Expression != null)
             {
                 base._builder = builder;
-                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateCallExressionVisitor(this);
+                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
                 _builder.AppendNewLine();
 
                 // SELECT 表达式解析

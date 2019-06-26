@@ -9,12 +9,10 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 数据查询提供者 提供一系列方法用以执行数据库操作
+    /// 查询语义提供者，用来构建、解析查询语义
     /// </summary>
     public abstract partial class DbQueryProvider : IDbQueryProvider
     {
-        private DbProviderFactory _dbProviderFactory = null;
-
         #region 公开属性
 
         /// <summary>
@@ -43,16 +41,9 @@ namespace TZM.XFramework.Data
         public abstract string ParameterPrefix { get; }
 
         /// <summary>
-        /// 数据源类提供者
+        /// 数据源类的提供程序实现的实例
         /// </summary>
-        public DbProviderFactory DbProviderFactory
-        {
-            get { return _dbProviderFactory; }
-            set
-            {
-                if (_dbProviderFactory != value) _dbProviderFactory = value;
-            }
-        }
+        public abstract DbProviderFactory DbProviderFactory { get; }
 
         #endregion
 
@@ -154,7 +145,7 @@ namespace TZM.XFramework.Data
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public abstract IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor);
+        public abstract IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor);
 
         #endregion
 

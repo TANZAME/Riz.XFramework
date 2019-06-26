@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using TZM.XFramework;
 using TZM.XFramework.Data;
+using TZM.XFramework.Data.SqlClient;
 
 namespace TZM.XFramework.UnitTest.MySql
 {
@@ -18,7 +19,7 @@ namespace TZM.XFramework.UnitTest.MySql
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            return new MyMySqlDbContext(connString);
+            return new MySqlDbContext(connString);
         }
 
         protected override void QueryWithParameterizedConstructor()

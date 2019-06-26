@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using TZM.XFramework;
 using TZM.XFramework.Data;
+using TZM.XFramework.Data.SqlClient;
 
 namespace TZM.XFramework.UnitTest.Oracle
 {

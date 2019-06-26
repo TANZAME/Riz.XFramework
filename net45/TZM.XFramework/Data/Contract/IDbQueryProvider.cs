@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 定义用于解析和执行 <see cref="IDbQueryable"/> 对象所描述的查询方法
+    /// 查询语义提供者，用来构建、解析查询语义
     /// </summary>
     public interface IDbQueryProvider
     {
@@ -36,9 +36,9 @@ namespace TZM.XFramework.Data
         string ParameterPrefix { get; }
 
         /// <summary>
-        /// 数据源类提供者
+        /// 查询语义提供者
         /// </summary>
-        DbProviderFactory DbProviderFactory { get; set; }
+        DbProviderFactory DbProviderFactory { get; }
 
         /// <summary>
         /// 解析 SQL 命令
@@ -67,6 +67,6 @@ namespace TZM.XFramework.Data
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor);
+        IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor);
     }
 }

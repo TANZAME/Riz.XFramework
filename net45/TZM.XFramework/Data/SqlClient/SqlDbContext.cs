@@ -15,6 +15,11 @@ namespace TZM.XFramework.Data.SqlClient
         public bool NoLock { get; set; }
 
         /// <summary>
+        /// 查询语义提供者
+        /// </summary>
+        public override IDbQueryProvider Provider { get { return SqlDbQueryProvider.Instance; } }
+
+        /// <summary>
         /// 初始化 <see cref="SqlDbContext"/> 类的新实例
         /// <para>
         /// 默认读取 XFrameworkConnString 配置里的连接串
@@ -83,12 +88,6 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 CommandTimeout = commandTimeout
             };
-        }
-
-        // 创建数据查询提供者对象实例
-        protected override IDbQueryProvider CreateQueryProvider()
-        {
-            return SqlClient.SqlDbQueryProvider.Instance;
         }
     }
 }

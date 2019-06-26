@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
-            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateCallExressionVisitor(this);
+            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
 
             if (_statis != null)
             {

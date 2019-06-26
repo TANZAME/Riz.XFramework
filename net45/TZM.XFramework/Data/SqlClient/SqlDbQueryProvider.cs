@@ -2,20 +2,28 @@
 using System.Data;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data.Common;
 
 namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// 数据查询提供者
+    /// 查询语义提供者，用来构建、解析查询语义
     /// </summary>
-    internal sealed class SqlDbQueryProvider : DbQueryProvider
+    public sealed class SqlDbQueryProvider : DbQueryProvider
     {
+        // 无阻塞模式
+        private string _widthNoLock = "WITH(NOLOCK)";
+
         /// <summary>
-        /// 查询提供者单例
+        /// 查询语义提供者 单例
         /// </summary>
         public static SqlDbQueryProvider Instance = new SqlDbQueryProvider();
 
-        private string _widthNoLock = "WITH(NOLOCK)";
+        /// <summary>
+        /// 数据源类的提供程序实现的实例
+        /// </summary>
+        public override DbProviderFactory DbProviderFactory { get { return SqlClientFactory.Instance; } }
 
         /// <summary>
         /// 无阻塞 WITH(NOLOCK)
@@ -81,6 +89,14 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 实例化 <see cref="SqlDbQueryProvider"/> 类的新实例
+        /// </summary>
+        private SqlDbQueryProvider() : base()
+        {
+
+        }
+
+        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="parameters">是否需要参数化</param>
@@ -94,7 +110,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor)
+        public override IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor)
         {
             return new SqlMethodCallExressionVisitor(this, visitor);
         }

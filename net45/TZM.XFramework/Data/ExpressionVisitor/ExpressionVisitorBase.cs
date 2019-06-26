@@ -97,7 +97,7 @@ namespace TZM.XFramework.Data
         public virtual void Write(ISqlBuilder builder)
         {
             _builder = builder;
-            if (_methodVisitor == null) _methodVisitor = _provider.CreateCallExressionVisitor(this);
+            if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodCallVisitor(this);
             this.Visit(_expression);
         }
 

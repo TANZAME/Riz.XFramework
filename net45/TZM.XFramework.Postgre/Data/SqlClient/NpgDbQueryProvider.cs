@@ -1,7 +1,9 @@
 ﻿
 using System.Data;
+using System.Data.Common;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using Npgsql;
 
 namespace TZM.XFramework.Data.SqlClient
 {
@@ -14,9 +16,14 @@ namespace TZM.XFramework.Data.SqlClient
         // 需要去github上下载4.1.0版本重新编译成本地包再引用
 
         /// <summary>
-        /// 查询提供者单例
+        /// 查询语义提供者 单例
         /// </summary>
         public static NpgDbQueryProvider Instance = new NpgDbQueryProvider();
+
+        /// <summary>
+        /// 数据源类的提供程序实现的实例
+        /// </summary>
+        public override DbProviderFactory DbProviderFactory { get { return NpgsqlFactory.Instance; } }
 
         /// <summary>
         /// 数据库安全字符 左
@@ -74,6 +81,14 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 实例化 <see cref="NpgDbQueryProvider"/> 类的新实例
+        /// </summary>
+        private NpgDbQueryProvider() : base()
+        {
+
+        }
+
+        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <returns></returns>
@@ -86,7 +101,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor)
+        public override IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor)
         {
             return new NpgMethodCallExressionVisitor(this, visitor);
         }

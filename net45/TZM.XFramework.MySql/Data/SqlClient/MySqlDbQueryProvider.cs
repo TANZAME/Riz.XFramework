@@ -1,7 +1,10 @@
 ﻿
 using System.Data;
 using System.Linq.Expressions;
+
+using System.Data.Common;
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 
 namespace TZM.XFramework.Data.SqlClient
 {
@@ -12,9 +15,14 @@ namespace TZM.XFramework.Data.SqlClient
     public sealed class MySqlDbQueryProvider : DbQueryProvider
     {
         /// <summary>
-        /// 查询提供者单例
+        /// 查询语义提供者 单例
         /// </summary>
         public static MySqlDbQueryProvider Instance = new MySqlDbQueryProvider();
+
+        /// <summary>
+        /// 数据源类的提供程序实现的实例
+        /// </summary>
+        public override DbProviderFactory DbProviderFactory { get { return MySqlClientFactory.Instance; } }
 
         /// <summary>
         /// 数据库安全字符 左
@@ -72,6 +80,14 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 实例化 <see cref="MySqlDbQueryProvider"/> 类的新实例
+        /// </summary>
+        private MySqlDbQueryProvider() : base()
+        {
+
+        }
+
+        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="parameters">是否需要参数化</param>
@@ -85,7 +101,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateCallExressionVisitor(ExpressionVisitorBase visitor)
+        public override IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor)
         {
             return new MySqlMethodCallExressionVisitor(this, visitor);
         }

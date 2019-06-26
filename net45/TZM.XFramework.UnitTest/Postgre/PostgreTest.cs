@@ -5,6 +5,7 @@ using System.Data.SqlTypes;
 using System.Collections.Generic;
 
 using TZM.XFramework.Data;
+using TZM.XFramework.Data.SqlClient;
 
 namespace TZM.XFramework.UnitTest.Postgre
 {
