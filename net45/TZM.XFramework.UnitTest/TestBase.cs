@@ -30,12 +30,12 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            Query();
-            Join();
-            Delete();
-            Update();
-            Insert();
-            API();
+            //Query();
+            //Join();
+            //Delete();
+            //Update();
+            //Insert();
+            //API();
             Rabbit();
         }
 
@@ -1864,7 +1864,7 @@ namespace TZM.XFramework.UnitTest
 
             stop = new Stopwatch();
             stop.Start();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 100; i++)
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
