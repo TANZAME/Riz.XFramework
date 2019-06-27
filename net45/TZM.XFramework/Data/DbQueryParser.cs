@@ -49,10 +49,10 @@ namespace TZM.XFramework.Data
 
             for (int index = startIndex; index < dbQuery.DbExpressions.Count; ++index)
             {
-                DbExpression curExp = dbQuery.DbExpressions[index];
+                DbExpression curExpr = dbQuery.DbExpressions[index];
 
                 // Take(n)
-                if (take != null || (skip != null && curExp.DbExpressionType != DbExpressionType.Take) || isDistinct || isSubQuery)
+                if (take != null || (skip != null && curExpr.DbExpressionType != DbExpressionType.Take) || isDistinct || isSubQuery)
                 {
                     outerIndex = index;
                     break;
@@ -60,7 +60,7 @@ namespace TZM.XFramework.Data
 
                 #region 分析语义
 
-                switch (curExp.DbExpressionType)
+                switch (curExpr.DbExpressionType)
                 {
                     case DbExpressionType.None:
                     case DbExpressionType.All:
@@ -68,7 +68,7 @@ namespace TZM.XFramework.Data
 
                     case DbExpressionType.Any:
                         isAny = true;
-                        if (curExp.Expressions != null) where.Add(curExp.Expressions[0]);
+                        if (curExpr.Expressions != null) where.Add(curExpr.Expressions[0]);
                         break;
 
                     case DbExpressionType.AsSubQuery:
@@ -77,32 +77,32 @@ namespace TZM.XFramework.Data
                         break;
 
                     case DbExpressionType.Union:
-                        var uQuery = (curExp.Expressions[0] as ConstantExpression).Value as IDbQueryable<TElement>;
+                        var uQuery = (curExpr.Expressions[0] as ConstantExpression).Value as IDbQueryable<TElement>;
                         var u = DbQueryParser.Parse(uQuery);
                         union.Add(u);
                         continue;
                     case DbExpressionType.Include:
-                        include.Add(curExp);
+                        include.Add(curExpr);
                         continue;
 
                     case DbExpressionType.GroupBy:
-                        groupBy = curExp;
+                        groupBy = curExpr;
                         continue;
 
                     case DbExpressionType.GetTable:
-                        type = (curExp.Expressions[0] as ConstantExpression).Value as Type;
+                        type = (curExpr.Expressions[0] as ConstantExpression).Value as Type;
                         continue;
 
                     case DbExpressionType.Average:
                     case DbExpressionType.Min:
                     case DbExpressionType.Sum:
                     case DbExpressionType.Max:
-                        statis = curExp;
+                        statis = curExpr;
                         continue;
 
                     case DbExpressionType.Count:
-                        statis = curExp;
-                        if (curExp.Expressions != null) where.Add(curExp.Expressions[0]);
+                        statis = curExpr;
+                        if (curExpr.Expressions != null) where.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Distinct:
@@ -112,68 +112,68 @@ namespace TZM.XFramework.Data
                     case DbExpressionType.First:
                     case DbExpressionType.FirstOrDefault:
                         take = 1;
-                        if (curExp.Expressions != null) where.Add(curExp.Expressions[0]);
+                        if (curExpr.Expressions != null) where.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Join:
                     case DbExpressionType.GroupJoin:
                     case DbExpressionType.GroupRightJoin:
-                        select = curExp.Expressions[3];
-                        join.Add(curExp);
+                        select = curExpr.Expressions[3];
+                        join.Add(curExpr);
                         continue;
 
                     case DbExpressionType.OrderBy:
                     case DbExpressionType.OrderByDescending:
-                        orderBy.Add(curExp);
+                        orderBy.Add(curExpr);
                         continue;
                     case DbExpressionType.Select:
-                        select = curExp.Expressions != null ? curExp.Expressions[0] : null;
+                        select = curExpr.Expressions != null ? curExpr.Expressions[0] : null;
                         continue;
 
                     case DbExpressionType.SelectMany:
-                        select = curExp.Expressions[1];
-                        if (CheckSelectMany(dbQuery.DbExpressions, curExp, startIndex)) join.Add(curExp);
+                        select = curExpr.Expressions[1];
+                        if (CheckSelectMany(dbQuery.DbExpressions, curExpr, startIndex)) join.Add(curExpr);
 
                         continue;
 
                     case DbExpressionType.Single:
                     case DbExpressionType.SingleOrDefault:
                         take = 1;
-                        if (curExp.Expressions != null) where.Add(curExp.Expressions[0]);
+                        if (curExpr.Expressions != null) where.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Skip:
-                        skip = (int)(curExp.Expressions[0] as ConstantExpression).Value;
+                        skip = (int)(curExpr.Expressions[0] as ConstantExpression).Value;
                         continue;
 
                     case DbExpressionType.Take:
-                        take = (int)(curExp.Expressions[0] as ConstantExpression).Value;
+                        take = (int)(curExpr.Expressions[0] as ConstantExpression).Value;
                         continue;
 
                     case DbExpressionType.ThenBy:
                     case DbExpressionType.ThenByDescending:
-                        orderBy.Add(curExp);
+                        orderBy.Add(curExpr);
                         continue;
 
                     case DbExpressionType.Where:
                         var predicate = groupBy == null ? where : having;
-                        if (curExp.Expressions != null) predicate.Add(curExp.Expressions[0]);
+                        if (curExpr.Expressions != null) predicate.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Insert:
-                        insert = curExp;
+                        insert = curExpr;
                         continue;
 
                     case DbExpressionType.Update:
-                        update = curExp;
+                        update = curExpr;
                         continue;
 
                     case DbExpressionType.Delete:
-                        delete = curExp;
+                        delete = curExpr;
                         continue;
 
                     default:
-                        throw new NotSupportedException(string.Format("{0} is not support.", curExp.DbExpressionType));
+                        throw new NotSupportedException(string.Format("{0} is not support.", curExpr.DbExpressionType));
                 }
 
                 #endregion
@@ -466,6 +466,8 @@ namespace TZM.XFramework.Data
                                 if (name == pName)
                                 {
                                     curExpr.DbExpressionType = DbExpressionType.GroupRightJoin;
+                                    //curExpr = new DbExpression(DbExpressionType.GroupRightJoin, curExpr.Expressions);
+                                    //collection[i] = curExpr;
                                     break;
                                 }
                             }

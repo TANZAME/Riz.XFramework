@@ -1,6 +1,7 @@
 ﻿
 using System.Data;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace TZM.XFramework.Data
 {
@@ -17,7 +18,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 查询表达式
         /// </summary>
-        IList<DbExpression> DbExpressions { get; set; }
+        ReadOnlyCollection<DbExpression> DbExpressions { get; }
 
         /// <summary>
         /// 批量插入信息

@@ -214,11 +214,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static IDbQueryable<System.Linq.IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return source.CreateQuery<System.Linq.IGrouping<TKey, TSource>>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.GroupBy,
-                Expressions = new Expression[] { keySelector }
-            });
+            return source.CreateQuery<System.Linq.IGrouping<TKey, TSource>>(new DbExpression(DbExpressionType.GroupBy, keySelector));
         }
 
         /// <summary>
@@ -226,11 +222,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static IDbQueryable<System.Linq.IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector)
         {
-            return source.CreateQuery<System.Linq.IGrouping<TKey, TElement>>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.GroupBy,
-                Expressions = new Expression[] { keySelector, elementSelector }
-            });
+            return source.CreateQuery<System.Linq.IGrouping<TKey, TElement>>(new DbExpression(DbExpressionType.GroupBy, new Expression[] { keySelector, elementSelector }));
         }
 
         /// <summary>
@@ -274,11 +266,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static IDbQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IDbQueryable<TOuter> outer, IDbQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IDbQueryable<TInner>, TResult>> resultSelector)
         {
-            return outer.CreateQuery<TResult>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.GroupJoin,
-                Expressions = new Expression[] { Expression.Constant(inner), outerKeySelector, innerKeySelector, resultSelector }
-            });
+            return outer.CreateQuery<TResult>(new DbExpression(DbExpressionType.GroupJoin, new Expression[] {
+                Expression.Constant(inner),
+                outerKeySelector,
+                innerKeySelector,
+                resultSelector
+            }));
         }
 
         /// <summary>
@@ -294,11 +287,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static IDbQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IDbQueryable<TOuter> outer, IDbQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
-            return outer.CreateQuery<TResult>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Join,
-                Expressions = new Expression[] { Expression.Constant(inner), outerKeySelector, innerKeySelector, resultSelector }
-            });
+            return outer.CreateQuery<TResult>(new DbExpression(DbExpressionType.Join, new Expression[] {
+                Expression.Constant(inner),
+                outerKeySelector,
+                innerKeySelector,
+                resultSelector
+            }));
         }
 
         /// <summary>
@@ -410,11 +404,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static IDbQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, IDbQueryable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
         {
-            return source.CreateQuery<TResult>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.SelectMany,
-                Expressions = new Expression[] { collectionSelector, resultSelector }
-            });
+            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.SelectMany, new Expression[] { collectionSelector, resultSelector }));
         }
 
         /// <summary>

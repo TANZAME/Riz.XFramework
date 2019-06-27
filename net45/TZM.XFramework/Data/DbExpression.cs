@@ -34,5 +34,14 @@ namespace TZM.XFramework.Data
             this.DbExpressionType = dbExpressionType;
             if (exp != null) Expressions = new[] { exp };
         }
+
+        /// <summary>
+        /// 实例化<see cref="DbExpression"/>类的新实例
+        /// </summary>
+        public DbExpression(DbExpressionType dbExpressionType, Expression[] expressions)
+        {
+            this.DbExpressionType = dbExpressionType;
+            this.Expressions = expressions;
+        }
     }
 }

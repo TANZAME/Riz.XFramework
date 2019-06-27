@@ -87,15 +87,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual void Insert<T>(T TEntity)
         {
-            IDbQueryable<T> table = this.GetTable<T>();
-            table.DbExpressions.Add(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Insert,
-                Expressions = new[] { Expression.Constant(TEntity) }
-            });
+            IDbQueryable<T> query = this.GetTable<T>();
+            query = query.CreateQuery<T>(DbExpressionType.Insert, Expression.Constant(TEntity));
 
             lock (this._oLock)
-                _dbQueryables.Add(table);
+                _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -117,14 +113,11 @@ namespace TZM.XFramework.Data
             List<IDbQueryable> bulkList = new List<IDbQueryable>();
             foreach (T value in collection)
             {
-                IDbQueryable<T> table = this.GetTable<T>();
-                table.DbExpressions.Add(new DbExpression
-                {
-                    DbExpressionType = DbExpressionType.Insert,
-                    Expressions = entityColumns != null ? new[] { Expression.Constant(value), Expression.Constant(entityColumns) } : new[] { Expression.Constant(value) }
-                });
+                IDbQueryable<T> query = this.GetTable<T>();
+                var expressions = entityColumns != null ? new[] { Expression.Constant(value), Expression.Constant(entityColumns) } : new[] { Expression.Constant(value) };
+                query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Insert, expressions));
 
-                bulkList.Add(table);
+                bulkList.Add(query);
             }
 
             lock (this._oLock)
@@ -147,11 +140,8 @@ namespace TZM.XFramework.Data
         public void Delete<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
-            query.DbExpressions.Add(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Delete,
-                Expressions = new[] { Expression.Constant(TEntity) }
-            });
+            query = query.CreateQuery<T>(DbExpressionType.Delete, Expression.Constant(TEntity));
+
             lock (this._oLock)
                 _dbQueryables.Add(query);
         }
@@ -230,11 +220,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected void Update<T>(Expression updateExpression, IDbQueryable<T> query)
         {
-            query = query.CreateQuery<T>(new DbExpression
-            {
-                DbExpressionType = DbExpressionType.Update,
-                Expressions = new[] { updateExpression }
-            });
+            query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Update, updateExpression));
             lock (this._oLock)
                 _dbQueryables.Add(query);
         }
@@ -457,13 +443,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public IDbQueryable<T> GetTable<T>()
         {
-            DbQueryable<T> queryable = new DbQueryable<T> { DbContext = this };
-            queryable.DbExpressions = new List<DbExpression> { new DbExpression
-            {
-                DbExpressionType = DbExpressionType.GetTable,
-                Expressions = new[] { Expression.Constant(typeof(T)) }
-            } };
-            return queryable;
+            DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
+            return query;
         }
 
         /// <summary>

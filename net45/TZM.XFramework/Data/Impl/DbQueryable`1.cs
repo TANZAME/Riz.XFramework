@@ -1,23 +1,34 @@
 ﻿
 using System.Data;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 数据查询
+    /// 数据查询表达对象
     /// </summary>
     public class DbQueryable<TElement> : DbQueryable, IDbQueryable<TElement>
     {
-        private IList<DbExpression> _dbExpressions = null;
+        private ReadOnlyCollection<DbExpression> _collection = null;
 
         /// <summary>
         /// 查询表达式
         /// </summary>
-        public override IList<DbExpression> DbExpressions
+        public override ReadOnlyCollection<DbExpression> DbExpressions
         {
-            get { return _dbExpressions; }
-            set { _dbExpressions = value; }
+            get { return _collection; }
+        }
+
+        /// <summary>
+        /// 实例化类<see cref="DbQueryable"/>的新实例
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="collection"></param>
+        public DbQueryable(IDbContext context, IList<DbExpression> collection)
+        {
+            this.DbContext = context;
+            this._collection = new ReadOnlyCollection<DbExpression>(collection != null ? collection : new List<DbExpression>(0));
         }
 
         /// <summary>
@@ -25,25 +36,19 @@ namespace TZM.XFramework.Data
         /// </summary>
         public IDbQueryable<TResult> CreateQuery<TResult>(DbExpressionType dbExpressionType, System.Linq.Expressions.Expression expression = null)
         {
-            return this.CreateQuery<TResult>(new DbExpression
-            {
-                DbExpressionType = dbExpressionType,
-                Expressions = expression != null ? new[] { expression } : null
-            });
+            return this.CreateQuery<TResult>(new DbExpression(dbExpressionType, expression));
         }
 
         /// <summary>
         /// 创建查询
         /// </summary>
-        public IDbQueryable<TResult> CreateQuery<TResult>(DbExpression exp = null)
+        public IDbQueryable<TResult> CreateQuery<TResult>(DbExpression dbExpression = null)
         {
-            IDbQueryable<TResult> query = new DbQueryable<TResult>
-            {
-                DbContext = _context,
-                DbExpressions = new List<DbExpression>(_dbExpressions)
-            };
+            List<DbExpression> collection = new List<DbExpression>(this.DbExpressions.Count + (dbExpression != null ? 1 : 0));
+            collection.AddRange(this.DbExpressions);
+            if (dbExpression != null) collection.Add(dbExpression);
 
-            if (exp != null) query.DbExpressions.Add(exp);
+            IDbQueryable<TResult> query = new DbQueryable<TResult>(this.DbContext, collection);
             return query;
         }
 

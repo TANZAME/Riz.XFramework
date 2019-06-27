@@ -1,6 +1,7 @@
 ﻿
 using System.Data;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace TZM.XFramework.Data
 {
@@ -52,7 +53,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 查询表达式
         /// </summary>
-        public abstract IList<DbExpression> DbExpressions { get; set; }
+        public abstract ReadOnlyCollection<DbExpression> DbExpressions { get; }
 
         /// <summary>
         /// 转换后的查询对象
@@ -84,8 +85,8 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public abstract  DbCommandDefinition Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
-        
+        public abstract DbCommandDefinition Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
+
         /// <summary>
         /// 解析查询语义
         /// </summary>
