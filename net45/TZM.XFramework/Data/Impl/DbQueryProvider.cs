@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
             // 设置该查询是否需要参数化
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
             if (dbQueryable.Parameterized && parameters == null) parameters = new List<IDbDataParameter>(8);
-            
+
             // 解析查询语义
             IDbQueryableInfo<T> info = DbQueryParser.Parse(dbQueryable);
 
@@ -132,6 +132,20 @@ namespace TZM.XFramework.Data
             }
 
             return sqlList;
+        }
+
+        /// <summary>
+        /// 创建数据会话
+        /// </summary>
+        /// <param name="connString">数据库连接字符串</param>
+        /// <param name="commandTimeout">执行命令超时时间</param>
+        /// <returns></returns>
+        public virtual IDatabase CreateDbSession(string connString, int? commandTimeout)
+        {
+            return new Database(this.DbProviderFactory, connString)
+            {
+                CommandTimeout = commandTimeout
+            };
         }
 
         /// <summary>

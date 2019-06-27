@@ -192,6 +192,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
+        T Execute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func);
+
+        /// <summary>
+        /// 执行SQL 语句，并返回单个实体对象
+        /// </summary>
         /// <param name="cmd">SQL 命令</param>
         /// <returns></returns>
         T Execute<T>(IDbCommand cmd);

@@ -90,44 +90,5 @@ namespace TZM.XFramework.Data
             await Task.FromResult(0);
             throw new NotSupportedException("Oracle ExecuteMultiple not supported.");
         }
-
-        // 异步执行提交
-        protected override async Task<List<int>> DoSubmitAsync(List<DbCommandDefinition> sqlList)
-        {
-            List<int> identitys = new List<int>();
-            IDataReader reader = null;
-
-            try
-            {
-                Func<DbCommand, Task<object>> func = async cmd =>
-                {
-                    reader = await base.ExecuteReaderAsync(cmd);
-                    TypeDeserializer deserializer = new TypeDeserializer(reader, null);
-                    do
-                    {
-                        var result = deserializer.Deserialize<int>();
-                        foreach (IDbDataParameter p in cmd.Parameters)
-                        {
-                            if (p.Direction != ParameterDirection.Output) continue;
-                            identitys.Add(Convert.ToInt32(p.Value));
-                        }
-                    }
-                    while (reader.NextResult());
-
-                    // 释放当前的reader
-                    if (reader != null) reader.Dispose();
-
-                    return null;
-                };
-
-                await base.DoExecuteAsync<object>(sqlList, func);
-                return identitys;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
-        }
-
     }
 }

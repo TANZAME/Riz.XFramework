@@ -80,14 +80,5 @@ namespace TZM.XFramework.Data.SqlClient
                 if (wasClosed) base.Dispose();
             }
         }
-
-        // 创建据库会话实例
-        protected override IDatabase CreateDatabase(string connString, int? commandTimeout)
-        {
-            return new Database(SqlClientFactory.Instance, connString)
-            {
-                CommandTimeout = commandTimeout
-            };
-        }
     }
 }

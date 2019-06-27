@@ -159,6 +159,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
+        public async Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, Task<T>> func)
+        {
+            return await this.DoExecuteAsync<T>(sqlList, func);
+        }
+
+        /// <summary>
+        /// 执行SQL 语句，并返回单个实体对象
+        /// </summary>
         /// <param name="cmd">SQL 命令</param>
         /// <returns></returns>
         public async Task<T> ExecuteAsync<T>(IDbCommand cmd)
@@ -490,51 +498,6 @@ namespace TZM.XFramework.Data
                 this.InternalDispose();
             }
             return result;
-        }
-
-        /// <summary>
-        /// 提交上下文
-        /// </summary>
-        /// <param name="sqlList">命令集合</param>
-        /// <returns></returns>
-        internal async Task<List<int>> SubmitAsync(List<DbCommandDefinition> sqlList)
-        {
-            return await this.DoSubmitAsync(sqlList);
-        }
-
-        // 执行
-        protected virtual async Task<List<int>> DoSubmitAsync(List<DbCommandDefinition> sqlList)
-        {
-            List<int> identitys = new List<int>();
-            IDataReader reader = null;
-
-            try
-            {
-                Func<DbCommand, Task<object>> func = async p =>
-                {
-                    reader = await this.ExecuteReaderAsync(p);
-                    TypeDeserializer deserializer = new TypeDeserializer(reader, null);
-                    do
-                    {
-                        List<int> result = null;
-                        deserializer.Deserialize<int>(out result);
-                        if (result != null && result.Count > 0) identitys.AddRange(result);
-                    }
-                    while (reader.NextResult());
-
-                    // 释放当前的reader
-                    if (reader != null) reader.Dispose();
-
-                    return null;
-                };
-
-                await this.DoExecuteAsync<object>(sqlList, func);
-                return identitys;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
         }
 
         // 执行 SQL 命令

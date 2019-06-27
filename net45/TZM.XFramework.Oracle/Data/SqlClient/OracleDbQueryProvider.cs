@@ -609,7 +609,8 @@ namespace TZM.XFramework.Data.SqlClient
                         {
                             // 非批量INSERT，产生一个 OUTPUT 类型的参数
                             string pName = string.Format("{0}p{1}", this.ParameterPrefix, builder.Parameters.Count);
-                            seqParameter = Database.CreateParameter(this.DbProviderFactory, pName, -1, direction: ParameterDirection.Output);
+                            var database = nQuery.SourceQuery.DbContext.Database;
+                            seqParameter = database.CreateParameter(pName, -1, direction: ParameterDirection.Output);
                             builder.Parameters.Add(seqParameter);
                             valuesBuilder.Append(seqParameter.ParameterName);
                             valuesBuilder.Append(',');

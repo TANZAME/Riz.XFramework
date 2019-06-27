@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Data;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -15,9 +16,11 @@ namespace TZM.XFramework.Data
 
         #region 私有字段
 
-        private readonly List<object> _dbQueryables = new List<object>();
+        protected readonly List<object> _dbQueryables = new List<object>();
         private readonly object _oLock = new object();
-        private Database _database = null;
+        private IDatabase _database = null;
+        private string _connString = null;
+        private int? _commandTimeout = null;
 
         #endregion
 
@@ -33,7 +36,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         public IDatabase Database
         {
-            get { return _database; }
+            get
+            {
+                if (_database == null) _database = this.Provider.CreateDbSession(_connString, _commandTimeout);
+                return _database;
+            }
         }
 
         #endregion
@@ -67,9 +74,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public DbContextBase(string connString, int? commandTimeout)
         {
-            _database = (Database)this.CreateDatabase(connString, commandTimeout);
-            //_provider = this.CreateQueryProvider();
-            //_provider.DbProviderFactory = _database.DbProviderFactory;
+            _connString = connString;
+            _commandTimeout = commandTimeout;
         }
 
         #endregion
@@ -266,12 +272,42 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
+            IDataReader reader = null;
+            List<int> identitys = null;
             List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<int> identitys = _database.Submit(sqlList);
-            SetAutoIncrementValue(_dbQueryables, identitys);
-            this.InternalDispose();
 
-            return rowCount;
+            Func<IDbCommand, object> doExecute = cmd =>
+            {
+                reader = this.Database.ExecuteReader(cmd);
+                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
+                do
+                {
+                    List<int> autoIncrements = null;
+                    deserializer.Deserialize<object>(out autoIncrements);
+                    if (autoIncrements != null && autoIncrements.Count > 0)
+                    {
+                        if (identitys == null) identitys = new List<int>();
+                        identitys.AddRange(autoIncrements);
+                    }
+                }
+                while (reader.NextResult());
+
+                // 释放当前的reader
+                if (reader != null) reader.Dispose();
+                return null;
+            };
+
+            try
+            {
+                this.Database.Execute<object>(sqlList, doExecute);
+                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                return rowCount;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                this.InternalDispose();
+            }
         }
 
         /// <summary>
@@ -286,12 +322,48 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
+            List<T> q1 = null;
+            IDataReader reader = null;
+            List<int> identitys = null;
             List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<int> identitys = _database.Submit<T>(sqlList, out result);
-            SetAutoIncrementValue(_dbQueryables, identitys);
-            this.InternalDispose();
 
-            return rowCount;
+            Func<IDbCommand, object> doExecute = cmd =>
+            {
+                reader = this.Database.ExecuteReader(cmd);
+                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
+                do
+                {
+                    List<int> autoIncrements = null;
+                    var collection = deserializer.Deserialize<T>(out autoIncrements);
+                    if (autoIncrements != null)
+                    {
+                        if (identitys == null) identitys = new List<int>();
+                        identitys.AddRange(autoIncrements);
+                    }
+                    else if (collection != null)
+                    {
+                        if (q1 == null) q1 = collection;
+                    }
+                }
+                while (reader.NextResult());
+
+                // 释放当前的reader
+                if (reader != null) reader.Dispose();
+                return null;
+            };
+
+            try
+            {
+                this.Database.Execute<object>(sqlList, doExecute);
+                result = q1 ?? new List<T>(0);
+                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                return rowCount;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                this.InternalDispose();
+            }
         }
 
         /// <summary>
@@ -308,12 +380,76 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
+            List<T1> q1 = null;
+            List<T2> q2 = null;
+            IDataReader reader = null;
+            List<int> identitys = null;
             List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<int> identitys = _database.Submit<T1, T2>(sqlList, out result1, out result2);
-            SetAutoIncrementValue(_dbQueryables, identitys);
-            this.InternalDispose();
+            List<DbCommandDefinition_Select> defines = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
 
-            return rowCount;
+            Func<IDbCommand, object> doExecute = cmd =>
+            {
+                reader = this.Database.ExecuteReader(cmd);
+                TypeDeserializer deserializer1 = null;
+                TypeDeserializer deserializer2 = null;
+                do
+                {
+                    if (q1 == null)
+                    {
+                        // 先查第一个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, defines.Count > 0 ? defines[0] : null);
+                        var collection = deserializer1.Deserialize<T1>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            q1 = collection;
+                        }
+                    }
+                    else
+                    {
+                        // 再查第二个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, defines.Count > 1 ? defines[1] : null);
+                        var collection = deserializer2.Deserialize<T2>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q2 == null) q2 = collection;
+                        }
+                    }
+
+                }
+                while (reader.NextResult());
+
+                // 释放当前的reader
+                if (reader != null) reader.Dispose();
+                return null;
+            };
+
+            try
+            {
+                this.Database.Execute<object>(sqlList, doExecute);
+                result1 = q1 ?? new List<T1>(0);
+                result2 = q2 ?? new List<T2>(0);
+                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                return rowCount;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                this.InternalDispose();
+            }
         }
 
         /// <summary>
@@ -350,14 +486,6 @@ namespace TZM.XFramework.Data
         #endregion
 
         #region 私有函数
-
-        /// <summary>
-        /// 创建据库会话实例
-        /// </summary>
-        /// <param name="connString">连接字符串</param>
-        /// <param name="commandTimeout">执行命令超时时间</param>
-        /// <returns></returns>
-        protected abstract IDatabase CreateDatabase(string connString, int? commandTimeout);
 
         // 更新自增列
         protected virtual void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)

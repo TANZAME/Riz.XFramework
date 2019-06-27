@@ -42,14 +42,5 @@ namespace TZM.XFramework.Data.SqlClient
             : base(connString, commandTimeout)
         {
         }
-
-        // 创建据库会话实例
-        protected override IDatabase CreateDatabase(string connString, int? commandTimeout)
-        {
-            return new Database(MySqlClientFactory.Instance, connString)
-            {
-                CommandTimeout = commandTimeout
-            };
-        }
     }
 }

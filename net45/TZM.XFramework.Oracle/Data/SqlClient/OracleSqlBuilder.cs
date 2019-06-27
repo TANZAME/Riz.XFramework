@@ -30,6 +30,9 @@ namespace TZM.XFramework.Data
 
         }
 
+        /// <summary>
+        /// 增加一个参数
+        /// </summary>
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             if (value is bool ) value = ((bool)value) ? 1 : 0;

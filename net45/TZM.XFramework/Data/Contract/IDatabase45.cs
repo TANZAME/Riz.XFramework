@@ -94,11 +94,16 @@ namespace TZM.XFramework.Data
         Task<T> ExecuteAsync<T>(IDbQueryable<T> query);
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回单个实体对象
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList);
+
+        /// <summary>
+        /// 异步执行SQL 语句，并返回单个实体对象
+        /// </summary>
+        Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, Task<T>> func);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象

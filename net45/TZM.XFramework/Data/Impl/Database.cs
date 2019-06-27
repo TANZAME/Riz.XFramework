@@ -183,7 +183,36 @@ namespace TZM.XFramework.Data
         public virtual IDbDataParameter CreateParameter(string name, object value,
             DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            return Database.CreateParameter(this.DbProviderFactory, name, value, dbType, size, precision, scale, direction);
+            IDbDataParameter parameter = this.DbProviderFactory.CreateParameter();
+            parameter.ParameterName = name;
+            parameter.Value = value;
+
+            if (dbType != null) parameter.DbType = dbType.Value;
+            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
+            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
+            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
+            if (direction != null) parameter.Direction = direction.Value;
+            else parameter.Direction = ParameterDirection.Input;
+
+            // 补充字符串的长度
+            if (value != null && value.GetType() == typeof(string) && size == null)
+            {
+                string s = value.ToString();
+                if (dbType == null) parameter.DbType = DbType.String;
+                if (parameter.DbType == DbType.String || parameter.DbType == DbType.StringFixedLength ||
+                    parameter.DbType == DbType.AnsiString || parameter.DbType == DbType.AnsiStringFixedLength)
+                {
+                    if (s.Length <= 256) parameter.Size = 256;
+                    else if (s.Length <= 512) parameter.Size = 512;
+                    else if (s.Length <= 1024) parameter.Size = 1024;
+                    else if (s.Length <= 4000) parameter.Size = 4000;
+                    else if (s.Length <= 8000) parameter.Size = 8000;
+                    else parameter.Size = -1;
+                }
+            }
+
+            // 返回创建的参数
+            return parameter;
         }
 
         /// <summary>
@@ -343,6 +372,14 @@ namespace TZM.XFramework.Data
         public T Execute<T>(List<DbCommandDefinition> sqlList)
         {
             return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
+        }
+
+        /// <summary>
+        /// 执行SQL 语句，并返回单个实体对象
+        /// </summary>
+        public T Execute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
+        {
+            return this.DoExecute<T>(sqlList, func);
         }
 
         /// <summary>
@@ -720,238 +757,6 @@ namespace TZM.XFramework.Data
         #endregion
 
         #region 私有函数
-
-        /// <summary>
-        /// 创建命令参数
-        /// </summary>
-        public static IDbDataParameter CreateParameter(DbProviderFactory dbProvider, string name, object value,
-            DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
-        {
-            IDbDataParameter parameter = dbProvider.CreateParameter();
-            parameter.ParameterName = name;
-            parameter.Value = value;
-
-            if (dbType != null) parameter.DbType = dbType.Value;
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-            if (direction != null) parameter.Direction = direction.Value;
-            else parameter.Direction = ParameterDirection.Input;
-
-            // 补充字符串的长度
-            if (value != null && value.GetType() == typeof(string) && size == null)
-            {
-                string s = value.ToString();
-                if (dbType == null) parameter.DbType = DbType.String;
-                if (parameter.DbType == DbType.String || parameter.DbType == DbType.StringFixedLength ||
-                    parameter.DbType == DbType.AnsiString || parameter.DbType == DbType.AnsiStringFixedLength)
-                {
-                    if (s.Length <= 256) parameter.Size = 256;
-                    else if (s.Length <= 512) parameter.Size = 512;
-                    else if (s.Length <= 1024) parameter.Size = 1024;
-                    else if (s.Length <= 4000) parameter.Size = 4000;
-                    else if (s.Length <= 8000) parameter.Size = 8000;
-                    else parameter.Size = -1;
-                }
-            }
-
-            // 返回创建的参数
-            return parameter;
-        }
-
-        /// <summary>
-        /// 提交上下文
-        /// </summary>
-        /// <param name="sqlList">命令集合</param>
-        /// <returns></returns>
-        internal List<int> Submit(List<DbCommandDefinition> sqlList)
-        {
-            return this.DoSubmit(sqlList);
-        }
-
-        /// <summary>
-        /// 提交上下文，并返回一个结果集
-        /// </summary>
-        /// <param name="sqlList">命令集合</param>
-        /// <param name="result">结果集合</param>
-        /// <returns></returns>
-        internal List<int> Submit<T>(List<DbCommandDefinition> sqlList, out List<T> result)
-        {
-            return this.DoSubmit<T>(sqlList, out result);
-        }
-
-        /// <summary>
-        /// 提交上下文，并返回两个结果集
-        /// </summary>
-        /// <param name="sqlList">命令集合</param>
-        /// <param name="result1">结果集合</param>
-        /// <param name="result2">结果集合</param>
-        /// <returns></returns>
-        internal List<int> Submit<T1, T2>(List<DbCommandDefinition> sqlList, out List<T1> result1, out List<T2> result2)
-        {
-            return this.DoSubmit<T1, T2>(sqlList, out result1, out result2);
-        }
-
-        /// <summary>
-        /// 执行提交
-        /// </summary>
-        protected virtual List<int> DoSubmit(List<DbCommandDefinition> sqlList)
-        {
-            IDataReader reader = null;
-            List<int> identitys = null;
-            Func<IDbCommand, object> doExecute = cmd =>
-            {
-                reader = this.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
-                do
-                {
-                    List<int> autoIncrements = null;
-                    deserializer.Deserialize<object>(out autoIncrements);
-                    if (autoIncrements != null && autoIncrements.Count > 0)
-                    {
-                        if (identitys == null) identitys = new List<int>();
-                        identitys.AddRange(autoIncrements);
-                    }
-                }
-                while (reader.NextResult());
-
-                // 释放当前的reader
-                if (reader != null) reader.Dispose();
-                return null;
-            };
-
-            try
-            {
-                this.DoExecute<object>(sqlList, doExecute);
-                return identitys;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// 执行提交
-        /// </summary>
-        protected virtual List<int> DoSubmit<T>(List<DbCommandDefinition> sqlList, out List<T> result)
-        {
-            IDataReader reader = null;
-            List<int> identitys = null;
-            result = null;
-            List<T> q1 = null;
-
-            Func<IDbCommand, object> doExecute = cmd =>
-            {
-                reader = this.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
-                do
-                {
-                    List<int> autoIncrements = null;
-                    var collection = deserializer.Deserialize<T>(out autoIncrements);
-                    if (autoIncrements != null)
-                    {
-                        if (identitys == null) identitys = new List<int>();
-                        identitys.AddRange(autoIncrements);
-                    }
-                    else if (collection != null)
-                    {
-                        if (q1 == null) q1 = collection;
-                    }
-                }
-                while (reader.NextResult());
-
-                // 释放当前的reader
-                if (reader != null) reader.Dispose();
-                return null;
-            };
-
-            try
-            {
-                this.DoExecute<object>(sqlList, doExecute);
-                result = q1 ?? new List<T>(0);
-                return identitys;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// 执行提交
-        /// </summary>
-        protected virtual List<int> DoSubmit<T1, T2>(List<DbCommandDefinition> sqlList, out List<T1> result1, out List<T2> result2)
-        {
-            IDataReader reader = null;
-            List<int> identitys = null;
-            result1 = null;
-            List<T1> q1 = null;
-            List<T2> q2 = null;
-            List<DbCommandDefinition_Select> defines = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
-
-            Func<IDbCommand, object> doExecute = cmd =>
-            {
-                reader = this.ExecuteReader(cmd);
-                TypeDeserializer deserializer1 = null;
-                TypeDeserializer deserializer2 = null;
-                do
-                {
-                    if (q1 == null)
-                    {
-                        // 先查第一个类型集合
-                        List<int> autoIncrements = null;
-                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, defines.Count > 0 ? defines[0] : null);
-                        var collection = deserializer1.Deserialize<T1>(out autoIncrements);
-
-                        if (autoIncrements != null)
-                        {
-                            if (identitys == null) identitys = new List<int>();
-                            identitys.AddRange(autoIncrements);
-                        }
-                        else if (collection != null)
-                        {
-                            q1 = collection;
-                        }
-                    }
-                    else
-                    {
-                        // 再查第二个类型集合
-                        List<int> autoIncrements = null;
-                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, defines.Count > 1 ? defines[1] : null);
-                        var collection = deserializer2.Deserialize<T2>(out autoIncrements);
-
-                        if (autoIncrements != null)
-                        {
-                            if (identitys == null) identitys = new List<int>();
-                            identitys.AddRange(autoIncrements);
-                        }
-                        else if (collection != null)
-                        {
-                            if (q2 == null) q2 = collection;
-                        }
-                    }
-
-                }
-                while (reader.NextResult());
-
-                // 释放当前的reader
-                if (reader != null) reader.Dispose();
-                return null;
-            };
-
-            try
-            {
-                this.DoExecute<object>(sqlList, doExecute);
-                result1 = q1 ?? new List<T1>(0);
-                result2 = q2 ?? new List<T2>(0);
-                return identitys;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
-        }
 
         /// <summary>
         /// 执行 SQL 命令

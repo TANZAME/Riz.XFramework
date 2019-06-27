@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -21,12 +22,38 @@ namespace TZM.XFramework.Data
             if (rowCount == 0) return 0;
 
             List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<int> identitys = await _database.SubmitAsync(sqlList);
-            // 回写自增列的ID值
-            SetAutoIncrementValue(_dbQueryables, identitys);
-            this.InternalDispose();
+            List<int> identitys = new List<int>();
+            IDataReader reader = null;
 
-            return rowCount;
+            try
+            {
+                Func<IDbCommand, Task<object>> func = async cmd =>
+                {
+                    reader = await this.Database.ExecuteReaderAsync(cmd);
+                    TypeDeserializer deserializer = new TypeDeserializer(reader, null);
+                    do
+                    {
+                        List<int> result = null;
+                        deserializer.Deserialize<int>(out result);
+                        if (result != null && result.Count > 0) identitys.AddRange(result);
+                    }
+                    while (reader.NextResult());
+
+                    // 释放当前的reader
+                    if (reader != null) reader.Dispose();
+
+                    return null;
+                };
+
+                await this.Database.ExecuteAsync<object>(sqlList, func);
+                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                return rowCount;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                this.InternalDispose();
+            }
         }
     }
 }

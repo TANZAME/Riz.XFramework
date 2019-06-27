@@ -57,6 +57,14 @@ namespace TZM.XFramework.Data
         DbCommandDefinition Resolve<T>(IDbQueryable<T> dbQueryable, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
 
         /// <summary>
+        /// 创建数据会话
+        /// </summary>
+        /// <param name="connString">数据库连接字符串</param>
+        /// <param name="commandTimeout">执行命令超时时间</param>
+        /// <returns></returns>
+        IDatabase CreateDbSession(string connString, int? commandTimeout);
+
+        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="parameters">参数列表，NULL 时表示不使用参数化</param>
