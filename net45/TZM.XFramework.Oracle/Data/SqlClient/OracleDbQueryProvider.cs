@@ -82,9 +82,24 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 实例化 <see cref="OracleDbQueryProvider"/> 类的新实例
         /// </summary>
-        private OracleDbQueryProvider() : base()
+        private OracleDbQueryProvider() 
+            : base()
         {
 
+        }
+
+        /// <summary>
+        /// 创建数据会话
+        /// </summary>
+        /// <param name="connString">数据库连接字符串</param>
+        /// <param name="commandTimeout">执行命令超时时间</param>
+        /// <returns></returns>
+        public override IDatabase CreateDbSession(string connString, int? commandTimeout)
+        {
+            return new OracleDatabase(this.DbProviderFactory, connString)
+            {
+                CommandTimeout = commandTimeout
+            };
         }
 
         /// <summary>

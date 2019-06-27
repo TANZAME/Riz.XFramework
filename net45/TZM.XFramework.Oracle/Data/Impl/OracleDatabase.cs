@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
-            List<DbCommandDefinition_Select> shapes = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
+            List<DbCommandDefinition_Select> defines = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;
@@ -60,17 +60,17 @@ namespace TZM.XFramework.Data
                 {
                     if (q1 == null)
                     {
-                        deserializer1 = new TypeDeserializer(reader, shapes.Count > 0 ? shapes[0] : null);
+                        deserializer1 = new TypeDeserializer(reader, defines.Count > 0 ? defines[0] : null);
                         q1 = deserializer1.Deserialize<T1>();
                     }
                     else if (q2 == null)
                     {
-                        deserializer2 = new TypeDeserializer(reader, shapes.Count > 1 ? shapes[1] : null);
+                        deserializer2 = new TypeDeserializer(reader, defines.Count > 1 ? defines[1] : null);
                         q2 = deserializer2.Deserialize<T2>();
                     }
                     else if (q3 == null)
                     {
-                        deserializer3 = new TypeDeserializer(reader, shapes.Count > 2 ? shapes[2] : null);
+                        deserializer3 = new TypeDeserializer(reader, defines.Count > 2 ? defines[2] : null);
                         q3 = deserializer3.Deserialize<T3>();
                     }
                 }
