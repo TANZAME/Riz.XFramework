@@ -14,7 +14,7 @@ namespace TZM.XFramework.UnitTest
         private string _demoName = "002F";
         private int[] _demoIdList = new int[] { 2, 3 };
         private DatabaseType _databaseType = DatabaseType.None;
-        // 参数化查询语句数量
+        // 参数化查询语句数量@@
         protected Func<IDbContext> _newContext = null;
 
         public TestBase()
