@@ -72,6 +72,7 @@
     <Compile Include="Common\Helper\FileHelper.cs" />
     <Compile Include="Common\Helper\GZipHelper.cs" />
     <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
+    <Compile Include="Common\Helper\StringHelper.cs" />
     <Compile Include="Common\Helper\XmlHelper.cs" />
     <Compile Include="Common\KatamaNodeLocator.cs" />
     <Compile Include="Common\MetadataTypesRegister.cs" />
