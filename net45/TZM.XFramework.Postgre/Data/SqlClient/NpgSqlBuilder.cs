@@ -13,6 +13,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class NpgSqlBuilder : SqlBuilderBase
     {
+        // http://shouce.jb51.net/postgresql/ postgre 文档
         // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。
         // https://blog.csdn.net/pg_hgdb/article/details/79018366
 
