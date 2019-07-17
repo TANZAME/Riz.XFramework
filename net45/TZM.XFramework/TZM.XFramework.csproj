@@ -67,14 +67,12 @@
     <Compile Include="Common\Collection\PagedList.cs" />
     <Compile Include="Caching\ReaderWriterCache.cs" />
     <Compile Include="Caching\SimpleCache.cs" />
-    <Compile Include="Common\HashFluent.cs" />
     <Compile Include="Common\Helper\ConvertHelper.cs" />
     <Compile Include="Common\Helper\FileHelper.cs" />
     <Compile Include="Common\Helper\GZipHelper.cs" />
     <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
     <Compile Include="Common\Helper\StringHelper.cs" />
     <Compile Include="Common\Helper\XmlHelper.cs" />
-    <Compile Include="Common\KatamaNodeLocator.cs" />
     <Compile Include="Common\MetadataTypesRegister.cs" />
     <Compile Include="Common\Common.cs" />
     <Compile Include="Common\Helper\SecurityHelper.cs" />
