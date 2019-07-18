@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TZM.XFramework.Data.Internal
+namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 解析方法调用的服务容器
     /// </summary>
-    public class MethodCallExressionVisitorContainer
+    public class MethodCallContainer
     {
         private IDictionary<Type, Func<IDbQueryProvider, ExpressionVisitorBase, object>> _container = null;
 
@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data.Internal
         /// 获取解析服务
         /// </summary>
         /// <param name="declareType"></param>
-        public object GetMethodCallVisitor(Type declareType, IDbQueryProvider provider, ExpressionVisitorBase visitor)
+        public object GetVisitor(Type declareType, IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             return _container == null ? null : _container[declareType](provider, visitor);
         }

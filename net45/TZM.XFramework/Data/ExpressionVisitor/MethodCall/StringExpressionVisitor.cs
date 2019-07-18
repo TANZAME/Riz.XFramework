@@ -2,12 +2,12 @@
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
-namespace TZM.XFramework.Data.Internal
+namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 字符串类型方法解析服务
     /// </summary>
-    public class StringMethodCallExpressionVisitor
+    public class StringExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
@@ -15,9 +15,9 @@ namespace TZM.XFramework.Data.Internal
         private ExpressionVisitorBase _visitor = null;
 
         /// <summary>
-        /// 实例化 <see cref="StringMethodCallExpressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="StringExpressionVisitor"/> 类的新实例
         /// </summary>
-        public StringMethodCallExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
+        public StringExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
             _visitor = visitor;

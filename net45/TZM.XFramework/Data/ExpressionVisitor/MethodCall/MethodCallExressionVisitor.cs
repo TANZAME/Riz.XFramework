@@ -18,27 +18,27 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
-        private Internal.MethodCallExressionVisitorContainer _internalVisitors = null;
+        private MethodCallContainer _container = null;
 
         #region 公开属性
 
         /// <summary>
         /// 解析方法调用的服务容器
         /// </summary>
-        protected virtual Internal.MethodCallExressionVisitorContainer InternalVisitors
+        protected MethodCallContainer Container
         {
             get
             {
-                if (_internalVisitors == null)
+                if (_container == null)
                 {
-                    _internalVisitors = new Internal.MethodCallExressionVisitorContainer();
-                    _internalVisitors.Add(typeof(string), (provider, visitor) => new Internal.StringMethodCallExpressionVisitor(provider, visitor));
-                    _internalVisitors.Add(typeof(SqlMethod), (provider, visitor) => new Internal.SqlMethodMethodCallExpressionVisitor(provider, visitor));
-                    _internalVisitors.Add(typeof(IEnumerable), (provider, visitor) => new Internal.EnumerableMethodCall(provider, visitor));
-                    _internalVisitors.Add(typeof(IDbQueryable), (provider, visitor) => new Internal.QueryableMethodCallExpressionVisitor(provider, visitor));
+                    _container = new MethodCallContainer();
+                    _container.Add(typeof(string), (provider, visitor) => new StringExpressionVisitor(provider, visitor));
+                    _container.Add(typeof(SqlMethod), (provider, visitor) => new SqlMethodExpressionVisitor(provider, visitor));
+                    _container.Add(typeof(IEnumerable), (provider, visitor) => new EnumerableExpressionVisitor(provider, visitor));
+                    _container.Add(typeof(IDbQueryable), (provider, visitor) => new QueryableExpressionVisitor(provider, visitor));
                 }
 
-                return _internalVisitors;
+                return _container;
             }
         }
 
@@ -107,13 +107,13 @@ namespace TZM.XFramework.Data
         public virtual Expression VisitMethodCall(MethodCallExpression node)
         {
             Type type = node.Method.ReflectedType != null ? node.Method.ReflectedType : node.Method.DeclaringType;
-            object visitor = this.InternalVisitors.GetMethodCallVisitor(type, _provider, _visitor);
+            object visitor = this.Container.GetVisitor(type, _provider, _visitor);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(visitor.GetType(), true);
             MemberInvokerBase invoker = typeRuntime.GetInvoker("Visit" + node.Method.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = invoker.Invoke(visitor, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -123,7 +123,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual Expression VisitMemberMember(MemberExpression node)
         {
-            object visitor = this.InternalVisitors.GetMethodCallVisitor(typeof(string), _provider, _visitor);
+            object visitor = this.Container.GetVisitor(typeof(string), _provider, _visitor);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(visitor.GetType(), true);
             MemberInvokerBase invoker = typeRuntime.GetInvoker("Visit" + node.Member.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);

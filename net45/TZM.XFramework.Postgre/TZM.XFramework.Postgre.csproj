@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ExpressionVisitor\MethodCall\NpgSqlMethodExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\NpgStringExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="Data\SqlClient\NpgDbTypeInfo.cs" />

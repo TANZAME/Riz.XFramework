@@ -127,7 +127,7 @@
     <Compile Include="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
-    <Compile Include="Data\Infrastructure\IMethodCallExressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\IMethodCallExressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\Nominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
@@ -145,7 +145,7 @@
     <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="Data\Annotation\TableAttribute.cs" />
     <Compile Include="Data\Infrastructure\DbTypeInfo.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\MethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\SqlBuilder.cs" />
     <Compile Include="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="Data\SqlClient\SqlDbTypeInfo.cs" />

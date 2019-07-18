@@ -54,6 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotation\OracleColumnAttribute.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\OracleSqlMethodExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\OracleStringExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />

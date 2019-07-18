@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs" />
     <Compile Include="Data\SqlClient\MySqlBuilder.cs" />
     <Compile Include="Data\SqlClient\MySqlDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />

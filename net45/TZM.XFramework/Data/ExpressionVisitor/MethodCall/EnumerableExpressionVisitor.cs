@@ -1,12 +1,12 @@
 ﻿
 using System.Linq.Expressions;
 
-namespace TZM.XFramework.Data.Internal
+namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 迭代类型方法解析服务
     /// </summary>
-    public class EnumerableMethodCall
+    public class EnumerableExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
@@ -14,9 +14,9 @@ namespace TZM.XFramework.Data.Internal
         private MemberVisitedMark _visitedMark = null;
 
         /// <summary>
-        /// 实例化 <see cref="EnumerableMethodCall"/> 类的新实例
+        /// 实例化 <see cref="EnumerableExpressionVisitor"/> 类的新实例
         /// </summary>
-        public EnumerableMethodCall(IDbQueryProvider provider, ExpressionVisitorBase visitor)
+        public EnumerableExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
             _visitor = visitor;

@@ -1,11 +1,11 @@
 ﻿using System.Linq.Expressions;
 
-namespace TZM.XFramework.Data.Internal
+namespace TZM.XFramework.Data
 {
     /// <summary>
     /// SqlMethod方法解析服务
     /// </summary>
-    public class SqlMethodMethodCallExpressionVisitor
+    public class SqlMethodExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
@@ -13,9 +13,9 @@ namespace TZM.XFramework.Data.Internal
         private MemberVisitedMark _visitedMark = null;
 
         /// <summary>
-        /// 实例化 <see cref="SqlMethodMethodCallExpressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="SqlMethodExpressionVisitor"/> 类的新实例
         /// </summary>
-        public SqlMethodMethodCallExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
+        public SqlMethodExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
             _visitor = visitor;
