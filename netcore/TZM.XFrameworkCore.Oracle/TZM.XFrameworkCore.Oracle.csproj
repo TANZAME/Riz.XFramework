@@ -5,7 +5,7 @@
     <Authors>TANZAME</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <AssemblyVersion>1.0.3.0</AssemblyVersion>
     <Version>1.0.3</Version>
   </PropertyGroup>
