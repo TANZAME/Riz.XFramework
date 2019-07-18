@@ -11,8 +11,10 @@
     <FileVersion>1.0.3.0</FileVersion>
     <Version>1.0.3</Version>
     <Copyright>TANZAME</Copyright>
-    <PackageReleaseNotes>TANZAME</PackageReleaseNotes>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
