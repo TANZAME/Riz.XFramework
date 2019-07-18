@@ -47,7 +47,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\IPagedList.cs" Link="Common\Collection\IPagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs" Link="Common\Common.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\HashFluent.cs" Link="Common\HashFluent.cs" />
 
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs" Link="Common\Helper\ConvertHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\FileHelper.cs" Link="Common\Helper\FileHelper.cs" />
@@ -146,8 +145,6 @@
 
   <ItemGroup>
     <Folder Include="Caching\" />
-
-    <Compile Include="..\..\net45\TZM.XFramework\Common\KatamaNodeLocator.cs" Link="Common\KatamaNodeLocator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Mailer.cs" Link="Common\Mailer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\XFrameworkException.cs" Link="Common\XFrameworkException.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\XFrameworkExtensions.cs" Link="Common\XFrameworkExtensions.cs" />
