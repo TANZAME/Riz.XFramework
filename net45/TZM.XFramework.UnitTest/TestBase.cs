@@ -30,12 +30,12 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            Query();
-            Join();
-            Delete();
-            Update();
-            Insert();
-            API();
+            //Query();
+            //Join();
+            //Delete();
+            //Update();
+            //Insert();
+            //API();
             Rabbit();
         }
 

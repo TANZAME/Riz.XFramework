@@ -22,6 +22,10 @@ namespace TZM.XFramework.Data
         private Dictionary<string, HashSet<string>> _listNavigationKeys = null;
         private int? _listNavigationCount = null;
 
+        private bool _isPrimitive = false;
+        private bool _isDynamic = false;
+        private TypeRuntimeInfo _typeRuntime = null;
+
         /// <summary>
         /// 实例化<see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
@@ -33,6 +37,11 @@ namespace TZM.XFramework.Data
             _definition = definition;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
             _listNavigationKeys = new Dictionary<string, HashSet<string>>(8);
+
+            string name = _reader.GetName(0);
+            _isPrimitive = TypeUtils.IsPrimitiveType(typeof(T)) || name == Constant.AUTOINCREMENTNAME;
+            _isDynamic = typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object);
+            _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
         }
 
         /// <summary>
@@ -47,7 +56,7 @@ namespace TZM.XFramework.Data
             #region 基元类型
 
             string name = _reader.GetName(0);
-            if (TypeUtils.IsPrimitiveType(typeof(T)) || name == Constant.AUTOINCREMENTNAME)
+            if (_isPrimitive)
             {
                 if (_reader.IsDBNull(0)) return default(T);
 
@@ -71,7 +80,7 @@ namespace TZM.XFramework.Data
 
             #region 动态类型
 
-            if (typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object))
+            if (_isDynamic)
             {
                 ExpandoObject obj = new ExpandoObject();
                 var result = ((IDictionary<string, object>)obj);
@@ -89,8 +98,6 @@ namespace TZM.XFramework.Data
             #region 实体类型
 
             T model = default(T);
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-
             if (_definition == null || _definition.Navigations == null || _definition.Navigations.Count == 0)
             {
                 // 没有字段映射说明或者没有导航属性
@@ -106,7 +113,7 @@ namespace TZM.XFramework.Data
                 if (prevModel != null && _definition.HaveListNavigation)
                 {
                     isThisLine = true;
-                    foreach (var key in typeRuntime.KeyInvokers)
+                    foreach (var key in _typeRuntime.KeyInvokers)
                     {
                         var invoker = key.Value;
                         var value1 = invoker.Invoke(prevModel);
