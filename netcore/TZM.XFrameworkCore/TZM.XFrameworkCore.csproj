@@ -92,7 +92,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorInvoker.cs" Link="Data\Emit\ConstructorInvoker.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldInvoker.cs" Link="Data\Emit\FieldInvoker.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ILGeneratorExtensions.cs" Link="Data\Emit\ILGeneratorExtensions.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInfoComparer.cs" Link="Data\Emit\MemberInfoComparer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs" Link="Data\Emit\MemberInvokerBase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodInvoker.cs" Link="Data\Emit\MethodInvoker.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\PropertyInvoker.cs" Link="Data\Emit\PropertyInvoker.cs" />

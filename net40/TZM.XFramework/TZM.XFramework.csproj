@@ -214,9 +214,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ILGeneratorExtensions.cs">
       <Link>Data\Emit\ILGeneratorExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInfoComparer.cs">
-      <Link>Data\Emit\MemberInfoComparer.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs">
       <Link>Data\Emit\MemberInvokerBase.cs</Link>
     </Compile>

@@ -165,7 +165,6 @@
     <Compile Include="Data\Emit\ILGeneratorExtensions.cs" />
     <Compile Include="Data\Emit\MethodInvoker.cs" />
     <Compile Include="Data\Emit\MemberInvokerBase.cs" />
-    <Compile Include="Data\Emit\MemberInfoComparer.cs" />
     <Compile Include="Data\Emit\TypeRuntimeInfo.cs" />
     <Compile Include="Data\Emit\TypeRuntimeInfoCache.cs" />
     <Compile Include="Data\Emit\TypeUtils.cs" />
