@@ -3,7 +3,10 @@ using System.Reflection.Emit;
 
 namespace TZM.XFramework.Data
 {
-    internal static class EmitHelper
+    /// <summary>
+    /// 中间语言 (MSIL) 指令扩展类
+    /// </summary>
+    internal static class ILGeneratorExtensions
     {
         public static void EmitBoxIfNeeded(this ILGenerator il, Type type)
         {

@@ -162,7 +162,7 @@
     <Compile Include="Data\Emit\FieldInvoker.cs" />
     <Compile Include="Data\Emit\PropertyInvoker.cs" />
     <Compile Include="Data\Emit\ConstructorInvoker.cs" />
-    <Compile Include="Data\Emit\EmitHelper.cs" />
+    <Compile Include="Data\Emit\ILGeneratorExtensions.cs" />
     <Compile Include="Data\Emit\MethodInvoker.cs" />
     <Compile Include="Data\Emit\MemberInvokerBase.cs" />
     <Compile Include="Data\Emit\MemberInfoComparer.cs" />
