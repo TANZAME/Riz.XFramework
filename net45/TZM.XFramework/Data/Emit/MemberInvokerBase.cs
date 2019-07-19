@@ -17,11 +17,7 @@ namespace TZM.XFramework.Data
         private MemberInfo _member;
         private ColumnAttribute _column = null;
         private ForeignKeyAttribute _foreignKey = null;
-
         private BindingFlags? _flags = null;
-        //private static MemberInvokerBase _fieldBindingFlagInvoker = null;
-        //private static MemberInvokerBase _propertyBindingFlagInvoker = null;
-        //private static MemberInvokerBase _methodBindingFlagInvoker = null;
 
         /// <summary>
         /// 列特性
