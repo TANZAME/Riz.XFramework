@@ -9,18 +9,10 @@ namespace TZM.XFramework.Caching
     /// </summary>
     public sealed class MemberInfoComparer<T> : IEqualityComparer<T>, IComparer<T> where T : MemberInfo
     {
-        private static readonly MemberInfoComparer<T> _comparer = new MemberInfoComparer<T>();
-
         /// <summary>
         /// 默认实例
         /// </summary>
-        public static MemberInfoComparer<T> Default
-        {
-            get
-            {
-                return _comparer;
-            }
-        }
+        public static MemberInfoComparer<T> Default { get { return Nested.Instance; } }
 
         /// <summary>
         /// 比较两个对象并返回一个值，指示一个对象是小于、等于还是大于另一个对象。
@@ -44,6 +36,11 @@ namespace TZM.XFramework.Caching
         public int GetHashCode(T obj)
         {
             return obj.MetadataToken;
+        }
+
+        class Nested
+        {
+            internal static readonly MemberInfoComparer<T> Instance = new MemberInfoComparer<T>();
         }
     }
 }
