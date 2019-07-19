@@ -208,11 +208,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorInvoker.cs">
       <Link>Data\Emit\ConstructorInvoker.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\EmitHelper.cs">
-      <Link>Data\Emit\EmitHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldInvoker.cs">
-      <Link>Data\Emit\FieldInvoker.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ILGeneratorExtensions.cs">
+      <Link>Data\Emit\ILGeneratorExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInfoComparer.cs">
       <Link>Data\Emit\MemberInfoComparer.cs</Link>
