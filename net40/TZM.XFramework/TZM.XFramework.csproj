@@ -136,59 +136,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\TableAttribute.cs">
       <Link>Data\Annotation\TableAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\BulkInsertInfo.cs">
-      <Link>Data\BulkInsertInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Constant.cs">
-      <Link>Data\Constant.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDatabase.cs">
-      <Link>Data\Contract\IDatabase.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbCommandInterceptor.cs">
-      <Link>Data\Contract\IDbCommandInterceptor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbContext.cs">
-      <Link>Data\Contract\IDbContext.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryable.cs">
-      <Link>Data\Contract\IDbQueryable.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo.cs">
-      <Link>Data\Contract\IDbQueryableInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo_Delete.cs">
-      <Link>Data\Contract\IDbQueryableInfo_Delete.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo_Insert.cs">
-      <Link>Data\Contract\IDbQueryableInfo_Insert.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo_Select.cs">
-      <Link>Data\Contract\IDbQueryableInfo_Select.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo_Update.cs">
-      <Link>Data\Contract\IDbQueryableInfo_Update.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryableInfo`1.cs">
-      <Link>Data\Contract\IDbQueryableInfo`1.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryable`1.cs">
-      <Link>Data\Contract\IDbQueryable`1.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IDbQueryProvider.cs">
-      <Link>Data\Contract\IDbQueryProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\IMethodCallExressionVisitor.cs">
-      <Link>Data\Contract\IMethodCallExressionVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Contract\ISqlBuilder.cs">
-      <Link>Data\Contract\ISqlBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\DbCommandException.cs">
-      <Link>Data\DbCommandException.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\DbCommandInterceptor.cs">
-      <Link>Data\DbCommandInterceptor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\DbContextBase.cs">
+      <Link>Data\DbContextBase.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbExpression.cs">
       <Link>Data\DbExpression.cs</Link>
@@ -196,14 +145,14 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbExpressionType.cs">
       <Link>Data\DbExpressionType.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\DbInterception.cs">
-      <Link>Data\DbInterception.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryable.cs">
+      <Link>Data\DbQueryable.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryableExtensions.cs">
       <Link>Data\DbQueryableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryParser.cs">
-      <Link>Data\DbQueryParser.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryable`1.cs">
+      <Link>Data\DbQueryable`1.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorInvoker.cs">
       <Link>Data\Emit\ConstructorInvoker.cs</Link>
@@ -247,6 +196,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\JoinExpressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCallExressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\Nominator.cs">
       <Link>Data\ExpressionVisitor\Nominator.cs</Link>
     </Compile>
@@ -265,50 +217,101 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\WhereExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\Database.cs">
-      <Link>Data\Impl\Database.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\BulkInsertInfo.cs">
+      <Link>Data\Genaration\BulkInsertInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbContextBase.cs">
-      <Link>Data\Impl\DbContextBase.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryParser.cs">
+      <Link>Data\Genaration\DbQueryParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryable.cs">
-      <Link>Data\Impl\DbQueryable.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryProvider.cs">
+      <Link>Data\Genaration\DbQueryProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo.cs">
-      <Link>Data\Impl\DbQueryableInfo.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs">
+      <Link>Data\Genaration\IDbQueryProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo_Delete.cs">
-      <Link>Data\Impl\DbQueryableInfo_Delete.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ISqlBuilder.cs">
+      <Link>Data\Genaration\ISqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo_Insert.cs">
-      <Link>Data\Impl\DbQueryableInfo_Insert.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilderBase.cs">
+      <Link>Data\Genaration\SqlBuilderBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo_Select.cs">
-      <Link>Data\Impl\DbQueryableInfo_Select.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlMethod.cs">
+      <Link>Data\Genaration\SqlMethod.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo_Update.cs">
-      <Link>Data\Impl\DbQueryableInfo_Update.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs">
+      <Link>Data\Genaration\TableAliasCache.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryableInfo`1.cs">
-      <Link>Data\Impl\DbQueryableInfo`1.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
+      <Link>Data\Infrastructure\Constant.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryable`1.cs">
-      <Link>Data\Impl\DbQueryable`1.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database.cs">
+      <Link>Data\Infrastructure\Database.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbQueryProvider.cs">
-      <Link>Data\Impl\DbQueryProvider.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbCommandException.cs">
+      <Link>Data\Infrastructure\DbCommandException.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\DbTypeInfo.cs">
-      <Link>Data\Impl\DbTypeInfo.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbCommandInterceptor.cs">
+      <Link>Data\Infrastructure\DbCommandInterceptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\MethodCallExressionVisitor.cs">
-      <Link>Data\Impl\MethodCallExressionVisitor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbInterception.cs">
+      <Link>Data\Infrastructure\DbInterception.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlBuilderBase.cs">
-      <Link>Data\Impl\SqlBuilderBase.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbTypeInfo.cs">
+      <Link>Data\Infrastructure\DbTypeInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Impl\SqlMethod.cs">
-      <Link>Data\Impl\SqlMethod.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
+      <Link>Data\Infrastructure\IDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbCommandInterceptor.cs">
+      <Link>Data\Infrastructure\IDbCommandInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbContext.cs">
+      <Link>Data\Infrastructure\IDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable.cs">
+      <Link>Data\Infrastructure\IDbQueryable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
+      <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IMethodCallExressionVisitor.cs">
+      <Link>Data\Infrastructure\IMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo.cs">
+      <Link>Data\Queryable\DbQueryableInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Delete.cs">
+      <Link>Data\Queryable\DbQueryableInfo_Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Insert.cs">
+      <Link>Data\Queryable\DbQueryableInfo_Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Select.cs">
+      <Link>Data\Queryable\DbQueryableInfo_Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Update.cs">
+      <Link>Data\Queryable\DbQueryableInfo_Update.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo`1.cs">
+      <Link>Data\Queryable\DbQueryableInfo`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo.cs">
+      <Link>Data\Queryable\IDbQueryableInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo_Delete.cs">
+      <Link>Data\Queryable\IDbQueryableInfo_Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo_Insert.cs">
+      <Link>Data\Queryable\IDbQueryableInfo_Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo_Select.cs">
+      <Link>Data\Queryable\IDbQueryableInfo_Select.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo_Update.cs">
+      <Link>Data\Queryable\IDbQueryableInfo_Update.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo`1.cs">
+      <Link>Data\Queryable\IDbQueryableInfo`1.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlBuilder.cs">
       <Link>Data\SqlClient\SqlBuilder.cs</Link>
@@ -324,9 +327,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\SqlMethodCallExressionVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TableAliasCache.cs">
-      <Link>Data\TableAliasCache.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
       <Link>Data\TypeDeserialize\Column.cs</Link>
