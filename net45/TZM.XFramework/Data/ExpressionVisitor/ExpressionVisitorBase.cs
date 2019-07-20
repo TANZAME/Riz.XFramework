@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员访问痕迹
         /// </summary>
-        protected VisitedMemberList _visitedMember = null;
+        protected MemberVisitedMark _visitedMark = null;
 
         //防SQL注入字符
         //private static readonly Regex RegSystemThreats = 
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员访问痕迹
         /// </summary>
-        public VisitedMemberList VisitedMember { get { return _visitedMember; } }
+        public MemberVisitedMark VisitedMark { get { return _visitedMark; } }
 
         #endregion
 
@@ -83,7 +83,7 @@ namespace TZM.XFramework.Data
             _provider = provider;
             _aliases = aliases;
             _expression = exp;
-            _visitedMember = new VisitedMemberList();
+            _visitedMark = new MemberVisitedMark();
             _navMembers = new Dictionary<string, MemberExpression>();
         }
 
@@ -141,7 +141,7 @@ namespace TZM.XFramework.Data
             Expression ifTrueExpression = this.TryMakeBinary(node.IfTrue, true);
             Expression ifFalseExpression = this.TryMakeBinary(node.IfFalse, true);
 
-            _visitedMember.ClearImmediately = false;
+            _visitedMark.ClearImmediately = false;
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
             _builder.Append(" THEN ");
@@ -149,7 +149,7 @@ namespace TZM.XFramework.Data
             _builder.Append(" ELSE ");
             this.Visit(ifFalseExpression);
             _builder.Append(" END)");
-            _visitedMember.ClearImmediately = true;
+            _visitedMark.ClearImmediately = true;
 
             return node;
         }
@@ -158,14 +158,14 @@ namespace TZM.XFramework.Data
         {
             //fix# char ~~
             Func<Type, bool> isChar = t => t == typeof(char) || t == typeof(char?);
-            if (_visitedMember.Current != null && c != null && c.Value != null && isChar(_visitedMember.Current.Type) && !isChar(c.Type))
+            if (_visitedMark.Current != null && c != null && c.Value != null && isChar(_visitedMark.Current.Type) && !isChar(c.Type))
             {
                 char @char = Convert.ToChar(c.Value);
                 c = Expression.Constant(@char, typeof(char));
             }
 
-            _builder.Append(c.Value, _visitedMember.Current);
-            _visitedMember.Clear();
+            _builder.Append(c.Value, _visitedMark.Current);
+            _visitedMark.Clear();
             return c;
         }
 
@@ -180,7 +180,7 @@ namespace TZM.XFramework.Data
             // <>h__TransparentIdentifier2.<>h__TransparentIdentifier3.b.Client.Address.AddressName
             // 5.b.ClientName
 
-            _visitedMember.Add(node);
+            _visitedMark.Add(node);
 
             if (node == null) return node;
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
@@ -234,7 +234,7 @@ namespace TZM.XFramework.Data
                 this.Visit(right);
                 if (use2) _builder.Append(')');
 
-                _visitedMember.Clear();
+                _visitedMark.Clear();
             }
 
             return b;

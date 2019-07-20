@@ -25,6 +25,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 取指定类型的运行时元数据
         /// </summary>
+        /// <param name="type">类型实例</param>
+        /// <param name="private">包含私有成员</param>
+        /// <returns></returns>
+        public static TypeRuntimeInfo GetRuntimeInfo(Type type,bool @private)
+        {
+            return _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p));
+        }
+
+        /// <summary>
+        /// 取指定类型的运行时元数据
+        /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <returns></returns>
         public static TypeRuntimeInfo GetRuntimeInfo<T>()

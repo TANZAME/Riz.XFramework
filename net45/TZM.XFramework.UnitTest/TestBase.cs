@@ -186,6 +186,10 @@ namespace TZM.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
+            var linq = context.GetTable<TDemo>().Select(a => a.DemoName);
+            query = context.GetTable<TDemo>().Where(a => a.DemoId > 0 && linq.Contains(a.DemoCode));
+            result1 = query.ToList();
+
             // 带参数构造函数
             QueryWithParameterizedConstructor();
             //query =

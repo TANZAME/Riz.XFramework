@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 已访问成员描述类
     /// </summary>
-    public class VisitedMemberList
+    public class MemberVisitedMark
     {
         private List<MemberExpression> _binaryMembers = null;
         private List<MemberInfo> _columnMembers = null;
@@ -29,7 +29,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 当调用 Clear 方法时，标志Clear方法是否执行
+        /// 当调用 Clear 方法时，标志Clear方法是否马上执行
         /// <para>
         /// 使用场景：当多个常数表达式共用一个 Member 时，那么只需要在访问最后一个常数表达式时清除访问列表
         /// </para>
@@ -41,9 +41,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="VisitedMemberList"/> 类的新实例
+        /// 实例化 <see cref="MemberVisitedMark"/> 类的新实例
         /// </summary>
-        public VisitedMemberList()
+        public MemberVisitedMark()
         {
             _binaryMembers = new List<MemberExpression>();
             _columnMembers = new List<MemberInfo>();

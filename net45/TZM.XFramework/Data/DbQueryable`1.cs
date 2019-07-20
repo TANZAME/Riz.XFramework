@@ -10,14 +10,14 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class DbQueryable<TElement> : DbQueryable, IDbQueryable<TElement>
     {
-        private ReadOnlyCollection<DbExpression> _collection = null;
+        private ReadOnlyCollection<DbExpression> _dbExpressions = null;
 
         /// <summary>
         /// 查询表达式
         /// </summary>
         public override ReadOnlyCollection<DbExpression> DbExpressions
         {
-            get { return _collection; }
+            get { return _dbExpressions; }
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
         public DbQueryable(IDbContext context, IList<DbExpression> collection)
         {
             this.DbContext = context;
-            this._collection = new ReadOnlyCollection<DbExpression>(collection != null ? collection : new List<DbExpression>(0));
+            this._dbExpressions = new ReadOnlyCollection<DbExpression>(collection != null ? collection : new List<DbExpression>(0));
         }
 
         /// <summary>

@@ -84,5 +84,10 @@ namespace TZM.XFramework.Data
         /// 显示指定会子查询
         /// </summary>
         AsSubQuery,
+
+        /// <summary>
+        /// 包含
+        /// </summary>
+        Contains
     }
 }

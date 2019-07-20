@@ -23,6 +23,7 @@ namespace TZM.XFramework.Data
 
         private object _lock = new object();
         private bool _isInitialize = false;
+        private bool _private = false;
 
         private int _dataFieldCount = 0;
         private TableAttribute _attribute = null;
@@ -240,9 +241,20 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="type">类型声明</param>
         internal TypeRuntimeInfo(Type type)
+            : this(type, false)
+        {
+        }
+
+        /// <summary>
+        /// 初始化 <see cref="TypeRuntimeInfo"/> 类的新实例
+        /// </summary>
+        /// <param name="type">类型声明</param>
+        /// <param name="private">包含私有成员</param>
+        internal TypeRuntimeInfo(Type type, bool @private)
         {
             _type = type;
             _isAnonymousType = TypeUtils.IsAnonymousType(_type);
+            _private = @private;
         }
 
         /// <summary>
@@ -316,7 +328,7 @@ namespace TZM.XFramework.Data
                     if (!_isInitialize)
                     {
                         Dictionary<string, MemberInvokerBase> invokers = new Dictionary<string, MemberInvokerBase>();
-                        var collection = this.GetMembers(type).Select(x => MemberInvokerBase.Create(x));
+                        var collection = this.GetMembers(type, _private).Select(x => MemberInvokerBase.Create(x));
 
                         foreach (MemberInvokerBase invoker in collection)
                         {
@@ -339,9 +351,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 获取当前类型的成员
         /// </summary>
-        protected virtual IEnumerable<MemberInfo> GetMembers(Type type)
+        protected virtual IEnumerable<MemberInfo> GetMembers(Type type, bool @private)
         {
-            return TypeUtils.GetMembers(type);
+            return TypeUtils.GetMembers(type, @private);
         }
 
         /// <summary>

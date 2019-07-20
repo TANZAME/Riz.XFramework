@@ -234,7 +234,7 @@ namespace TZM.XFramework.Data
 
                 #endregion
 
-                base._visitedMember.Clear();
+                base._visitedMark.Clear();
             }
 
             return node;
@@ -344,7 +344,7 @@ namespace TZM.XFramework.Data
                 }
                 else throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", argument.NodeType);
 
-                base._visitedMember.Clear();
+                base._visitedMark.Clear();
             }
 
             return node;

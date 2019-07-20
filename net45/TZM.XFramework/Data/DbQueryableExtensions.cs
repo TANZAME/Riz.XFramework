@@ -54,6 +54,15 @@ namespace TZM.XFramework.Data
             return query.DbContext.Database.Execute(query);
         }
 
+        /// <summary>
+        /// 使用默认的相等比较器确定序列是否包含指定的元素
+        /// </summary>
+        public static bool Contains<TSource>(this IDbQueryable<TSource> source, TSource item)
+        {
+            return false;
+            //return source.CreateQuery<TSource>(DbExpressionType.Contains, Expression.Constant(item));
+        }
+
 #if !net40
 
         /// <summary>
@@ -111,7 +120,6 @@ namespace TZM.XFramework.Data
             IList<TElement> listAsync = await source.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
             return listAsync;
         }
-
 
         /// <summary>
         ///  从 <see cref="IDbQueryable&lt;TElement&gt;"/> 创建 <see cref="DataTable"/>

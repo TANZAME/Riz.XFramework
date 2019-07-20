@@ -85,6 +85,11 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\MethodCallContainer.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\SqlMethodExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\EnumerableExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\QueryableExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCall\StringExpressionVisitor.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
@@ -123,7 +128,7 @@
     <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\IMethodCallExressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\VisitedMemberList.cs" />
+    <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\Nominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
