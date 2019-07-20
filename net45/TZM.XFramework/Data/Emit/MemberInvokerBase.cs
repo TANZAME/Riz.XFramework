@@ -104,41 +104,7 @@ namespace TZM.XFramework.Data
             get
             {
                 if (_flags == null)
-                {
-                    //MemberInvokerBase invoker = null;
-                    //if (this.MemberType == MemberTypes.Property)
-                    //{
-                    //    if (_propertyBindingFlagInvoker == null)
-                    //    {
-                    //        Type type = this.Member.GetType();
-                    //        MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
-                    //        _propertyBindingFlagInvoker = MemberInvokerBase.Create(list[0]);
-                    //    }
-
-                    //    invoker = _propertyBindingFlagInvoker;
-                    //}
-                    //else if (this.MemberType == MemberTypes.Field && _fieldBindingFlagInvoker == null)
-                    //{
-                    //    Type type = this.Member.GetType();
-                    //    MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                    //    _fieldBindingFlagInvoker = MemberInvokerBase.Create(list[0]);
-                    //    invoker = _fieldBindingFlagInvoker;
-                    //}
-                    //else if (this.MemberType == MemberTypes.Method && _methodBindingFlagInvoker == null)
-                    //{
-                    //    Type type = this.Member.GetType();
-                    //    MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                    //    _methodBindingFlagInvoker = MemberInvokerBase.Create(list[0]);
-                    //    invoker = _methodBindingFlagInvoker;
-                    //}
-
-                    //if (invoker != null)
-                    //{
-                    //    var obj = invoker.Invoke(this.Member);
-                    //    if (obj != null) _flags = (BindingFlags)obj;
-                    //}
+                {                   
                     Type type = this.Member.GetType();
                     MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
                     if (list != null && list.Length > 0)

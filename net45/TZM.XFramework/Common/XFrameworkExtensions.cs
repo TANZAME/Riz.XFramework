@@ -309,7 +309,7 @@ namespace TZM.XFramework
             else if ((collection as T[]) != null) count = (collection as T[]).Length;
             else count = collection.Count();
 
-            int page = count % pageSize == 0 ? count / pageSize : (count / pageSize + 1);
+            int page = (count + pageSize - 1) / pageSize;
             return page;
         }
 
