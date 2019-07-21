@@ -53,6 +53,12 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs">
       <Link>Annotation\OracleColumnAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\MethodCall\OracleSqlMethodExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\OracleSqlMethodExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\MethodCall\OracleStringExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\OracleStringExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs</Link>
     </Compile>
@@ -62,8 +68,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Impl\OracleDatabase.cs">
-      <Link>Data\Impl\OracleDatabase.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs">
+      <Link>Data\Infrastructure\OracleDatabase.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs">
       <Link>Data\SqlClient\OracleDbContext.cs</Link>

@@ -30,11 +30,14 @@
 
   <ItemGroup>
     <None Remove="ExpressionVisitor\.gitkeep" />
+    <None Remove="ExpressionVisitor\MethodCall\.gitkeep" />
     <None Remove="SqlClient\.gitkeep" />
     <None Remove="TypeDeserialize\.gitkeep" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\MethodCall\NpgSqlMethodExpressionVisitor.cs" Link="ExpressionVisitor\MethodCall\NpgSqlMethodExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\MethodCall\NpgStringExpressionVisitor.cs" Link="ExpressionVisitor\MethodCall\NpgStringExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" Link="ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" Link="ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" Link="ExpressionVisitor\NpgWhereExpressionVisitor.cs" />
@@ -48,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ExpressionVisitor\" />
+    <Folder Include="ExpressionVisitor\MethodCall\" />
     <Folder Include="SqlClient\" />
     <Folder Include="TypeDeserialize\" />
   </ItemGroup>

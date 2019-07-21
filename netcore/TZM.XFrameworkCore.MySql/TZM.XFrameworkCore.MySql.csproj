@@ -24,11 +24,14 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Data\ExpressionVisitor\MethodCall\.gitkeep" />
     <None Remove="Data\SqlClient\.gitkeep" />
   </ItemGroup>
 
 
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs" Link="Data\SqlClient\MySqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
@@ -41,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\ExpressionVisitor\MethodCall\" />
     <Folder Include="Data\SqlClient\" />
   </ItemGroup>
 

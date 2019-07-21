@@ -51,6 +51,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\MethodCall\NpgSqlMethodExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\NpgSqlMethodExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\MethodCall\NpgStringExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\NpgStringExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs</Link>
     </Compile>

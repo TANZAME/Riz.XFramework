@@ -50,6 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs">
       <Link>Data\SqlClient\MySqlBuilder.cs</Link>
     </Compile>

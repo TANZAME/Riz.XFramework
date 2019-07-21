@@ -184,6 +184,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\ColumnExpressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionNominator.cs">
+      <Link>Data\ExpressionVisitor\ExpressionNominator.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionVisitorBase.cs">
       <Link>Data\ExpressionVisitor\ExpressionVisitorBase.cs</Link>
     </Compile>
@@ -196,11 +199,29 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\JoinExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\MethodCallExressionVisitor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedMark.cs">
+      <Link>Data\ExpressionVisitor\MemberVisitedMark.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\Nominator.cs">
-      <Link>Data\ExpressionVisitor\Nominator.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\EnumerableExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\EnumerableExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\IMethodCallExressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\IMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\MethodCallContainer.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\MethodCallContainer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\MethodCallExressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\MethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\QueryableExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\QueryableExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\SqlMethodExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\SqlMethodExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCall\StringExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\MethodCall\StringExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OrderByExpressionVisitor.cs</Link>
@@ -210,9 +231,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\UpdateExpressionVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\VisitedMemberList.cs">
-      <Link>Data\ExpressionVisitor\VisitedMemberList.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\WhereExpressionVisitor.cs</Link>
@@ -273,9 +291,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
       <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IMethodCallExressionVisitor.cs">
-      <Link>Data\Infrastructure\IMethodCallExressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo.cs">
       <Link>Data\Queryable\DbQueryableInfo.cs</Link>
