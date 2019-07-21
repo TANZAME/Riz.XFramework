@@ -53,12 +53,6 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs">
       <Link>Annotation\OracleColumnAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\MethodCall\OracleSqlMethodExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\MethodCall\OracleSqlMethodExpressionVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\MethodCall\OracleStringExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\MethodCall\OracleStringExpressionVisitor.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs</Link>
     </Compile>

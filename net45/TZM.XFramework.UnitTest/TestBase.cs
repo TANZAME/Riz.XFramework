@@ -446,7 +446,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = SqlMethod.RowNumber<long>(x => a.DemoCode,false)
+                    RowNumber = DbFunction.RowNumber<long>(x => a.DemoCode,false)
                 });
             var reuslt1 = query1.ToList();
             //SQL=>
@@ -459,7 +459,7 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = SqlMethod.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId,true)
+                RowNumber = DbFunction.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId,true)
             });
             reuslt1 = query1.ToList();
 
@@ -1540,7 +1540,7 @@ namespace TZM.XFramework.UnitTest
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = SqlMethod.RowNumber<int>(x => a.ClientId) + nextId,
+                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + nextId,
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 11,
@@ -1570,7 +1570,7 @@ namespace TZM.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = SqlMethod.RowNumber<int>(x => a.ClientId) + nextId,
+                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + nextId,
                     ClientCode = "ABC3",
                     ClientName = "啊啵呲3",
                     CloudServerId = 11,

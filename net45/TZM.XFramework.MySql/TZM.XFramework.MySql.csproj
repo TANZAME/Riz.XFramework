@@ -50,8 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\ExpressionVisitor\MethodCall\MySqlMethodExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\MySqlStringExpressionVisitor.cs" />
     <Compile Include="Data\SqlClient\MySqlBuilder.cs" />
     <Compile Include="Data\SqlClient\MySqlDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
@@ -65,5 +63,6 @@
       <Name>TZM.XFramework</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

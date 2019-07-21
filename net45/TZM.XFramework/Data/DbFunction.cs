@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 定义 ORM 所支持的 SQL 方法
+    /// 数据库方法
     /// </summary>
-    public class SqlMethod
+    public class DbFunction
     {
         /// <summary>
         /// 解析成行号

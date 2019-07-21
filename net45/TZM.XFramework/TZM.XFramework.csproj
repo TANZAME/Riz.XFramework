@@ -85,11 +85,6 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\MethodCallContainer.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\SqlMethodExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\EnumerableExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\QueryableExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\StringExpressionVisitor.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
@@ -127,7 +122,7 @@
     <Compile Include="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\IMethodCallExressionVisitor.cs" />
+    <Compile Include="Data\Infrastructure\IMethodCallExressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
@@ -145,7 +140,7 @@
     <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="Data\Annotation\TableAttribute.cs" />
     <Compile Include="Data\Infrastructure\DbTypeInfo.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCall\MethodCallExressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\SqlBuilder.cs" />
     <Compile Include="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="Data\SqlClient\SqlDbTypeInfo.cs" />
@@ -155,7 +150,7 @@
     <Compile Include="Data\TypeDeserialize\DbCommandDefinition_Select.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
-    <Compile Include="Data\Genaration\SqlMethod.cs" />
+    <Compile Include="Data\DbFunction.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />

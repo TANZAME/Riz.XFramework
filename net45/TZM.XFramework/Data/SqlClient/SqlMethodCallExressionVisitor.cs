@@ -13,29 +13,14 @@ namespace TZM.XFramework.Data.SqlClient
         public SqlMethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
             : base(provider, visitor)
         {
-            base.Container.Replace(typeof(string), (provider2, visitor2) => new SqlStringExpressionVisitor(provider2, visitor2));
         }
 
         /// <summary>
-        /// 字符串类型方法解析服务
+        /// 判断指定类型是否是unicode
         /// </summary>
-        public class SqlStringExpressionVisitor : StringExpressionVisitor
+        protected override bool IsUnicode(object dbType)
         {
-            /// <summary>
-            /// 实例化 <see cref="SqlStringExpressionVisitor"/> 类的新实例
-            /// </summary>
-            public SqlStringExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
-                : base(provider, visitor)
-            {
-            }
-
-            /// <summary>
-            /// 判断指定类型是否是unicode
-            /// </summary>
-            protected override bool IsUnicode(object dbType)
-            {
-                return dbType == null ? true : SqlDbTypeInfo.Create(dbType).IsUnicode;
-            }
+            return dbType == null ? true : SqlDbTypeInfo.Create(dbType).IsUnicode;
         }
     }
 }
