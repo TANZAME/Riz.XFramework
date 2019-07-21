@@ -51,13 +51,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="Data\SqlClient\NpgDbTypeInfo.cs" />
     <Compile Include="Data\SqlClient\NpgDbContext.cs" />
     <Compile Include="Data\TypeDeserialize\NpgCommandType.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" />
-    <Compile Include="Data\TypeDeserialize\NpgDbCommandDefinition_Delete.cs" />
+    <Compile Include="Data\TypeDeserialize\NpgSelectInfoCommand.cs" />
     <Compile Include="Data\SqlClient\NpgDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\NpgMethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\NpgSqlBuilder.cs" />

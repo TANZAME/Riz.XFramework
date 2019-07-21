@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="definition">命令描述</param>
         /// <returns></returns>
-        IDbCommand CreateCommand(DbCommandDefinition definition);
+        IDbCommand CreateCommand(Command definition);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -104,7 +104,7 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        int ExecuteNonQuery(List<DbCommandDefinition> sqlList);
+        int ExecuteNonQuery(List<Command> sqlList);
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -130,7 +130,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        object ExecuteScalar(List<DbCommandDefinition> sqlList);
+        object ExecuteScalar(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -158,7 +158,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        IDataReader ExecuteReader(List<DbCommandDefinition> sqlList);
+        IDataReader ExecuteReader(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -183,16 +183,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
-        /// <para>使用第一个 <see cref="DbCommandDefinition_Select"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        T Execute<T>(List<DbCommandDefinition> sqlList);
+        T Execute<T>(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        T Execute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func);
+        T Execute<T>(List<Command> sqlList, Func<IDbCommand, T> func);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -231,7 +231,7 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="DbCommandDefinition_Select"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="query">SQL 命令</param>
@@ -243,7 +243,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        List<T> ExecuteList<T>(List<DbCommandDefinition> sqlList);
+        List<T> ExecuteList<T>(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
@@ -272,7 +272,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        DataTable ExecuteDataTable(List<DbCommandDefinition> sqlList);
+        DataTable ExecuteDataTable(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -293,7 +293,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        DataSet ExecuteDataSet(List<DbCommandDefinition> sqlList);
+        DataSet ExecuteDataSet(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象

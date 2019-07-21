@@ -132,7 +132,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="definition">命令描述</param>
         /// <returns></returns>
-        public IDbCommand CreateCommand(DbCommandDefinition definition)
+        public IDbCommand CreateCommand(Command definition)
         {
             return this.CreateCommand(definition.CommandText, definition.CommandType, definition.Parameters);
         }
@@ -240,7 +240,7 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        public int ExecuteNonQuery(List<DbCommandDefinition> sqlList)
+        public int ExecuteNonQuery(List<Command> sqlList)
         {
             int rowCount = 0;
             this.DoExecute<int>(sqlList, cmd => rowCount += this.ExecuteNonQuery(cmd));
@@ -284,7 +284,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(List<DbCommandDefinition> sqlList)
+        public object ExecuteScalar(List<Command> sqlList)
         {
             return this.DoExecute<object>(sqlList, this.ExecuteScalar);
         }
@@ -326,7 +326,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(List<DbCommandDefinition> sqlList)
+        public IDataReader ExecuteReader(List<Command> sqlList)
         {
             return this.DoExecute<IDataReader>(sqlList, this.ExecuteReader);
         }
@@ -359,9 +359,9 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(IDbQueryable<T> query)
         {
-            DbCommandDefinition definition = query.Resolve();
+            Command definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
-            return this.Execute<T>(cmd, definition as DbCommandDefinition_Select);
+            return this.Execute<T>(cmd, definition as SelectCommand);
         }
 
         /// <summary>
@@ -369,15 +369,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public T Execute<T>(List<DbCommandDefinition> sqlList)
+        public T Execute<T>(List<Command> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is SelectCommand) as SelectCommand));
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        public T Execute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
+        public T Execute<T>(List<Command> sqlList, Func<IDbCommand, T> func)
         {
             return this.DoExecute<T>(sqlList, func);
         }
@@ -393,7 +393,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
+        T Execute<T>(IDbCommand cmd, SelectCommand definition)
         {
             IDataReader reader = null;
 
@@ -419,9 +419,9 @@ namespace TZM.XFramework.Data
         /// <param name="query2">SQL 命令</param>
         public virtual Tuple<List<T1>, List<T2>> ExecuteMultiple<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
         {
-            List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
+            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
+                cmd => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectCommand)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -433,9 +433,9 @@ namespace TZM.XFramework.Data
         /// <param name="query3">SQL 命令</param>
         public virtual Tuple<List<T1>, List<T2>, List<T3>> ExecuteMultiple<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
         {
-            List<DbCommandDefinition> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
+            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as DbCommandDefinition_Select)));
+                cmd => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectCommand)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -449,7 +449,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<DbCommandDefinition_Select> defines = null)
+        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<SelectCommand> defines = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -558,20 +558,20 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public List<T> ExecuteList<T>(IDbQueryable<T> query)
         {
-            DbCommandDefinition definition = query.Resolve();
+            Command definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
-            return this.ExecuteList<T>(cmd, definition as DbCommandDefinition_Select);
+            return this.ExecuteList<T>(cmd, definition as SelectCommand);
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="DbCommandDefinition_Select"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public List<T> ExecuteList<T>(List<DbCommandDefinition> sqlList)
+        public List<T> ExecuteList<T>(List<Command> sqlList)
         {
-            return this.DoExecute<List<T>>(sqlList, cmd => this.ExecuteList<T>(cmd, sqlList.FirstOrDefault(x => x is DbCommandDefinition_Select) as DbCommandDefinition_Select));
+            return this.DoExecute<List<T>>(sqlList, cmd => this.ExecuteList<T>(cmd, sqlList.FirstOrDefault(x => x is SelectCommand) as SelectCommand));
         }
 
         /// <summary>
@@ -586,7 +586,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        List<T> ExecuteList<T>(IDbCommand cmd, DbCommandDefinition_Select definition)
+        List<T> ExecuteList<T>(IDbCommand cmd, SelectCommand definition)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();
@@ -625,7 +625,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public DataTable ExecuteDataTable(IDbQueryable query)
         {
-            DbCommandDefinition definition = query.Resolve();
+            Command definition = query.Resolve();
             IDbCommand cmd = this.CreateCommand(definition);
             return this.ExecuteDataTable(cmd);
         }
@@ -635,7 +635,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public DataTable ExecuteDataTable(List<DbCommandDefinition> sqlList)
+        public DataTable ExecuteDataTable(List<Command> sqlList)
         {
             return this.DoExecute<DataTable>(sqlList, this.ExecuteDataTable);
         }
@@ -682,7 +682,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(List<DbCommandDefinition> sqlList)
+        public DataSet ExecuteDataSet(List<Command> sqlList)
         {
             return this.DoExecute<DataSet>(sqlList, this.ExecuteDataSet);
         }
@@ -761,7 +761,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令
         /// </summary>
-        protected virtual T DoExecute<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, T> func)
+        protected virtual T DoExecute<T>(List<Command> sqlList, Func<IDbCommand, T> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -772,14 +772,14 @@ namespace TZM.XFramework.Data
             {
                 #region 命令分组
 
-                var queue = new Queue<List<DbCommandDefinition>>(8);
+                var queue = new Queue<List<Command>>(8);
                 if (sqlList.Any(x => x == null || (x.Parameters != null && x.Parameters.Count > 0)))
                 {
                     // 参数化分批
                     if (!sqlList.Any(x => x == null)) queue.Enqueue(sqlList);
                     else
                     {
-                        var myList = new List<DbCommandDefinition>(8);
+                        var myList = new List<Command>(8);
                         foreach (var define in sqlList)
                         {
                             if (define != null) myList.Add(define);
@@ -787,7 +787,7 @@ namespace TZM.XFramework.Data
                             {
                                 queue.Enqueue(myList);
                                 myList = null;
-                                myList = new List<DbCommandDefinition>(8);
+                                myList = new List<Command>(8);
                             }
                         }
                         // 剩下部分

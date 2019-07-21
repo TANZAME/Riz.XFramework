@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
         /// 异步执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        Task<int> ExecuteNonQueryAsync(List<DbCommandDefinition> sqlList);
+        Task<int> ExecuteNonQueryAsync(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
@@ -49,7 +49,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        Task<object> ExecuteScalarAsync(List<DbCommandDefinition> sqlList);
+        Task<object> ExecuteScalarAsync(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -70,7 +70,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        Task<IDataReader> ExecuteReaderAsync(List<DbCommandDefinition> sqlList);
+        Task<IDataReader> ExecuteReaderAsync(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -98,12 +98,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList);
+        Task<T> ExecuteAsync<T>(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
         /// </summary>
-        Task<T> ExecuteAsync<T>(List<DbCommandDefinition> sqlList, Func<IDbCommand, Task<T>> func);
+        Task<T> ExecuteAsync<T>(List<Command> sqlList, Func<IDbCommand, Task<T>> func);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
@@ -125,7 +125,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        Task<List<T>> ExecuteListAsync<T>(List<DbCommandDefinition> sqlList);
+        Task<List<T>> ExecuteListAsync<T>(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回并返回单结果集集合
@@ -176,7 +176,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        Task<DataTable> ExecuteDataTableAsync(List<DbCommandDefinition> sqlList);
+        Task<DataTable> ExecuteDataTableAsync(List<Command> sqlList);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -204,7 +204,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        Task<DataSet> ExecuteDataSetAsync(List<DbCommandDefinition> sqlList);
+        Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象

@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class NpgDbCommandDefinition_Delete : DbCommandDefinition_Select
+    public sealed class NpgSelectInfoCommand : SelectCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _convergence = false;
@@ -49,7 +49,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public NpgDbCommandDefinition_Delete(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, List<IDbDataParameter> parameters)
+        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, List<IDbDataParameter> parameters)
             : base(provider, aliases, parameters)
         {
             _provider = provider;

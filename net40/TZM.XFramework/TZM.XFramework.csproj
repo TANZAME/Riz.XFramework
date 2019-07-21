@@ -331,11 +331,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
       <Link>Data\TypeDeserialize\Column.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbCommandDefinition.cs">
-      <Link>Data\TypeDeserialize\DbCommandDefinition.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbCommandDefinition_Select.cs">
-      <Link>Data\TypeDeserialize\DbCommandDefinition_Select.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
+      <Link>Data\TypeDeserialize\Command.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>
@@ -345,6 +342,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\SelectCommand.cs">
+      <Link>Data\TypeDeserialize\SelectCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer.cs</Link>

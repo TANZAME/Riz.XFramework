@@ -21,7 +21,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = new List<int>();
             IDataReader reader = null;
 

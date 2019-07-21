@@ -128,9 +128,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
         /// <returns></returns>
-        public override List<DbCommandDefinition> Resolve(List<object> dbQueryables)
+        public override List<Command> Resolve(List<object> dbQueryables)
         {
-            List<DbCommandDefinition> sqlList = new List<DbCommandDefinition>();
+            List<Command> sqlList = new List<Command>();
             List<IDbDataParameter> parameters = null;
             bool haveBegin = false;
 
@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (parameters == null) parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, parameters);
-                    if (cmd2 is DbCommandDefinition_Select)
+                    if (cmd2 is SelectCommand)
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
 
@@ -158,14 +158,14 @@ namespace TZM.XFramework.Data.SqlClient
                     {
                         if (!haveBegin)
                         {
-                            sqlList.Add(new DbCommandDefinition("BEGIN"));
+                            sqlList.Add(new Command("BEGIN"));
                             haveBegin = true;
                         }
                         sqlList.Add(cmd2);
                         if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
                         {
                             // 1000个参数，就要重新分批
-                            sqlList.Add(new DbCommandDefinition("END;"));
+                            sqlList.Add(new Command("END;"));
                             sqlList.Add(null);
                             parameters = new List<IDbDataParameter>(8);
                             haveBegin = false;
@@ -178,7 +178,7 @@ namespace TZM.XFramework.Data.SqlClient
                             {
                                 if (haveBegin)
                                 {
-                                    sqlList.Add(new DbCommandDefinition("END;"));
+                                    sqlList.Add(new Command("END;"));
                                     haveBegin = false;
                                 }
                                 parameters = new List<IDbDataParameter>(8);
@@ -196,7 +196,7 @@ namespace TZM.XFramework.Data.SqlClient
                             {
                                 if (haveBegin)
                                 {
-                                    sqlList.Add(new DbCommandDefinition("END;"));
+                                    sqlList.Add(new Command("END;"));
                                     haveBegin = false;
                                 }
                                 parameters = new List<IDbDataParameter>(8);
@@ -218,15 +218,15 @@ namespace TZM.XFramework.Data.SqlClient
                     {
                         if (!haveBegin)
                         {
-                            sqlList.Add(new DbCommandDefinition("BEGIN"));
+                            sqlList.Add(new Command("BEGIN"));
                             haveBegin = true;
                         }
-                        sqlList.Add(new DbCommandDefinition(sql));
+                        sqlList.Add(new Command(sql));
                     }
                     else
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
-                        sqlList.Add(new DbCommandDefinition(sql));
+                        sqlList.Add(new Command(sql));
                         sqlList.Add(null);
                     }
 
@@ -235,7 +235,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     if (!haveBegin)
                     {
-                        sqlList.Add(new DbCommandDefinition("BEGIN"));
+                        sqlList.Add(new Command("BEGIN"));
                         haveBegin = true;
                     }
                     // 解析批量插入操作
@@ -243,14 +243,14 @@ namespace TZM.XFramework.Data.SqlClient
                     if (bulkList != null && bulkList.Count > 0) this.ResolveBulk(sqlList, bulkList);
                 }
 
-                if (haveBegin && i == dbQueryables.Count - 1) sqlList.Add(new DbCommandDefinition("END;"));
+                if (haveBegin && i == dbQueryables.Count - 1) sqlList.Add(new Command("END;"));
             }
 
             return sqlList;
         }
 
         // 创建 SELECT 命令
-        protected override DbCommandDefinition ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
+        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -275,7 +275,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            DbCommandDefinition_Select cmd = new DbCommandDefinition_Select(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -416,7 +416,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 子查询
                 jf.Append('(');
-                DbCommandDefinition cmd2 = this.ParseSelectCommand<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, jf.Parameters);
+                Command cmd2 = this.ParseSelectCommand<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, jf.Parameters);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") t0 ");
@@ -497,7 +497,7 @@ namespace TZM.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    DbCommandDefinition cmd2 = this.ParseSelectCommand<T>(sQuery.Union[index] as DbQueryableInfo_Select<T>, indent, isOuter, jf.Parameters);
+                    Command cmd2 = this.ParseSelectCommand<T>(sQuery.Union[index] as DbQueryableInfo_Select<T>, indent, isOuter, jf.Parameters);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -568,7 +568,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override DbCommandDefinition ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters = null)
+        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters = null)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(parameters);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -707,7 +707,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                DbCommandDefinition_Select cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, false, builder.Parameters) as DbCommandDefinition_Select;
+                SelectCommand cmd2 = this.ParseSelectCommand(nQuery.SelectInfo, 0, false, builder.Parameters) as SelectCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -721,13 +721,13 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var cmd = new OracleDbCommandDefinition_Insert(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            var cmd = new OracleInsertCommand(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
             cmd.HaveSEQ = useSEQ;
             return cmd;
         }
 
         // 创建 DELETE 命令
-        protected override DbCommandDefinition ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters = null)
+        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters = null)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ISqlBuilder builder = this.CreateSqlBuilder(parameters);
@@ -767,10 +767,10 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new OracleDbCommandDefinition_Delete(this, aliases, builder.Parameters);
+                var cmd2 = new OracleSelectInfoCommand(this, aliases, builder.Parameters);
                 cmd2.HaveListNavigation = dQuery.SelectInfo.HaveListNavigation;
 
-                var visitor0 = new OracleJoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, dQuery.SelectInfo.Where);
+                var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, dQuery.SelectInfo.Where);
                 visitor0.Write(cmd2);
 
                 var visitor1 = new OracleWhereExpressionVisitor(this, aliases, dQuery.SelectInfo.Where);
@@ -780,11 +780,11 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new DbCommandDefinition(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
         }
 
         // 创建 UPDATE 命令
-        protected override DbCommandDefinition ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters = null)
+        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters = null)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(parameters);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -862,10 +862,10 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new OracleUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new OracleDbCommandDefinition_Delete(this, aliases, builder.Parameters);
+                var cmd2 = new OracleSelectInfoCommand(this, aliases, builder.Parameters);
                 cmd2.HaveListNavigation = uQuery.SelectInfo.HaveListNavigation;
 
-                var visitor0 = new OracleJoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, uQuery.SelectInfo.Where);
+                var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, uQuery.SelectInfo.Where);
                 visitor0.Write(cmd2);
 
                 var visitor1 = new OracleWhereExpressionVisitor(this, aliases, uQuery.SelectInfo.Where);
@@ -875,7 +875,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new DbCommandDefinition(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
         }
     }
 }

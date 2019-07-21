@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class OracleDbCommandDefinition_Delete : DbCommandDefinition_Select
+    public sealed class OracleSelectInfoCommand : SelectCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _convergence = false;
@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public OracleDbCommandDefinition_Delete(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
+        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
             : base(provider, aliases, parameters)
         {
             _provider = provider;

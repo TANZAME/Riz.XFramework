@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotation\OracleColumnAttribute.cs" />
-    <Compile Include="Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase45.cs" />
@@ -62,8 +62,8 @@
     <Compile Include="Data\SqlClient\OracleDbContext.cs" />
     <Compile Include="Data\SqlClient\OracleDbTypeInfo.cs" />
     <Compile Include="Data\SqlClient\OracleSqlBuilder.cs" />
-    <Compile Include="Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs" />
-    <Compile Include="Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs" />
+    <Compile Include="Data\TypeDeserialize\OracleSelectInfoCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\OracleInsertCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\SqlClient\OracleDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />

@@ -212,7 +212,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static async Task<DataSet> ToDataSetAsync<TElement>(this IDbQueryable<TElement> source)
         {
-            return await source.DbContext.Database.ExecuteDataSetAsync(new List<DbCommandDefinition> { source.Resolve() });
+            return await source.DbContext.Database.ExecuteDataSetAsync(new List<Command> { source.Resolve() });
         }
 
 #endif
@@ -510,7 +510,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static DataSet ToDataSet<TElement>(this IDbQueryable<TElement> source)
         {
-            return source.DbContext.Database.ExecuteDataSet(new List<DbCommandDefinition> { source.Resolve() });
+            return source.DbContext.Database.ExecuteDataSet(new List<Command> { source.Resolve() });
         }
 
         /// <summary>

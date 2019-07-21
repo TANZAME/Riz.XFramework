@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDataReader reader = null;
             List<int> identitys = null;
-            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -115,7 +115,7 @@ namespace TZM.XFramework.Data.SqlClient
             List<T> q1 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -179,8 +179,8 @@ namespace TZM.XFramework.Data.SqlClient
             List<T2> q2 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<DbCommandDefinition_Select> defines = sqlList.ToList(x => x as DbCommandDefinition_Select, x => x is DbCommandDefinition_Select);
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<SelectCommand> defines = sqlList.ToList(x => x as SelectCommand, x => x is SelectCommand);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -268,7 +268,7 @@ namespace TZM.XFramework.Data.SqlClient
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<DbCommandDefinition> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = new List<int>();
             IDataReader reader = null;
 

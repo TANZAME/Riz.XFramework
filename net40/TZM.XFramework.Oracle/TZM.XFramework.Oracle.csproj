@@ -53,8 +53,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs">
       <Link>Annotation\OracleColumnAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs</Link>
@@ -80,11 +80,11 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs">
       <Link>Data\SqlClient\OracleSqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs">
-      <Link>Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleInsertCommand.cs">
+      <Link>Data\TypeDeserialize\OracleInsertCommand.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs">
-      <Link>Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleSelectInfoCommand.cs">
+      <Link>Data\TypeDeserialize\OracleSelectInfoCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

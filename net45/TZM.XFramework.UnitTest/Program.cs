@@ -41,17 +41,15 @@ namespace TZM.XFramework.UnitTest
                         for (int i = 0; i < cmd.Parameters.Count; i++)
                         {
                             IDbDataParameter p = (IDbDataParameter)cmd.Parameters[i];
-                            writer.Write("N\"");
+                            writer.Write("-- ");
                             writer.Write(p.ParameterName);
                             writer.Write(" = ");
-                            writer.Write((p.Value ?? string.Empty).ToString().Replace("\"", "\"\""));
-                            writer.Write(", ");
-                            writer.Write("DbType = {0}, ", p.DbType);
-                            writer.Write("Size = {0}, ", p.Size);
-                            writer.Write("Precision = {0}, ", p.Precision);
-                            writer.Write("Scale = {0}, ", p.Scale);
-                            writer.Write("Direction = {0}", p.Direction);
-                            writer.Write("\"");
+                            writer.Write((p.Value ?? string.Empty));
+                            writer.Write(", DbType = {0}, ", p.DbType);
+                            if (p.Size != default(int)) writer.Write("Size = {0}, ", p.Size);
+                            if (p.Precision != default(byte)) writer.Write("Precision = {0}, ", p.Precision);
+                            if (p.Scale != default(byte)) writer.Write("Scale = {0}, ", p.Scale);
+                            if (p.Direction != ParameterDirection.Input) writer.Write("Direction = {0}, ", p.Direction);
                             writer.WriteLine();
                             if (i == cmd.Parameters.Count - 1) writer.WriteLine();
                         }

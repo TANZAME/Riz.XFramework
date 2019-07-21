@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// DELETE / UPDATE 语句的 USING 表达式解析器
+    /// DELETE 或者 UPDATE 语法中的 JOIN 解析成 EXISTS
     /// </summary>
-    public class NpgJoinExpressionVisitor : ExpressionVisitorBase
+    public class NpgExistsExpressionVisitor : ExpressionVisitorBase
     {
         private List<DbExpression> _qJoin = null;
         private TableAliasCache _aliases = null;
@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="JoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        public NpgJoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin, NpgCommandType operationType)
+        public NpgExistsExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin, NpgCommandType operationType)
             : base(provider, aliases, null, false)
         {
             _qJoin = qJoin;
@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(NpgDbCommandDefinition_Delete cmd)
+        public void Write(NpgSelectInfoCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder on = cmd.OnPhrase;

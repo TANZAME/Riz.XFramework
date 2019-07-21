@@ -482,11 +482,11 @@ namespace TZM.XFramework.UnitTest
             {
                 // DataSet
                 var define = query.Resolve();
-                List<DbCommandDefinition> sqlList = new List<DbCommandDefinition> { define, define, define };
+                List<Command> sqlList = new List<Command> { define, define, define };
                 var result4 = context.Database.ExecuteDataSet(sqlList);
 #if !net40
                 define = query.Resolve();
-                sqlList = new List<DbCommandDefinition> { define, define, define };
+                sqlList = new List<Command> { define, define, define };
                 result4 = context.Database.ExecuteDataSetAsync(sqlList).Result;
 #endif
             }

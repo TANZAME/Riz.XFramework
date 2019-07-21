@@ -61,7 +61,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public DbCommandDefinition Resolve<T>(IDbQueryable<T> dbQueryable, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
+        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
         {
             // 设置该查询是否需要参数化
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
@@ -93,9 +93,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
         /// <returns></returns>
-        public virtual List<DbCommandDefinition> Resolve(List<object> dbQueryables)
+        public virtual List<Command> Resolve(List<object> dbQueryables)
         {
-            List<DbCommandDefinition> sqlList = new List<DbCommandDefinition>();
+            List<Command> sqlList = new List<Command>();
             List<IDbDataParameter> parameters = null;
 
             foreach (var obj in dbQueryables)
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
                 else if (obj is string)
                 {
                     string sql = obj.ToString();
-                    sqlList.Add(new DbCommandDefinition(sql));
+                    sqlList.Add(new Command(sql));
                 }
                 else
                 {
@@ -166,16 +166,16 @@ namespace TZM.XFramework.Data
         #region 私有函数
 
         // 创建 SELECT 命令
-        protected abstract DbCommandDefinition ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
 
         // 创建 INSRT 命令
-        protected abstract DbCommandDefinition ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters = null);
 
         // 创建 DELETE 命令
-        protected abstract DbCommandDefinition ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters = null);
 
         // 创建 UPDATE 命令
-        protected abstract DbCommandDefinition ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters = null);
 
         // 获取 JOIN 子句关联表的的别名
         protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query)
@@ -252,7 +252,7 @@ namespace TZM.XFramework.Data
         }
 
         // 解析批量 INSERT 语句
-        protected void ResolveBulk(List<DbCommandDefinition> sqlList, List<IDbQueryable> bulkList)
+        protected void ResolveBulk(List<Command> sqlList, List<IDbQueryable> bulkList)
         {
             // SQL 只能接收1000个
             int pageSize = 1000;
@@ -270,11 +270,11 @@ namespace TZM.XFramework.Data
                     query.Parameterized = false;
                     query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == t };
 
-                    DbCommandDefinition cmd = query.Resolve();
+                    Command cmd = query.Resolve();
                     builder.Append(cmd.CommandText);
                 }
 
-                if (builder.Length > 0) sqlList.Add(new DbCommandDefinition(builder.ToString()));
+                if (builder.Length > 0) sqlList.Add(new Command(builder.ToString()));
             }
         }
 

@@ -51,8 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs</Link>
@@ -78,8 +78,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs">
       <Link>Data\TypeDeserialize\NpgCommandType.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgDbCommandDefinition_Delete.cs">
-      <Link>Data\TypeDeserialize\NpgDbCommandDefinition_Delete.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgSelectInfoCommand.cs">
+      <Link>Data\TypeDeserialize\NpgSelectInfoCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

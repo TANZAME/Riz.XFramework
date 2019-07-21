@@ -6,9 +6,9 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// DELETE / UPDATE 语句的 EXISTS 表达式解析器
+    /// DELETE 或者 UPDATE 语法中的 JOIN 解析成 EXISTS
     /// </summary>
-    public class OracleJoinExpressionVisitor : ExpressionVisitorBase
+    public class OracleExistsExpressionVisitor : ExpressionVisitorBase
     {
         private IDbQueryProvider _provider = null;
         private List<DbExpression> _qJoin = null;
@@ -16,9 +16,9 @@ namespace TZM.XFramework.Data
         private DbExpression _where = null;
 
         /// <summary>
-        /// 初始化 <see cref="OracleJoinExpressionVisitor"/> 类的新实例
+        /// 初始化 <see cref="OracleExistsExpressionVisitor"/> 类的新实例
         /// </summary>
-        public OracleJoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin, DbExpression qWhere)
+        public OracleExistsExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin, DbExpression qWhere)
             : base(provider, aliases, null, false)
         {
             _provider = provider;
@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(OracleDbCommandDefinition_Delete cmd)
+        public void Write(OracleSelectInfoCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder on = cmd.OnPhrase;

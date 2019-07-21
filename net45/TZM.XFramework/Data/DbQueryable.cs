@@ -85,7 +85,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public abstract DbCommandDefinition Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
+        public abstract Command Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
 
         /// <summary>
         /// 解析查询语义

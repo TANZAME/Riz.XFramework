@@ -25,11 +25,12 @@
     <None Remove="Data\ExpressionVisitor\.gitkeep" />
     <None Remove="Data\Infrastructure\.gitkeep" />
     <None Remove="Data\SqlClient\.gitkeep" />
+    <None Remove="Data\TypeDeserialize\.gitkeep" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleJoinExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs" Link="Data\Infrastructure\OracleDatabase.cs" />
@@ -39,8 +40,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbTypeInfo.cs" Link="Data\SqlClient\OracleDbTypeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs" Link="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs" Link="Data\TypeDeserialize\OracleDbCommandDefinition_Delete.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs" Link="Data\TypeDeserialize\OracleDbCommandDefinition_Insert.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleInsertCommand.cs" Link="Data\TypeDeserialize\OracleInsertCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleSelectInfoCommand.cs" Link="Data\TypeDeserialize\OracleSelectInfoCommand.cs" />
   </ItemGroup>
 
   <ItemGroup>

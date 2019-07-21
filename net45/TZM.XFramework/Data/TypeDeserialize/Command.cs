@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 命令描述基类
     /// </summary>
-    public class DbCommandDefinition
+    public class Command
     {
         private string _commandText;
         private List<IDbDataParameter> _parameters;
@@ -41,9 +41,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 初始化 <see cref="DbCommandDefinition"/> 类的新实例
+        /// 初始化 <see cref="Command"/> 类的新实例
         /// </summary>
-        public DbCommandDefinition(string commandText, List<IDbDataParameter> parameters = null, CommandType? commandType = null)
+        public Command(string commandText, List<IDbDataParameter> parameters = null, CommandType? commandType = null)
         {
             this._commandText = commandText;
             this._parameters = parameters;

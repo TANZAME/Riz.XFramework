@@ -11,14 +11,14 @@ namespace TZM.XFramework.Data
     public partial class TypeDeserializer
     {
         private IDataReader _reader = null;
-        private DbCommandDefinition_Select _definition = null;
+        private SelectCommand _definition = null;
 
         /// <summary>
         /// 实体化 <see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
         /// <param name="reader">DataReader</param>
         /// <param name="definition">命令描述对象，用于解析实体的外键</param>
-        public TypeDeserializer(IDataReader reader, DbCommandDefinition_Select definition)
+        public TypeDeserializer(IDataReader reader, SelectCommand definition)
         {
             _definition = definition;
             _reader = reader;

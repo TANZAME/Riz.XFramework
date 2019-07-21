@@ -16,7 +16,7 @@ namespace TZM.XFramework.Data
     internal class TypeDeserializer<T>
     {
         private IDataRecord _reader = null;
-        private DbCommandDefinition_Select _definition = null;
+        private SelectCommand _definition = null;
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
         private Func<IDataRecord, object> _modelDeserializer = null;
         private Dictionary<string, HashSet<string>> _listNavigationKeys = null;
@@ -31,7 +31,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="reader">DataReader</param>
         /// <param name="definition">SQL 命令描述</param>
-        internal TypeDeserializer(IDataReader reader, DbCommandDefinition_Select definition)
+        internal TypeDeserializer(IDataReader reader, SelectCommand definition)
         {
             _reader = reader;
             _definition = definition;
