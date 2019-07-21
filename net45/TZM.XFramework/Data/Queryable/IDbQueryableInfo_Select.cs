@@ -83,6 +83,6 @@ namespace TZM.XFramework.Data
         /// 是否是由一对多导航产生的嵌套查询
         /// <para>=true 时此查询一定是子查询</para>
         /// </summary>
-        bool GenByListNavigation { get; set; }
+        bool ResultByListNavigation { get; set; }
     }
 }

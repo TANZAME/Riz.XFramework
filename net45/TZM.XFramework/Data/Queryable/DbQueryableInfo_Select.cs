@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool GenByListNavigation { get; set; }
+        public bool ResultByListNavigation { get; set; }
 
         /// <summary>
         /// 并集

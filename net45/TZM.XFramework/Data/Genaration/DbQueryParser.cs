@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     sQuery.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                sQuery.GenByListNavigation = true;
+                sQuery.ResultByListNavigation = true;
                 sQuery.Include = new List<DbExpression>();
 
                 var outQuery = new DbQueryableInfo_Select<TElement>();

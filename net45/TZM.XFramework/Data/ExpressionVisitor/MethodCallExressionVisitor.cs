@@ -541,10 +541,14 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-                var cmd = query.Resolve(0, false, _builder.Parameters);
+                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Parameters);
                 _builder.Append(" EXISTS(");
                 _builder.Append(cmd.CommandText);
-                _builder.Append(" AND ");
+
+                if (((SelectCommand)cmd).WhereFragment.Length > 0)
+                    _builder.Append(" AND ");
+                else
+                    _builder.Append("WHERE ");
 
                 Expression expression = null;
                 for (int i = query.DbExpressions.Count - 1; i >= 0; i++)
@@ -556,7 +560,7 @@ namespace TZM.XFramework.Data
                     }
                 }
                 if (expression == null)
-                    throw new XFrameworkException("SELECT segment not found.");
+                    throw new XFrameworkException("Select syntax not found.");
                 else
                     _visitor.Visit(expression);
 
