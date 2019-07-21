@@ -164,7 +164,7 @@ namespace TZM.XFramework.Data
         {
             Type type = node.Method.ReflectedType != null ? node.Method.ReflectedType : node.Method.DeclaringType;
             if (type == typeof(string)) return this.VisitStringContains(node);
-            else if (type == typeof(IDbQueryable)) return this.VisitQueryableContains(node);
+            else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(node);
             else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(node);
             else throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
         }
@@ -538,41 +538,32 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
-            // https://www.cnblogs.com/yangmingyu/p/6928209.html
-            // 对于其他的特殊字符：'^'， '-'， ']' 因为它们本身在包含在 '[]' 中使用，所以需要用另外的方式来转义，于是就引入了 like 中的 escape 子句，另外值得注意的是：escape 可以转义所有的特殊字符。
-            // EF 的 Like 不用参数化...
-
-            if (m != null)
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+                var cmd = query.Resolve(0, false, _builder.Parameters);
+                _builder.Append(" EXISTS(");
+                _builder.Append(cmd.CommandText);
+                _builder.Append(" AND ");
 
-                    if (_builder.Parameterized)
+                Expression expression = null;
+                for (int i = query.DbExpressions.Count - 1; i >= 0; i++)
+                {
+                    if (query.DbExpressions[i].DbExpressionType == DbExpressionType.Select)
                     {
-                        _builder.Append("'%' + ");
-                        _builder.Append(value);
-                        _builder.Append(" + '%'");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("%'");
+                        expression = query.DbExpressions[i].Expressions[0];
+                        break;
                     }
                 }
+                if (expression == null)
+                    throw new XFrameworkException("SELECT segment not found.");
                 else
-                {
-                    _builder.Append("('%' + ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" + '%')");
-                }
-            }
+                    _visitor.Visit(expression);
 
+                _builder.Append(" = ");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
             return m;
         }
 

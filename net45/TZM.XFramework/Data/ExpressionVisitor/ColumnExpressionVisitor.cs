@@ -23,6 +23,26 @@ namespace TZM.XFramework.Data
         private NavigationCollection _navigations = null;
         private List<string> _navChainHopper = null;
 
+        /// <summary>
+        /// SELECT 字段
+        /// Column 对应实体的原始属性
+        /// </summary>
+        public IDictionary<string, Column> Columns
+        {
+            get { return _columns; }
+        }
+
+        /// <summary>
+        /// 导航属性描述信息
+        /// <para>
+        /// 从 <see cref="IDataReader"/> 到实体的映射需要使用这些信息来给导航属性赋值
+        /// </para>
+        /// </summary>
+        public NavigationCollection Navigations
+        {
+            get { return _navigations; }
+        }
+
         static ColumnExpressionVisitor()
         {
             _statisMethods = new Dictionary<DbExpressionType, string>
@@ -91,26 +111,6 @@ namespace TZM.XFramework.Data
                     _builder.Length -= space;
                 }
             }
-        }
-
-        /// <summary>
-        /// SELECT 字段
-        /// Column 对应实体的原始属性
-        /// </summary>
-        public IDictionary<string, Column> Columns
-        {
-            get { return _columns; }
-        }
-
-        /// <summary>
-        /// 导航属性描述信息
-        /// <para>
-        /// 从 <see cref="IDataReader"/> 到实体的映射需要使用这些信息来给导航属性赋值
-        /// </para>
-        /// </summary>
-        public NavigationCollection Navigations
-        {
-            get { return _navigations; }
         }
 
         //p=>p
