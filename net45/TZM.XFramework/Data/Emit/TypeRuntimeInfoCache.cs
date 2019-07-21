@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static TypeRuntimeInfo GetRuntimeInfo(Type type)
         {
-            return _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p));
+            return TypeRuntimeInfoCache.GetRuntimeInfo(type, false);
         }
 
         /// <summary>
@@ -28,9 +28,9 @@ namespace TZM.XFramework.Data
         /// <param name="type">类型实例</param>
         /// <param name="private">包含私有成员</param>
         /// <returns></returns>
-        public static TypeRuntimeInfo GetRuntimeInfo(Type type,bool @private)
+        public static TypeRuntimeInfo GetRuntimeInfo(Type type, bool @private)
         {
-            return _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p));
+            return _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p, @private));
         }
 
         /// <summary>
