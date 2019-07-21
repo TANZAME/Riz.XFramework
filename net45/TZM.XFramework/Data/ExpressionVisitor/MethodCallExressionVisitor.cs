@@ -478,40 +478,57 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitEnumerableContains(MethodCallExpression m)
         {
-            // https://www.cnblogs.com/yangmingyu/p/6928209.html
-            // 对于其他的特殊字符：'^'， '-'， ']' 因为它们本身在包含在 '[]' 中使用，所以需要用另外的方式来转义，于是就引入了 like 中的 escape 子句，另外值得注意的是：escape 可以转义所有的特殊字符。
-            // EF 的 Like 不用参数化...
+            if (m == null) return m;
 
-            if (m != null)
+            _visitedMark.ClearImmediately = false;
+            _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
+            _builder.Append(" IN(");
+
+            Expression exp = m.Object != null ? m.Object : m.Arguments[0];
+            if (exp.NodeType == ExpressionType.Constant)
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
+                _visitor.Visit(exp);
+            }
+            else if (exp.NodeType == ExpressionType.MemberAccess)
+            {
+                _visitor.Visit(exp.Evaluate());
+            }
+            else if (exp.NodeType == ExpressionType.NewArrayInit)
+            {
+                // => new[] { 1, 2, 3 }.Contains(a.DemoId)
+                var expressions = (exp as NewArrayExpression).Expressions;
+                for (int i = 0; i < expressions.Count; i++)
                 {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
-
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("'%' + ");
-                        _builder.Append(value);
-                        _builder.Append(" + '%'");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("%'");
-                    }
-                }
-                else
-                {
-                    _builder.Append("('%' + ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" + '%')");
+                    _visitor.Visit(expressions[i]);
+                    if (i < expressions.Count - 1) _builder.Append(",");
+                    else if (i == expressions.Count - 1) _visitedMark.ClearImmediately = true;
                 }
             }
+            else if (exp.NodeType == ExpressionType.ListInit)
+            {
+                // => new List<int> { 1, 2, 3 }.Contains(a.DemoId)
+                var initializers = (exp as ListInitExpression).Initializers;
+                for (int i = 0; i < initializers.Count; i++)
+                {
+                    foreach (var args in initializers[i].Arguments) _visitor.Visit(args);
+
+                    if (i < initializers.Count - 1) _builder.Append(",");
+                    else if (i == initializers.Count - 1) _visitedMark.ClearImmediately = true;
+                }
+            }
+            else if (exp.NodeType == ExpressionType.New)
+            {
+                // => new List<int>(_demoIdList).Contains(a.DemoId)
+                var arguments = (exp as NewExpression).Arguments;
+                for (int i = 0; i < arguments.Count; i++)
+                {
+                    if (i == arguments.Count - 1) _visitedMark.ClearImmediately = true;
+                    _visitor.Visit(arguments[i]);
+                }
+            }
+
+            _visitedMark.ClearImmediately = true;
+            _builder.Append(")");
 
             return m;
         }
