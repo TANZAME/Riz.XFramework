@@ -81,15 +81,20 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析成 SQL 命令
         /// </summary>
+        public abstract Command Resolve();
+
+        /// <summary>
+        /// 解析成 SQL 命令
+        /// </summary>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public abstract Command Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
+        public abstract Command Resolve(int indent, bool isOuter, List<IDbDataParameter> parameters);
 
         /// <summary>
         /// 解析查询语义
         /// </summary>
-        public abstract IDbQueryableInfo Parse(int startIndex = 0);
+        public abstract IDbQueryableInfo Parse();
     }
 }

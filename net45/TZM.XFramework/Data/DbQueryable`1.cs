@@ -55,11 +55,20 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析成 SQL 命令
         /// </summary>
+        public override Command Resolve()
+        {
+            var cmd = this.Provider.Resolve(this, 0, true, null);
+            return cmd;
+        }
+
+        /// <summary>
+        /// 解析成 SQL 命令
+        /// </summary>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public override Command Resolve(int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
+        public override Command Resolve(int indent, bool isOuter, List<IDbDataParameter> parameters)
         {
             var cmd = this.Provider.Resolve(this, indent, isOuter, parameters);
             return cmd;
@@ -68,7 +77,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析查询语义
         /// </summary>
-        public override IDbQueryableInfo Parse(int startIndex = 0)
+        public override IDbQueryableInfo Parse()
         {
             return DbQueryParser.Parse(this);
         }

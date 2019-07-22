@@ -57,11 +57,20 @@ namespace TZM.XFramework.Data
         /// 创建 SQL 命令
         /// </summary>
         /// <param name="dbQueryable">查询 语句</param>
+        public Command Resolve<T>(IDbQueryable<T> dbQueryable)
+        {
+            return this.Resolve(dbQueryable, 0, true, null);
+        }
+
+        /// <summary>
+        /// 创建 SQL 命令
+        /// </summary>
+        /// <param name="dbQueryable">查询 语句</param>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameters">已存在的参数列表</param>
         /// <returns></returns>
-        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null)
+        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, List<IDbDataParameter> parameters)
         {
             // 设置该查询是否需要参数化
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
@@ -166,16 +175,16 @@ namespace TZM.XFramework.Data
         #region 私有函数
 
         // 创建 SELECT 命令
-        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent = 0, bool isOuter = true, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, List<IDbDataParameter> parameters);
 
         // 创建 INSRT 命令
-        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters);
 
         // 创建 DELETE 命令
-        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters);
 
         // 创建 UPDATE 命令
-        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters = null);
+        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters);
 
         // 获取 JOIN 子句关联表的的别名
         protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query)
