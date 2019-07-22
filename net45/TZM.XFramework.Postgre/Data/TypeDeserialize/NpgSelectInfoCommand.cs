@@ -68,12 +68,12 @@ namespace TZM.XFramework.Data
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HaveListNavigation) _aliases = new TableAliasCache(_aliases.ObviousAlias);
+            if (this.HaveListNavigation) _aliases = new TableAliasCache(_aliases.Declared);
             //开始产生 USING 子句
             ISqlBuilder jf = this.JoinFragment;
             int index = -1;
             // 未生成USING子句
-            if (_aliases.ObviousAlias <= 1)
+            if (_aliases.Declared <= 1)
             {
                 jf.AppendNewLine();
                 jf.Append(_keywordName);
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
                 string alias2 = _aliases.GetTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
-                if (_aliases.ObviousAlias > 1 || index > 0) jf.Append("     ");
+                if (_aliases.Declared > 1 || index > 0) jf.Append("     ");
 
                 Type type = m.Type;
                 var typeRumtime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);

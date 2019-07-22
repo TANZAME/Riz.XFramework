@@ -33,25 +33,60 @@ namespace TZM.XFramework.Data
 
         // FROM 和 JOIN 表达式总数
         // 在这个计数的基础上再分配导航属性关联的表别名
-        private int _obviousAlias = 0;
+        private int _declared = 0;
+        // 上下文已使用的数量
+        private int _taked = 0;
 
         /// <summary>
-        /// 显式指定的别名数量，含FROM和JOIN子句
+        /// FROM和JOIN子句显式指定的别名数量
         /// </summary>
-        public int ObviousAlias { get { return _obviousAlias; } }
-
-        /// <summary>
-        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
-        /// </summary>
-        public TableAliasCache() : this(0) { }
-
-        /// <summary>
-        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
-        /// </summary>
-        /// <param name="num">FROM 和 JOIN 表达式所占有的总数</param>
-        public TableAliasCache(int num)
+        public int Declared
         {
-            _obviousAlias = num;
+            get { return _declared; }
+        }
+
+        /// <summary>
+        /// FROM和JOIN子句显式指定的别名数量
+        /// </summary>
+        public int Taked
+        {
+            get { return _taked; }
+        }
+
+        /// <summary>
+        /// 所有上下文使用的别名数量
+        /// </summary>
+        public int Count
+        {
+            get { return _aliases.Count + _taked; }
+        }
+
+        /// <summary>
+        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// </summary>
+        public TableAliasCache() : this(0)
+        {
+
+        }
+
+        /// <summary>
+        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// </summary>
+        /// <param name="declared">FROM 和 JOIN 表达式所占有的总数</param>
+        public TableAliasCache(int declared)
+        {
+            _declared = declared;
+        }
+
+        /// <summary>
+        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// </summary>
+        /// <param name="declared">FROM 和 JOIN 表达式所占有的总数</param>
+        /// <param name="tacked">上下文已使用数量</param>
+        public TableAliasCache(int declared, int tacked)
+        {
+            _declared = declared;
+            _taked = tacked;
         }
 
         /// <summary>
@@ -82,7 +117,7 @@ namespace TZM.XFramework.Data
         /// <param name="key">键值</param>
         public string GetTableAlias(string key)
         {
-            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => "t" + this._aliases.Count.ToString()) : "XFramework";
+            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => "t" + (this._aliases.Count + _taked).ToString()) : "XFramework";
         }
 
         /// <summary>
@@ -92,7 +127,7 @@ namespace TZM.XFramework.Data
         public string GetNavigationTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
-            return this._navigationAliases.GetOrAdd(key, x => "t" + (this._navigationAliases.Count + _obviousAlias).ToString());
+            return this._navigationAliases.GetOrAdd(key, x => "t" + (this._navigationAliases.Count + _declared).ToString());
         }
 
         /// <summary>
