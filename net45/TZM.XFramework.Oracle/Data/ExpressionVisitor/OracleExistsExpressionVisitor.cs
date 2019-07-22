@@ -100,7 +100,7 @@ namespace TZM.XFramework.Data
                 wf.Indent += 1;
                 wf.AppendNewLine();
                 wf.Append("SELECT 1 FROM(");
-                var cmd2 = sQuery.Resolve(wf.Indent + 1, false, wf.Parameters);
+                var cmd2 = sQuery.Resolve(wf.Indent + 1, false, wf.Parameter);
                 wf.Append(cmd2.CommandText);
                 wf.AppendNewLine();
                 wf.Append(')');

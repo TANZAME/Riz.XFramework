@@ -47,19 +47,19 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
-            : base(provider, aliases, parameters)
+        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserParameter parameter)
+            : base(provider, aliases, parameter)
         {
             _provider = provider;
             _aliases = aliases;
-            _onPhrase = _provider.CreateSqlBuilder(parameters);
+            _onPhrase = _provider.CreateSqlBuilder(parameter);
         }
 
         // 添加导航属性关联
         protected override void AppendNavigation()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
-            throw new NotSupportedException("OracleDbQueryProvider not support associate DELETE / UPDATE.  ");            
+            throw new NotSupportedException("OracleDbQueryProvider not support associate DELETE / UPDATE.  ");
         }
     }
 }

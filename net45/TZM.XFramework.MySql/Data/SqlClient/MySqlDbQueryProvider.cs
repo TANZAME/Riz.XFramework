@@ -90,11 +90,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
-        /// <param name="parameters">是否需要参数化</param>
+        /// <param name="parameter">参数列表，NULL 或者 parameter=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public override ISqlBuilder CreateSqlBuilder(List<IDbDataParameter> parameters)
+        public override ISqlBuilder CreateSqlBuilder(ParserParameter parameter)
         {
-            return new MySqlBuilder(this, parameters);
+            return new MySqlBuilder(this, parameter);
         }
 
         /// <summary>
@@ -107,16 +107,16 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, List<IDbDataParameter> parameters)
+        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserParameter parameter)
         {
-            var cmd = (SelectCommand)this.ParseSelectCommandImpl(sQuery, indent, isOuter, parameters);
+            var cmd = (SelectCommand)this.ParseSelectCommandImpl(sQuery, indent, isOuter, parameter);
             cmd.Convergence();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
         // 创建 SELECT 命令
-        Command ParseSelectCommandImpl<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, List<IDbDataParameter> parameters)
+        Command ParseSelectCommandImpl<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserParameter parameter)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -141,7 +141,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
-            SelectCommand cmd = new SelectCommand(this, aliases, parameters) { HaveListNavigation = sQuery.HaveListNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, parameter) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             ISqlBuilder sf = null;
@@ -207,7 +207,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, sQuery);
                     if (sQuery.Skip > 0 && sQuery.Take == 0)
                     {
-                        sf = this.CreateSqlBuilder(parameters);
+                        sf = this.CreateSqlBuilder(parameter);
                         sf.Indent = jf.Indent + 1;
                         visitor2.Write(sf);
                     }
@@ -269,7 +269,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 子查询
                 jf.Append("(");
-                var cmd2 = this.ParseSelectCommandImpl<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, jf.Parameters);
+                var cmd2 = this.ParseSelectCommandImpl<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, parameter);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") t0 ");
@@ -364,7 +364,7 @@ namespace TZM.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ParseSelectCommandImpl<T>(sQuery.Union[index] as DbQueryableInfo_Select<T>, indent, isOuter, jf.Parameters);
+                    Command cmd2 = this.ParseSelectCommandImpl<T>(sQuery.Union[index] as DbQueryableInfo_Select<T>, indent, isOuter, parameter);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -420,17 +420,17 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, List<IDbDataParameter> parameters)
+        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserParameter parameter)
         {
-            ISqlBuilder builder = this.CreateSqlBuilder(parameters);
+            ISqlBuilder builder = this.CreateSqlBuilder(parameter);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
 
             if (nQuery.Entity != null)
             {
                 object entity = nQuery.Entity;
-                ISqlBuilder columnsBuilder = this.CreateSqlBuilder(builder.Parameters);
-                ISqlBuilder valuesBuilder = this.CreateSqlBuilder(builder.Parameters);
+                ISqlBuilder columnsBuilder = this.CreateSqlBuilder(parameter);
+                ISqlBuilder valuesBuilder = this.CreateSqlBuilder(parameter);
 
                 // 指定插入列
                 Dictionary<string, MemberInvokerBase> invokers = typeRuntime.Invokers;
@@ -509,7 +509,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectCommand cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, true, builder.Parameters) as SelectCommand;
+                SelectCommand cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, true, parameter) as SelectCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -523,14 +523,14 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             if (nQuery.Bulk == null || nQuery.Bulk.IsEndPos) builder.Append(';');
-            return new Command(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
         }
 
         // 创建 DELETE 命令
-        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, List<IDbDataParameter> parameters)
+        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserParameter parameter)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            ISqlBuilder builder = this.CreateSqlBuilder(parameters);
+            ISqlBuilder builder = this.CreateSqlBuilder(parameter);
             bool useKey = false;
 
             builder.Append("DELETE t0 FROM ");
@@ -567,7 +567,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
-                var cmd2 = new SelectCommand(this, aliases, builder.Parameters) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new SelectCommand(this, aliases, parameter) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -580,13 +580,13 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
         }
 
         // 创建 UPDATE 命令
-        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, List<IDbDataParameter> parameters)
+        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserParameter parameter)
         {
-            ISqlBuilder builder = this.CreateSqlBuilder(parameters);
+            ISqlBuilder builder = this.CreateSqlBuilder(parameter);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("UPDATE ");
@@ -596,7 +596,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (uQuery.Entity != null)
             {
                 object entity = uQuery.Entity;
-                ISqlBuilder whereBuilder = this.CreateSqlBuilder(builder.Parameters);
+                ISqlBuilder whereBuilder = this.CreateSqlBuilder(parameter);
                 bool useKey = false;
                 int length = 0;
                 builder.AppendNewLine(" SET");
@@ -650,7 +650,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd2 = new SelectCommand(this, aliases, builder.Parameters) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new SelectCommand(this, aliases, parameter) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -668,7 +668,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Parameters, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
         }
     }
 }
