@@ -541,7 +541,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Parameters);
+                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Parameter);
                 _builder.Append(" EXISTS(");
                 _builder.Append(cmd.CommandText);
 

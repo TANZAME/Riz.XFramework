@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data
             get
             {
                 if (!_convergence) this.Convergence();
-                this.Parameters = _joinFragment.Parameters;
+                this.Parameters = _joinFragment.Parameter != null ? _joinFragment.Parameter.Parameters : null;
                 string commandText = _joinFragment.ToString();
                 return commandText;
             }
@@ -88,16 +88,16 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
-        /// <param name="parameters">已存在的参数列表</param>
-        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
+        /// <param name="parameter">解析上下文参数</param>
+        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserParameter parameter)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;
             _aliases = aliases;
             _navMembers = new Dictionary<string, MemberExpression>();
 
-            _joinFragment = provider.CreateSqlBuilder(parameters);
-            _whereFragment = provider.CreateSqlBuilder(parameters);
+            _joinFragment = provider.CreateSqlBuilder(parameter);
+            _whereFragment = provider.CreateSqlBuilder(parameter);
         }
 
         /// <summary>

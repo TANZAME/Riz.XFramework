@@ -32,9 +32,9 @@ namespace TZM.XFramework.Data
         bool Parameterized { get; }
 
         /// <summary>
-        /// 参数
+        /// 解析上下文参数
         /// </summary>
-        List<IDbDataParameter> Parameters { get; set; }
+        ParserParameter Parameter { get; set; }
 
         /// <summary>
         /// 追加列名

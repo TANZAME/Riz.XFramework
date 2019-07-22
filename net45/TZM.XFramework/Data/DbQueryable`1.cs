@@ -66,11 +66,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="parameters">已存在的参数列表</param>
+        /// <param name="parameter">解析上下文参数</param>
         /// <returns></returns>
-        public override Command Resolve(int indent, bool isOuter, List<IDbDataParameter> parameters)
+        public override Command Resolve(int indent, bool isOuter, ParserParameter parameter)
         {
-            var cmd = this.Provider.Resolve(this, indent, isOuter, parameters);
+            var cmd = this.Provider.Resolve(this, indent, isOuter, parameter);
             return cmd;
         }
 

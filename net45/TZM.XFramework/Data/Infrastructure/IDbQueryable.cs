@@ -53,9 +53,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="parameters">已存在的参数列表</param>
+        /// <param name="parameter">解析上下文参数</param>
         /// <returns></returns>
-        Command Resolve(int indent, bool isOuter, List<IDbDataParameter> parameters);
+        Command Resolve(int indent, bool isOuter, ParserParameter parameter);
 
         /// <summary>
         /// 解析查询语义

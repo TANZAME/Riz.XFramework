@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         protected string _escCharQuote;
         protected StringBuilder _innerBuilder = null;
         protected IDbQueryProvider _provider = null;
-        private List<IDbDataParameter> _parameters = null;
+        private ParserParameter _parameter = null;
 
         /// <summary>
         /// TAB 制表符
@@ -49,22 +49,27 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual bool Parameterized
         {
-            get { return _parameters != null; }
+            get { return _parameter != null && _parameter.Parameters != null; }
         }
 
         /// <summary>
-        /// 参数
+        /// 解析上下文参数
         /// </summary>
-        public List<IDbDataParameter> Parameters
+        public ParserParameter Parameter
         {
-            get { return _parameters; }
-            set { _parameters = value; }
+            get { return _parameter; }
+            set { _parameter = value; }
         }
 
-        public SqlBuilderBase(IDbQueryProvider provider, List<IDbDataParameter> parameters = null)
+        /// <summary>
+        /// 实例化 <see cref="SqlBuilderBase"/> 类的新实例
+        /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="parameter">解析上下文参数</param>
+        public SqlBuilderBase(IDbQueryProvider provider, ParserParameter parameter)
         {
             _provider = provider;
-            _parameters = parameters;
+            _parameter = parameter;
             _innerBuilder = new StringBuilder(128);
             _escCharLeft = _provider.QuotePrefix;
             _escCharRight = _provider.QuoteSuffix;
@@ -450,7 +455,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            string parameterName = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Parameters.Count);
+            string parameterName = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Parameter.Parameters.Count);
 
             IDbDataParameter parameter = _provider.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
@@ -479,7 +484,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            this.Parameters.Add(parameter);
+            this.Parameter.Parameters.Add(parameter);
             return parameter;
         }
 

@@ -59,9 +59,9 @@ namespace TZM.XFramework.Data
         /// <param name="dbQueryable">查询语句</param>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="parameters">已存在的参数列表</param>
+        /// <param name="parameter">解析上下文参数</param>
         /// <returns></returns>
-        Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, List<IDbDataParameter> parameters);
+        Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ParserParameter parameter);
 
         /// <summary>
         /// 创建数据会话
@@ -74,9 +74,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
-        /// <param name="parameters">参数列表，NULL 时表示不使用参数化</param>
+        /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        ISqlBuilder CreateSqlBuilder(List<IDbDataParameter> parameters);
+        ISqlBuilder CreateSqlBuilder(ParserParameter parameter);
 
         /// <summary>
         /// 创建方法表达式访问器

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 解析上下文
+    /// 解析上下文携带参数
     /// </summary>
-    public class ResolveScope
+    public class ParserParameter
     {
         /// <summary>
         /// 参数列表
