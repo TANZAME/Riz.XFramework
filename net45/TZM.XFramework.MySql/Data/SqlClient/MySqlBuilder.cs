@@ -22,9 +22,9 @@ namespace TZM.XFramework.Data
         /// 实例化 <see cref="MySqlBuilder"/> 类的新实例
         /// </summary>
         /// <param name="provider">提供者</param>
-        /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public MySqlBuilder(IDbQueryProvider provider, ParserToken parameter = null)
-            : base(provider, parameter)
+        /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
+        public MySqlBuilder(IDbQueryProvider provider, ParserToken token)
+            : base(provider, token)
         {
 
         }

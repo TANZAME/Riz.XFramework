@@ -47,12 +47,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken parameter)
-            : base(provider, aliases, parameter)
+        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken token)
+            : base(provider, aliases, token)
         {
             _provider = provider;
             _aliases = aliases;
-            _onPhrase = _provider.CreateSqlBuilder(parameter);
+            _onPhrase = _provider.CreateSqlBuilder(token);
         }
 
         // 添加导航属性关联

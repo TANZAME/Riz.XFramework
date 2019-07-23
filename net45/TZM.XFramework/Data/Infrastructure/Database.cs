@@ -359,9 +359,9 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(IDbQueryable<T> query)
         {
-            Command definition = query.Resolve();
-            IDbCommand cmd = this.CreateCommand(definition);
-            return this.Execute<T>(cmd, definition as SelectCommand);
+            Command command = query.Resolve();
+            IDbCommand cmd = this.CreateCommand(command);
+            return this.Execute<T>(cmd, command as SelectCommand);
         }
 
         /// <summary>
@@ -780,9 +780,9 @@ namespace TZM.XFramework.Data
                     else
                     {
                         var myList = new List<Command>(8);
-                        foreach (var define in sqlList)
+                        foreach (var command in sqlList)
                         {
-                            if (define != null) myList.Add(define);
+                            if (command != null) myList.Add(command);
                             else
                             {
                                 queue.Enqueue(myList);
@@ -828,14 +828,14 @@ namespace TZM.XFramework.Data
 
                     // 组织命令参数
                     List<IDbDataParameter> prevParameters = null;
-                    foreach (var shape in myList)
+                    foreach (var command in myList)
                     {
-                        if (shape.Parameters != null)
+                        if (command.Parameters != null)
                         {
-                            if (prevParameters == null || shape.Parameters != prevParameters)
+                            if (prevParameters == null || command.Parameters != prevParameters)
                             {
-                                cmd.Parameters.AddRange(shape.Parameters);
-                                prevParameters = shape.Parameters;
+                                cmd.Parameters.AddRange(command.Parameters);
+                                prevParameters = command.Parameters;
                             }
                         }
                     }

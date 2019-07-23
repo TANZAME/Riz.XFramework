@@ -11,16 +11,16 @@ namespace TZM.XFramework.Data
     public partial class TypeDeserializer
     {
         private IDataReader _reader = null;
-        private SelectCommand _definition = null;
+        private SelectCommand command = null;
 
         /// <summary>
         /// 实体化 <see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
         /// <param name="reader">DataReader</param>
-        /// <param name="definition">命令描述对象，用于解析实体的外键</param>
-        public TypeDeserializer(IDataReader reader, SelectCommand definition)
+        /// <param name="command">命令描述对象，用于解析实体的外键</param>
+        public TypeDeserializer(IDataReader reader, SelectCommand command)
         {
-            _definition = definition;
+            this.command = command;
             _reader = reader;
         }
 
@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
             object prevLine = null;
             List<T> collection = new List<T>();
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, _definition);
+            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, command);
             while (_reader.Read())
             {
                 T model = deserializer.Deserialize(prevLine, out isThisLine);
@@ -88,7 +88,7 @@ namespace TZM.XFramework.Data
                 else
                 {
                     // 输出指定类型实体
-                    if (deserializer == null) deserializer = new TypeDeserializer<T>(_reader, _definition);
+                    if (deserializer == null) deserializer = new TypeDeserializer<T>(_reader, command);
                     T model = deserializer.Deserialize(prevLine, out isThisLine);
                     if (!isThisLine)
                     {

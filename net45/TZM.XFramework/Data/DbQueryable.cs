@@ -88,9 +88,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="parameter">解析上下文参数</param>
+        /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public abstract Command Resolve(int indent, bool isOuter, ParserToken parameter);
+        public abstract Command Resolve(int indent, bool isOuter, ParserToken token);
 
         /// <summary>
         /// 解析查询语义

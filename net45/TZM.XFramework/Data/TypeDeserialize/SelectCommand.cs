@@ -88,16 +88,16 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
-        /// <param name="parameter">解析上下文参数</param>
-        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken parameter)
+        /// <param name="token">解析上下文参数</param>
+        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken token)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;
             _aliases = aliases;
             _navMembers = new Dictionary<string, MemberExpression>();
 
-            _joinFragment = provider.CreateSqlBuilder(parameter);
-            _whereFragment = provider.CreateSqlBuilder(parameter);
+            _joinFragment = provider.CreateSqlBuilder(token);
+            _whereFragment = provider.CreateSqlBuilder(token);
         }
 
         /// <summary>

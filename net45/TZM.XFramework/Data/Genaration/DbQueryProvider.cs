@@ -68,29 +68,32 @@ namespace TZM.XFramework.Data
         /// <param name="dbQueryable">查询 语句</param>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="parameter">解析上下文参数</param>
+        /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ParserToken parameter)
+        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ParserToken token)
         {
             // 设置该查询是否需要参数化
-            if (parameter == null) parameter = new ParserToken();
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
-            if (dbQueryable.Parameterized && parameter.Parameters == null) parameter.Parameters = new List<IDbDataParameter>(8);
+            if (dbQueryable.Parameterized)
+            {
+                if (token == null) token = new ParserToken();
+                if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
+            }
 
             // 解析查询语义
             IDbQueryableInfo<T> info = DbQueryParser.Parse(dbQueryable);
 
             DbQueryableInfo_Select<T> sQuery = info as DbQueryableInfo_Select<T>;
-            if (sQuery != null) return this.ParseSelectCommand<T>(sQuery, indent, isOuter, dbQueryable.Parameterized ? parameter : null);
+            if (sQuery != null) return this.ParseSelectCommand<T>(sQuery, indent, isOuter, dbQueryable.Parameterized ? token : null);
 
             DbQueryableInfo_Insert<T> nQuery = info as DbQueryableInfo_Insert<T>;
-            if (nQuery != null) return this.ParseInsertCommand<T>(nQuery, dbQueryable.Parameterized ? parameter : null);
+            if (nQuery != null) return this.ParseInsertCommand<T>(nQuery, dbQueryable.Parameterized ? token : null);
 
             DbQueryableInfo_Update<T> uQuery = info as DbQueryableInfo_Update<T>;
-            if (uQuery != null) return this.ParseUpdateCommand<T>(uQuery, dbQueryable.Parameterized ? parameter : null);
+            if (uQuery != null) return this.ParseUpdateCommand<T>(uQuery, dbQueryable.Parameterized ? token : null);
 
             DbQueryableInfo_Delete<T> dQuery = info as DbQueryableInfo_Delete<T>;
-            if (dQuery != null) return this.ParseDeleteCommand<T>(dQuery, dbQueryable.Parameterized ? parameter : null);
+            if (dQuery != null) return this.ParseDeleteCommand<T>(dQuery, dbQueryable.Parameterized ? token : null);
 
             throw new NotImplementedException();
         }
@@ -106,7 +109,7 @@ namespace TZM.XFramework.Data
         public virtual List<Command> Resolve(List<object> dbQueryables)
         {
             List<Command> sqlList = new List<Command>();
-            ParserToken parameter = new ParserToken();
+            ParserToken token = null;
 
             foreach (var obj in dbQueryables)
             {
@@ -116,15 +119,17 @@ namespace TZM.XFramework.Data
                 {
                     IDbQueryable dbQueryable = (IDbQueryable)obj;
                     dbQueryable.Parameterized = true;
-                    if (parameter.Parameters == null) parameter.Parameters = new List<IDbDataParameter>(8);
+                    if (token == null) token = new ParserToken();
+                    if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
-                    var cmd2 = dbQueryable.Resolve(0, true, parameter);
+                    var cmd2 = dbQueryable.Resolve(0, true, token);
                     sqlList.Add(cmd2);
                     if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
                     {
                         // 1000个参数，就要重新分批
                         sqlList.Add(null);
-                        parameter.Parameters = new List<IDbDataParameter>(8);
+                        token = new ParserToken();
+                        token.Parameters = new List<IDbDataParameter>(8);
                     }
 
                 }
@@ -176,16 +181,16 @@ namespace TZM.XFramework.Data
         #region 私有函数
 
         // 创建 SELECT 命令
-        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken parameter);
+        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken token);
 
         // 创建 INSRT 命令
-        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserToken parameter);
+        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserToken token);
 
         // 创建 DELETE 命令
-        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserToken parameter);
+        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserToken token);
 
         // 创建 UPDATE 命令
-        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken parameter);
+        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken token);
 
         // 获取 JOIN 子句关联表的的别名
         protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query)

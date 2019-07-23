@@ -49,13 +49,13 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserToken parameter)
-            : base(provider, aliases, parameter)
+        /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
+        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserToken token)
+            : base(provider, aliases, token)
         {
             _provider = provider;
             _aliases = aliases;
-            _onPhrase = _provider.CreateSqlBuilder(parameter);
+            _onPhrase = _provider.CreateSqlBuilder(token);
             _operationType = operationType;
 
             if (_operationType == NpgCommandType.DELETE) _keywordName = "USING";

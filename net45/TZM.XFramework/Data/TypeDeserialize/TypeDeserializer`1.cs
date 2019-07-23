@@ -16,7 +16,7 @@ namespace TZM.XFramework.Data
     internal class TypeDeserializer<T>
     {
         private IDataRecord _reader = null;
-        private SelectCommand _definition = null;
+        private SelectCommand _command = null;
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
         private Func<IDataRecord, object> _modelDeserializer = null;
         private Dictionary<string, HashSet<string>> _listNavigationKeys = null;
@@ -30,11 +30,11 @@ namespace TZM.XFramework.Data
         /// 实例化<see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
         /// <param name="reader">DataReader</param>
-        /// <param name="definition">SQL 命令描述</param>
-        internal TypeDeserializer(IDataReader reader, SelectCommand definition)
+        /// <param name="command">SQL 命令描述</param>
+        internal TypeDeserializer(IDataReader reader, SelectCommand command)
         {
             _reader = reader;
-            _definition = definition;
+            _command = command;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
             _listNavigationKeys = new Dictionary<string, HashSet<string>>(8);
             _isDynamic = typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object);
@@ -95,19 +95,19 @@ namespace TZM.XFramework.Data
             #region 实体类型
 
             T model = default(T);
-            if (_definition == null || _definition.Navigations == null || _definition.Navigations.Count == 0)
+            if (_command == null || _command.Navigations == null || _command.Navigations.Count == 0)
             {
                 // 没有字段映射说明或者没有导航属性
-                if (_modelDeserializer == null) _modelDeserializer = InternalTypeDeserializer.GetTypeDeserializer(typeof(T), _reader, _definition != null ? _definition.Columns : null, 0);
+                if (_modelDeserializer == null) _modelDeserializer = InternalTypeDeserializer.GetTypeDeserializer(typeof(T), _reader, _command != null ? _command.Columns : null, 0);
                 model = (T)_modelDeserializer(_reader);
             }
             else
             {
                 // 第一层
-                if (_modelDeserializer == null) _modelDeserializer = InternalTypeDeserializer.GetTypeDeserializer(typeof(T), _reader, _definition.Columns, 0, _definition.Navigations.MinIndex);
+                if (_modelDeserializer == null) _modelDeserializer = InternalTypeDeserializer.GetTypeDeserializer(typeof(T), _reader, _command.Columns, 0, _command.Navigations.MinIndex);
                 model = (T)_modelDeserializer(_reader);
                 // 若有 1:n 的导航属性，判断当前行数据与上一行数据是否相同
-                if (prevModel != null && _definition.HaveListNavigation)
+                if (prevModel != null && _command.HaveListNavigation)
                 {
                     isThisLine = true;
                     foreach (var key in _typeRuntime.KeyInvokers)
@@ -145,7 +145,7 @@ namespace TZM.XFramework.Data
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             if (string.IsNullOrEmpty(typeName)) typeName = type.Name;
 
-            foreach (var kvp in _definition.Navigations)
+            foreach (var kvp in _command.Navigations)
             {
                 int start = -1;
                 int end = -1;
@@ -184,7 +184,7 @@ namespace TZM.XFramework.Data
 
                 if (!_deserializers.TryGetValue(keyName, out deserializer))
                 {
-                    deserializer = InternalTypeDeserializer.GetTypeDeserializer(navType.IsGenericType ? navTypeRuntime.GenericArguments[0] : navType, _reader, _definition.Columns, start, end);
+                    deserializer = InternalTypeDeserializer.GetTypeDeserializer(navType.IsGenericType ? navTypeRuntime.GenericArguments[0] : navType, _reader, _command.Columns, start, end);
                     _deserializers[keyName] = deserializer;
                 }
 
@@ -256,9 +256,9 @@ namespace TZM.XFramework.Data
 
 
                                 bool isAny = false;
-                                if (_definition.Navigations.Count > 1)
+                                if (_command.Navigations.Count > 1)
                                 {
-                                    if (_listNavigationCount == null) _listNavigationCount = _definition.Navigations.Count(x => CheckCollectionNavigation(x.Value.Member));
+                                    if (_listNavigationCount == null) _listNavigationCount = _command.Navigations.Count(x => CheckCollectionNavigation(x.Value.Member));
                                     if (_listNavigationCount != null && _listNavigationCount.Value > 1)
                                     {
                                         if (!_listNavigationKeys.ContainsKey(keyName)) _listNavigationKeys[keyName] = new HashSet<string>();

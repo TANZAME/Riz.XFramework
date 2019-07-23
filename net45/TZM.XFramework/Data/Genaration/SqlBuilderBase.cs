@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         protected string _escCharQuote;
         protected StringBuilder _innerBuilder = null;
         protected IDbQueryProvider _provider = null;
-        private ParserToken _parameter = null;
+        private ParserToken _token = null;
 
         /// <summary>
         /// TAB 制表符
@@ -49,7 +49,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual bool Parameterized
         {
-            get { return _parameter != null && _parameter.Parameters != null; }
+            get { return _token != null && _token.Parameters != null; }
         }
 
         /// <summary>
@@ -57,19 +57,19 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ParserToken Token
         {
-            get { return _parameter; }
-            set { _parameter = value; }
+            get { return _token; }
+            set { _token = value; }
         }
 
         /// <summary>
         /// 实例化 <see cref="SqlBuilderBase"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
-        /// <param name="parameter">解析上下文参数</param>
-        public SqlBuilderBase(IDbQueryProvider provider, ParserToken parameter)
+        /// <param name="token">解析上下文参数</param>
+        public SqlBuilderBase(IDbQueryProvider provider, ParserToken token)
         {
             _provider = provider;
-            _parameter = parameter;
+            _token = token;
             _innerBuilder = new StringBuilder(128);
             _escCharLeft = _provider.QuotePrefix;
             _escCharRight = _provider.QuoteSuffix;
