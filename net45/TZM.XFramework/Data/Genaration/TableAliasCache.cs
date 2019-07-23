@@ -101,7 +101,7 @@ namespace TZM.XFramework.Data
         /// <param name="key">键值</param>
         public string GetTableAlias(string key)
         {
-            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => (_aliasName != null ? _aliasName : "t") + this._aliases.Count.ToString()) : "XFramework";
+            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasName) ? _aliasName : "t") + this._aliases.Count.ToString()) : "XFramework";
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace TZM.XFramework.Data
         public string GetNavigationTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
-            return this._navigationAliases.GetOrAdd(key, x => (_aliasName != null ? _aliasName : "t") + (this._navigationAliases.Count + _declared).ToString());
+            return this._navigationAliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasName) ? _aliasName : "t") + (this._navigationAliases.Count + _declared).ToString());
         }
 
         /// <summary>

@@ -229,6 +229,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ISqlBuilder AppendNewLine()
         {
+            //if (_token != null && !_token.KeepLine) _innerBuilder.Append(' ');
+            //else
+            //{
+            //    _innerBuilder.Append(Environment.NewLine);
+            //    if (this.Indent > 0)
+            //    {
+            //        for (int i = 1; i <= this.Indent; i++) this.AppendNewTab();
+            //    }
+            //}
             _innerBuilder.Append(Environment.NewLine);
             if (this.Indent > 0)
             {

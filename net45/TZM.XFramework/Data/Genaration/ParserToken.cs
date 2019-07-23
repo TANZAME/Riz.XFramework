@@ -17,6 +17,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表别名
         /// </summary>
-        public TableAliasCache TableAlias { get; set; }
+        public string TableAliasName { get; set; }
+
+        ///// <summary>
+        ///// 保持生成的SQL是一行
+        ///// </summary>
+        //public bool KeepLine { get; set; }
     }
 }

@@ -541,8 +541,13 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token);
-                _builder.Append(" EXISTS(");
+
+                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ParserToken
+                {
+                    Parameters = _builder.Token.Parameters,
+                    TableAliasName = "u"
+                } : null);
+                _builder.Append("EXISTS(");
                 _builder.Append(cmd.CommandText);
 
                 if (((SelectCommand)cmd).WhereFragment.Length > 0)
@@ -550,24 +555,14 @@ namespace TZM.XFramework.Data
                 else
                     _builder.Append("WHERE ");
 
-                Expression expression = null;
-                for (int i = query.DbExpressions.Count - 1; i >= 0; i++)
-                {
-                    if (query.DbExpressions[i].DbExpressionType == DbExpressionType.Select)
-                    {
-                        expression = query.DbExpressions[i].Expressions[0];
-                        break;
-                    }
-                }
-                if (expression == null)
-                    throw new XFrameworkException("Select syntax not found.");
-                else
-                    _visitor.Visit(expression);
+                var kv = ((SelectCommand)cmd).Columns.FirstOrDefault();
+                _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
 
                 _builder.Append(" = ");
                 _visitor.Visit(m.Arguments[1]);
                 _builder.Append(")");
             }
+            else throw new XFrameworkException("~~");
             return m;
         }
 

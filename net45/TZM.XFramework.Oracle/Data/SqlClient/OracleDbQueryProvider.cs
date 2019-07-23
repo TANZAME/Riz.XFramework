@@ -281,7 +281,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByListNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
-            TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
+            TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
             SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
@@ -773,7 +773,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dQuery.SelectInfo != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
+                TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
                 var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
                 cmd2.HaveListNavigation = dQuery.SelectInfo.HaveListNavigation;
 
@@ -864,7 +864,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (uQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo);
+                TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
                 visitor = new OracleUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);

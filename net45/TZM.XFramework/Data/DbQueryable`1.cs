@@ -90,7 +90,7 @@ namespace TZM.XFramework.Data
         {
             var newQuery = this.CreateQuery<TElement>();
             newQuery.Parameterized = false;
-            var cmd = newQuery.Resolve(0, true, null);
+            var cmd = newQuery.Resolve();
             return cmd.CommandText;
         }
     }

@@ -193,9 +193,9 @@ namespace TZM.XFramework.Data
         protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken token);
 
         // 获取 JOIN 子句关联表的的别名
-        protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query)
+        protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query, ParserToken token)
         {
-            TableAliasCache aliases = new TableAliasCache((query.Join != null ? query.Join.Count : 0) + 1);
+            TableAliasCache aliases = new TableAliasCache((query.Join != null ? query.Join.Count : 0) + 1, token != null ? token.TableAliasName : null);
             foreach (DbExpression exp in query.Join)
             {
                 // [INNER/LEFT JOIN]

@@ -16,5 +16,10 @@ namespace TZM.XFramework.Data
         /// 出现次数
         /// </summary>
         public int DupCount { get; set; }
+
+        /// <summary>
+        /// 表别名
+        /// </summary>
+        public string TableAlias { get; set; }
     }
 }

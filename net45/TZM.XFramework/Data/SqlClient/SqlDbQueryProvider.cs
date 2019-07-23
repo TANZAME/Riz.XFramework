@@ -141,7 +141,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByListNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
-            TableAliasCache aliases = this.PrepareAlias<T>(sQuery);
+            TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
             SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HaveListNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
@@ -157,7 +157,8 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, "t0");
+                string alias = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
+                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, alias);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -232,13 +233,17 @@ namespace TZM.XFramework.Data.SqlClient
                 Command cmd2 = this.ParseSelectCommand<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
-                jf.Append(") t0 ");
+                jf.Append(") ");
+                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
+                jf.Append("0 ");
             }
             else
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQuery.FromType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-                jf.Append(" t0 ");
+                jf.Append(' ');
+                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
+                jf.Append("0 ");
                 SqlDbContext context = (SqlDbContext)dbQueryable.DbContext;
                 if (context.NoLock && !string.IsNullOrEmpty(this._widthNoLock)) jf.Append(this._widthNoLock);
             }
@@ -302,7 +307,10 @@ namespace TZM.XFramework.Data.SqlClient
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
-                jf.Append(" ) t0");
+                jf.Append(") ");
+                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
+                jf.Append("0 ");
+                //jf.Append(" ) t0");
             }
 
             #endregion
@@ -504,7 +512,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 IDbQueryable dbQueryable = dQuery.SourceQuery;
-                TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo);
+                TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
                 var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
@@ -589,7 +597,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (uQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo);
+                TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
                 visitor = new UpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);

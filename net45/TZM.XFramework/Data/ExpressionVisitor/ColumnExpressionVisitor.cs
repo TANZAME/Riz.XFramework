@@ -98,7 +98,6 @@ namespace TZM.XFramework.Data
                 // Include 表达式解析<导航属性>
                 this.VisitInclude();
 
-                // 去掉最后的空格和回车
                 if (_builder[_builder.Length - 1].ToString() != _provider.QuoteSuffix)
                 {
                     int space = Environment.NewLine.Length + 1;
@@ -133,7 +132,7 @@ namespace TZM.XFramework.Data
                 base.Visit(lambda.Body.Evaluate());
 
                 // 选择字段
-                string newName = AddColumn(_columns, "__Constant__");
+                string newName = AddColumn(_columns, "__Constant__", null);
                 // 添加字段别名
                 _builder.AppendAs(newName);
                 return node;
@@ -143,12 +142,22 @@ namespace TZM.XFramework.Data
                 // 例： t=> t.a
                 // => SELECT a.ClientId
                 Type type = lambda.Body.Type;
-                return TypeUtils.IsPrimitiveType(type)
-                    ? base.VisitLambda(node)
-                    : this.VisitAllMember(type, _aliases.GetTableAlias(lambda.Body), node);
+                if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _aliases.GetTableAlias(lambda.Body), node);
+                else
+                {
+                    var newNode = base.VisitLambda(node);
+                    string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
+                    string newName = AddColumn(_columns, (lambda.Body as MemberExpression).Member.Name, alias);
+                    _builder.AppendAs(newName);
+                    _builder.Append(',');
+                    _builder.AppendNewLine();
+                    return newNode;
+                }
             }
-
-            return base.VisitLambda(node);
+            else
+            {
+                return base.VisitLambda(node);
+            }
         }
 
         // {new App() {Id = p.Id}} 
@@ -186,7 +195,8 @@ namespace TZM.XFramework.Data
                         base.VisitMemberBinding(binding);
 
                     // 选择字段
-                    string newName = AddColumn(_columns, binding.Member.Name);
+                    string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
+                    string newName = AddColumn(_columns, binding.Member.Name, alias);
                     // 添加字段别名
                     _builder.AppendAs(newName);
                     _builder.Append(',');
@@ -324,7 +334,7 @@ namespace TZM.XFramework.Data
                 {
                     //例： DateTime.Now
                     _builder.Append(argument.Evaluate().Value, node.Members[i], node.Type);
-                    string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name);
+                    string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, null);
                     _builder.AppendAs(newName);
                     _builder.Append(',');
                     _builder.AppendNewLine();
@@ -335,7 +345,8 @@ namespace TZM.XFramework.Data
                     {
                         // new Client(a.ClientId)
                         this.Visit(argument);
-                        string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name);
+                        string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
+                        string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, alias);
                         _builder.AppendAs(newName);
                         _builder.Append(',');
                         _builder.AppendNewLine();
@@ -354,11 +365,10 @@ namespace TZM.XFramework.Data
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node == null) return node;
-
-            // Group By 解析
-            if (_groupBy != null && node.IsGrouping())
+            else if (_groupBy == null || !node.IsGrouping()) return base.VisitMember(node);
+            else
             {
-                // CompanyName = g.Key.Name
+                // Group By 解析  CompanyName = g.Key.Name
                 LambdaExpression keySelector = _groupBy.Expressions[0] as LambdaExpression;
                 Expression exp = null;
                 Expression body = keySelector.Body;
@@ -386,9 +396,6 @@ namespace TZM.XFramework.Data
 
                 return this.Visit(exp);
             }
-
-            var newNode = base.VisitMember(node);
-            return newNode;
         }
 
         // 选择所有的字段
@@ -415,7 +422,7 @@ namespace TZM.XFramework.Data
                     _builder.AppendMember(alias, invoker.Member.Name);
 
                     // 选择字段
-                    string newName = AddColumn(_columns, invoker.Member.Name);
+                    string newName = AddColumn(_columns, invoker.Member.Name, alias);
                     _builder.AppendAs(newName);
                     _builder.Append(",");
                     _builder.AppendNewLine();
@@ -527,7 +534,7 @@ namespace TZM.XFramework.Data
             _builder.Append(" END");
 
             // 选择字段
-            string newName = AddColumn(_columns, Constant.NAVIGATIONSPLITONNAME);
+            string newName = AddColumn(_columns, Constant.NAVIGATIONSPLITONNAME, null);
             //_builder.Append(caseWhen);
             _builder.AppendAs(newName);
             _builder.Append(',');
@@ -535,7 +542,7 @@ namespace TZM.XFramework.Data
         }
 
         // 选择字段
-        private static string AddColumn(IDictionary<string, Column> columns, string name)
+        private static string AddColumn(IDictionary<string, Column> columns, string name, string alias)
         {
             // ATTENTION：此方法不能在 VisitMember 方法里调用
             // 因为 VisitMember 方法不一定是最后SELECT的字段
@@ -552,12 +559,7 @@ namespace TZM.XFramework.Data
                 dup = column.DupCount;
             }
 
-            //if (columns.ContainsKey(newName))
-            //{
-
-            //}
-
-            columns.Add(newName, new Column { Name = name, DupCount = dup });
+            columns.Add(newName, new Column { Name = name, DupCount = dup, TableAlias = alias });
             return newName;
         }
 
