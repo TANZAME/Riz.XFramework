@@ -85,7 +85,7 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
-    <Compile Include="Data\Genaration\ParserParameter.cs" />
+    <Compile Include="Data\Genaration\ParserToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />

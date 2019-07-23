@@ -235,8 +235,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ISqlBuilder.cs">
       <Link>Data\Genaration\ISqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ParserParameter.cs">
-      <Link>Data\Genaration\ParserParameter.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ParserToken.cs">
+      <Link>Data\Genaration\ParserToken.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilderBase.cs">
       <Link>Data\Genaration\SqlBuilderBase.cs</Link>

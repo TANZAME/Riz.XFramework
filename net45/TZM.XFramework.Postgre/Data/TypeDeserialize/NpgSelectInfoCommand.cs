@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserParameter parameter)
+        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserToken parameter)
             : base(provider, aliases, parameter)
         {
             _provider = provider;

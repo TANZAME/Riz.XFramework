@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析上下文参数
         /// </summary>
-        ParserParameter Parameter { get; set; }
+        ParserToken Token { get; set; }
 
         /// <summary>
         /// 追加列名

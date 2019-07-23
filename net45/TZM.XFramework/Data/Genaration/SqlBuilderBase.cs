@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         protected string _escCharQuote;
         protected StringBuilder _innerBuilder = null;
         protected IDbQueryProvider _provider = null;
-        private ParserParameter _parameter = null;
+        private ParserToken _parameter = null;
 
         /// <summary>
         /// TAB 制表符
@@ -55,7 +55,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析上下文参数
         /// </summary>
-        public ParserParameter Parameter
+        public ParserToken Token
         {
             get { return _parameter; }
             set { _parameter = value; }
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
         /// <param name="parameter">解析上下文参数</param>
-        public SqlBuilderBase(IDbQueryProvider provider, ParserParameter parameter)
+        public SqlBuilderBase(IDbQueryProvider provider, ParserToken parameter)
         {
             _provider = provider;
             _parameter = parameter;
@@ -455,7 +455,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            string parameterName = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Parameter.Parameters.Count);
+            string parameterName = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Token.Parameters.Count);
 
             IDbDataParameter parameter = _provider.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
@@ -484,7 +484,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            this.Parameter.Parameters.Add(parameter);
+            this.Token.Parameters.Add(parameter);
             return parameter;
         }
 

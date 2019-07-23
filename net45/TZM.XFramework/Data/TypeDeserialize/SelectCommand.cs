@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data
             get
             {
                 if (!_convergence) this.Convergence();
-                this.Parameters = _joinFragment.Parameter != null ? _joinFragment.Parameter.Parameters : null;
+                this.Parameters = _joinFragment.Token != null ? _joinFragment.Token.Parameters : null;
                 string commandText = _joinFragment.ToString();
                 return commandText;
             }
@@ -89,7 +89,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="parameter">解析上下文参数</param>
-        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserParameter parameter)
+        public SelectCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken parameter)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;

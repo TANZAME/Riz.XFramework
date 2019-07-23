@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 解析上下文携带参数
     /// </summary>
-    public class ParserParameter
+    public class ParserToken
     {
         /// <summary>
         /// 参数列表

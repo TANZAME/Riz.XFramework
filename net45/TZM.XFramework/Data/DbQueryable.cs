@@ -90,7 +90,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="parameter">解析上下文参数</param>
         /// <returns></returns>
-        public abstract Command Resolve(int indent, bool isOuter, ParserParameter parameter);
+        public abstract Command Resolve(int indent, bool isOuter, ParserToken parameter);
 
         /// <summary>
         /// 解析查询语义

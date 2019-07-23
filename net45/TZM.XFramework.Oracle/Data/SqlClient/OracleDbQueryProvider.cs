@@ -107,7 +107,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public override ISqlBuilder CreateSqlBuilder(ParserParameter parameter)
+        public override ISqlBuilder CreateSqlBuilder(ParserToken parameter)
         {
             return new OracleSqlBuilder(this, parameter);
         }
@@ -132,7 +132,7 @@ namespace TZM.XFramework.Data.SqlClient
         public override List<Command> Resolve(List<object> dbQueryables)
         {
             List<Command> sqlList = new List<Command>();
-            ParserParameter parameter = new ParserParameter();
+            ParserToken parameter = new ParserToken();
 
             bool haveBegin = false;
 
@@ -252,7 +252,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserParameter parmeter)
+        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken parmeter)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -570,7 +570,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserParameter parameter)
+        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserToken parameter)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(parameter);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -723,13 +723,13 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var cmd = new OracleInsertCommand(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
+            var cmd = new OracleInsertCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
             cmd.HaveSEQ = useSEQ;
             return cmd;
         }
 
         // 创建 DELETE 命令
-        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserParameter parameter)
+        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserToken parameter)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ISqlBuilder builder = this.CreateSqlBuilder(parameter);
@@ -782,11 +782,11 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         // 创建 UPDATE 命令
-        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserParameter parameter)
+        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken parameter)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(parameter);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -877,7 +877,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Parameter != null ? builder.Parameter.Parameters : null, System.Data.CommandType.Text);
+            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
     }
 }

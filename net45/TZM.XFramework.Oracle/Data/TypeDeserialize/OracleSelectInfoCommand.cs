@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserParameter parameter)
+        public OracleSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, ParserToken parameter)
             : base(provider, aliases, parameter)
         {
             _provider = provider;

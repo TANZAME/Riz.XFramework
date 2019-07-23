@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="provider">提供者</param>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public OracleSqlBuilder(IDbQueryProvider provider, ParserParameter parameter)
+        public OracleSqlBuilder(IDbQueryProvider provider, ParserToken parameter)
             : base(provider, parameter)
         {
 
