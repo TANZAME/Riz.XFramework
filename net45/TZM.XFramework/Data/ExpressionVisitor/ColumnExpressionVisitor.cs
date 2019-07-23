@@ -85,30 +85,34 @@ namespace TZM.XFramework.Data
                 _builder.AppendNewLine();
 
                 // SELECT 表达式解析
-                if (base.Expression.NodeType == ExpressionType.Constant)
+                if (base.Expression.NodeType != ExpressionType.Constant) base.Write(builder);
+                else
                 {
                     // if have no select syntax
                     Type type = (base.Expression as ConstantExpression).Value as Type;
                     this.VisitAllMember(type, "t0");
                 }
-                else
-                {
-                    base.Write(builder);
-                }
                 // Include 表达式解析<导航属性>
                 this.VisitInclude();
 
-                if (_builder[_builder.Length - 1].ToString() != _provider.QuoteSuffix)
+                char[] chars = new char[Environment.NewLine.Length + 2];
+                for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];
+                chars[Environment.NewLine.Length] = ' ';
+                chars[Environment.NewLine.Length + 1] = ',';
+
+                int trim = 0;
+                int index = _builder.Length - 1;
+                while (index > 0)
                 {
-                    int space = Environment.NewLine.Length + 1;
-                    int index = _builder.Length - 1;
-                    while (_builder[index] == ' ')
+                    char @char = _builder[index];
+                    if (!chars.Contains(@char)) break;
+                    else
                     {
-                        space++;
                         index--;
+                        trim++;
                     }
-                    _builder.Length -= space;
                 }
+                if (trim > 0) _builder.Length -= trim;
             }
         }
 
