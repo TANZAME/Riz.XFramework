@@ -132,10 +132,9 @@ namespace TZM.XFramework.Data.SqlClient
             DbQueryableInfo_Select<T> innerQuery = sQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
             if (sQuery.HaveListNavigation && innerQuery != null && innerQuery.Statis != null) sQuery = innerQuery;
 
-            bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
             bool useStatis = sQuery.Statis != null;
-            // 分组分页   
-            bool groupByPaging = sQuery.GroupBy != null && sQuery.Skip > 0;
+            bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
+            string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByListNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
@@ -157,8 +156,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                string alias = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, alias);
+                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, alias0);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -234,16 +232,16 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
-                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
-                jf.Append("0 ");
+                jf.Append(alias0);
+                jf.Append(' ');
             }
             else
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQuery.FromType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
-                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
-                jf.Append("0 ");
+                jf.Append(alias0);
+                jf.Append(' ');
                 SqlDbContext context = (SqlDbContext)dbQueryable.DbContext;
                 if (context.NoLock && !string.IsNullOrEmpty(this._widthNoLock)) jf.Append(this._widthNoLock);
             }
@@ -308,9 +306,8 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Indent = indent;
                 jf.AppendNewLine();
                 jf.Append(") ");
-                jf.Append(token != null && !string.IsNullOrEmpty(token.TableAliasName) ? token.TableAliasName : "t");
-                jf.Append("0 ");
-                //jf.Append(" ) t0");
+                jf.Append(alias0);
+                jf.Append(' ');
             }
 
             #endregion

@@ -133,8 +133,9 @@ namespace TZM.XFramework.Data.SqlClient
             DbQueryableInfo_Select<T> innerQuery = sQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
             if (sQuery.HaveListNavigation && innerQuery != null && innerQuery.Statis != null) sQuery = innerQuery;
 
-            bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
             bool useStatis = sQuery.Statis != null;
+            bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
+            string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByListNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
@@ -157,7 +158,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, "t0");
+                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, alias0);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -224,7 +225,7 @@ namespace TZM.XFramework.Data.SqlClient
                         jf.AppendNewLine();
                         foreach (var entry in cmd.Columns)
                         {
-                            jf.AppendMember("t0", entry.Key);
+                            jf.AppendMember(alias0, entry.Key);
                             jf.AppendAs(entry.Key);
                             index += 1;
                             if (index < cmd.Columns.Count)
@@ -272,14 +273,17 @@ namespace TZM.XFramework.Data.SqlClient
                 var cmd2 = this.ParseSelectCommandImpl<T>(sQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
-                jf.Append(") t0 ");
+                jf.Append(") ");
+                jf.Append(alias0);
+                jf.Append(' ');
             }
             else
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQuery.FromType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-                jf.Append(" t0 ");
-                //if (dbQueryable.DbContext.NoLock && !string.IsNullOrEmpty(this.WidthNoLock)) jf.Append(this.WidthNoLock);
+                jf.Append(' ');
+                jf.Append(alias0);
+                jf.Append(' ');
             }
 
             // LEFT<INNER> JOIN 子句
@@ -336,7 +340,8 @@ namespace TZM.XFramework.Data.SqlClient
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
-                jf.Append(" ) t0");
+                jf.Append(") ");
+                jf.Append(alias0);
             }
 
             #endregion
@@ -381,13 +386,15 @@ namespace TZM.XFramework.Data.SqlClient
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
-                jf.Append(") t0");
+                jf.Append(") ");
+                jf.Append(alias0);
 
                 jf.AppendNewLine();
                 jf.Append("WHERE ");
                 if (sQuery.Skip > 0)
                 {
-                    jf.Append("t0.Row_Number0 > ");
+                    jf.AppendMember(alias0, "Row_Number0");
+                    jf.Append(" > ");
                     jf.Append(jf.GetSqlValue(sQuery.Skip));
                 }
             }
@@ -411,7 +418,8 @@ namespace TZM.XFramework.Data.SqlClient
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
-                jf.Append(") t0");
+                jf.Append(") ");
+                jf.Append(alias0);
             }
 
             #endregion
