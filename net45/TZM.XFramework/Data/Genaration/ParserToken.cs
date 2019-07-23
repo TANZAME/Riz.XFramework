@@ -15,8 +15,8 @@ namespace TZM.XFramework.Data
         public List<IDbDataParameter> Parameters { get; set; }
 
         /// <summary>
-        /// 已使用别名数量
+        /// 表别名
         /// </summary>
-        public int AliasTaked { get; set; }
+        public TableAliasCache TableAlias { get; set; }
     }
 }
