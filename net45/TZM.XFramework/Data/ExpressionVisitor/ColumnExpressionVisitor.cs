@@ -148,9 +148,9 @@ namespace TZM.XFramework.Data
                     var newNode = base.VisitLambda(node);
                     string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
                     string newName = AddColumn(_columns, (lambda.Body as MemberExpression).Member.Name, alias);
-                    _builder.AppendAs(newName);
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
+                    //_builder.AppendAs(newName);
+                    //_builder.Append(',');
+                    //_builder.AppendNewLine();
                     return newNode;
                 }
             }

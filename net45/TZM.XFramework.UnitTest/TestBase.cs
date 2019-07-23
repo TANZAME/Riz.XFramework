@@ -1098,6 +1098,31 @@ namespace TZM.XFramework.UnitTest
             //    OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY 
             //) t0 
             //INNER JOIN [Bas_Client] t1 ON t0.[ClientId] = t1.[ClientId]
+
+            var subQuery =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                select new
+                {
+                    ClientId = a.ClientId,
+                    ClientName  = a.ClientName,
+                    Qty = a.Qty
+                };
+            subQuery = subQuery.AsSubQuery();
+
+            query =
+                from a in subQuery
+                group a by a.ClientId into g
+                select new Model.Client
+                {
+                    ClientId = g.Key,
+                    ClientName = g.Max(a => a.ClientName),
+                    Qty = g.Sum(a => a.Qty)
+                };
+            query = query.AsSubQuery();
+            query = query.Select(a => new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
+            result = query.ToList();
+            //var result10 = query.ToPagedList(1, 20);
         }
 
         // 删除记录

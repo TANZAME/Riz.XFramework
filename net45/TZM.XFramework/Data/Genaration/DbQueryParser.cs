@@ -29,30 +29,30 @@ namespace TZM.XFramework.Data
             Type type = null;
             bool isDistinct = false;
             bool isAny = false;
-            bool isSubQuery = false;
+            bool subQuery = false;
             int? skip = null;
             int? take = null;
             int? outerIndex = null;
-            List<Expression> where = new List<Expression>();                  // WHERE
-            List<Expression> having = new List<Expression>();                 // HAVING
-            List<DbExpression> join = new List<DbExpression>();               // JOIN
-            List<DbExpression> orderBy = new List<DbExpression>();            // ORDER BY
-            List<DbExpression> include = new List<DbExpression>();            // ORDER BY
-            List<IDbQueryableInfo<TElement>> union = new List<IDbQueryableInfo<TElement>>();
+            var where = new List<Expression>();     // WHERE
+            var having = new List<Expression>();    // HAVING
+            var join = new List<DbExpression>();    // JOIN
+            var orderBy = new List<DbExpression>(); // ORDER BY
+            var include = new List<DbExpression>(); // ORDER BY
+            var union = new List<IDbQueryableInfo<TElement>>();
 
-            Expression select = null;       // SELECT #
-            DbExpression insert = null;     // INSERT #
-            DbExpression update = null;     // UPDATE #
-            DbExpression delete = null;     // DELETE #
-            DbExpression groupBy = null;    // GROUP BY #
-            DbExpression statis = null;     // SUM/MAX  #
+            Expression select = null;               // SELECT #
+            DbExpression insert = null;             // INSERT #
+            DbExpression update = null;             // UPDATE #
+            DbExpression delete = null;             // DELETE #
+            DbExpression groupBy = null;            // GROUP BY #
+            DbExpression statis = null;             // SUM/MAX  #
 
             for (int index = startIndex; index < dbQuery.DbExpressions.Count; ++index)
             {
                 DbExpression curExpr = dbQuery.DbExpressions[index];
 
                 // Take(n)
-                if (take != null || (skip != null && curExpr.DbExpressionType != DbExpressionType.Take) || isDistinct || isSubQuery)
+                if (take != null || (skip != null && curExpr.DbExpressionType != DbExpressionType.Take) || isDistinct || subQuery)
                 {
                     outerIndex = index;
                     break;
@@ -72,8 +72,7 @@ namespace TZM.XFramework.Data
                         break;
 
                     case DbExpressionType.AsSubQuery:
-                        isSubQuery = true;
-                        //if (curExp.Expressions != null) where.Add(curExp.Expressions[0]);
+                        subQuery = true;
                         break;
 
                     case DbExpressionType.Union:
@@ -278,7 +277,9 @@ namespace TZM.XFramework.Data
                 }
                 else
                 {
-                    outQuery.SubQueryInfo = sQuery;
+                    var rootQuery = outQuery;
+                    while (rootQuery.SubQueryInfo != null) rootQuery = rootQuery.SubQueryInfo;
+                    rootQuery.SubQueryInfo = sQuery;
                     outQuery.SourceQuery = dbQuery;
                     return outQuery;
                 }
