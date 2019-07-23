@@ -146,6 +146,7 @@
     <Compile Include="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="Data\SqlClient\SqlDbTypeInfo.cs" />
     <Compile Include="Data\TypeDeserialize\Column.cs" />
+    <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
     <Compile Include="Data\TypeDeserialize\SelectCommand.cs" />

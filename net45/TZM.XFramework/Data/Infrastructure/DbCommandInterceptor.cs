@@ -35,17 +35,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 前
         /// </summary>
-        public void OnDbCommandExecuting(IDbCommand cmd)
+        public void OnDbCommandExecuting(IDbCommand command)
         {
-            if (this.OnExecuting != null) this.OnExecuting(cmd);
+            if (this.OnExecuting != null) this.OnExecuting(command);
         }
 
         /// <summary>
         /// 执行 SQL 后
         /// </summary>
-        public void OnDbCommandExecuted(IDbCommand cmd)
+        public void OnDbCommandExecuted(IDbCommand command)
         {
-            if (this.OnExecuted != null) this.OnExecuted(cmd);
+            if (this.OnExecuted != null) this.OnExecuted(command);
         }
 
         /// <summary>

@@ -28,19 +28,19 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="DbCommandException"/> 类的新实例
         /// </summary>
-        public DbCommandException(string message, IDbCommand cmd)
+        public DbCommandException(string message, IDbCommand command)
             : base(message)
         {
-            this.DbCommand = cmd;
+            this.DbCommand = command;
         }
 
         /// <summary>
         /// 初始化 <see cref="DbCommandException"/> 类的新实例
         /// </summary>
-        public DbCommandException(string message, Exception innerException, IDbCommand cmd)
+        public DbCommandException(string message, Exception innerException, IDbCommand command)
             : base(message, innerException)
         {
-            this.DbCommand = cmd;
+            this.DbCommand = command;
         }
     }
 }

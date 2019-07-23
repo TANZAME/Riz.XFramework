@@ -180,7 +180,7 @@ namespace TZM.XFramework.Data.SqlClient
             IDataReader reader = null;
             List<int> identitys = null;
             List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<SelectCommand> defines = sqlList.ToList(x => x as SelectCommand, x => x is SelectCommand);
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -193,7 +193,7 @@ namespace TZM.XFramework.Data.SqlClient
                     {
                         // 先查第一个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, defines.Count > 0 ? defines[0] : null);
+                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, maps.Count > 0 ? maps[0] : null);
                         var collection = deserializer1.Deserialize<T1>(out autoIncrements);
 
                         if (collection != null)
@@ -215,7 +215,7 @@ namespace TZM.XFramework.Data.SqlClient
                     {
                         // 再查第二个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, defines.Count > 1 ? defines[1] : null);
+                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, maps.Count > 1 ? maps[1] : null);
                         var collection = deserializer2.Deserialize<T2>(out autoIncrements);
 
                         if (collection != null)

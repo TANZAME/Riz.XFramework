@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
-            List<SelectCommand> defines = sqlList.ToList(x => x as SelectCommand, x => x is SelectCommand);
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;
@@ -60,17 +60,17 @@ namespace TZM.XFramework.Data
                 {
                     if (q1 == null)
                     {
-                        deserializer1 = new TypeDeserializer(reader, defines.Count > 0 ? defines[0] : null);
+                        deserializer1 = new TypeDeserializer(reader, maps.Count > 0 ? maps[0] : null);
                         q1 = deserializer1.Deserialize<T1>();
                     }
                     else if (q2 == null)
                     {
-                        deserializer2 = new TypeDeserializer(reader, defines.Count > 1 ? defines[1] : null);
+                        deserializer2 = new TypeDeserializer(reader, maps.Count > 1 ? maps[1] : null);
                         q2 = deserializer2.Deserialize<T2>();
                     }
                     else if (q3 == null)
                     {
-                        deserializer3 = new TypeDeserializer(reader, defines.Count > 2 ? defines[2] : null);
+                        deserializer3 = new TypeDeserializer(reader, maps.Count > 2 ? maps[2] : null);
                         q3 = deserializer3.Deserialize<T3>();
                     }
                 }
@@ -95,8 +95,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
-        public override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd)
+        /// <param name="command">SQL 命令</param>
+        public override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
             throw new NotSupportedException("Oracle ExecuteMultiple not supported.");
         }

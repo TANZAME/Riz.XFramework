@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
             object prevLine = null;
             List<T> collection = new List<T>();
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, command);
+            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, _map);
             while (await (_reader as DbDataReader).ReadAsync())
             {
                 T model = deserializer.Deserialize(prevLine, out isThisLine);

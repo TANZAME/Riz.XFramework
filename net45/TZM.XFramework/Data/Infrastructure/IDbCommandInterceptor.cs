@@ -10,12 +10,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令前
         /// </summary>
-        void OnDbCommandExecuting(IDbCommand cmd);
+        void OnDbCommandExecuting(IDbCommand command);
 
         /// <summary>
         /// 执行 SQL 命令后
         /// </summary>
-        void OnDbCommandExecuted(IDbCommand cmd);
+        void OnDbCommandExecuted(IDbCommand command);
 
         /// <summary>
         /// 执行 SQL 命令出错

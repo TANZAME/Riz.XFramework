@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 查询语义的SQL命令
     /// </summary>
-    public class SelectCommand : Command
+    public class SelectCommand : Command, IMapping
     {
         private bool _haveListNavigation = false;
         private bool _convergence = false;

@@ -146,18 +146,18 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public IDbCommand CreateCommand(string commandText, CommandType? commandType = null, IEnumerable<IDbDataParameter> parameters = null)
         {
-            IDbCommand cmd = this.DbProviderFactory.CreateCommand();
-            cmd.CommandText = commandText;
-            cmd.CommandTimeout = this.CommandTimeout != null ? this.CommandTimeout.Value : 300; // 5分钟
-            if (commandType != null) cmd.CommandType = commandType.Value;
-            if (parameters != null) cmd.Parameters.AddRange(parameters);
+            IDbCommand command = this.DbProviderFactory.CreateCommand();
+            command.CommandText = commandText;
+            command.CommandTimeout = this.CommandTimeout != null ? this.CommandTimeout.Value : 300; // 5分钟
+            if (commandType != null) command.CommandType = commandType.Value;
+            if (parameters != null) command.Parameters.AddRange(parameters);
             if (_transaction != null)
             {
-                cmd.Connection = _transaction.Connection;
-                cmd.Transaction = _transaction;
+                command.Connection = _transaction.Connection;
+                command.Transaction = _transaction;
             }
 
-            return cmd;
+            return command;
         }
 
         /// <summary>
@@ -221,19 +221,19 @@ namespace TZM.XFramework.Data
         /// <param name="query">SQL 命令</param>
         public int ExecuteNonQuery(IDbQueryable query)
         {
-            var define = query.Resolve();
-            IDbCommand cmd = this.CreateCommand(define);
-            return this.ExecuteNonQuery(cmd);
+            var cmd = query.Resolve();
+            IDbCommand command = this.CreateCommand(cmd);
+            return this.ExecuteNonQuery(command);
         }
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
-        public int ExecuteNonQuery(string commandText)
+        /// <param name="sql">SQL 命令</param>
+        public int ExecuteNonQuery(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
-            return this.ExecuteNonQuery(cmd);
+            IDbCommand command = this.CreateCommand(sql);
+            return this.ExecuteNonQuery(command);
         }
 
         /// <summary>
@@ -243,18 +243,18 @@ namespace TZM.XFramework.Data
         public int ExecuteNonQuery(List<Command> sqlList)
         {
             int rowCount = 0;
-            this.DoExecute<int>(sqlList, cmd => rowCount += this.ExecuteNonQuery(cmd));
+            this.DoExecute<int>(sqlList, p => rowCount += this.ExecuteNonQuery(p));
             return rowCount;
         }
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public int ExecuteNonQuery(IDbCommand cmd)
+        public int ExecuteNonQuery(IDbCommand command)
         {
-            return this.DoExecute<int>(cmd, p => p.ExecuteNonQuery(), cmd.Transaction == null);
+            return this.DoExecute<int>(command, p => p.ExecuteNonQuery(), command.Transaction == null);
         }
 
         /// <summary>
@@ -271,11 +271,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(string commandText)
+        public object ExecuteScalar(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
+            IDbCommand cmd = this.CreateCommand(sql);
             return this.ExecuteScalar(cmd);
         }
 
@@ -292,11 +292,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(IDbCommand cmd)
+        public object ExecuteScalar(IDbCommand command)
         {
-            return this.DoExecute<object>(cmd, p => p.ExecuteScalar(), cmd.Transaction == null);
+            return this.DoExecute<object>(command, p => p.ExecuteScalar(), command.Transaction == null);
         }
 
         /// <summary>
@@ -313,11 +313,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(string commandText)
+        public IDataReader ExecuteReader(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
+            IDbCommand cmd = this.CreateCommand(sql);
             return this.ExecuteReader(cmd);
         }
 
@@ -334,22 +334,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(IDbCommand cmd)
+        public IDataReader ExecuteReader(IDbCommand command)
         {
-            return this.DoExecute<IDataReader>(cmd, p => p.ExecuteReader(CommandBehavior.SequentialAccess), false);
+            return this.DoExecute<IDataReader>(command, p => p.ExecuteReader(CommandBehavior.SequentialAccess), false);
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="commandText">查询语句</param>
+        /// <param name="sql">查询语句</param>
         /// <returns></returns>
-        public T Execute<T>(string commandText)
+        public T Execute<T>(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
-            return this.Execute<T>(cmd);
+            IDbCommand command = this.CreateCommand(sql);
+            return this.Execute<T>(command);
         }
 
         /// <summary>
@@ -385,28 +385,28 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public T Execute<T>(IDbCommand cmd)
+        public T Execute<T>(IDbCommand command)
         {
-            return this.Execute<T>(cmd, null);
+            return this.Execute<T>(command, null);
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand cmd, SelectCommand definition)
+        T Execute<T>(IDbCommand command, SelectCommand definition)
         {
             IDataReader reader = null;
 
             try
             {
-                reader = this.ExecuteReader(cmd);
+                reader = this.ExecuteReader(command);
                 TypeDeserializer deserializer = new TypeDeserializer(reader, definition);
                 List<T> result = deserializer.Deserialize<T>();
                 return result.FirstOrDefault();
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
@@ -421,7 +421,7 @@ namespace TZM.XFramework.Data
         {
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectCommand)));
+                p => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -435,21 +435,21 @@ namespace TZM.XFramework.Data
         {
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                cmd => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(cmd, sqlList.ToList(x => x as SelectCommand)));
+                p => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
         /// <summary>
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
-        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd)
+        /// <param name="command">SQL 命令</param>
+        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
-            return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(cmd, null);
+            return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd, List<SelectCommand> defines = null)
+        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -471,7 +471,7 @@ namespace TZM.XFramework.Data
             try
             {
                 int i = 0;
-                reader = this.ExecuteReader(cmd);
+                reader = this.ExecuteReader(command);
 
                 do
                 {
@@ -482,55 +482,55 @@ namespace TZM.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q1 = deserializer1.Deserialize<T1>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q2 = deserializer2.Deserialize<T2>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q3 = deserializer3.Deserialize<T3>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q4 = deserializer4.Deserialize<T4>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q5 = deserializer5.Deserialize<T5>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q6 = deserializer6.Deserialize<T6>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(reader, defines != null ? defines[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
                             q7 = deserializer7.Deserialize<T7>();
 
                             break;
 
-                            #endregion
+                        #endregion
                     }
                 }
                 while (reader.NextResult());
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
@@ -542,12 +542,12 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public List<T> ExecuteList<T>(string commandText)
+        public List<T> ExecuteList<T>(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
-            return this.ExecuteList<T>(cmd);
+            IDbCommand command = this.CreateCommand(sql);
+            return this.ExecuteList<T>(command);
         }
 
         /// <summary>
@@ -558,49 +558,49 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public List<T> ExecuteList<T>(IDbQueryable<T> query)
         {
-            Command definition = query.Resolve();
-            IDbCommand cmd = this.CreateCommand(definition);
-            return this.ExecuteList<T>(cmd, definition as SelectCommand);
+            Command cmd = query.Resolve();
+            IDbCommand command = this.CreateCommand(cmd);
+            return this.ExecuteList<T>(command, cmd as IMapping);
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
         public List<T> ExecuteList<T>(List<Command> sqlList)
         {
-            return this.DoExecute<List<T>>(sqlList, cmd => this.ExecuteList<T>(cmd, sqlList.FirstOrDefault(x => x is SelectCommand) as SelectCommand));
+            return this.DoExecute<List<T>>(sqlList, p => this.ExecuteList<T>(p, sqlList.FirstOrDefault(x => x is IMapping) as IMapping));
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public List<T> ExecuteList<T>(IDbCommand cmd)
+        public List<T> ExecuteList<T>(IDbCommand command)
         {
-            return this.ExecuteList<T>(cmd, null);
+            return this.ExecuteList<T>(command, null);
         }
 
         // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        List<T> ExecuteList<T>(IDbCommand cmd, SelectCommand definition)
+        List<T> ExecuteList<T>(IDbCommand command, IMapping map)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();
 
             try
             {
-                reader = this.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, definition);
+                reader = this.ExecuteReader(command);
+                TypeDeserializer deserializer = new TypeDeserializer(reader, map);
                 objList = deserializer.Deserialize<T>();
             }
             finally
             {
                 if (reader != null) reader.Dispose();
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 this.InternalDispose();
             }
 
@@ -610,12 +610,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public DataTable ExecuteDataTable(string commandText)
+        public DataTable ExecuteDataTable(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
-            return this.ExecuteDataTable(cmd);
+            IDbCommand command = this.CreateCommand(sql);
+            return this.ExecuteDataTable(command);
         }
 
         /// <summary>
@@ -625,9 +625,9 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public DataTable ExecuteDataTable(IDbQueryable query)
         {
-            Command definition = query.Resolve();
-            IDbCommand cmd = this.CreateCommand(definition);
-            return this.ExecuteDataTable(cmd);
+            Command cmd = query.Resolve();
+            IDbCommand command = this.CreateCommand(cmd);
+            return this.ExecuteDataTable(command);
         }
 
         /// <summary>
@@ -643,22 +643,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public DataTable ExecuteDataTable(IDbCommand cmd)
+        public DataTable ExecuteDataTable(IDbCommand command)
         {
             IDataReader reader = null;
             DataTable result = null;
 
             try
             {
-                reader = this.ExecuteReader(cmd);
+                reader = this.ExecuteReader(command);
                 result = new DataTable();
                 result.Load(reader);
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
@@ -669,12 +669,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(string commandText)
+        public DataSet ExecuteDataSet(string sql)
         {
-            IDbCommand cmd = this.CreateCommand(commandText);
-            return this.ExecuteDataSet(cmd);
+            IDbCommand command = this.CreateCommand(sql);
+            return this.ExecuteDataSet(command);
         }
 
         /// <summary>
@@ -690,22 +690,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(IDbCommand cmd)
+        public DataSet ExecuteDataSet(IDbCommand command)
         {
             IDataReader reader = null;
             DataSet result = null;
 
             try
             {
-                reader = this.ExecuteReader(cmd);
+                reader = this.ExecuteReader(command);
                 result = new XDataSet();
                 result.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
@@ -766,7 +766,7 @@ namespace TZM.XFramework.Data
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
             T result = default(T);
-            IDbCommand cmd = null;
+            IDbCommand command = null;
 
             try
             {
@@ -780,9 +780,9 @@ namespace TZM.XFramework.Data
                     else
                     {
                         var myList = new List<Command>(8);
-                        foreach (var command in sqlList)
+                        foreach (var cmd in sqlList)
                         {
-                            if (command != null) myList.Add(command);
+                            if (cmd != null) myList.Add(cmd);
                             else
                             {
                                 queue.Enqueue(myList);
@@ -822,29 +822,29 @@ namespace TZM.XFramework.Data
                 while (queue.Count > 0)
                 {
                     var myList = queue.Dequeue();
-                    string commandText = string.Join(Environment.NewLine, myList.Select(x => x.CommandText));
-                    cmd = this.CreateCommand(commandText);
-                    if (cmd.Connection == null) cmd.Connection = _connection;
+                    string sql = string.Join(Environment.NewLine, myList.Select(x => x.CommandText));
+                    command = this.CreateCommand(sql);
+                    if (command.Connection == null) command.Connection = _connection;
 
                     // 组织命令参数
                     List<IDbDataParameter> prevParameters = null;
-                    foreach (var command in myList)
+                    foreach (var cmd in myList)
                     {
-                        if (command.Parameters != null)
+                        if (cmd.Parameters != null)
                         {
-                            if (prevParameters == null || command.Parameters != prevParameters)
+                            if (prevParameters == null || cmd.Parameters != prevParameters)
                             {
-                                cmd.Parameters.AddRange(command.Parameters);
-                                prevParameters = command.Parameters;
+                                command.Parameters.AddRange(cmd.Parameters);
+                                prevParameters = cmd.Parameters;
                             }
                         }
                     }
 
                     // 外层不捕获异常，由内层Func去捕获
-                    result = this.DoExecute<T>(cmd, func, false, false);
+                    result = this.DoExecute<T>(command, func, false, false);
 
                     // 释放当前的cmd
-                    if (cmd != null) cmd.Dispose();
+                    if (command != null) command.Dispose();
                 }
 
                 #endregion
@@ -859,7 +859,7 @@ namespace TZM.XFramework.Data
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (typeof(T) != typeof(IDataReader)) this.InternalDispose();
             }
 
@@ -868,41 +868,41 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令
         /// </summary>
-        protected virtual T DoExecute<T>(IDbCommand cmd, Func<IDbCommand, T> func, bool wasClosed, bool interceptException = true)
+        protected virtual T DoExecute<T>(IDbCommand command, Func<IDbCommand, T> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);
 
             try
             {
-                if (cmd.Transaction != null && _transaction != null && cmd.Transaction != _transaction)
+                if (command.Transaction != null && _transaction != null && command.Transaction != _transaction)
                 {
                     throw new XFrameworkException("DoExecute: IDbCommand.Transaction does not equals to current transaction.");
                 }
-                if (cmd.Connection != null && _connection != null && cmd.Connection != _connection)
+                if (command.Connection != null && _connection != null && command.Connection != _connection)
                 {
                     throw new XFrameworkException("DoExecute: IDbCommand.Connection does not equals to current connection.");
                 }
 
-                if (cmd.Connection == null) cmd.Connection = this.CreateConnection();
-                if (cmd.Connection.State != ConnectionState.Open)
+                if (command.Connection == null) command.Connection = this.CreateConnection();
+                if (command.Connection.State != ConnectionState.Open)
                 {
-                    if (string.IsNullOrEmpty(cmd.Connection.ConnectionString)) cmd.Connection.ConnectionString = _connString;
-                    cmd.Connection.Open();
+                    if (string.IsNullOrEmpty(command.Connection.ConnectionString)) command.Connection.ConnectionString = _connString;
+                    command.Connection.Open();
                 }
 
-                if (interceptException) DbInterception.OnExecuting(cmd);
-                TResult = func(cmd);
-                if (interceptException) DbInterception.OnExecuted(cmd);
+                if (interceptException) DbInterception.OnExecuting(command);
+                TResult = func(command);
+                if (interceptException) DbInterception.OnExecuted(command);
             }
             catch (DbException e)
             {
                 // 外层不捕获异常，由内层Func去捕获
-                if (interceptException) DbInterception.OnException(new DbCommandException(e.Message, e, cmd));
+                if (interceptException) DbInterception.OnException(new DbCommandException(e.Message, e, command));
                 throw;
             }
             finally
             {
-                if (cmd != null) cmd.Dispose();
+                if (command != null) command.Dispose();
                 if (wasClosed) this.InternalDispose();
             }
 

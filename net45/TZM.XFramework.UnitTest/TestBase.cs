@@ -481,12 +481,12 @@ namespace TZM.XFramework.UnitTest
             if (_databaseType != DatabaseType.Oracle)
             {
                 // DataSet
-                var define = query.Resolve();
-                List<Command> sqlList = new List<Command> { define, define, define };
+                var cmd = query.Resolve();
+                List<Command> sqlList = new List<Command> { cmd, cmd, cmd };
                 var result4 = context.Database.ExecuteDataSet(sqlList);
 #if !net40
-                define = query.Resolve();
-                sqlList = new List<Command> { define, define, define };
+                cmd = query.Resolve();
+                sqlList = new List<Command> { cmd, cmd, cmd };
                 result4 = context.Database.ExecuteDataSetAsync(sqlList).Result;
 #endif
             }

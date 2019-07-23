@@ -21,8 +21,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
-        Task<int> ExecuteNonQueryAsync(string commandText);
+        /// <param name="sql">SQL 命令</param>
+        Task<int> ExecuteNonQueryAsync(string sql);
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
@@ -33,16 +33,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<int> ExecuteNonQueryAsync(IDbCommand cmd);
+        Task<int> ExecuteNonQueryAsync(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<object> ExecuteScalarAsync(string commandText);
+        Task<object> ExecuteScalarAsync(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -54,16 +54,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<object> ExecuteScalarAsync(IDbCommand cmd);
+        Task<object> ExecuteScalarAsync(IDbCommand command);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<IDataReader> ExecuteReaderAsync(string commandText);
+        Task<IDataReader> ExecuteReaderAsync(string sql);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -75,16 +75,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<IDataReader> ExecuteReaderAsync(IDbCommand cmd);
+        Task<IDataReader> ExecuteReaderAsync(IDbCommand command);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<T> ExecuteAsync<T>(string commandText);
+        Task<T> ExecuteAsync<T>(string sql);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
@@ -109,16 +109,16 @@ namespace TZM.XFramework.Data
         /// 异步执行SQL 语句，并返回单个实体对象
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<T> ExecuteAsync<T>(IDbCommand cmd);
+        Task<T> ExecuteAsync<T>(IDbCommand command);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回并返回单结果集集合
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<List<T>> ExecuteListAsync<T>(string commandText);
+        Task<List<T>> ExecuteListAsync<T>(string sql);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回并返回单结果集集合
@@ -139,9 +139,9 @@ namespace TZM.XFramework.Data
         /// 异步执行SQL 语句，并返回并返回单结果集集合
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<List<T>> ExecuteListAsync<T>(IDbCommand cmd);
+        Task<List<T>> ExecuteListAsync<T>(IDbCommand command);
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回两个实体集合
@@ -161,15 +161,15 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行 SQL 语句，并返回多个实体集合
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
-        Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd);
+        /// <param name="command">SQL 命令</param>
+        Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<DataTable> ExecuteDataTableAsync(string commandText);
+        Task<DataTable> ExecuteDataTableAsync(string sql);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -188,16 +188,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<DataTable> ExecuteDataTableAsync(IDbCommand cmd);
+        Task<DataTable> ExecuteDataTableAsync(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        Task<DataSet> ExecuteDataSetAsync(string commandText);
+        Task<DataSet> ExecuteDataSetAsync(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
@@ -209,8 +209,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        Task<DataSet> ExecuteDataSetAsync(IDbCommand cmd);
+        Task<DataSet> ExecuteDataSetAsync(IDbCommand command);
     }
 }

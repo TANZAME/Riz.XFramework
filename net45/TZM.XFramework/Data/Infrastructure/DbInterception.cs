@@ -40,17 +40,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 前
         /// </summary>
-        internal static void OnExecuting(IDbCommand cmd)
+        internal static void OnExecuting(IDbCommand command)
         {
-            foreach (var interceptor in _interceptors) interceptor.OnDbCommandExecuting(cmd);
+            foreach (var interceptor in _interceptors) interceptor.OnDbCommandExecuting(command);
         }
 
         /// <summary>
         /// 执行 SQL 后
         /// </summary>
-        internal static void OnExecuted(IDbCommand cmd)
+        internal static void OnExecuted(IDbCommand command)
         {
-            foreach (var interceptor in _interceptors) interceptor.OnDbCommandExecuted(cmd);
+            foreach (var interceptor in _interceptors) interceptor.OnDbCommandExecuted(command);
         }
 
         /// <summary>

@@ -63,11 +63,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="commandText">SQL 语句</param>
+        /// <param name="sql">SQL 语句</param>
         /// <param name="commandType">命令类型</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        IDbCommand CreateCommand(string commandText, CommandType? commandType = null, IEnumerable<IDbDataParameter> parameters = null);
+        IDbCommand CreateCommand(string sql, CommandType? commandType = null, IEnumerable<IDbDataParameter> parameters = null);
 
         /// <summary>
         /// 创建命令参数
@@ -97,8 +97,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
-        int ExecuteNonQuery(string commandText);
+        /// <param name="sql">SQL 命令</param>
+        int ExecuteNonQuery(string sql);
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -109,9 +109,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        int ExecuteNonQuery(IDbCommand cmd);
+        int ExecuteNonQuery(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -122,8 +122,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
-        object ExecuteScalar(string commandText);
+        /// <param name="sql">SQL 命令</param>
+        object ExecuteScalar(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -135,9 +135,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        object ExecuteScalar(IDbCommand cmd);
+        object ExecuteScalar(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -149,9 +149,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        IDataReader ExecuteReader(string commandText);
+        IDataReader ExecuteReader(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -163,16 +163,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        IDataReader ExecuteReader(IDbCommand cmd);
+        IDataReader ExecuteReader(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="commandText">查询语句</param>
+        /// <param name="sql">查询语句</param>
         /// <returns></returns>
-        T Execute<T>(string commandText);
+        T Execute<T>(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -183,7 +183,7 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
-        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
@@ -197,9 +197,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        T Execute<T>(IDbCommand cmd);
+        T Execute<T>(IDbCommand command);
 
         /// <summary>
         /// 执行 SQL 语句，并返回两个实体集合
@@ -219,19 +219,19 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand cmd);
+        /// <param name="command">SQL 命令</param>
+        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
         /// </summary>
-        /// <param name="commandText">查询语句</param>
+        /// <param name="sql">查询语句</param>
         /// <returns></returns>
-        List<T> ExecuteList<T>(string commandText);
+        List<T> ExecuteList<T>(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="SelectCommand"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="query">SQL 命令</param>
@@ -249,16 +249,16 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回并返回单结果集集合
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        List<T> ExecuteList<T>(IDbCommand cmd);
+        List<T> ExecuteList<T>(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        DataTable ExecuteDataTable(string commandText);
+        DataTable ExecuteDataTable(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -277,16 +277,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        DataTable ExecuteDataTable(IDbCommand cmd);
+        DataTable ExecuteDataTable(IDbCommand command);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="commandText">SQL 命令</param>
+        /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        DataSet ExecuteDataSet(string commandText);
+        DataSet ExecuteDataSet(string sql);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
@@ -298,8 +298,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
-        /// <param name="cmd">SQL 命令</param>
+        /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        DataSet ExecuteDataSet(IDbCommand cmd);
+        DataSet ExecuteDataSet(IDbCommand command);
     }
 }
