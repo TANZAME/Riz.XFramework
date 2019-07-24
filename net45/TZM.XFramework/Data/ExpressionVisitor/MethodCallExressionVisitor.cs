@@ -562,7 +562,7 @@ namespace TZM.XFramework.Data
                 _visitor.Visit(m.Arguments[1]);
                 _builder.Append(")");
             }
-            else throw new XFrameworkException("~~");
+            else throw new XFrameworkException("IDbQueryable must declare as a local variable.");
             return m;
         }
 
