@@ -6,11 +6,12 @@
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <RepositoryUrl />
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
