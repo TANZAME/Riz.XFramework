@@ -1,6 +1,6 @@
 
 @echo off
-set api_key=oy2bkvfd4vwuhqrmkkiafrumbvbdl2petlpozk5qwgmabe
+set api_key=
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
