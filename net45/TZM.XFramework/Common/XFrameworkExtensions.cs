@@ -93,7 +93,6 @@ namespace TZM.XFramework
                 // List<int>{0}[]
                 MethodCallExpression methodCallExpression = node as MethodCallExpression;
                 Expression expression = methodCallExpression.Object;
-                //if (expression != null && expression.Type.IsGenericType && expression.Type.GetGenericTypeDefinition() == typeof(List<>) && methodCallExpression.Method.Name == "get_Item")
                 if (expression != null && Data.TypeUtils.IsCollectionType(expression.Type) && methodCallExpression.Method.Name == "get_Item")
                 {
                     return true;

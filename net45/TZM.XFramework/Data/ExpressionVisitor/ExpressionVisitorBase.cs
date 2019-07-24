@@ -193,6 +193,9 @@ namespace TZM.XFramework.Data
             if (node == null) return node;
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
+            // => a.Nullable.Value
+            if (node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return this.Visit(node.Expression);
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.VisitMemberMember(node);
             // => <>h__3.b.ClientName

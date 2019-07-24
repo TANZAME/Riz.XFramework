@@ -336,7 +336,7 @@ namespace TZM.XFramework.UnitTest
 
             // 过滤条件
             query = from a in context.GetTable<TDemo>()
-                    where a.DemoName == "D0000002" || a.DemoCode == "D0000002"
+                    where a.DemoName == "D0000002" || a.DemoCode == "D0000002" && a.DemoByte_Nullable.Value > 0
                     select a;
             result1 = query.ToList();
             // 点标记
