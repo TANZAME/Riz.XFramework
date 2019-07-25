@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HasManyNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HasManyNavigation = sQuery.HasManyNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -509,7 +509,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
                 var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.DELETE, token);
-                cmd2.HaveListNavigation = dQuery.SelectInfo.HasManyNavigation;
+                cmd2.HasManyNavigation = dQuery.SelectInfo.HasManyNavigation;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, NpgCommandType.DELETE);
                 visitor0.Write(cmd2);
@@ -594,7 +594,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor.Write(builder);
 
                 var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.UPDATE, token);
-                cmd2.HaveListNavigation = uQuery.SelectInfo.HasManyNavigation;
+                cmd2.HasManyNavigation = uQuery.SelectInfo.HasManyNavigation;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, NpgCommandType.UPDATE);
                 visitor0.Write(cmd2);

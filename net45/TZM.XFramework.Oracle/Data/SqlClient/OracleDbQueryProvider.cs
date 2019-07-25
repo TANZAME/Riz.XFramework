@@ -283,7 +283,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HasManyNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HasManyNavigation = sQuery.HasManyNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -785,7 +785,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
                 var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
-                cmd2.HaveListNavigation = dQuery.SelectInfo.HasManyNavigation;
+                cmd2.HasManyNavigation = dQuery.SelectInfo.HasManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, dQuery.SelectInfo.Where);
                 visitor0.Write(cmd2);
@@ -880,7 +880,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor.Write(builder);
 
                 var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
-                cmd2.HaveListNavigation = uQuery.SelectInfo.HasManyNavigation;
+                cmd2.HasManyNavigation = uQuery.SelectInfo.HasManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, uQuery.SelectInfo.Where);
                 visitor0.Write(cmd2);

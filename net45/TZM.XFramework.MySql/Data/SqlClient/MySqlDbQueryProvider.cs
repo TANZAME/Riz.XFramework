@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HasManyNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HasManyNavigation = sQuery.HasManyNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             ISqlBuilder sf = null;
@@ -575,7 +575,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = dQuery.SelectInfo.HasManyNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HasManyNavigation = dQuery.SelectInfo.HasManyNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -658,7 +658,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareAlias<T>(uQuery.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = uQuery.SelectInfo.HasManyNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HasManyNavigation = uQuery.SelectInfo.HasManyNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);

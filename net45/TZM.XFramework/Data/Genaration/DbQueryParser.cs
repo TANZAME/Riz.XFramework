@@ -299,7 +299,7 @@ namespace TZM.XFramework.Data
             Type type = sQuery.FromType;
 
             // 解析导航属性 如果有 一对多 的导航属性，那么查询的结果集的主记录将会有重复记录，这时就需要使用嵌套语义，先查主记录，再关联导航记录
-            bool checkListNavgation = false;
+            bool hasManyNavgation = false;
             Expression expression = select;
             LambdaExpression lambdaExpression = expression as LambdaExpression;
             if (lambdaExpression != null) expression = lambdaExpression.Body;
@@ -313,13 +313,12 @@ namespace TZM.XFramework.Data
                 else if (exp.NodeType == ExpressionType.Call) exp = (exp as MethodCallExpression).Object;
 
                 // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
-                //if (exp.Type.IsGenericType && exp.Type.GetGenericTypeDefinition() == typeof(List<>)) checkListNavgation = true;
-                if (TypeUtils.IsCollectionType(exp.Type)) checkListNavgation = true;
-                if (checkListNavgation) break;
+                if (TypeUtils.IsCollectionType(exp.Type)) hasManyNavgation = true;
+                if (hasManyNavgation) break;
             }
-            if (!checkListNavgation) checkListNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
+            if (!hasManyNavgation) hasManyNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
 
-            if (checkListNavgation)
+            if (hasManyNavgation)
             {
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
@@ -414,8 +413,8 @@ namespace TZM.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool checkListNavgation = CheckManyNavigation<T>(initExpression);
-                    if (checkListNavgation) return true;
+                    bool hasManyNavgation = CheckManyNavigation<T>(initExpression);
+                    if (hasManyNavgation) return true;
                 }
             }
 
