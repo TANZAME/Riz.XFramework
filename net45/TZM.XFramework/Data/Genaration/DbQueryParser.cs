@@ -317,7 +317,7 @@ namespace TZM.XFramework.Data
                 if (TypeUtils.IsCollectionType(exp.Type)) checkListNavgation = true;
                 if (checkListNavgation) break;
             }
-            if (!checkListNavgation) checkListNavgation = initExpression != null && CheckListNavigation<TElement>(initExpression);
+            if (!checkListNavgation) checkListNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
 
             if (checkListNavgation)
             {
@@ -333,7 +333,7 @@ namespace TZM.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     sQuery.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                sQuery.ResultByListNavigation = true;
+                sQuery.ResultByManyNavigation = true;
                 sQuery.Include = new List<DbExpression>();
 
                 var outQuery = new DbQueryableInfo_Select<TElement>();
@@ -342,7 +342,7 @@ namespace TZM.XFramework.Data
                 outQuery.Join = new List<DbExpression>();
                 outQuery.OrderBy = new List<DbExpression>();
                 outQuery.Include = include;
-                outQuery.HaveListNavigation = true;
+                outQuery.HasManyNavigation = true;
                 outQuery.Select = new DbExpression(DbExpressionType.Select, select);
                 if (sQuery.GroupBy != null)
                 {
@@ -399,7 +399,7 @@ namespace TZM.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        static bool CheckListNavigation<T>(MemberInitExpression node)
+        static bool CheckManyNavigation<T>(MemberInitExpression node)
         {
             for (int i = 0; i < node.Bindings.Count; i++)
             {
@@ -414,7 +414,7 @@ namespace TZM.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool checkListNavgation = CheckListNavigation<T>(initExpression);
+                    bool checkListNavgation = CheckManyNavigation<T>(initExpression);
                     if (checkListNavgation) return true;
                 }
             }

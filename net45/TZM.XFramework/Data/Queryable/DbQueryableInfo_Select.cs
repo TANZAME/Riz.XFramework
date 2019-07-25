@@ -63,7 +63,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        public bool HaveListNavigation { get; set; }
+        public bool HasManyNavigation { get; set; }
 
         /// <summary>
         /// 跳过序列中指定数量的元素
@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool ResultByListNavigation { get; set; }
+        public bool ResultByManyNavigation { get; set; }
 
         /// <summary>
         /// 并集

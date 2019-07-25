@@ -17,10 +17,14 @@ namespace TZM.XFramework.Data
     {
         private IDataRecord _reader = null;
         private IMapping _map = null;
+        // 所有反序列化器
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
+        // 主表反序列化器
         private Func<IDataRecord, object> _modelDeserializer = null;
-        private Dictionary<string, HashSet<string>> _listNavigationKeys = null;
-        private int? _listNavigationCount = null;
+        // 一对多导航属性键
+        private Dictionary<string, HashSet<string>> _manyNavvgationKeys = null;
+        // 一对多导航属性数量
+        private int? _manyNavigationNumber = null;
 
         private bool? _isPrimitive = null;
         private bool _isDynamic = false;
@@ -36,7 +40,7 @@ namespace TZM.XFramework.Data
             _reader = reader;
             _map = map;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
-            _listNavigationKeys = new Dictionary<string, HashSet<string>>(8);
+            _manyNavvgationKeys = new Dictionary<string, HashSet<string>>(8);
             _isDynamic = typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object);
             _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
         }
@@ -119,7 +123,7 @@ namespace TZM.XFramework.Data
                         if (!isThisLine)
                         {
                             // fix issue#换行时清空上一行的导航键缓存
-                            _listNavigationKeys.Clear();
+                            _manyNavvgationKeys.Clear();
                             break;
                         }
                     }
@@ -149,17 +153,17 @@ namespace TZM.XFramework.Data
             {
                 int start = -1;
                 int end = -1;
-                var descriptor = kvp.Value;
-                if (descriptor.FieldCount > 0)
+                var navigation = kvp.Value;
+                if (navigation.FieldCount > 0)
                 {
-                    start = descriptor.Start;
-                    end = descriptor.Start + descriptor.FieldCount;
+                    start = navigation.Start;
+                    end = navigation.Start + navigation.FieldCount;
                 }
 
-                string keyName = typeName + "." + descriptor.Name;
+                string keyName = typeName + "." + navigation.Name;
                 if (keyName != kvp.Key) continue;
 
-                var navInvoker = typeRuntime.GetInvoker(descriptor.Name);
+                var navInvoker = typeRuntime.GetInvoker(navigation.Name);
                 if (navInvoker == null) continue;
 
                 Type navType = navInvoker.DataType;
@@ -258,10 +262,10 @@ namespace TZM.XFramework.Data
                                 bool isAny = false;
                                 if (_map.Navigations.Count > 1)
                                 {
-                                    if (_listNavigationCount == null) _listNavigationCount = _map.Navigations.Count(x => CheckCollectionNavigation(x.Value.Member));
-                                    if (_listNavigationCount != null && _listNavigationCount.Value > 1)
+                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => CheckHasManyNavigation(x.Value.Member));
+                                    if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
-                                        if (!_listNavigationKeys.ContainsKey(keyName)) _listNavigationKeys[keyName] = new HashSet<string>();
+                                        if (!_manyNavvgationKeys.ContainsKey(keyName)) _manyNavvgationKeys[keyName] = new HashSet<string>();
                                         curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                                         StringBuilder keyBuilder = new StringBuilder(64);
 
@@ -272,13 +276,13 @@ namespace TZM.XFramework.Data
                                             keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
                                         }
                                         string hash = keyBuilder.ToString();
-                                        if (_listNavigationKeys[keyName].Contains(hash))
+                                        if (_manyNavvgationKeys[keyName].Contains(hash))
                                         {
                                             isAny = true;
                                         }
                                         else
                                         {
-                                            _listNavigationKeys[keyName].Add(hash);
+                                            _manyNavvgationKeys[keyName].Add(hash);
                                         }
                                     }
                                 }
@@ -310,8 +314,8 @@ namespace TZM.XFramework.Data
                                 keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
                             }
                             string hash = keyBuilder.ToString();
-                            if (!_listNavigationKeys.ContainsKey(keyName)) _listNavigationKeys[keyName] = new HashSet<string>();
-                            if (!_listNavigationKeys[keyName].Contains(hash)) _listNavigationKeys[keyName].Add(hash);
+                            if (!_manyNavvgationKeys.ContainsKey(keyName)) _manyNavvgationKeys[keyName] = new HashSet<string>();
+                            if (!_manyNavvgationKeys[keyName].Contains(hash)) _manyNavvgationKeys[keyName].Add(hash);
                         }
                     }
 
@@ -323,7 +327,7 @@ namespace TZM.XFramework.Data
         }
 
         // 检查当前成员是否是1：N关系的导航属性
-        static bool CheckCollectionNavigation(MemberInfo info)
+        static bool CheckHasManyNavigation(MemberInfo info)
         {
             if (info == null) return false;
 

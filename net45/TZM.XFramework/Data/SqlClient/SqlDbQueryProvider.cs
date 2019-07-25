@@ -130,18 +130,18 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> innerQuery = sQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQuery.HaveListNavigation && innerQuery != null && innerQuery.Statis != null) sQuery = innerQuery;
+            if (sQuery.HasManyNavigation && innerQuery != null && innerQuery.Statis != null) sQuery = innerQuery;
 
             bool useStatis = sQuery.Statis != null;
             bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByListNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
+            bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByManyNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HaveListNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveListNavigation = sQuery.HasManyNavigation };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
 
@@ -314,7 +314,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套导航
 
-            if (sQuery.HaveListNavigation && innerQuery != null && innerQuery.OrderBy.Count > 0 && innerQuery.Statis == null && !(innerQuery.Skip > 0 || innerQuery.Take > 0))
+            if (sQuery.HasManyNavigation && innerQuery != null && innerQuery.OrderBy.Count > 0 && innerQuery.Statis == null && !(innerQuery.Skip > 0 || innerQuery.Take > 0))
             {
                 // TODO Include 从表，没分页，OrderBy 报错
                 // OrderBy("a.CloudServer.CloudServerName");
@@ -510,7 +510,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 IDbQueryable dbQueryable = dQuery.SourceQuery;
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = dQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = dQuery.SelectInfo.HasManyNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
@@ -604,7 +604,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = uQuery.SelectInfo.HaveListNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HaveListNavigation = uQuery.SelectInfo.HasManyNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Join);
                 visitor.Write(cmd2.JoinFragment);
