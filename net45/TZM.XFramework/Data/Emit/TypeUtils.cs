@@ -107,6 +107,7 @@ namespace TZM.XFramework.Data
         {
             if (!type.IsGenericType) return false;
             else if (type == typeof(List<>)) return true;
+            else if (type == typeof(IList<>)) return true;
             else return typeof(IList<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(IList<>).FullName) != null;
         }
 

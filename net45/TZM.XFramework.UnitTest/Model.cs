@@ -292,7 +292,7 @@ namespace TZM.XFramework.UnitTest
             public virtual CloudServer LocalServer { get; set; }
 
             [ForeignKey("ClientId")]
-            public virtual List<ClientAccount> Accounts { get; set; }
+            public virtual IList<ClientAccount> Accounts { get; set; }
 
             /// <summary>
             /// 构造函数勾子
