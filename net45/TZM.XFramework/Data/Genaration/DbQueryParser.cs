@@ -319,27 +319,15 @@ namespace TZM.XFramework.Data
             List<DbExpression> include = sQuery.Include;
             Type type = sQuery.FromType;
 
-            // 解析导航属性 如果有 一对多 的导航属性，那么查询的结果集的主记录将会有重复记录，这时就需要使用嵌套语义，先查主记录，再关联导航记录
-            bool hasManyNavgation = false;
+            // 解析导航属性 如果有 1:n 的导航属性，那么查询的结果集的主记录将会有重复记录
+            // 这时就需要使用嵌套语义，先查主记录，再关联导航记录
             Expression expression = select;
             var lambdaExpression = expression as LambdaExpression;
             if (lambdaExpression != null) expression = lambdaExpression.Body;
             var initExpression = expression as MemberInitExpression;
             var newExpression = expression as NewExpression;
 
-            foreach (DbExpression dbExpression in include)
-            {
-                Expression myExpression = dbExpression.Expressions[0];
-                if (myExpression.NodeType == ExpressionType.Lambda) myExpression = (myExpression as LambdaExpression).Body;
-                else if (myExpression.NodeType == ExpressionType.Call) myExpression = (myExpression as MethodCallExpression).Object;
-
-                // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
-                if (TypeUtils.IsCollectionType(myExpression.Type))
-                {
-                    hasManyNavgation = true;
-                    break;
-                }
-            }
+            bool hasManyNavgation = CheckManyNavigation(include);
             if (!hasManyNavgation) hasManyNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
 
             #region 嵌套语义
@@ -379,25 +367,7 @@ namespace TZM.XFramework.Data
                     List<DbExpression> innerOrderBy = null;
                     foreach (var dbExpression in sQuery.OrderBy)
                     {
-                        hasManyNavgation = false;
-                        Expression myExpression = (dbExpression.Expressions[0] as LambdaExpression).Body;
-                        while (myExpression.Acceptable())
-                        {
-                            if (myExpression.NodeType == ExpressionType.MemberAccess) myExpression = (myExpression as MemberExpression).Expression;
-                            else if (myExpression.NodeType == ExpressionType.Call)
-                            {
-                                var methodExpression = myExpression as MethodCallExpression;
-                                bool isGetItem = methodExpression.IsGetListItem();
-                                if (isGetItem) myExpression = methodExpression.Object;
-                            }
-
-                            if (TypeUtils.IsCollectionType(myExpression.Type))
-                            {
-                                hasManyNavgation = true;
-                                continue;
-                            }
-                        }
-
+                        hasManyNavgation = CheckManyNavigation(dbExpression.Expressions[0] as LambdaExpression);
                         if (!hasManyNavgation)
                         {
                             if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
@@ -507,6 +477,53 @@ namespace TZM.XFramework.Data
             }
 
             return false;
+        }
+
+        // 判定 MemberInit 绑定是否声明了一对多关系的导航
+        static bool CheckManyNavigation(LambdaExpression node)
+        {
+            bool hasManyNavgation = false;
+            Expression myExpression = node.Body;
+            while (myExpression.Acceptable())
+            {
+                if (myExpression.NodeType == ExpressionType.MemberAccess) myExpression = (myExpression as MemberExpression).Expression;
+                else if (myExpression.NodeType == ExpressionType.Call)
+                {
+                    var methodExpression = myExpression as MethodCallExpression;
+                    bool isGetItem = methodExpression.IsGetListItem();
+                    if (isGetItem) myExpression = methodExpression.Object;
+                }
+
+                if (TypeUtils.IsCollectionType(myExpression.Type))
+                {
+                    hasManyNavgation = true;
+                    break;
+                }
+            }
+
+            return hasManyNavgation;
+        }
+
+        // 判定 MemberInit 绑定是否声明了一对多关系的导航
+        static bool CheckManyNavigation(List<DbExpression> include)
+        {
+            bool hasManyNavgation = false;
+
+            foreach (DbExpression dbExpression in include)
+            {
+                Expression myExpression = dbExpression.Expressions[0];
+                if (myExpression.NodeType == ExpressionType.Lambda) myExpression = (myExpression as LambdaExpression).Body;
+                else if (myExpression.NodeType == ExpressionType.Call) myExpression = (myExpression as MethodCallExpression).Object;
+
+                // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
+                if (TypeUtils.IsCollectionType(myExpression.Type))
+                {
+                    hasManyNavgation = true;
+                    break;
+                }
+            }
+
+            return hasManyNavgation;
         }
 
         // 合并 'Where' 表达式谓词
