@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -84,6 +85,7 @@ namespace TZM.XFramework
             // => 5
             // => a.ActiveDate == DateTime.Now
             // => a.State == (byte)state
+            // => a.Accounts[0].Markets[0].MarketId
 
             if (node == null) return false;
             if (node.NodeType == ExpressionType.Constant) return true;
@@ -91,45 +93,43 @@ namespace TZM.XFramework
             if (node.NodeType == ExpressionType.Call)
             {
                 // List<int>{0}[]
-                MethodCallExpression methodCallExpression = node as MethodCallExpression;
-                Expression expression = methodCallExpression.Object;
-                if (expression != null && Data.TypeUtils.IsCollectionType(expression.Type) && methodCallExpression.Method.Name == "get_Item")
-                {
-                    return true;
-                }
+                // => a.Accounts[0].Markets[0].MarketId
+                MethodCallExpression methodExpression = node as MethodCallExpression;
+                Expression objExpression = methodExpression.Object;
+                bool isGetItem = objExpression != null && Data.TypeUtils.IsCollectionType(objExpression.Type) && methodExpression.Method.Name == "get_Item";
+                if (isGetItem) node = objExpression;
             }
 
-            var member = node as MemberExpression;
-            if (member == null) return false;
-            if (member.Expression == null) return true;
-            if (member.Expression.NodeType == ExpressionType.Constant) return true;
+            if (node.NodeType == ExpressionType.ListInit) return true;
+            if (node.NodeType == ExpressionType.NewArrayInit) return true;
+            if (node.NodeType != ExpressionType.MemberAccess) return false;
+            
+            var memberExpression = node as MemberExpression;
+            if (memberExpression == null) return false;
+            if (memberExpression.Expression == null) return true;
+            if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
 
-            return member.Expression.CanEvaluate();
+            return memberExpression.Expression.CanEvaluate();
         }
 
         /// <summary>
         /// 计算表达式的值
         /// </summary>
-        public static ConstantExpression Evaluate(this Expression e)
+        public static ConstantExpression Evaluate(this Expression node)
         {
-            ConstantExpression node = null;
-            if (e.NodeType == ExpressionType.Constant)
-            {
-                node = e as ConstantExpression;
-            }
+            ConstantExpression constantExpression = null;
+            if (node.NodeType == ExpressionType.Constant) constantExpression = node as ConstantExpression;
             else
             {
-                LambdaExpression lambda = e is LambdaExpression ? Expression.Lambda(((LambdaExpression)e).Body) : Expression.Lambda(e);
+                LambdaExpression lambda = node is LambdaExpression ? Expression.Lambda(((LambdaExpression)node).Body) : Expression.Lambda(node);
                 Delegate fn = lambda.Compile();
-
-                node = Expression.Constant(fn.DynamicInvoke(null), e is LambdaExpression ? ((LambdaExpression)e).Body.Type : e.Type);
+                constantExpression = Expression.Constant(fn.DynamicInvoke(null), node is LambdaExpression ? ((LambdaExpression)node).Body.Type : node.Type);
             }
 
             // 枚举要转成 INT
-            if (node.Type.IsEnum) node = Expression.Constant(Convert.ToInt32(node.Value));
-
+            if (constantExpression.Type.IsEnum) constantExpression = Expression.Constant(Convert.ToInt32(constantExpression.Value));
             // 返回最终处理的常量表达式s
-            return node;
+            return constantExpression;
         }
 
         /// <summary>
@@ -142,17 +142,18 @@ namespace TZM.XFramework
         {
             // <>h__TransparentIdentifier => h__TransparentIdentifier.a.CompanyName
             Expression exp = node;
-            ParameterExpression paramExp = exp.NodeType == ExpressionType.Lambda
+            ParameterExpression parameterExpression = exp.NodeType == ExpressionType.Lambda
                 ? (node as LambdaExpression).Parameters[0]
                 : exp as ParameterExpression;
-            if (paramExp != null) return _isAnonymous(paramExp.Name);
+            if (parameterExpression != null) return _isAnonymous(parameterExpression.Name);
 
-            if (exp.NodeType == ExpressionType.MemberAccess)    // <>h__TransparentIdentifier.a.CompanyName
+            // <>h__TransparentIdentifier.a.CompanyName
+            if (exp.NodeType == ExpressionType.MemberAccess)
             {
-                MemberExpression memExp = exp as MemberExpression;
-                if (_isAnonymous(memExp.Member.Name)) return true;
+                MemberExpression memberExpression = exp as MemberExpression;
+                if (_isAnonymous(memberExpression.Member.Name)) return true;
 
-                return IsAnonymous(memExp.Expression);
+                return IsAnonymous(memberExpression.Expression);
             }
 
             return false;

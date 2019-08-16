@@ -450,7 +450,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = DbFunction.RowNumber<long>(x => a.DemoCode,false)
+                    RowNumber = DbFunction.RowNumber<long>(x => a.DemoCode, false)
                 });
             var reuslt1 = query1.ToList();
             //SQL=>
@@ -463,7 +463,7 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = DbFunction.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId,true)
+                RowNumber = DbFunction.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId, true)
             });
             reuslt1 = query1.ToList();
 
@@ -625,13 +625,23 @@ namespace TZM.XFramework.UnitTest
 
             // 还是Include，无限主从孙 ### 
             query =
+            from a in context
+                .GetTable<Model.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets)
+                .Include(a => a.Accounts[0].Markets[0].Client)
+            where a.ClientId > 0
+            orderby a.ClientId
+            select a;
+            result = query.ToList();
+            query =
                 from a in context
                     .GetTable<Model.Client>()
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
                 where a.ClientId > 0
-                orderby a.ClientId
+                orderby a.ClientId, a.Accounts[0].Markets[0].MarketId
                 select a;
             result = query.ToList();
             //SQL=>
@@ -661,6 +671,21 @@ namespace TZM.XFramework.UnitTest
                 .Include(a => a.Accounts[0].Markets[0].Client)
             where a.ClientId > 0
             orderby a.ClientId
+            select a;
+            query = query
+                .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
+                .Skip(10)
+                .Take(20);
+            result = query.ToList();
+            // Include 分页
+            query =
+            from a in context
+                .GetTable<Model.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets)
+                .Include(a => a.Accounts[0].Markets[0].Client)
+            where a.ClientId > 0
+            orderby a.ClientId, a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId
             select a;
             query = query
                 .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
@@ -1105,7 +1130,7 @@ namespace TZM.XFramework.UnitTest
                 select new
                 {
                     ClientId = a.ClientId,
-                    ClientName  = a.ClientName,
+                    ClientName = a.ClientName,
                     Qty = a.Qty
                 };
             subQuery = subQuery.AsSubQuery();
@@ -1160,7 +1185,7 @@ namespace TZM.XFramework.UnitTest
                     join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
                     join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
                     where c.ClientId == 5 && c.AccountId == "1" && c.MarketId == 1
-                select a;
+                    select a;
                 context.Delete<Model.Client>(query1);
 
                 // oracle 不支持导航属性关联删除
@@ -1778,10 +1803,10 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
-           var  query5 =
-                from a in context.GetTable<Model.Client>()
-                where a.ClientId >= 1 && a.ClientId <= 10
-                select 7;
+            var query5 =
+                 from a in context.GetTable<Model.Client>()
+                 where a.ClientId >= 1 && a.ClientId <= 10
+                 select 7;
             var tuple2 = context.Database.ExecuteMultiple<int, int, int>(query3, query4, query5);
 #if !net40
             query3 =
@@ -1908,7 +1933,7 @@ namespace TZM.XFramework.UnitTest
                 // 100w 数据量明显，清掉后内存会及时释放
                 result.Clear();
                 result = null;
-                
+
             }
 
             stop.Stop();

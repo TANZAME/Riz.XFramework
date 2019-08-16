@@ -194,14 +194,25 @@ namespace TZM.XFramework.Data
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
             // => a.Nullable.Value
-            if (node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                return this.Visit(node.Expression);
+            bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            if (isNullable) return this.Visit(node.Expression);
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.VisitMemberMember(node);
             // => <>h__3.b.ClientName
             if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
+            // => a.Accounts[0].Markets[0].MarketId
             // => b.Client.Address.AddressName
-            this.VisitNavMember(node.Expression, node.Member.Name);
+            Expression objExpression = node.Expression;
+            bool isMethodCall = objExpression != null && objExpression.NodeType == ExpressionType.Call;
+            if (isMethodCall)
+            {
+                MethodCallExpression methodExpression = objExpression as MethodCallExpression;
+                var expr = methodExpression.Object;
+                bool isGetItem = expr != null && Data.TypeUtils.IsCollectionType(expr.Type) && methodExpression.Method.Name == "get_Item";
+                if (isGetItem) objExpression = expr;
+            }            
+            // => b.Client.Address.AddressName
+            this.VisitNavMember(objExpression, node.Member.Name);
 
             return node;
         }
