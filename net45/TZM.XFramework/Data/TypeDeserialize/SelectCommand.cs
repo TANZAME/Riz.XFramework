@@ -152,11 +152,12 @@ namespace TZM.XFramework.Data
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (_navMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
+                        innerAlias = _aliases.GetNavigationTableAlias(innerKey);
                     }
                 }
 
                 string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
-                string alias2 = _aliases.GetTableAlias(outerKey);
+                string alias2 = _aliases.GetNavigationTableAlias(outerKey);
 
 
                 builder.AppendNewLine();

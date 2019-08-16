@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者 单例
         /// </summary>
-        public static SqlDbQueryProvider Instance = new SqlDbQueryProvider();
+        public static SqlDbQueryProvider Instance = Singleton.Instance;
 
         /// <summary>
         /// 数据源类的提供程序实现的实例
@@ -125,7 +125,6 @@ namespace TZM.XFramework.Data.SqlClient
             // 4.分组再分页时需要使用嵌套查询，此时子查询不需要 'OrderBy' 子句，但最外层则需要
             // 5.'Skip' 'Take' 子句视为语义结束符，在其之后的子句将使用嵌套查询
             // 6.导航属性中有 1:n 关系的，需要使用嵌套查询，否则分页查询会有问题
-
 
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
@@ -268,7 +267,7 @@ namespace TZM.XFramework.Data.SqlClient
             cmd.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
-            if (sQuery.OrderBy.Count > 0 && useOrderBy)// && !groupByPaging)
+            if (sQuery.OrderBy.Count > 0 && useOrderBy)
             {
                 visitor = new OrderByExpressionVisitor(this, aliases, sQuery.OrderBy, sQuery.GroupBy);
                 visitor.Write(wf);
@@ -314,12 +313,11 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套导航
 
-            if (sQuery.HasManyNavigation && subQuery != null && subQuery.OrderBy.Count > 0 && subQuery.Statis == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQuery.HasManyNavigation && subQuery.Statis == null && subQuery != null && subQuery.OrderBy.Count > 0 && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // TODO Include 从表，没分页，OrderBy 报错
-                // OrderBy("a.CloudServer.CloudServerName");
                 cmd.Convergence();
-                visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBy);//, null, "t0");
+                visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBy);
                 visitor.Write(jf);
             }
 
@@ -617,6 +615,17 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+        }
+
+        /// <summary>
+        /// 单例提供者
+        /// </summary>
+        class Singleton
+        {
+            /// <summary>
+            /// 查询语义提供者实例
+            /// </summary>
+            public static SqlDbQueryProvider Instance = new SqlDbQueryProvider();
         }
     }
 }

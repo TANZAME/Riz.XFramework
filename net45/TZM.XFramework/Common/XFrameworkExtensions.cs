@@ -18,6 +18,7 @@ namespace TZM.XFramework
         private static readonly string _anonymousName = "<>h__TransparentIdentifier";
         private static Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);
         private static Func<string, bool> _isAnonymous = name => !string.IsNullOrEmpty(name) && name.StartsWith(_anonymousName, StringComparison.Ordinal);
+        private static MethodInfo _collectionItem = typeof(List<int>).GetMethod("get_Item");
 
         /// <summary>
         /// 返回真表达式
@@ -95,21 +96,33 @@ namespace TZM.XFramework
                 // List<int>{0}[]
                 // => a.Accounts[0].Markets[0].MarketId
                 MethodCallExpression methodExpression = node as MethodCallExpression;
-                Expression objExpression = methodExpression.Object;
-                bool isGetItem = objExpression != null && Data.TypeUtils.IsCollectionType(objExpression.Type) && methodExpression.Method.Name == "get_Item";
-                if (isGetItem) node = objExpression;
+                bool isGetItem = methodExpression.IsGetListItem();
+                if (isGetItem) node = methodExpression.Object;
             }
 
             if (node.NodeType == ExpressionType.ListInit) return true;
             if (node.NodeType == ExpressionType.NewArrayInit) return true;
             if (node.NodeType != ExpressionType.MemberAccess) return false;
-            
+
             var memberExpression = node as MemberExpression;
             if (memberExpression == null) return false;
             if (memberExpression.Expression == null) return true;
             if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
 
             return memberExpression.Expression.CanEvaluate();
+        }
+
+        /// <summary>
+        /// 判断是否是访问 List`1 类的索引的表达式
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public static bool IsGetListItem(this MethodCallExpression node)
+        {
+            if (node == null) return false;
+            Expression objExpression = node.Object;
+            bool result = objExpression != null && Data.TypeUtils.IsCollectionType(objExpression.Type) && node.Method.Name == "get_Item";
+            return result;
         }
 
         /// <summary>
@@ -253,7 +266,7 @@ namespace TZM.XFramework
 
             // 如果读取
             if (expression.NodeType == ExpressionType.Parameter) segs.Add(isDesciptor ? expression.Type.Name : (expression as ParameterExpression).Name);
-            if (expression.NodeType == ExpressionType.MemberAccess) segs.Add((expression as MemberExpression).Member.Name);
+            else if (expression.NodeType == ExpressionType.MemberAccess) segs.Add((expression as MemberExpression).Member.Name);
 
             segs.Reverse();
             string result = string.Join(".", segs);

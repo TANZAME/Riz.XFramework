@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
                     break;
                 }
 
-                #region 分析语义
+                #region 解析片断
 
                 switch (curExpr.DbExpressionType)
                 {
@@ -179,8 +179,8 @@ namespace TZM.XFramework.Data
             }
 
             // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关统计函数，则默认选择FromType的所有字段
-            bool useFullColumns = insert == null && delete == null && update == null && select == null && statis == null;
-            if (useFullColumns) select = Expression.Constant(type ?? typeof(TElement));
+            bool useFullFields = insert == null && delete == null && update == null && select == null && statis == null;
+            if (useFullFields) select = Expression.Constant(type ?? typeof(TElement));
 
             var sQuery = new DbQueryableInfo_Select<TElement>();
             sQuery.FromType = type;
@@ -195,11 +195,12 @@ namespace TZM.XFramework.Data
             sQuery.Skip = skip != null ? skip.Value : 0;
             sQuery.Take = take != null ? take.Value : 0;
             sQuery.Select = new DbExpression(DbExpressionType.Select, select);
-            sQuery.Where = new DbExpression(DbExpressionType.Where, DbQueryParser.CombineWhere(where));
-            sQuery.Having = new DbExpression(DbExpressionType.None, DbQueryParser.CombineWhere(having));
+            sQuery.Where = new DbExpression(DbExpressionType.Where, DbQueryParser.CombinePredicate(where));
+            sQuery.Having = new DbExpression(DbExpressionType.None, DbQueryParser.CombinePredicate(having));
             sQuery.SourceQuery = dbQuery;
 
-            // 更新
+            #region 更新语义
+
             if (update != null)
             {
                 var uQuery = new DbQueryableInfo_Update<TElement>();
@@ -213,8 +214,11 @@ namespace TZM.XFramework.Data
                 return uQuery;
             }
 
-            // 删除
-            if (delete != null)
+            #endregion
+
+            #region 删除语义
+
+            else if (delete != null)
             {
                 var dQuery = new DbQueryableInfo_Delete<TElement>();
                 ConstantExpression constantExpression = delete.Expressions != null ? delete.Expressions[0] as ConstantExpression : null;
@@ -225,8 +229,11 @@ namespace TZM.XFramework.Data
                 return dQuery;
             }
 
-            // 新增
-            if (insert != null)
+            #endregion
+
+            #region 插入语义
+
+            else if (insert != null)
             {
                 var nQuery = new DbQueryableInfo_Insert<TElement>();
                 if (insert.Expressions != null)
@@ -241,8 +248,11 @@ namespace TZM.XFramework.Data
                 return nQuery;
             }
 
-            // 如果有一对多的导航关系，则产生嵌套语义的查询
-            if (select != null)
+            #endregion
+
+            #region 选择语义
+
+            else if (select != null)
             {
                 // 如果有uion但是没分页，应去掉orderby子句
                 if (sQuery.Union.Count > 0 && !(sQuery.Take > 0 || sQuery.Skip > 0)) sQuery.OrderBy = new List<DbExpression>();
@@ -250,6 +260,10 @@ namespace TZM.XFramework.Data
                 sQuery = DbQueryParser.TryBuildOutQuery(sQuery);
                 sQuery.SourceQuery = dbQuery;
             }
+
+            #endregion
+
+            #region 嵌套语义
 
             // 解析嵌套查询
             if (outerIndex != null)
@@ -281,9 +295,14 @@ namespace TZM.XFramework.Data
                     while (rootQuery.SubQueryInfo != null) rootQuery = rootQuery.SubQueryInfo;
                     rootQuery.SubQueryInfo = sQuery;
                     outQuery.SourceQuery = dbQuery;
+                    //var selectOutQuery = outQuery as DbQueryableInfo_Select<TElement>;
+                    //if (selectOutQuery != null && selectOutQuery.Statis != null && selectOutQuery.OrderBy.Count > 0) selectOutQuery.OrderBy.Clear();
+
                     return outQuery;
                 }
             }
+
+            #endregion
 
             // 查询表达式
             return sQuery;
@@ -292,6 +311,8 @@ namespace TZM.XFramework.Data
         // 构造由一对多关系产生的嵌套查询
         static DbQueryableInfo_Select<TElement> TryBuildOutQuery<TElement>(DbQueryableInfo_Select<TElement> sQuery)
         {
+            // @havePaging 是否有分页信息
+
             if (sQuery == null || sQuery.Select == null) return sQuery;
 
             Expression select = sQuery.Select.Expressions[0];
@@ -301,25 +322,31 @@ namespace TZM.XFramework.Data
             // 解析导航属性 如果有 一对多 的导航属性，那么查询的结果集的主记录将会有重复记录，这时就需要使用嵌套语义，先查主记录，再关联导航记录
             bool hasManyNavgation = false;
             Expression expression = select;
-            LambdaExpression lambdaExpression = expression as LambdaExpression;
+            var lambdaExpression = expression as LambdaExpression;
             if (lambdaExpression != null) expression = lambdaExpression.Body;
-            MemberInitExpression initExpression = expression as MemberInitExpression;
-            NewExpression newExpression = expression as NewExpression;
+            var initExpression = expression as MemberInitExpression;
+            var newExpression = expression as NewExpression;
 
-            foreach (DbExpression d in include)
+            foreach (DbExpression dbExpression in include)
             {
-                Expression exp = d.Expressions[0];
-                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
-                else if (exp.NodeType == ExpressionType.Call) exp = (exp as MethodCallExpression).Object;
+                Expression myExpression = dbExpression.Expressions[0];
+                if (myExpression.NodeType == ExpressionType.Lambda) myExpression = (myExpression as LambdaExpression).Body;
+                else if (myExpression.NodeType == ExpressionType.Call) myExpression = (myExpression as MethodCallExpression).Object;
 
                 // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
-                if (TypeUtils.IsCollectionType(exp.Type)) hasManyNavgation = true;
-                if (hasManyNavgation) break;
+                if (TypeUtils.IsCollectionType(myExpression.Type))
+                {
+                    hasManyNavgation = true;
+                    break;
+                }
             }
             if (!hasManyNavgation) hasManyNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
 
+            #region 嵌套语义
+
             if (hasManyNavgation)
             {
+
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 if (initExpression != null)
@@ -343,16 +370,68 @@ namespace TZM.XFramework.Data
                 outQuery.Include = include;
                 outQuery.HasManyNavigation = true;
                 outQuery.Select = new DbExpression(DbExpressionType.Select, select);
+
+                #region 排序
+
+                if ((sQuery.Take > 0 || sQuery.Skip > 0) && sQuery.Statis == null && sQuery.OrderBy != null && sQuery.OrderBy.Count > 0)
+                {
+                    // 在有分页查询的前提下， order by 只保留主表的排序，从表的放在外层
+                    List<DbExpression> innerOrderBy = null;
+                    foreach (var dbExpression in sQuery.OrderBy)
+                    {
+                        hasManyNavgation = false;
+                        Expression myExpression = (dbExpression.Expressions[0] as LambdaExpression).Body;
+                        while (myExpression.Acceptable())
+                        {
+                            if (myExpression.NodeType == ExpressionType.MemberAccess) myExpression = (myExpression as MemberExpression).Expression;
+                            else if (myExpression.NodeType == ExpressionType.Call)
+                            {
+                                var methodExpression = myExpression as MethodCallExpression;
+                                bool isGetItem = methodExpression.IsGetListItem();
+                                if (isGetItem) myExpression = methodExpression.Object;
+                            }
+
+                            if (TypeUtils.IsCollectionType(myExpression.Type))
+                            {
+                                hasManyNavgation = true;
+                                continue;
+                            }
+                        }
+
+                        if (!hasManyNavgation)
+                        {
+                            if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
+                            innerOrderBy.Add(dbExpression);
+                        }
+                    }
+
+                    if (innerOrderBy != null && innerOrderBy.Count > 0)
+                    {
+                        outQuery.OrderBy = sQuery.OrderBy;
+                        sQuery.OrderBy = innerOrderBy;
+                    }
+                }
+
+                #endregion
+
+                #region 分组
+
                 if (sQuery.GroupBy != null)
                 {
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
-                    // demo=> line 640
+                    // demo => line 640
                     bool newSelector = bindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call) || newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call);
                     if (newSelector)
                     {
+                        ParameterExpression newParameter = null;
+                        List<DbExpression> dbExpressions = null;
+                        if (outQuery.Include != null && outQuery.Include.Count > 0) dbExpressions = outQuery.Include;
+                        else if (outQuery.OrderBy != null && outQuery.OrderBy.Count > 0) dbExpressions = outQuery.OrderBy;
+                        if (dbExpressions != null && dbExpressions.Count > 0) newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
+
                         // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
-                        ParameterExpression p = Expression.Parameter(newExpression.Type, "__g");
-                        bindings = bindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(p, x.Member)));
+                        var parameterExpression = newParameter != null ? newParameter : Expression.Parameter(newExpression.Type, "__g");
+                        bindings = bindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(parameterExpression, x.Member)));
                         List<Expression> arguments = null;
                         if (newExpression.Members != null)
                         {
@@ -360,22 +439,30 @@ namespace TZM.XFramework.Data
                             for (int i = 0; i < newExpression.Arguments.Count; i++)
                             {
                                 var member = newExpression.Members[i];
-                                var arg = Expression.MakeMemberAccess(p, member);
+                                var arg = Expression.MakeMemberAccess(parameterExpression, member);
                                 arguments.Add(arg);
                             }
                         }
 
                         newExpression = Expression.New(newExpression.Constructor, arguments, newExpression.Members);
                         initExpression = Expression.MemberInit(newExpression, bindings);
-                        lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
+                        lambdaExpression = Expression.Lambda(initExpression, parameterExpression);
                         outQuery.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                     }
                 }
 
+                #endregion
+
                 sQuery = outQuery;
             }
+
+            #endregion
+
+            #region 并集语义
+
             else if (sQuery.Union.Count > 0 && (sQuery.Take > 0 || sQuery.Skip > 0))
             {
+
                 var outQuery = new DbQueryableInfo_Select<TElement>();
                 outQuery.FromType = type;
                 outQuery.Select = new DbExpression(DbExpressionType.Select, select);
@@ -392,6 +479,8 @@ namespace TZM.XFramework.Data
 
                 sQuery = outQuery;
             }
+
+            #endregion
 
             return sQuery;
         }
@@ -420,8 +509,8 @@ namespace TZM.XFramework.Data
             return false;
         }
 
-        // 合并 'Where' 表达式语义
-        static Expression CombineWhere(IList<Expression> predicates)
+        // 合并 'Where' 表达式谓词
+        static Expression CombinePredicate(IList<Expression> predicates)
         {
             if (predicates.Count == 0) return null;
 
@@ -441,13 +530,13 @@ namespace TZM.XFramework.Data
             Expression node = expr.Expressions[0];
             if (node.NodeType == ExpressionType.Lambda)
             {
-                LambdaExpression lambda = node as LambdaExpression;
+                var lambda = node as LambdaExpression;
                 node = lambda.Body;
             }
             if (node.NodeType == ExpressionType.Call)
             {
                 // 如果是 DefaultIfEmpty，则不是 CROSS JOIN
-                MethodCallExpression call = node as MethodCallExpression;
+                var call = node as MethodCallExpression;
                 if (call.Method.Name == "DefaultIfEmpty")
                 {
                     // 右关联
@@ -465,8 +554,6 @@ namespace TZM.XFramework.Data
                                 if (name == pName)
                                 {
                                     curExpr.DbExpressionType = DbExpressionType.GroupRightJoin;
-                                    //curExpr = new DbExpression(DbExpressionType.GroupRightJoin, curExpr.Expressions);
-                                    //collection[i] = curExpr;
                                     break;
                                 }
                             }

@@ -16,12 +16,13 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 表别名
+        /// <para>用于翻译 IDbQueryable.Contains 语法</para>
         /// </summary>
         public string TableAliasName { get; set; }
 
-        ///// <summary>
-        ///// 保持生成的SQL是一行
-        ///// </summary>
-        //public bool KeepLine { get; set; }
+        /// <summary>
+        /// 表别名缓存
+        /// </summary>
+        public TableAliasCache TableAlias { get; set; }
     }
 }

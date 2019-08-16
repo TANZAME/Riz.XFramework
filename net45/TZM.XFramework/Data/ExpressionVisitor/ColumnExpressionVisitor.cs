@@ -94,25 +94,8 @@ namespace TZM.XFramework.Data
                 }
                 // Include 表达式解析<导航属性>
                 this.VisitInclude();
-
-                char[] chars = new char[Environment.NewLine.Length + 2];
-                for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];
-                chars[Environment.NewLine.Length] = ' ';
-                chars[Environment.NewLine.Length + 1] = ',';
-
-                int trim = 0;
-                int index = _builder.Length - 1;
-                while (index > 0)
-                {
-                    char @char = _builder[index];
-                    if (!chars.Contains(@char)) break;
-                    else
-                    {
-                        index--;
-                        trim++;
-                    }
-                }
-                if (trim > 0) _builder.Length -= trim;
+                // 修剪尾部的空白字符
+                ColumnExpressionVisitor.TrimBuilder(_builder);
             }
         }
 
@@ -274,17 +257,12 @@ namespace TZM.XFramework.Data
                     foreach (var kvp in NavMembers)
                     {
                         index += 1;
-                        if (index < NavMembers.Count && index > num)
+                        if (index < NavMembers.Count && index > num) alias = _aliases.GetNavigationTableAlias(kvp.Key);
+                        else
                         {
                             alias = _aliases.GetNavigationTableAlias(kvp.Key);
-                            //navKey = kvp.Key;
-                            //if (visitNavigation) AppendNullColumn(kvp.Value.Member, alias, navKey);
-                            continue;
+                            type = kvp.Value.Type;
                         }
-
-                        //navKey = kvp.Key;
-                        alias = _aliases.GetNavigationTableAlias(kvp.Key);
-                        type = kvp.Value.Type;
                     }
                 }
                 else
@@ -503,12 +481,7 @@ namespace TZM.XFramework.Data
                     Expression expression = chain[i];
                     memberExpression = expression as MemberExpression;
                     if (memberExpression == null) continue;
-                    //{
-                    //    keyName = expression.Type.Name;
-                    //    continue;
-                    //}
 
-                    //keyName = keyName + "." + memberExpression.Member.Name;
                     keyName = memberExpression.GetKeyWidthoutAnonymous(true);
                     if (!_navigations.ContainsKey(keyName))
                     {
@@ -596,6 +569,29 @@ namespace TZM.XFramework.Data
             }
 
             return num;
+        }
+
+        // 修剪SQL生成器以去掉尾部的空白部分
+        private static void TrimBuilder(ISqlBuilder builder)
+        {
+            char[] chars = new char[Environment.NewLine.Length + 2];
+            for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];
+            chars[Environment.NewLine.Length] = ' ';
+            chars[Environment.NewLine.Length + 1] = ',';
+
+            int trim = 0;
+            int index = builder.Length - 1;
+            while (index > 0)
+            {
+                char @char = builder[index];
+                if (!chars.Contains(@char)) break;
+                else
+                {
+                    index--;
+                    trim++;
+                }
+            }
+            if (trim > 0) builder.Length -= trim;
         }
 
         static Func<Expression, int> _typeFieldAggregator = exp =>

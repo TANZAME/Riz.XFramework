@@ -685,7 +685,7 @@ namespace TZM.XFramework.UnitTest
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
             where a.ClientId > 0
-            orderby a.ClientId, a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId
+            orderby a.ClientId, a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending
             select a;
             query = query
                 .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
