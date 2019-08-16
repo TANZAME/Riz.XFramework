@@ -203,9 +203,9 @@ namespace TZM.XFramework.Data
             if (update != null)
             {
                 var uQuery = new DbQueryableInfo_Update<TElement>();
-                ConstantExpression expression2 = update.Expressions != null ? update.Expressions[0] as ConstantExpression : null;
-                if (expression2 != null)
-                    uQuery.Entity = expression2.Value;
+                ConstantExpression constantExpression = update.Expressions != null ? update.Expressions[0] as ConstantExpression : null;
+                if (constantExpression != null)
+                    uQuery.Entity = constantExpression.Value;
                 else
                     uQuery.Expression = update.Expressions[0];
                 uQuery.SelectInfo = sQuery;
@@ -217,9 +217,9 @@ namespace TZM.XFramework.Data
             if (delete != null)
             {
                 var dQuery = new DbQueryableInfo_Delete<TElement>();
-                ConstantExpression expression2 = delete.Expressions != null ? delete.Expressions[0] as ConstantExpression : null;
-                if (expression2 != null)
-                    dQuery.Entity = expression2.Value;
+                ConstantExpression constantExpression = delete.Expressions != null ? delete.Expressions[0] as ConstantExpression : null;
+                if (constantExpression != null)
+                    dQuery.Entity = constantExpression.Value;
                 dQuery.SelectInfo = sQuery;
                 dQuery.SourceQuery = dbQuery;
                 return dQuery;
@@ -247,7 +247,7 @@ namespace TZM.XFramework.Data
                 // 如果有uion但是没分页，应去掉orderby子句
                 if (sQuery.Union.Count > 0 && !(sQuery.Take > 0 || sQuery.Skip > 0)) sQuery.OrderBy = new List<DbExpression>();
                 // 检查嵌套查询语义
-                sQuery = DbQueryParser.TryBuilOuter(sQuery);
+                sQuery = DbQueryParser.TryBuildOutQuery(sQuery);
                 sQuery.SourceQuery = dbQuery;
             }
 
@@ -290,7 +290,7 @@ namespace TZM.XFramework.Data
         }
 
         // 构造由一对多关系产生的嵌套查询
-        static DbQueryableInfo_Select<TElement> TryBuilOuter<TElement>(DbQueryableInfo_Select<TElement> sQuery)
+        static DbQueryableInfo_Select<TElement> TryBuildOutQuery<TElement>(DbQueryableInfo_Select<TElement> sQuery)
         {
             if (sQuery == null || sQuery.Select == null) return sQuery;
 
@@ -347,8 +347,7 @@ namespace TZM.XFramework.Data
                 {
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
                     // demo=> line 640
-                    bool newSelector = bindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call) ||
-                         newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call);
+                    bool newSelector = bindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call) || newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call);
                     if (newSelector)
                     {
                         // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
