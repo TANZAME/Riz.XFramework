@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者 单例
         /// </summary>
-        public static NpgDbQueryProvider Instance = new NpgDbQueryProvider();
+        public static NpgDbQueryProvider Instance = Singleton.Instance;
 
         /// <summary>
         /// 数据源类的提供程序实现的实例
@@ -131,10 +131,10 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> subQuery = sQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQuery.HasManyNavigation && subQuery != null && subQuery.Statis != null) sQuery = subQuery;
+            if (sQuery.HasManyNavigation && subQuery != null && subQuery.StatisExpression != null) sQuery = subQuery;
 
-            bool useStatis = sQuery.Statis != null;
-            bool useNesting = sQuery.HaveDistinct || sQuery.GroupBy != null || sQuery.Skip > 0 || sQuery.Take > 0;
+            bool useStatis = sQuery.StatisExpression != null;
+            bool useNesting = sQuery.HaveDistinct || sQuery.GroupByExpression != null || sQuery.Skip > 0 || sQuery.Take > 0;
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
@@ -158,7 +158,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy, alias0);
+                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.StatisExpression, sQuery.GroupByExpression, alias0);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -192,7 +192,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 如果有统计函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.Statis, sQuery.GroupBy);
+                var visitor2 = new StatisExpressionVisitor(this, aliases, sQuery.StatisExpression, sQuery.GroupByExpression);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
             }
@@ -246,30 +246,30 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, sQuery.Join);
+            ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, sQuery.Joins);
             visitor.Write(jf);
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, sQuery.Where);
+            visitor = new WhereExpressionVisitor(this, aliases, sQuery.WhereExpression);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(this, aliases, sQuery.GroupBy);
+            visitor = new GroupByExpressionVisitor(this, aliases, sQuery.GroupByExpression);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(this, aliases, sQuery.Having, sQuery.GroupBy);
+            visitor = new HavingExpressionVisitor(this, aliases, sQuery.HavingExpression, sQuery.GroupByExpression);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
-            if (sQuery.OrderBy.Count > 0 && useOrderBy)
+            if (sQuery.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(this, aliases, sQuery.OrderBy, sQuery.GroupBy);
+                visitor = new OrderByExpressionVisitor(this, aliases, sQuery.OrderBys, sQuery.GroupByExpression);
                 visitor.Write(wf);
                 cmd.AddNavMembers(visitor.NavMembers);
             }
@@ -300,10 +300,10 @@ namespace TZM.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (sQuery.HasManyNavigation && subQuery != null && subQuery.OrderBy.Count > 0 && subQuery.Statis == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQuery.HasManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 cmd.Convergence();
-                visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBy);//, null, "t0");
+                visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
 
@@ -312,15 +312,15 @@ namespace TZM.XFramework.Data.SqlClient
             #region 并集查询
 
             // UNION 子句
-            if (sQuery.Union != null && sQuery.Union.Count > 0)
+            if (sQuery.Unions != null && sQuery.Unions.Count > 0)
             {
                 cmd.Convergence();
-                for (int index = 0; index < sQuery.Union.Count; index++)
+                for (int index = 0; index < sQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ParseSelectCommandImpl<T>(sQuery.Union[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
+                    Command cmd2 = this.ParseSelectCommandImpl<T>(sQuery.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -511,10 +511,10 @@ namespace TZM.XFramework.Data.SqlClient
                 var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.DELETE, token);
                 cmd2.HasManyNavigation = dQuery.SelectInfo.HasManyNavigation;
 
-                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Join, NpgCommandType.DELETE);
+                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Joins, NpgCommandType.DELETE);
                 visitor0.Write(cmd2);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dQuery.SelectInfo.Where);
+                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dQuery.SelectInfo.WhereExpression);
                 visitor1.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor1.NavMembers);
                 builder.Append(cmd2.CommandText);
@@ -596,10 +596,10 @@ namespace TZM.XFramework.Data.SqlClient
                 var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.UPDATE, token);
                 cmd2.HasManyNavigation = uQuery.SelectInfo.HasManyNavigation;
 
-                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Join, NpgCommandType.UPDATE);
+                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Joins, NpgCommandType.UPDATE);
                 visitor0.Write(cmd2);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, uQuery.SelectInfo.Where);
+                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, uQuery.SelectInfo.WhereExpression);
                 visitor1.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor1.NavMembers);
                 builder.Append(cmd2.CommandText);
@@ -607,6 +607,17 @@ namespace TZM.XFramework.Data.SqlClient
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+        }
+
+        /// <summary>
+        /// 单例提供者
+        /// </summary>
+        class Singleton
+        {
+            /// <summary>
+            /// 查询语义提供者实例
+            /// </summary>
+            public static NpgDbQueryProvider Instance = new NpgDbQueryProvider();
         }
     }
 }

@@ -81,19 +81,19 @@ namespace TZM.XFramework.Data
             }
 
             // 解析查询语义
-            IDbQueryableInfo<T> info = DbQueryParser.Parse(dbQueryable);
+            IDbQueryableInfo<T> dbQueryInfo = DbQueryParser.Parse(dbQueryable);
 
-            DbQueryableInfo_Select<T> sQuery = info as DbQueryableInfo_Select<T>;
-            if (sQuery != null) return this.ParseSelectCommand<T>(sQuery, indent, isOuter, dbQueryable.Parameterized ? token : null);
+            DbQueryableInfo_Select<T> sQueryInfo = dbQueryInfo as DbQueryableInfo_Select<T>;
+            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, dbQueryable.Parameterized ? token : null);
 
-            DbQueryableInfo_Insert<T> nQuery = info as DbQueryableInfo_Insert<T>;
-            if (nQuery != null) return this.ParseInsertCommand<T>(nQuery, dbQueryable.Parameterized ? token : null);
+            DbQueryableInfo_Insert<T> nQueryInfo = dbQueryInfo as DbQueryableInfo_Insert<T>;
+            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, dbQueryable.Parameterized ? token : null);
 
-            DbQueryableInfo_Update<T> uQuery = info as DbQueryableInfo_Update<T>;
-            if (uQuery != null) return this.ParseUpdateCommand<T>(uQuery, dbQueryable.Parameterized ? token : null);
+            DbQueryableInfo_Update<T> uQueryInfo = dbQueryInfo as DbQueryableInfo_Update<T>;
+            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, dbQueryable.Parameterized ? token : null);
 
-            DbQueryableInfo_Delete<T> dQuery = info as DbQueryableInfo_Delete<T>;
-            if (dQuery != null) return this.ParseDeleteCommand<T>(dQuery, dbQueryable.Parameterized ? token : null);
+            DbQueryableInfo_Delete<T> dQueryInfo = dbQueryInfo as DbQueryableInfo_Delete<T>;
+            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, dbQueryable.Parameterized ? token : null);
 
             throw new NotImplementedException();
         }
@@ -195,8 +195,8 @@ namespace TZM.XFramework.Data
         // 获取 JOIN 子句关联表的的别名
         protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query, ParserToken token)
         {
-            TableAliasCache aliases = new TableAliasCache((query.Join != null ? query.Join.Count : 0) + 1, token != null ? token.TableAliasName : null);
-            foreach (DbExpression exp in query.Join)
+            TableAliasCache aliases = new TableAliasCache((query.Joins != null ? query.Joins.Count : 0) + 1, token != null ? token.TableAliasName : null);
+            foreach (DbExpression exp in query.Joins)
             {
                 // [INNER/LEFT JOIN]
                 if (exp.DbExpressionType == DbExpressionType.GroupJoin || exp.DbExpressionType == DbExpressionType.Join || exp.DbExpressionType == DbExpressionType.GroupRightJoin)

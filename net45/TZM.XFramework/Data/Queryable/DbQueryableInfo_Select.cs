@@ -9,45 +9,37 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class DbQueryableInfo_Select<T> : DbQueryableInfo<T>, IDbQueryableInfo_Select
     {
-        private List<DbExpression> _join = null;
-        private List<DbExpression> _orderBy = null;
-        private List<DbExpression> _include = null;
-        private DbExpression _groupBy = null;
+        private List<DbExpression> _joins = null;
+        private List<DbExpression> _orderBys = null;
+        private List<DbExpression> _includes = null;
+        private List<IDbQueryableInfo<T>> _unions = null;
+        private DbExpression _groupByExpression = null;
 
         /// <summary>
         /// JOIN 表达式集合
         /// </summary>
-        public List<DbExpression> Join
+        public List<DbExpression> Joins
         {
-            get { return _join; }
-            set { _join = value; }
+            get { return _joins; }
+            set { _joins = value; }
         }
 
         /// <summary>
         /// ORDER BY 表达式集合
         /// </summary>
-        public List<DbExpression> OrderBy
+        public List<DbExpression> OrderBys
         {
-            get { return _orderBy; }
-            set { _orderBy = value; }
+            get { return _orderBys; }
+            set { _orderBys = value; }
         }
 
         /// <summary>
         /// ORDER BY 表达式集合
         /// </summary>
-        public List<DbExpression> Include
+        public List<DbExpression> Includes
         {
-            get { return _include; }
-            set { _include = value; }
-        }
-
-        /// <summary>
-        /// GROUP BY 表达式集合
-        /// </summary>
-        public DbExpression GroupBy
-        {
-            get { return _groupBy; }
-            set { _groupBy = value; }
+            get { return _includes; }
+            set { _includes = value; }
         }
 
         /// <summary>
@@ -83,22 +75,31 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SELECT 字段表达式
         /// </summary>
-        public DbExpression Select { get; set; }
+        public DbExpression SelectExpression { get; set; }
 
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        public DbExpression Where { get; set; }
+        public DbExpression WhereExpression { get; set; }
 
         /// <summary>
         /// HAVING 表达式
         /// </summary>
-        public DbExpression Having { get; set; }
+        public DbExpression HavingExpression { get; set; }
 
         /// <summary>
         /// 统计函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
         /// </summary>
-        public DbExpression Statis { get; set; }
+        public DbExpression StatisExpression { get; set; }
+
+        /// <summary>
+        /// GROUP BY 表达式集合
+        /// </summary>
+        public DbExpression GroupByExpression
+        {
+            get { return _groupByExpression; }
+            set { _groupByExpression = value; }
+        }
 
         /// <summary>
         /// 嵌套查询语义
@@ -117,16 +118,21 @@ namespace TZM.XFramework.Data
         /// 注意，T 可能不是 参数T 所表示的类型
         /// </para>
         /// </summary>
-        public List<IDbQueryableInfo<T>> Union { get; set; }
+        public List<IDbQueryableInfo<T>> Unions
+        {
+            get { return _unions; }
+            set { _unions = value; }
+        }
 
         /// <summary>
         /// 初始化 <see cref="DbQueryableInfo_Select"/> 类的新实例
         /// </summary>
         public DbQueryableInfo_Select()
         {
-            _join = new List<DbExpression>();
-            _orderBy = new List<DbExpression>();
-            _include = new List<DbExpression>();
+            _joins = new List<DbExpression>(0);
+            _orderBys = new List<DbExpression>(0);
+            _includes = new List<DbExpression>(0);
+            _unions = new List<IDbQueryableInfo<T>>(0);
         }
     }
 }

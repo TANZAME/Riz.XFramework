@@ -12,22 +12,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// JOIN 表达式集合
         /// </summary>
-        List<DbExpression> Join { get; set; }
+        List<DbExpression> Joins { get; set; }
 
         /// <summary>
         /// ORDER BY 表达式集合
         /// </summary>
-        List<DbExpression> OrderBy { get; set; }
+        List<DbExpression> OrderBys { get; set; }
 
         /// <summary>
         /// ORDER BY 表达式集合
         /// </summary>
-        List<DbExpression> Include { get; set; }
+        List<DbExpression> Includes { get; set; }
 
         /// <summary>
         /// GROUP BY 表达式集合
         /// </summary>
-        DbExpression GroupBy { get; set; }
+        DbExpression GroupByExpression { get; set; }
 
         /// <summary>
         /// SQL 命令是否含 DISTINCT 
@@ -62,22 +62,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SELECT 字段表达式，空表示选取 <see cref="FromType"/> 的所有字段
         /// </summary>
-        DbExpression Select { get; set; }
+        DbExpression SelectExpression { get; set; }
 
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        DbExpression Where { get; set; }
+        DbExpression WhereExpression { get; set; }
 
         /// <summary>
         /// HAVING 表达式
         /// </summary>
-        DbExpression Having { get; set; }
+        DbExpression HavingExpression { get; set; }
 
         /// <summary>
         /// 统计函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
         /// </summary>
-        DbExpression Statis { get; set; }
+        DbExpression StatisExpression { get; set; }
         
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询

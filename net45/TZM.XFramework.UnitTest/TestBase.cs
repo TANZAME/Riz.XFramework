@@ -117,8 +117,8 @@ namespace TZM.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            var result5 = context.GetTable<TDemo>().Select<TDemo, dynamic>().ToList();
-            result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo");
+            var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
+            result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
@@ -542,6 +542,7 @@ namespace TZM.XFramework.UnitTest
                     }
                 };
             result = query.ToList();
+            result = query.OrderBy(a => a.ClientCode).ToList();
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -686,6 +687,20 @@ namespace TZM.XFramework.UnitTest
                 .Include(a => a.Accounts[0].Markets[0].Client)
             where a.ClientId > 0
             orderby a.ClientId, a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending
+            select a;
+            query = query
+                .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
+                .Skip(10)
+                .Take(20);
+            result = query.ToList();
+            query =
+            from a in context
+                .GetTable<Model.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets)
+                .Include(a => a.Accounts[0].Markets[0].Client)
+            where a.ClientId > 0
+            orderby a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending,a.ClientId
             select a;
             query = query
                 .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
@@ -958,9 +973,9 @@ namespace TZM.XFramework.UnitTest
             }
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q1 = context.GetTable<Model.Client>().Where(x => x.ClientId == 0);
-            var q2 = context.GetTable<Model.Client>().Where(x => x.ClientId == 0);
-            var q3 = context.GetTable<Model.Client>().Where(x => x.ClientId == 0);
+            var q1 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
+            var q2 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
+            var q3 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
             var query6 = q1.Union(q2).Union(q3);
             var result6 = query6.ToList();
             result6 = query6.Take(2).ToList();
@@ -993,6 +1008,19 @@ namespace TZM.XFramework.UnitTest
             //...
             //FROM[Bas_Client] t0
             //WHERE t0.[ClientId] = 1
+
+            // UNION 注意UNION分页的写法，仅支持写在最后
+            var q4 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10).AsSubQuery();//.OrderBy(x => x.ClientName)
+            var q5 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(5).AsSubQuery();
+            var q6 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(1).Take(2).AsSubQuery();
+            query6 = q4.Union(q5).Union(q6);
+            result6 = query6.ToList();
+            result6 = query6.Take(2).ToList();
+            result6 = query6.OrderBy(a => a.ClientId).Skip(2).ToList();
+            query6 = query6.Take(2);
+            result6 = query6.ToList();
+            query6 = query6.OrderBy(a => a.ClientId).Skip(1).Take(2);
+            result6 = query6.ToList();
 
             // Any
             var isAny = context.GetTable<Model.Client>().Any();
@@ -1102,6 +1130,7 @@ namespace TZM.XFramework.UnitTest
                   from b in u_c.DefaultIfEmpty()
                   select a;
             query = query.OrderBy(a => a.ClientId).Skip(10).Take(10).AsSubQuery();
+            result = query.ToList();
             query = from a in query
                     join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
                     select a;
