@@ -183,36 +183,7 @@ namespace TZM.XFramework.Data
         public virtual IDbDataParameter CreateParameter(string name, object value,
             DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            IDbDataParameter parameter = this.DbProviderFactory.CreateParameter();
-            parameter.ParameterName = name;
-            parameter.Value = value;
-
-            if (dbType != null) parameter.DbType = dbType.Value;
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-            if (direction != null) parameter.Direction = direction.Value;
-            else parameter.Direction = ParameterDirection.Input;
-
-            // 补充字符串的长度
-            if (value != null && value.GetType() == typeof(string) && size == null)
-            {
-                string s = value.ToString();
-                if (dbType == null) parameter.DbType = DbType.String;
-                if (parameter.DbType == DbType.String || parameter.DbType == DbType.StringFixedLength ||
-                    parameter.DbType == DbType.AnsiString || parameter.DbType == DbType.AnsiStringFixedLength)
-                {
-                    if (s.Length <= 256) parameter.Size = 256;
-                    else if (s.Length <= 512) parameter.Size = 512;
-                    else if (s.Length <= 1024) parameter.Size = 1024;
-                    else if (s.Length <= 4000) parameter.Size = 4000;
-                    else if (s.Length <= 8000) parameter.Size = 8000;
-                    else parameter.Size = -1;
-                }
-            }
-
-            // 返回创建的参数
-            return parameter;
+            return this.DbProviderFactory.CreateParameter(name, value, dbType, size, precision, scale, direction);
         }
 
         /// <summary>
@@ -523,7 +494,7 @@ namespace TZM.XFramework.Data
 
                             break;
 
-                        #endregion
+                            #endregion
                     }
                 }
                 while (reader.NextResult());

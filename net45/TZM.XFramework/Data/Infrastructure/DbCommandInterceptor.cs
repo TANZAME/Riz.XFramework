@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public DbCommandInterceptor()
         {
- 
+
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 前
         /// </summary>
-        public void OnDbCommandExecuting(IDbCommand command)
+        public virtual void OnDbCommandExecuting(IDbCommand command)
         {
             if (this.OnExecuting != null) this.OnExecuting(command);
         }
@@ -43,7 +43,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 后
         /// </summary>
-        public void OnDbCommandExecuted(IDbCommand command)
+        public virtual void OnDbCommandExecuted(IDbCommand command)
         {
             if (this.OnExecuted != null) this.OnExecuted(command);
         }
@@ -51,7 +51,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 异常
         /// </summary>
-        public void OnDbCommandException(DbCommandException e)
+        public virtual void OnDbCommandException(DbCommandException e)
         {
             if (this.OnException != null) this.OnException(e);
         }

@@ -250,6 +250,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database.cs">
       <Link>Data\Infrastructure\Database.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DataExtensions.cs">
+      <Link>Data\Infrastructure\DataExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbCommandException.cs">
       <Link>Data\Infrastructure\DbCommandException.cs</Link>
     </Compile>
