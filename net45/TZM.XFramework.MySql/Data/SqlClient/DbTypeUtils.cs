@@ -19,9 +19,12 @@ namespace TZM.XFramework.Data
         {
             if (dbType != null)
             {
-                if (dbType is DbType) parameter.DbType = (DbType)dbType;
-                else if (dbType is MySqlDbType) parameter.MySqlDbType = (MySqlDbType)dbType;
-                else DbTypeUtils.ThrowException(dbType);
+                if (dbType is DbType)
+                    parameter.DbType = (DbType)dbType;
+                else if (dbType is MySqlDbType)
+                    parameter.MySqlDbType = (MySqlDbType)dbType;
+                else
+                    DbTypeUtils.ThrowException(dbType);
             }
         }
 
@@ -30,10 +33,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsTime(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.Time;
-            else if (dbType is MySqlDbType) return ((MySqlDbType)dbType) == MySqlDbType.Time;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.Time;
+            else if (dbType is MySqlDbType)
+                return ((MySqlDbType)dbType) == MySqlDbType.Time;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -41,10 +48,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDate(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.Date;
-            else if (dbType is MySqlDbType) return ((MySqlDbType)dbType) == MySqlDbType.Date;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.Date;
+            else if (dbType is MySqlDbType)
+                return ((MySqlDbType)dbType) == MySqlDbType.Date;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -52,10 +63,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDateTime(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTime;
-            else if (dbType is MySqlDbType) return ((MySqlDbType)dbType) == MySqlDbType.DateTime;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.DateTime;
+            else if (dbType is MySqlDbType)
+                return ((MySqlDbType)dbType) == MySqlDbType.DateTime;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>

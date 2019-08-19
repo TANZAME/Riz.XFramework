@@ -18,9 +18,12 @@ namespace TZM.XFramework.Data
         {
             if (dbType != null)
             {
-                if (dbType is DbType) parameter.DbType = (DbType)dbType;
-                else if (dbType is SqlDbType) parameter.SqlDbType = (SqlDbType)dbType;
-                else DbTypeUtils.ThrowException(dbType);
+                if (dbType is DbType)
+                    parameter.DbType = (DbType)dbType;
+                else if (dbType is SqlDbType)
+                    parameter.SqlDbType = (SqlDbType)dbType;
+                else
+                    DbTypeUtils.ThrowException(dbType);
             }
         }
 
@@ -29,10 +32,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsTime(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.Time;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.Time;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.Time;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.Time;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -40,10 +47,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDate(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.Date;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.Date;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.Date;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.Date;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -51,10 +62,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDateTime(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTime;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.DateTime;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.DateTime;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.DateTime;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -62,10 +77,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDateTime2(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTime2;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.DateTime2;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.DateTime2;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.DateTime2;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -73,10 +92,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDateTimeOffset(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTimeOffset;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.DateTimeOffset;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.DateTimeOffset;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.DateTimeOffset;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -84,10 +107,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsUnicode(object dbType)
         {
-            if (dbType == null) return false;
-            else if (dbType is DbType) return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
-            else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.NVarChar || ((SqlDbType)dbType) == SqlDbType.NChar || ((SqlDbType)dbType) == SqlDbType.NText;
-            else return DbTypeUtils.ThrowException(dbType);
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
+            else if (dbType is SqlDbType)
+                return ((SqlDbType)dbType) == SqlDbType.NVarChar || ((SqlDbType)dbType) == SqlDbType.NChar || ((SqlDbType)dbType) == SqlDbType.NText;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         // 抛出异常
