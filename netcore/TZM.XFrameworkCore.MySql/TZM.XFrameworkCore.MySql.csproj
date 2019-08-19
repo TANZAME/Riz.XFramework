@@ -29,10 +29,10 @@
 
 
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs" Link="Data\SqlClient\MySqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbTypeInfo.cs" Link="Data\SqlClient\MySqlDbTypeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
   </ItemGroup>
 

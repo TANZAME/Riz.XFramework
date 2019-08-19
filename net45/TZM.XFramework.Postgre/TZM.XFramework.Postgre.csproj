@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
-    <Compile Include="Data\SqlClient\NpgDbTypeInfo.cs" />
+    <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\NpgDbContext.cs" />
     <Compile Include="Data\TypeDeserialize\NpgCommandType.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" />

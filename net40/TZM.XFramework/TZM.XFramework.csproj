@@ -262,9 +262,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbInterception.cs">
       <Link>Data\Infrastructure\DbInterception.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbTypeInfo.cs">
-      <Link>Data\Infrastructure\DbTypeInfo.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
       <Link>Data\Infrastructure\IDatabase.cs</Link>
     </Compile>
@@ -319,6 +316,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\IDbQueryableInfo`1.cs">
       <Link>Data\Queryable\IDbQueryableInfo`1.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlBuilder.cs">
       <Link>Data\SqlClient\SqlBuilder.cs</Link>
     </Compile>
@@ -327,9 +327,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbQueryProvider.cs">
       <Link>Data\SqlClient\SqlDbQueryProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbTypeInfo.cs">
-      <Link>Data\SqlClient\SqlDbTypeInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\SqlMethodCallExressionVisitor.cs</Link>

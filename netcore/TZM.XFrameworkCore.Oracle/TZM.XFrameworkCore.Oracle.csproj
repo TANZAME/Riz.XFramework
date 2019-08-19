@@ -35,9 +35,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs" Link="Data\Infrastructure\OracleDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase45.cs" Link="Data\Infrastructure\OracleDatabase45.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs" Link="Data\SqlClient\OracleDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbQueryProvider.cs" Link="Data\SqlClient\OracleDbQueryProvider.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbTypeInfo.cs" Link="Data\SqlClient\OracleDbTypeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs" Link="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleInsertCommand.cs" Link="Data\TypeDeserialize\OracleInsertCommand.cs" />

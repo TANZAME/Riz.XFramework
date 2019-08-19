@@ -26,19 +26,15 @@ namespace TZM.XFramework.Data.SqlClient
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             SqlParameter parameter = (SqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
-
             // 补充 DbType
-            SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
-            if (dbTypeInfo != null && dbTypeInfo.DbType != null)
-            {
-                parameter.DbType = dbTypeInfo.DbType.Value;
-                if (dbTypeInfo.DbType.Value == DbType.Time) parameter.SqlDbType = SqlDbType.Time;
-            }
-            else if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.SqlDbType = dbTypeInfo.SqlDbType.Value;
-
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
+            parameter.SetDbType(dbType);
+            //SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
+            //if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.SqlDbType = dbTypeInfo.SqlDbType.Value;
+            //else if (dbTypeInfo != null && dbTypeInfo.DbType != null)
+            //{
+            //    parameter.DbType = dbTypeInfo.DbType.Value;
+            //    if (dbTypeInfo.DbType.Value == DbType.Time) parameter.SqlDbType = SqlDbType.Time;
+            //}
 
             return parameter;
         }
@@ -46,7 +42,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
-            bool unicode = SqlDbTypeInfo.IsUnicode2(dbType);
+            bool unicode = DbTypeUtils.IsUnicode(dbType);
             string result = this.EscapeQuote(value.ToString(), unicode, true);
             return result;
         }
@@ -56,9 +52,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             // 默认精度为7
             string format = @"hh\:mm\:ss\.fffffff";
-            SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsTime)
+            if (DbTypeUtils.IsTime(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
@@ -74,11 +68,9 @@ namespace TZM.XFramework.Data.SqlClient
         {
             // 默认精度为3
             string format = "yyyy-MM-dd HH:mm:ss.fff";
-            SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsDate) format = "yyyy-MM-dd";
-            else if (dbTypeInfo != null && dbTypeInfo.IsDateTime) format = "yyyy-MM-dd HH:mm:ss.fff";
-            else if (dbTypeInfo != null && dbTypeInfo.IsDateTime2)
+            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (DbTypeUtils.IsDateTime(dbType)) format = "yyyy-MM-dd HH:mm:ss.fff";
+            else if (DbTypeUtils.IsDateTime2(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
@@ -97,9 +89,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             // 默认精度为7
             string format = "yyyy-MM-dd HH:mm:ss.fffffff";
-            SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsDateTimeOffset)
+            if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');

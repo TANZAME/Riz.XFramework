@@ -106,7 +106,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             public virtual string DemoNText_Nullable { get; set; }
 
             /// <summary>
-            /// demolong_nullable
+            /// DateTimeOffset 类型，映射到 .NET DateTime类型
             /// </summary>
             [Column(DbType = OracleDbType.TimeStampTZ, Scale = 4)]
             public virtual Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }

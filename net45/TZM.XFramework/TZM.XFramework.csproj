@@ -141,11 +141,10 @@
     <Compile Include="Data\Annotation\ColumnAttribute.cs" />
     <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="Data\Annotation\TableAttribute.cs" />
-    <Compile Include="Data\Infrastructure\DbTypeInfo.cs" />
     <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
+    <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\SqlBuilder.cs" />
     <Compile Include="Data\SqlClient\SqlDbContext.cs" />
-    <Compile Include="Data\SqlClient\SqlDbTypeInfo.cs" />
     <Compile Include="Data\TypeDeserialize\Column.cs" />
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />

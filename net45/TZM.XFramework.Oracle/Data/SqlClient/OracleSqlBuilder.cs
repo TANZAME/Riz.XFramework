@@ -47,23 +47,15 @@ namespace TZM.XFramework.Data
             //}
 
             OracleParameter parameter = (OracleParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
-
             // 补充 DbType
-            OracleDbTypeInfo dbTypeInfo = OracleDbTypeInfo.Create(dbType);
-            if (dbTypeInfo != null && dbTypeInfo.DbType != null) parameter.DbType = dbTypeInfo.DbType.Value;
-            else if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.OracleDbType = dbTypeInfo.SqlDbType.Value;
-
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-
+            parameter.SetDbType(dbType);
             return parameter;
         }
 
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
-            bool unicode = OracleDbTypeInfo.IsUnicode2(dbType);
+            bool unicode = DbTypeUtils.IsUnicode(dbType);
             string result = this.EscapeQuote(value.ToString(), unicode, true);
             return result;
         }
@@ -73,7 +65,8 @@ namespace TZM.XFramework.Data
         {
             // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/nlspg/datetime-data-types-and-time-zone-support.html#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
             // throw new NotImplementedException("Oracle [Time] must map to .NET [DateTime] type.");
-            throw new NotSupportedException("Oracle does not support Time type.");
+            DbTypeUtils.IsTime(dbType);
+            return null;
         }
 
         /// <summary>
@@ -83,10 +76,9 @@ namespace TZM.XFramework.Data
         {
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss";
-            OracleDbTypeInfo dbTypeInfo = OracleDbTypeInfo.Create(dbType);
             bool isTimestamp = false;
 
-            if (dbTypeInfo != null && (dbTypeInfo.IsDateTime || dbTypeInfo.IsDateTime2))
+            if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
                 format = "yyyy-MM-dd HH:mm:ss.ffffff";
                 isTimestamp = true;
@@ -105,7 +97,8 @@ namespace TZM.XFramework.Data
         // 获取 DateTimeOffset 类型的 SQL 片断
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
         {
-            throw new NotSupportedException("Oracle does not support DateTimeOffset type.");
+            DbTypeUtils.IsDateTimeOffset(dbType);
+            return null;
             //string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             //_OracleDbType dbTypeInfo = _OracleDbType.Create(dbType);
 

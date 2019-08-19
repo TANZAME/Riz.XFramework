@@ -37,16 +37,8 @@ namespace TZM.XFramework.Data
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             NpgsqlParameter parameter = (NpgsqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
-
             // 补充 DbType
-            NpgDbTypeInfo dbTypeInfo = NpgDbTypeInfo.Create(dbType);
-            if (dbTypeInfo != null && dbTypeInfo.DbType != null) parameter.DbType = dbTypeInfo.DbType.Value;
-            else if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.NpgsqlDbType = dbTypeInfo.SqlDbType.Value;
-
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-
+            parameter.SetDbType(dbType);
             return parameter;
         }
 
@@ -60,12 +52,9 @@ namespace TZM.XFramework.Data
         // 获取 Time 类型的 SQL 片断
         protected override string GetSqlValueByTime(object value, object dbType, int? precision)
         {
-#if netcore
             // 默认精度6
             string format = @"hh\:mm\:ss\.ffffff";
-            NpgDbTypeInfo dbTypeInfo = NpgDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsTime)
+            if (DbTypeUtils.IsTime(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
@@ -74,11 +63,6 @@ namespace TZM.XFramework.Data
 
             string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
             return result;
-#endif
-
-#if !netcore
-            throw new NotSupportedException("Oracle does not support Time type.");
-#endif
         }
 
         // 获取 DatetTime 类型的 SQL 片断
@@ -86,10 +70,8 @@ namespace TZM.XFramework.Data
         {
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss.ffffff";
-            NpgDbTypeInfo dbTypeInfo = NpgDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsDate) format = "yyyy-MM-dd";
-            else if (dbTypeInfo != null && (dbTypeInfo.IsDateTime || dbTypeInfo.IsDateTime2))
+            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
@@ -105,9 +87,7 @@ namespace TZM.XFramework.Data
         {
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss.ffffff";
-            NpgDbTypeInfo dbTypeInfo = NpgDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsDateTimeOffset)
+            if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');

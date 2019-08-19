@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override bool IsUnicode(object dbType)
         {
-            return dbType == null ? true : SqlDbTypeInfo.Create(dbType).IsUnicode;
+            return DbTypeUtils.IsUnicode(dbType);
         }
     }
 }

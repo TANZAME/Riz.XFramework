@@ -65,14 +65,14 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs">
       <Link>Data\Infrastructure\OracleDatabase.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs">
       <Link>Data\SqlClient\OracleDbContext.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbQueryProvider.cs">
       <Link>Data\SqlClient\OracleDbQueryProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbTypeInfo.cs">
-      <Link>Data\SqlClient\OracleDbTypeInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\OracleMethodCallExressionVisitor.cs</Link>

@@ -464,35 +464,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            string parameterName = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Token.Parameters.Count);
-
-            IDbDataParameter parameter = _provider.DbProviderFactory.CreateParameter();
-            parameter.ParameterName = parameterName;
-            parameter.Value = value;
-
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-            if (direction != null) parameter.Direction = direction.Value;
-            else parameter.Direction = ParameterDirection.Input;
-
-            // 补充字符串的长度
-            if (value != null && value.GetType() == typeof(string) && size == null)
-            {
-                string s = value.ToString();
-                if (dbType == null) parameter.DbType = DbType.String;
-                if (parameter.DbType == DbType.String || parameter.DbType == DbType.StringFixedLength ||
-                    parameter.DbType == DbType.AnsiString || parameter.DbType == DbType.AnsiStringFixedLength)
-                {
-                    if (s.Length <= 256) parameter.Size = 256;
-                    else if (s.Length <= 512) parameter.Size = 512;
-                    else if (s.Length <= 1024) parameter.Size = 1024;
-                    else if (s.Length <= 4000) parameter.Size = 4000;
-                    else if (s.Length <= 8000) parameter.Size = 8000;
-                    else parameter.Size = -1;
-                }
-            }
-
+            string name = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Token.Parameters.Count);
+            var parameter = _provider.DbProviderFactory.CreateParameter(name, value, null, size, precision, scale, direction);
             this.Token.Parameters.Add(parameter);
             return parameter;
         }

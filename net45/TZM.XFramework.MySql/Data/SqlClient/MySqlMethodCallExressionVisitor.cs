@@ -244,7 +244,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override bool IsUnicode(object dbType)
         {
-            return false;
+            return DbTypeUtils.IsUnicode(dbType);
         }
 
         /// <summary>

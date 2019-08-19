@@ -33,16 +33,8 @@ namespace TZM.XFramework.Data
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             MySqlParameter parameter = (MySqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
-
             // 补充 DbType
-            MySqlDbTypeInfo dbTypeInfo = MySqlDbTypeInfo.Create(dbType);
-            if (dbTypeInfo != null && dbTypeInfo.DbType != null) parameter.DbType = dbTypeInfo.DbType.Value;
-            else if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.MySqlDbType = dbTypeInfo.SqlDbType.Value;
-
-            if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
-            if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
-            if (scale != null && scale.Value > 0) parameter.Scale = (byte)scale.Value;
-
+            parameter.SetDbType(dbType);
             return parameter;
         }
 
@@ -66,10 +58,8 @@ namespace TZM.XFramework.Data
         {
             // 默认精度为0
             string format = "yyyy-MM-dd HH:mm:ss";
-            MySqlDbTypeInfo dbTypeInfo = MySqlDbTypeInfo.Create(dbType);
-
-            if (dbTypeInfo != null && dbTypeInfo.IsDate) format = "yyyy-MM-dd";
-            else if (dbTypeInfo != null && (dbTypeInfo.IsDateTime || dbTypeInfo.IsDateTime2))
+            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
                 string pad = string.Empty;
                 if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
@@ -83,7 +73,8 @@ namespace TZM.XFramework.Data
         // 获取 DateTimeOffset 类型的 SQL 片断
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision = null)
         {
-            throw new NotSupportedException("MySQL does not support DateTimeOffset type.");
+            DbTypeUtils.IsDateTimeOffset(dbType);
+            return null;
         }
     }
 }

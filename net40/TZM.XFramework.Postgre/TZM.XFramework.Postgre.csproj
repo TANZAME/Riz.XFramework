@@ -60,14 +60,14 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbContext.cs">
       <Link>Data\SqlClient\NpgDbContext.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs">
       <Link>Data\SqlClient\NpgDbQueryProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbTypeInfo.cs">
-      <Link>Data\SqlClient\NpgDbTypeInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\NpgMethodCallExressionVisitor.cs</Link>
