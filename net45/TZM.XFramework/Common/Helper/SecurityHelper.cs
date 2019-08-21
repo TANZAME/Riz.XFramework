@@ -46,7 +46,9 @@ namespace TZM.XFramework
                     {
                         cs.Write(buffer, 0, buffer.Length);
                         cs.FlushFinalBlock();
-                        return Encoding.UTF8.GetString(ms.ToArray());
+                        string result = Encoding.UTF8.GetString(ms.ToArray());
+                        //p = p.Replace("\0", ""); // php~去掉这些空白字符.
+                        return result;
                     }
                 }
             }
