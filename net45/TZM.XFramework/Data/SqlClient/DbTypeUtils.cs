@@ -84,7 +84,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsUnicode(object dbType)
         {
-            if (dbType == null) return false;
+            // 默认加 N
+            if (dbType == null) return true;
             else if (dbType is DbType) return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
             else if (dbType is SqlDbType) return ((SqlDbType)dbType) == SqlDbType.NVarChar || ((SqlDbType)dbType) == SqlDbType.NChar || ((SqlDbType)dbType) == SqlDbType.NText;
             else return DbTypeUtils.ThrowException(dbType);

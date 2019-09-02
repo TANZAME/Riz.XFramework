@@ -83,7 +83,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsUnicode(object dbType)
         {
-            if (dbType == null) return false;
+            if (dbType == null) return true;
             else if (dbType is DbType) return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
             else if (dbType is OracleDbType) return ((OracleDbType)dbType) == OracleDbType.NVarchar2 || ((OracleDbType)dbType) == OracleDbType.NChar || ((OracleDbType)dbType) == OracleDbType.NClob;
             else return DbTypeUtils.ThrowException(dbType);
