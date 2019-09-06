@@ -100,10 +100,10 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryParser.cs" Link="Data\Genaration\DbQueryParser.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryProvider.cs" Link="Data\Genaration\DbQueryProvider.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs" Link="Data\Genaration\IDbQueryProvider.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ISqlBuilder.cs" Link="Data\Genaration\ISqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ITextBuilder.cs" Link="Data\Genaration\ITextBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ParserToken.cs" Link="Data\Genaration\ParserToken.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilderBase.cs" Link="Data\Genaration\SqlBuilderBase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs" Link="Data\Genaration\TableAliasCache.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs" Link="Data\Genaration\TextBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs" Link="Data\Infrastructure\Constant.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database.cs" Link="Data\Infrastructure\Database.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database45.cs" Link="Data\Infrastructure\Database45.cs" />

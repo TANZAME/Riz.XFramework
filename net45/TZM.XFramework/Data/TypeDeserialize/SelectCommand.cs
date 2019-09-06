@@ -12,8 +12,8 @@ namespace TZM.XFramework.Data
     {
         private bool _hasManyNavigation = false;
         private bool _convergence = false;
-        private ISqlBuilder _joinFragment = null;
-        private ISqlBuilder _whereFragment = null;
+        private ITextBuilder _joinFragment = null;
+        private ITextBuilder _whereFragment = null;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
         private IDictionary<string, MemberExpression> _navMembers = null;
@@ -76,12 +76,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// JOIN（含） 之前的片断
         /// </summary>
-        public virtual ISqlBuilder JoinFragment { get { return _joinFragment; } }
+        public virtual ITextBuilder JoinFragment { get { return _joinFragment; } }
 
         /// <summary>
         /// Where 之后的片断
         /// </summary>
-        public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
+        public virtual ITextBuilder WhereFragment { get { return _whereFragment; } }
 
         /// <summary>
         /// 实例化 <see cref="SelectCommand"/> 类的新实例
@@ -122,7 +122,7 @@ namespace TZM.XFramework.Data
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
             if (this.HasManyNavigation) _aliases = new TableAliasCache(_aliases.Declared);
             //开始产生LEFT JOIN 子句
-            ISqlBuilder builder = this.JoinFragment;
+            ITextBuilder builder = this.JoinFragment;
             foreach (var kvp in _navMembers)
             {
                 string key = kvp.Key;

@@ -9,10 +9,10 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 语句建造器
     /// </summary>
-    public interface ISqlBuilder
+    public interface ITextBuilder
     {
         /// <summary>
-        /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。
+        /// 获取或设置当前 <see cref="ITextBuilder"/> 对象的长度。
         /// </summary>
         int Length { get; set; }
 
@@ -55,7 +55,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 追加列名
         /// </summary>
-        ISqlBuilder AppendMember(string alias, string name);
+        ITextBuilder AppendMember(string alias, string name);
 
         /// <summary>
         /// 追加成员名称
@@ -63,77 +63,77 @@ namespace TZM.XFramework.Data
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        ISqlBuilder AppendMember(string name, bool quote = true);
+        ITextBuilder AppendMember(string name, bool quote = true);
 
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        ISqlBuilder AppendAs(string name);
+        ITextBuilder AppendAs(string name);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(string value);
+        ITextBuilder Append(string value);
 
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        ISqlBuilder Insert(int index, string value);
+        ITextBuilder Insert(int index, string value);
 
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        ISqlBuilder Insert(int index, object value);
+        ITextBuilder Insert(int index, object value);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(int value);
+        ITextBuilder Append(int value);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(char value);
+        ITextBuilder Append(char value);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(object value);
+        ITextBuilder Append(object value);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(object value, MemberExpression m);
+        ITextBuilder Append(object value, MemberExpression m);
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(object value, MemberInfo m, Type declareType);
+        ITextBuilder Append(object value, MemberInfo m, Type declareType);
 
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        ISqlBuilder AppendNewLine();
+        ITextBuilder AppendNewLine();
 
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        ISqlBuilder AppendNewLine(string value);
+        ITextBuilder AppendNewLine(string value);
 
         /// <summary>
         /// 将通过处理复合格式字符串（包含零个或零个以上格式项）返回的字符串追加到此实例。每个格式项都替换为形参数组中相应实参的字符串表示形式。
         /// </summary>
-        ISqlBuilder AppendFormat(string value, params object[] args);
+        ITextBuilder AppendFormat(string value, params object[] args);
 
         /// <summary>
         /// 在此实例的结尾追加制表符
         /// </summary>
-        ISqlBuilder AppendNewTab();
+        ITextBuilder AppendNewTab();
 
         /// <summary>
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。
         /// </summary>
-        ISqlBuilder Replace(string oldValue, string newValue);
+        ITextBuilder Replace(string oldValue, string newValue);
 
         /// <summary>
         /// 生成 value 对应的 SQL 片断

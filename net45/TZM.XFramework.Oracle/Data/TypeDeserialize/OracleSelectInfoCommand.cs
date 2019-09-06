@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public sealed class OracleSelectInfoCommand : SelectCommand
     {
-        private ISqlBuilder _onPhrase = null;
+        private ITextBuilder _onPhrase = null;
         private bool _convergence = false;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性的Join 表达式的 ON 子句
         /// </summary>
-        public ISqlBuilder OnPhrase
+        public ITextBuilder OnPhrase
         {
             get { return _onPhrase; }
         }

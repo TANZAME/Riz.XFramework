@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL 构造器
         /// </summary>
-        protected ISqlBuilder _builder = null;
+        protected ITextBuilder _builder = null;
 
         /// <summary>
         /// 方法解析器
@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 即将解析的表达式
         /// </summary>
-        public ISqlBuilder SqlBuilder
+        public ITextBuilder SqlBuilder
         {
             get { return _builder; }
         }
@@ -102,7 +102,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public virtual void Write(ISqlBuilder builder)
+        public virtual void Write(ITextBuilder builder)
         {
             _builder = builder;
             if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodCallVisitor(this);

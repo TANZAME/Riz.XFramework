@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void SetDbType(this MySqlParameter parameter, object dbType)
+        public static void PrepareDbType(this MySqlParameter parameter, object dbType)
         {
             if (dbType != null)
             {
@@ -49,21 +49,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 是否日期+时间类型
+        /// <para>
+        /// DateTime OR Timestamp
+        /// </para>
         /// </summary>
         public static bool IsDateTime(object dbType)
         {
             if (dbType == null) return false;
             else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTime;
-            else if (dbType is MySqlDbType) return ((MySqlDbType)dbType) == MySqlDbType.DateTime;
+            else if (dbType is MySqlDbType) return ((MySqlDbType)dbType) == MySqlDbType.DateTime || ((MySqlDbType)dbType) == MySqlDbType.Timestamp;
             else return DbTypeUtils.ThrowException(dbType);
-        }
-
-        /// <summary>
-        /// 是否日期+时间+精度类型
-        /// </summary>
-        public static bool IsDateTime2(object dbType)
-        {
-            return DbTypeUtils.IsDateTime(dbType);
         }
 
         /// <summary>

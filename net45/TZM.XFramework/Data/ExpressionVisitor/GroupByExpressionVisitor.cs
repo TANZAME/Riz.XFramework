@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ISqlBuilder builder)
+        public override void Write(ITextBuilder builder)
         {
             if (base.Expression != null)
             {

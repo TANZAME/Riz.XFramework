@@ -27,7 +27,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ISqlBuilder builder)
+        public override void Write(ITextBuilder builder)
         {
             base._builder = builder;
             if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data
             }
         }
 
-        private void AppendJoinType(ISqlBuilder builder, JoinType joinType)
+        private void AppendJoinType(ITextBuilder builder, JoinType joinType)
         {
             switch (joinType)
             {
@@ -73,7 +73,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
+        private void AppendLfInJoin(ITextBuilder builder, DbExpression exp, TableAliasCache aliases)
         {
             builder.Append(' ');
             IDbQueryable sQuery = (IDbQueryable)((exp.Expressions[0] as ConstantExpression).Value);
@@ -143,7 +143,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
+        private void AppendCrossJoin(ITextBuilder builder, DbExpression exp, TableAliasCache aliases)
         {
             LambdaExpression lambdaExp = exp.Expressions[1] as LambdaExpression;
             Type type = lambdaExp.Parameters[1].Type;

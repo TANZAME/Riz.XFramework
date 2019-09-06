@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL构造器
         /// </summary>
-        public override void Write(ISqlBuilder builder)
+        public override void Write(ITextBuilder builder)
         {
             if (builder.Length > 0 && _expression != null) builder.Append(" AND ");
             base.WriteImpl(builder);

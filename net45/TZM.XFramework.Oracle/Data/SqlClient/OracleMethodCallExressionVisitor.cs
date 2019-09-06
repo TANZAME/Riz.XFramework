@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public class OracleMethodCallExressionVisitor : MethodCallExressionVisitor
     {
-        private ISqlBuilder _builder = null;
+        private ITextBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
