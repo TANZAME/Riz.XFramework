@@ -232,17 +232,17 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs">
       <Link>Data\Genaration\IDbQueryProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ISqlBuilder.cs">
-      <Link>Data\Genaration\ISqlBuilder.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ITextBuilder.cs">
+      <Link>Data\Genaration\ITextBuilder.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ParserToken.cs">
       <Link>Data\Genaration\ParserToken.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilderBase.cs">
-      <Link>Data\Genaration\SqlBuilderBase.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs">
       <Link>Data\Genaration\TableAliasCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs">
+      <Link>Data\Genaration\TextBuilder.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
       <Link>Data\Infrastructure\Constant.cs</Link>

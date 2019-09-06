@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public sealed class NpgSelectInfoCommand : SelectCommand
     {
-        private ISqlBuilder _onPhrase = null;
+        private ITextBuilder _onPhrase = null;
         private bool _convergence = false;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性的Join 表达式的 ON 子句，拼在 WHERE 后面
         /// </summary>
-        public ISqlBuilder OnPhrase
+        public ITextBuilder OnPhrase
         {
             get { return _onPhrase; }
         }
@@ -71,7 +71,7 @@ namespace TZM.XFramework.Data
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
             if (this.HasManyNavigation) _aliases = new TableAliasCache(_aliases.Declared);
             //开始产生 USING 子句
-            ISqlBuilder jf = this.JoinFragment;
+            ITextBuilder jf = this.JoinFragment;
             int index = -1;
             // 未生成USING子句
             if (_aliases.Declared <= 1)

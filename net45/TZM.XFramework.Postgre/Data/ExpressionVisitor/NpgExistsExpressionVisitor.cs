@@ -34,9 +34,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Write(NpgSelectInfoCommand cmd)
         {
-            ISqlBuilder jf = cmd.JoinFragment;
-            ISqlBuilder on = cmd.OnPhrase;
-            ISqlBuilder wf = cmd.WhereFragment;
+            ITextBuilder jf = cmd.JoinFragment;
+            ITextBuilder on = cmd.OnPhrase;
+            ITextBuilder wf = cmd.WhereFragment;
 
             if (_qJoin != null && _qJoin.Count > 0)
             {
@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder wf, ISqlBuilder on, DbExpression exp, TableAliasCache aliases)
+        private void AppendLfInJoin(ITextBuilder jf, ITextBuilder wf, ITextBuilder on, DbExpression exp, TableAliasCache aliases)
         {
             bool useExists = false;
             LambdaExpression left = exp.Expressions[1] as LambdaExpression;
@@ -112,7 +112,7 @@ namespace TZM.XFramework.Data
                 wf.Append(" WHERE ");
             }
 
-            ISqlBuilder tbuilder = useExists ? wf : on;
+            ITextBuilder tbuilder = useExists ? wf : on;
             if (body1 == null)
             {
                 tbuilder.AppendMember(aliases, left.Body.ReduceUnary());
@@ -139,7 +139,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder jf, DbExpression exp, TableAliasCache aliases)
+        private void AppendCrossJoin(ITextBuilder jf, DbExpression exp, TableAliasCache aliases)
         {
             if (!_appendedKeyword)
             {

@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 语句建造器
     /// </summary>
-    public abstract class SqlBuilderBase : ISqlBuilder
+    public abstract class TextBuilder : ITextBuilder
     {
         protected string _escCharLeft;
         protected string _escCharRight;
@@ -26,7 +26,7 @@ namespace TZM.XFramework.Data
         public const string TAB = "    ";
 
         /// <summary>
-        /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。
+        /// 获取或设置当前 <see cref="ITextBuilder"/> 对象的长度。
         /// </summary>
         public int Length
         {
@@ -62,11 +62,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="SqlBuilderBase"/> 类的新实例
+        /// 实例化 <see cref="TextBuilder"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
         /// <param name="token">解析上下文参数</param>
-        public SqlBuilderBase(IDbQueryProvider provider, ParserToken token)
+        public TextBuilder(IDbQueryProvider provider, ParserToken token)
         {
             _provider = provider;
             _token = token;
@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 追加列名
         /// </summary>
-        public ISqlBuilder AppendMember(string alias, string name)
+        public ITextBuilder AppendMember(string alias, string name)
         {
             if (!string.IsNullOrEmpty(alias))
             {
@@ -135,7 +135,7 @@ namespace TZM.XFramework.Data
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public virtual ISqlBuilder AppendMember(string name, bool quote = true)
+        public virtual ITextBuilder AppendMember(string name, bool quote = true)
         {
             if (quote) _innerBuilder.Append(_escCharLeft);
             _innerBuilder.Append(name);
@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        public virtual ISqlBuilder AppendAs(string name)
+        public virtual ITextBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             return this.AppendMember(name);
@@ -155,7 +155,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(string value)
+        public ITextBuilder Append(string value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -164,7 +164,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        public ISqlBuilder Insert(int index, string value)
+        public ITextBuilder Insert(int index, string value)
         {
             _innerBuilder.Insert(index, value);
             return this;
@@ -173,7 +173,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        public ISqlBuilder Insert(int index, object value)
+        public ITextBuilder Insert(int index, object value)
         {
             _innerBuilder.Insert(index, value);
             return this;
@@ -182,7 +182,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(int value)
+        public ITextBuilder Append(int value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -191,7 +191,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(char value)
+        public ITextBuilder Append(char value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -200,7 +200,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value)
+        public ITextBuilder Append(object value)
         {
             if (value != null) _innerBuilder.Append(value);
             return this;
@@ -209,7 +209,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, MemberExpression m)
+        public ITextBuilder Append(object value, MemberExpression m)
         {
             var sql = this.GetSqlValue(value, m);
             return this.Append(sql);
@@ -218,7 +218,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
+        public ITextBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
         {
             var sql = this.GetSqlValue(value, m, declareType);
             return this.Append(sql);
@@ -227,7 +227,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        public ISqlBuilder AppendNewLine()
+        public ITextBuilder AppendNewLine()
         {
             //if (_token != null && !_token.KeepLine) _innerBuilder.Append(' ');
             //else
@@ -249,7 +249,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        public ISqlBuilder AppendNewLine(string value)
+        public ITextBuilder AppendNewLine(string value)
         {
             _innerBuilder.AppendLine(value);
             return this;
@@ -258,7 +258,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将通过处理复合格式字符串（包含零个或零个以上格式项）返回的字符串追加到此实例。每个格式项都替换为形参数组中相应实参的字符串表示形式。
         /// </summary>
-        public ISqlBuilder AppendFormat(string value, params object[] args)
+        public ITextBuilder AppendFormat(string value, params object[] args)
         {
             _innerBuilder.AppendFormat(value, args);
             return this;
@@ -267,16 +267,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加制表符
         /// </summary>
-        public ISqlBuilder AppendNewTab()
+        public ITextBuilder AppendNewTab()
         {
-            _innerBuilder.Append(SqlBuilderBase.TAB);
+            _innerBuilder.Append(TextBuilder.TAB);
             return this;
         }
 
         /// <summary>
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。
         /// </summary>
-        public ISqlBuilder Replace(string oldValue, string newValue)
+        public ITextBuilder Replace(string oldValue, string newValue)
         {
             _innerBuilder.Replace(oldValue, newValue);
             return this;
@@ -460,8 +460,15 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 增加一个参数
+        /// 增加一个SQL参数
         /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <param name="precision">精度</param>
+        /// <param name="scale">小数位</param>
+        /// <param name="direction">查询参数类型</param>
+        /// <returns></returns>
         protected virtual IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             string name = string.Format("{0}p{1}", _provider.ParameterPrefix, this.Token.Parameters.Count);
@@ -471,28 +478,46 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 获取 Time 类型的 SQL 片断
+        ///  获取 Time 类型的 SQL 片断
         /// </summary>
-        protected abstract string GetSqlValueByTime(object value, object dbType, int? precision = null);
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
+        protected abstract string GetSqlValueByTime(object value, object dbType, int? scale = null);
 
         /// <summary>
-        /// 获取 DatetTime 类型的 SQL 片断
+        ///  获取 DateTime 类型的 SQL 片断
         /// </summary>
-        protected abstract string GetSqlValueByDateTime(object value, object dbType, int? precision = null);
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
+        protected abstract string GetSqlValueByDateTime(object value, object dbType, int? scale = null);
 
         /// <summary>
-        /// 获取 DateTimeOffset 类型的 SQL 片断
+        ///  获取 DateTimeOffset 类型的 SQL 片断
         /// </summary>
-        protected abstract string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision = null);
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
+        protected abstract string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale = null);
 
         /// <summary>
         /// 获取 String 类型的 SQL 片断
         /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">字符串长度</param>
+        /// <returns></returns>
         protected abstract string GetSqlValueByString(object value, object dbType, int? size = null);
 
         /// <summary>
         /// 获取 Boolean 类型的 SQL 片断
         /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
         protected virtual string GetSqlValueByBoolean(object value, object dbType)
         {
             return ((bool)value) ? "1" : "0";
@@ -501,6 +526,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 获取 Guid 类型的 SQL 片断
         /// </summary>
+        /// <param name="value">值</param>
         protected virtual string GetSqlValueByGuid(object value)
         {
             return this.EscapeQuote(value.ToString(), false, false);
@@ -515,8 +541,15 @@ namespace TZM.XFramework.Data
         //}
 
         /// <summary>
-        /// 获取其它类型的 SQL 片断
+        /// 增加一个SQL参数
         /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <param name="precision">精度</param>
+        /// <param name="scale">小数位</param>
+        /// <param name="direction">查询参数类型</param>
+        /// <returns></returns>
         protected virtual string GetSqlValueByOther(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
             if (value is byte[]) throw new NotSupportedException("System.Byte[] does not support serialization into strings.");

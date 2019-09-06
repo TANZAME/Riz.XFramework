@@ -76,7 +76,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ISqlBuilder builder)
+        public override void Write(ITextBuilder builder)
         {
             if (base.Expression != null)
             {
@@ -572,7 +572,7 @@ namespace TZM.XFramework.Data
         }
 
         // 修剪SQL生成器以去掉尾部的空白部分
-        private static void TrimBuilder(ISqlBuilder builder)
+        private static void TrimBuilder(ITextBuilder builder)
         {
             char[] chars = new char[Environment.NewLine.Length + 2];
             for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];

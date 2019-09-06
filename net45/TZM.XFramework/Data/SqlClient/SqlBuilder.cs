@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// MSSQL 语句建造器
     /// <para>非线程安全</para>
     /// </summary>
-    public class SqlBuilder : SqlBuilderBase
+    public class SqlBuilder : TextBuilder
     {
         /// <summary>
         /// 实例化 <see cref="SqlBuilder"/> 类的新实例
@@ -27,14 +27,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             SqlParameter parameter = (SqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
             // 补充 DbType
-            parameter.SetDbType(dbType);
-            //SqlDbTypeInfo dbTypeInfo = SqlDbTypeInfo.Create(dbType);
-            //if (dbTypeInfo != null && dbTypeInfo.SqlDbType != null) parameter.SqlDbType = dbTypeInfo.SqlDbType.Value;
-            //else if (dbTypeInfo != null && dbTypeInfo.DbType != null)
-            //{
-            //    parameter.DbType = dbTypeInfo.DbType.Value;
-            //    if (dbTypeInfo.DbType.Value == DbType.Time) parameter.SqlDbType = SqlDbType.Time;
-            //}
+            parameter.PrepareDbType(dbType);
 
             return parameter;
         }
@@ -48,18 +41,21 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 获取 Time 类型的 SQL 片断
-        protected override string GetSqlValueByTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
+            // SQLSERVER 的Time类型范围：00:00:00.0000000 到 23:59:59.9999999
+            // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
+
             // 默认精度为7
             string format = @"hh\:mm\:ss\.fffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
             }
 
-            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
+            string result = this.EscapeQuote(ts.ToString(format), false, false);
             return result;
         }
 
@@ -104,5 +100,9 @@ namespace TZM.XFramework.Data.SqlClient
             string result = string.Format("TODATETIMEOFFSET({0},{1})", date, span);
             return result;
         }
+
+
+        // 如果用SQL的日期函数进行赋值，DateTime字段类型要用GETDATE()，DateTime2字段类型要用SYSDATETIME()。
+        // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
     }
 }

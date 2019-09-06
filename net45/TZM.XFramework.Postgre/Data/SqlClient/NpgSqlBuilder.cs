@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class NpgSqlBuilder : SqlBuilderBase
+    public class NpgSqlBuilder : TextBuilder
     {
         // http://shouce.jb51.net/postgresql/ postgre 文档
         // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。
@@ -116,7 +116,7 @@ namespace TZM.XFramework.Data
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public override ISqlBuilder AppendMember(string name, bool quote)
+        public override ITextBuilder AppendMember(string name, bool quote)
         {
             _innerBuilder.Append(name);
             return this;
@@ -125,7 +125,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        public override ISqlBuilder AppendAs(string name)
+        public override ITextBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             if (this.IsOuter) _innerBuilder.Append(_escCharLeft);

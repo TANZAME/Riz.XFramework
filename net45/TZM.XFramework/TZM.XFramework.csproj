@@ -90,7 +90,7 @@
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
-    <Compile Include="Data\Genaration\SqlBuilderBase.cs" />
+    <Compile Include="Data\Genaration\TextBuilder.cs" />
     <Compile Include="Data\DbContextBase.cs" />
     <Compile Include="Data\DbContextBase45.cs" />
     <Compile Include="Data\Infrastructure\Constant.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="Data\Genaration\IDbQueryProvider.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\Genaration\ISqlBuilder.cs" />
+    <Compile Include="Data\Genaration\ITextBuilder.cs" />
     <Compile Include="Data\Infrastructure\DbCommandException.cs" />
     <Compile Include="Data\Infrastructure\DbCommandInterceptor.cs" />
     <Compile Include="Data\DbExpression.cs" />

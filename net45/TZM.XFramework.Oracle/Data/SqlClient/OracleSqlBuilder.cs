@@ -9,9 +9,11 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleSqlBuilder : SqlBuilderBase
+    public class OracleSqlBuilder : TextBuilder
     {
         // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
+        // 官方数据类型和.NET数据类型映射关系
+        // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
 
         /// <summary>
         /// 是否最外层查询
@@ -48,7 +50,7 @@ namespace TZM.XFramework.Data
 
             OracleParameter parameter = (OracleParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
             // 补充 DbType
-            parameter.SetDbType(dbType);
+            parameter.PrepareDbType(dbType);
             return parameter;
         }
 
@@ -135,7 +137,7 @@ namespace TZM.XFramework.Data
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public override ISqlBuilder AppendMember(string name, bool quote)
+        public override ITextBuilder AppendMember(string name, bool quote)
         {
             _innerBuilder.Append(name);
             return this;
@@ -144,7 +146,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        public override ISqlBuilder AppendAs(string name)
+        public override ITextBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             if (this.IsOuter) _innerBuilder.Append(_escCharLeft);
