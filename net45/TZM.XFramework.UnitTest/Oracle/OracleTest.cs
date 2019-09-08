@@ -18,8 +18,7 @@ namespace TZM.XFramework.UnitTest.Oracle
 
 
 
-        //const string connString = "User Id=c##sa;Password=123456;Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ORACLE)))";
-        const string connString = "User Id=c##sa;Password=123456;Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ORCL)))";
+        const string connString = "User Id=c##sa;Password=123456;Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ORACLE)))";
 
         public override IDbContext CreateDbContext()
         {

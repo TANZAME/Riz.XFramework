@@ -55,7 +55,7 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
             }
 
-            string result = this.EscapeQuote(ts.ToString(format), false, false);
+            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
             return result;
         }
 

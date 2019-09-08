@@ -39,21 +39,26 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 Time 类型的 SQL 片断
-        protected override string GetSqlValueByTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
-            // is '-838:59:59.000000' to '838:59:59.000000' new TimeSpan(-34, -22, -59, -59)~new TimeSpan(34, 22, 59, 59);
+            // the range is '-838:59:59.000000' to '838:59:59.000000' new TimeSpan(-34, -22, -59, -59)~new TimeSpan(34, 22, 59, 59);
             // https://dev.mysql.com/doc/refman/8.0/en/time.html
 
+            TimeSpan ts = (TimeSpan)value;
+            int hours = (int)ts.TotalHours;
             // 默认精度为7
-            string format = @"hh\:mm\:ss\.ffffff";
+            string format = @"mm\:ss\.ffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"mm\:ss\.{0}", pad);
             }
 
-            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
+            string m = ts.ToString(format);
+            m = string.Format("{0}:{1}", hours, m);
+
+            string result = this.EscapeQuote(m, false, false);
             return result;
         }
 

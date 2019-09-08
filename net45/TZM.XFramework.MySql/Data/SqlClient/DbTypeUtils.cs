@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void SetDbType(this MySqlParameter parameter, object dbType)
+        public static void PrepareDbType(this MySqlParameter parameter, object dbType)
         {
             if (dbType != null)
             {

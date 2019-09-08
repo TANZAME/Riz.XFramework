@@ -56,13 +56,13 @@ namespace TZM.XFramework.UnitTest.MySql
             /// <summary>
             /// demodatetime2
             /// </summary>    
-            [Column(DbType = MySqlDbType.DateTime, Precision = 6)]
+            [Column(DbType = MySqlDbType.DateTime, Scale = 6)]
             public override DateTime DemoDateTime2 { get; set; }
 
             /// <summary>
             /// demodatetime2_nullable
             /// </summary>        
-            [Column(DbType = MySqlDbType.DateTime, Precision = 6)]
+            [Column(DbType = MySqlDbType.DateTime, Scale = 6)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
             // ############################### 美丽的分隔线 ###################################
@@ -83,7 +83,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Time, Precision = 5)]
+            [Column(DbType = MySqlDbType.Time, Scale = 5)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
@@ -107,7 +107,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// <summary>
             /// demotimestamp_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Timestamp, Precision = 5)]
+            [Column(DbType = MySqlDbType.Timestamp, Scale = 5)]
             public virtual Nullable<DateTime> DemoTimestamp_Nullable { get; set; }
 
             ///// <summary>

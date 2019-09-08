@@ -73,7 +73,7 @@ namespace TZM.XFramework.UnitTest.MySql
                     DemoShort = 64,
                     DemoInt = 64,
                     DemoLong = 64,
-                    DemoTime_Nullable = new TimeSpan(837, 10, 10) + TimeSpan.FromTicks(978654 * 10),
+                    DemoTime_Nullable = i % 2 == 0 ? new TimeSpan(-34, -22, -59, -59) : new TimeSpan(34, 22, 59, 59),
                     DemoDatetimeOffset_Nullable = DateTime.Now,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
