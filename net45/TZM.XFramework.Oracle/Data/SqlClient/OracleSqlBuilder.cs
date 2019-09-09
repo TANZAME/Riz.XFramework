@@ -11,9 +11,9 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class OracleSqlBuilder : TextBuilder
     {
-        // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
         // 官方数据类型和.NET数据类型映射关系
         // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
+        // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
 
         /// <summary>
         /// 是否最外层查询
@@ -37,7 +37,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            if (value is bool ) value = ((bool)value) ? 1 : 0;
+            if (value is bool) value = ((bool)value) ? 1 : 0;
             else if (value is Guid)
             {
                 value = ((Guid)value).ToByteArray();
@@ -63,19 +63,34 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 Time 类型的 SQL 片断
-        protected override string GetSqlValueByTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
             // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/nlspg/datetime-data-types-and-time-zone-support.html#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
-            // throw new NotImplementedException("Oracle [Time] must map to .NET [DateTime] type.");
-            DbTypeUtils.IsTime(dbType);
-            return null;
+
+            TimeSpan ts = (TimeSpan)value;
+            // 默认精度为7
+            string format = @"hh\:mm\:ss\.fffffff";
+            if (DbTypeUtils.IsTime(dbType))
+            {
+                string pad = string.Empty;
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
+            }
+
+            string m = ts.ToString(format);
+            m = string.Format("{0} {1}", ts.Days, m);
+            m = this.EscapeQuote(m, false, false);
+            m = string.Format("TO_DSINTERVAL({0})", m);
+            return m;
         }
 
         /// <summary>
         /// 获取 DatetTime 类型的 SQL 片断
         /// </summary>
-        protected override string GetSqlValueByDateTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
+            DateTime date = (DateTime)value;
+
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss";
             bool isTimestamp = false;
@@ -85,7 +100,7 @@ namespace TZM.XFramework.Data
                 format = "yyyy-MM-dd HH:mm:ss.ffffff";
                 isTimestamp = true;
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
@@ -99,29 +114,11 @@ namespace TZM.XFramework.Data
         // 获取 DateTimeOffset 类型的 SQL 片断
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
         {
-            DbTypeUtils.IsDateTimeOffset(dbType);
-            return null;
-            //string format = "yyyy-MM-dd HH:mm:ss.ffffff";
-            //_OracleDbType dbTypeInfo = _OracleDbType.Create(dbType);
-
-            //if (dbTypeInfo != null && dbTypeInfo.IsDateTimeOffset)
-            //{
-            //    string pad = string.Empty;
-            //    if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
-            //    if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
-            //}
-
-            //string date = ((DateTimeOffset)value).DateTime.ToString(format);
-            //string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
-            //span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset.Hours >= 0 ? '+' : '-', span);
-
-            //string result = string.Format("(TIMESTAMP '{0}{1}')", date, span);
-            //return result;
-
-            //c#中向oracle中操作timestamp 必须间接的转timestamp 进行操作：
-            //SELECT * FROM T_TABLE WHERE createDate Between TO_TIMESTAMP('2015-09-15','yyyy-mm-dd hh24:mi:ss') AND TO_TIMESTAMP('2015-09-25','yyyy-mm-dd hh24:mi:ss') 
-            ///或者:
-            //SELECT * FROM T_TABLE WHERE createDate Between TO_TIMESTAMP_TZ('2013-12-09','YYYY-MM-DD HH24:MI:SS.FF TZH:TZM') AND TO_TIMESTAMP_TZ('2015-12-09','YYYY-MM-DD HH24:MI:SS.FF TZH:TZM') 
+            string msg = 
+                "ODP.NET does not support DateTimeOffset type " +
+                Environment.NewLine +
+                "For more infomation,see https://docs.oracle.com/database/121/ODPNT/featTypes.htm.";
+            throw new XFrameworkException(msg);
         }
 
         // 获取 Guid 类型的 SQL 片断

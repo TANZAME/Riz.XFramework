@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TZM.XFramework;
 using TZM.XFramework.Data;
 using TZM.XFramework.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 
 namespace TZM.XFramework.UnitTest.Oracle
 {
@@ -30,6 +31,56 @@ namespace TZM.XFramework.UnitTest.Oracle
         protected override void QueryWithParameterizedConstructor()
         {
             var context = _newContext();
+
+            var reader = context.Database.ExecuteReader(@"
+SELECT
+    t0.DemoId AS DemoId,
+    t0.DemoCode AS DemoCode,
+    t0.DemoName AS DemoName,
+    t0.DemoDate AS DemoDate,
+    t0.DemoDate_Nullable AS DemoDate_Nullable,
+    t0.DemoDateTime AS DemoDateTime,
+    t0.DemoDateTime_Nullable AS DemoDateTime_Nullable,
+    t0.DemoDateTime2 AS DemoDateTime2,
+    t0.DemoDateTime2_Nullable AS DemoDateTime2_Nullable,
+    t0.DemoTime_Nullable AS DemoTime_Nullable,
+    t0.DemoText_Nullable AS DemoText_Nullable,
+    t0.DemoNText_Nullable AS DemoNText_Nullable,
+    t0.DemoDatetimeOffset_Nullable AS DemoDatetimeOffset_Nullable,
+    t0.DemoTimestamp_Nullable AS DemoTimestamp_Nullable,
+    t0.DemoBinary_Nullable AS DemoBinary_Nullable,
+    t0.DemVarBinary_Nullable AS DemVarBinary_Nullable,
+    t0.DemoBoolean AS DemoBoolean,
+    t0.DemoBoolean_Nullable AS DemoBoolean_Nullable,
+    t0.DemoChar AS DemoChar,
+    t0.DemoNChar AS DemoNChar,
+    t0.DemoChar_Nullable AS DemoChar_Nullable,
+    t0.DemoByte AS DemoByte,
+    t0.DemoByte_Nullable AS DemoByte_Nullable,
+    t0.DemoDecimal AS DemoDecimal,
+    t0.DemoDecimal_Nullable AS DemoDecimal_Nullable,
+    t0.DemoDouble AS DemoDouble,
+    t0.DemoDouble_Nullable AS DemoDouble_Nullable,
+    t0.DemoFloat AS DemoFloat,
+    t0.DemoFloat_Nullable AS DemoFloat_Nullable,
+    t0.DemoGuid AS DemoGuid,
+    t0.DemoGuid_Nullable AS DemoGuid_Nullable,
+    t0.DemoShort AS DemoShort,
+    t0.DemoShort_Nullable AS DemoShort_Nullable,
+    t0.DemoInt AS DemoInt,
+    t0.DemoInt_Nullable AS DemoInt_Nullable,
+    t0.DemoLong AS DemoLong,
+    t0.DemoLong_Nullable AS DemoLong_Nullable FROM SYS_Demo t0 WHERE  DemoID=1") as OracleDataReader;
+            while (reader.Read())
+            {
+                var tz = reader.GetOracleTimeStampTZ(12);
+                var result = new DateTimeOffset(tz.Value, tz.GetTimeZoneOffset());
+
+                var ltz = reader.GetOracleTimeStampLTZ(13);
+                var ltz1 = reader.GetValue(13);
+                var ltz2 = reader.GetDateTime(13);
+            }
+
             // 构造函数
             var query =
                  from a in context.GetTable<OracleModel.OracleDemo>()
@@ -83,7 +134,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                     DemoShort = 64,
                     DemoInt = 64,
                     DemoLong = 64,
-                    DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                    DemoTime_Nullable = new TimeSpan(-9, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
                     DemoDatetimeOffset_Nullable = DateTime.Now,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
@@ -113,7 +164,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                 DemoShort = 64,
                 DemoInt = 64,
                 DemoLong = 64,
-                DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                DemoTime_Nullable = new TimeSpan(59, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
                 DemoDatetimeOffset_Nullable = DateTime.Now,
                 DemoTimestamp_Nullable = DateTime.Now,
                 DemoText_Nullable = "TEXT 类型",

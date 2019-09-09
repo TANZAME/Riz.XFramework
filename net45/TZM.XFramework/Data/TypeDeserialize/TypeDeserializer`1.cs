@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 单个实体反序列化
     /// </summary>
-    internal class TypeDeserializer<T>
+    public class TypeDeserializer<T>
     {
         private IDataRecord _reader = null;
         private IMapping _map = null;
@@ -341,7 +341,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 内部类型反序列化器
         /// </summary>
-        internal class InternalTypeDeserializer
+        class InternalTypeDeserializer
         {
             // 这个类的代码在 Dapper.NET 的基础上修改的，实体映射确实强悍得一匹
             // https://github.com/StackExchange/Dapper

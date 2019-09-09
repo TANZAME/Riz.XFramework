@@ -80,7 +80,7 @@ CREATE TABLE Sys_Demo(
 	DemoDatetimeOffset_Nullable timestamp(4) WITH TIME ZONE NULL,
 	DemoBinary_Nullable BLOB NULL,
 	DemVarBinary_Nullable BLOB NULL,
-	DemoTimestamp_Nullable  timestamp NULL--,
+	DemoTimestamp_Nullable  timestamp(4) WITH LOCAL TIME ZONE NULL
 );
 
 call spSys_DropIfExists('Sys_Rabbit');

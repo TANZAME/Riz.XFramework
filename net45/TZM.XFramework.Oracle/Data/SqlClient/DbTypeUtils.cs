@@ -33,7 +33,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsTime(object dbType)
         {
-            throw new NotSupportedException("Oracle does not support Time DbType.");
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.Time;
+            else if (dbType is OracleDbType)
+                return ((OracleDbType)dbType) == OracleDbType.IntervalDS;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -86,11 +93,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsDateTimeOffset(object dbType)
         {
-            //if (dbType == null) return false;
-            //else if (dbType is DbType) return ((DbType)dbType) == DbType.DateTimeOffset;
-            //else if (dbType is OracleDbType) return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ;
-            //else return DbTypeUtils.ThrowException(dbType);
-            throw new NotSupportedException("Oracle does not support DateTimeOffset DbType.");
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == DbType.DateTimeOffset;
+            else if (dbType is OracleDbType)
+                return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ || ((OracleDbType)dbType) == OracleDbType.TimeStampLTZ;
+            else
+                return DbTypeUtils.ThrowException(dbType);
         }
 
         /// <summary>

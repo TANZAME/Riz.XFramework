@@ -405,13 +405,13 @@ namespace TZM.XFramework.Data
                     return GetSqlValueByString(value, dbType, size);
                 // 时间类型
                 else if (value is TimeSpan)
-                    return this.GetSqlValueByTime(value, dbType, precision);
+                    return this.GetSqlValueByTime(value, dbType, scale);
                 // 日期类型
                 else if (value is DateTime)
-                    return this.GetSqlValueByDateTime(value, dbType, precision);
+                    return this.GetSqlValueByDateTime(value, dbType, scale);
                 // 日期类型（带时区）
                 else if (value is DateTimeOffset)
-                    return this.GetSqlValueByDateTimeOffset(value, dbType, precision);
+                    return this.GetSqlValueByDateTimeOffset(value, dbType, scale);
                 //// xml类型
                 //else if (value is SqlXml)
                 //    return this.GetSqlValueByXml(value, dbType);

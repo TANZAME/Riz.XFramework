@@ -62,35 +62,34 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// demodatetime
             /// </summary>
-            [Column(DbType = OracleDbType.TimeStamp, Precision = 6)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 6)]
             public override DateTime DemoDateTime { get; set; }
 
             /// <summary>
             /// demodatetime_nullable
             /// </summary> 
-            [Column(DbType = OracleDbType.TimeStamp, Precision = 6)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 6)]
             public override Nullable<DateTime> DemoDateTime_Nullable { get; set; }
 
             /// <summary>
             /// demodatetime2
             /// </summary>    
-            [Column(DbType = OracleDbType.TimeStamp, Precision = 9)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 9)]
             public override DateTime DemoDateTime2 { get; set; }
 
             /// <summary>
             /// demodatetime2_nullable
             /// </summary>        
-            [Column(DbType = OracleDbType.TimeStamp, Precision = 9)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 9)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
             // ############################### 美丽的分隔线 ###################################
 
 
             /// <summary>
-            /// Time 类型，映射到 .NET DateTime类型
-            /// <para>暂时不支持Interval类型</para>
+            /// Time 类型
             /// </summary>
-            [Column(DbType = OracleDbType.IntervalDS, Precision = 6)]
+            [Column(DbType = OracleDbType.IntervalDS, Scale = 6)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
@@ -109,7 +108,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// DateTimeOffset 类型，映射到 .NET DateTime类型
             /// </summary>
             [Column(DbType = OracleDbType.TimeStampTZ, Scale = 4)]
-            public virtual Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }
+            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable
@@ -126,7 +125,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// demotimestamp_nullable
             /// </summary>
-            [Column(DbType = OracleDbType.TimeStamp)]
+            [Column(DbType = OracleDbType.TimeStampLTZ)]
             public virtual Nullable<DateTime> DemoTimestamp_Nullable { get; set; }
 
             ///// <summary>
