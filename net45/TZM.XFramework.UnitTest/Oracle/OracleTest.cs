@@ -79,6 +79,9 @@ SELECT
                 var ltz = reader.GetOracleTimeStampLTZ(13);
                 var ltz1 = reader.GetValue(13);
                 var ltz2 = reader.GetDateTime(13);
+
+                var f1 = reader.GetFieldType(12);
+                var f2 = reader.GetFieldType(13);
             }
 
             // 构造函数

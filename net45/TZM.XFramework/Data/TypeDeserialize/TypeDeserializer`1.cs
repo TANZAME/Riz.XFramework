@@ -25,10 +25,23 @@ namespace TZM.XFramework.Data
         private Dictionary<string, HashSet<string>> _manyNavvgationKeys = null;
         // 一对多导航属性数量
         private int? _manyNavigationNumber = null;
+        // 方法扩展
+        private static IList<Func<IDataRecord, Type, Type, MethodInfo>> _methodExtendsions = new List<Func<IDataRecord, Type, Type, MethodInfo>>();
 
         private bool? _isPrimitive = null;
         private bool _isDynamic = false;
         private TypeRuntimeInfo _typeRuntime = null;
+
+        /// <summary>
+        /// DataReader 附加方法以支持不同数据库组件的更多方法
+        /// <para>
+        /// 参数： DataReader，数据库字段类型，实体属性类型
+        /// </para>
+        /// </summary>
+        public static IList<Func<IDataRecord, Type, Type, MethodInfo>> MethodExtendsions
+        {
+            get { return _methodExtendsions; }
+        }
 
         /// <summary>
         /// 实例化<see cref="TypeDeserializer"/> 类的新实例
@@ -476,11 +489,13 @@ namespace TZM.XFramework.Data
 
                     if (specializedConstructor == null) il.Emit(OpCodes.Dup);   // stack is now [target][target]
 
+                    // 数据库定义的类型
                     Type columnType = reader.GetFieldType(index);
+                    // 实体定义的类型
                     Type memberType = invoker.DataType;
                     Label isDbNullLabel = il.DefineLabel();
                     Label nextLoopLabel = il.DefineLabel();
-                    MethodInfo readMethod = GetReaderMethod(columnType);
+                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, columnType, memberType);
 
                     // 判断字段是否是 DbNull
                     il.Emit(OpCodes.Ldarg_0);
@@ -809,20 +824,30 @@ namespace TZM.XFramework.Data
                 throw newException;
             }
 
-            static MethodInfo GetReaderMethod(Type fieldType)
+            static MethodInfo GetReaderMethod(IDataRecord reader, Type columnType, Type memberType)
             {
-                if (fieldType == typeof(char)) return _getChar;
-                if (fieldType == typeof(string)) return _getString;
-                if (fieldType == typeof(bool) || fieldType == typeof(bool?)) return _getBoolean;
-                if (fieldType == typeof(byte) || fieldType == typeof(byte?)) return _getByte;
-                if (fieldType == typeof(DateTime) || fieldType == typeof(DateTime?)) return _getDateTime;
-                if (fieldType == typeof(decimal) || fieldType == typeof(decimal?)) return _getDecimal;
-                if (fieldType == typeof(double) || fieldType == typeof(double?)) return _getDouble;
-                if (fieldType == typeof(float) || fieldType == typeof(float?)) return _getFloat;
-                if (fieldType == typeof(Guid) || fieldType == typeof(Guid?)) return _getGuid;
-                if (fieldType == typeof(short) || fieldType == typeof(short?)) return _getInt16;
-                if (fieldType == typeof(int) || fieldType == typeof(int?)) return _getInt32;
-                if (fieldType == typeof(long) || fieldType == typeof(long?)) return _getInt64;
+                // 加上自定义扩展方法
+                if (TypeDeserializer<T>.MethodExtendsions != null)
+                {
+                    foreach (var fn in TypeDeserializer<T>.MethodExtendsions)
+                    {
+                        var m = fn(reader, columnType, memberType);
+                        if (m != null) return m;
+                    }
+                }
+
+                if (columnType == typeof(char)) return _getChar;
+                if (columnType == typeof(string)) return _getString;
+                if (columnType == typeof(bool) || columnType == typeof(bool?)) return _getBoolean;
+                if (columnType == typeof(byte) || columnType == typeof(byte?)) return _getByte;
+                if (columnType == typeof(DateTime) || columnType == typeof(DateTime?)) return _getDateTime;
+                if (columnType == typeof(decimal) || columnType == typeof(decimal?)) return _getDecimal;
+                if (columnType == typeof(double) || columnType == typeof(double?)) return _getDouble;
+                if (columnType == typeof(float) || columnType == typeof(float?)) return _getFloat;
+                if (columnType == typeof(Guid) || columnType == typeof(Guid?)) return _getGuid;
+                if (columnType == typeof(short) || columnType == typeof(short?)) return _getInt16;
+                if (columnType == typeof(int) || columnType == typeof(int?)) return _getInt32;
+                if (columnType == typeof(long) || columnType == typeof(long?)) return _getInt64;
 
                 return _getValue;
 
