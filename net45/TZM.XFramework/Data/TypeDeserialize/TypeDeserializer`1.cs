@@ -26,7 +26,7 @@ namespace TZM.XFramework.Data
         // 一对多导航属性数量
         private int? _manyNavigationNumber = null;
         // 方法扩展
-        private static IList<Func<IDataRecord, Type, Type, MethodInfo>> _methodExtendsions = new List<Func<IDataRecord, Type, Type, MethodInfo>>();
+        private static IList<ReaderMethodDelegate> _methodExtendsions = new List<ReaderMethodDelegate>();
 
         private bool? _isPrimitive = null;
         private bool _isDynamic = false;
@@ -38,7 +38,7 @@ namespace TZM.XFramework.Data
         /// 参数： DataReader，数据库字段类型，实体属性类型
         /// </para>
         /// </summary>
-        public static IList<Func<IDataRecord, Type, Type, MethodInfo>> MethodExtendsions
+        public static IList<ReaderMethodDelegate> MethodExtendsions
         {
             get { return _methodExtendsions; }
         }
@@ -495,7 +495,7 @@ namespace TZM.XFramework.Data
                     Type memberType = invoker.DataType;
                     Label isDbNullLabel = il.DefineLabel();
                     Label nextLoopLabel = il.DefineLabel();
-                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, columnType, memberType);
+                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, memberType, ref columnType);
 
                     // 判断字段是否是 DbNull
                     il.Emit(OpCodes.Ldarg_0);
@@ -824,14 +824,14 @@ namespace TZM.XFramework.Data
                 throw newException;
             }
 
-            static MethodInfo GetReaderMethod(IDataRecord reader, Type columnType, Type memberType)
+            static MethodInfo GetReaderMethod(IDataRecord reader, Type memberType, ref Type columnType)
             {
                 // 加上自定义扩展方法
                 if (TypeDeserializer<T>.MethodExtendsions != null)
                 {
                     foreach (var fn in TypeDeserializer<T>.MethodExtendsions)
                     {
-                        var m = fn(reader, columnType, memberType);
+                        var m = fn(reader, memberType, ref columnType);
                         if (m != null) return m;
                     }
                 }

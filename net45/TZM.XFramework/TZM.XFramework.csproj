@@ -149,6 +149,7 @@
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
+    <Compile Include="Data\TypeDeserialize\ReaderMethodDelegate.cs" />
     <Compile Include="Data\TypeDeserialize\SelectCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
