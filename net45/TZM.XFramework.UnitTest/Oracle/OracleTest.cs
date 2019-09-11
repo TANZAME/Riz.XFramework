@@ -74,7 +74,6 @@ SELECT
             while (reader.Read())
             {
                 var tz = reader.GetOracleTimeStampTZ(12);
-                var tz_of =Convert.ChangeType(tz, typeof(DateTimeOffset));
                 var result = new DateTimeOffset(tz.Value, tz.GetTimeZoneOffset());
 
                 var ltz = reader.GetOracleTimeStampLTZ(13);
