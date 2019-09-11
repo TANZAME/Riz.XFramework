@@ -42,6 +42,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleInsertCommand.cs" Link="Data\TypeDeserialize\OracleInsertCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleSelectInfoCommand.cs" Link="Data\TypeDeserialize\OracleSelectInfoCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerExtensions.cs" Link="Data\TypeDeserialize\OracleTypeDeserializerExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

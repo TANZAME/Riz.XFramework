@@ -86,6 +86,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleSelectInfoCommand.cs">
       <Link>Data\TypeDeserialize\OracleSelectInfoCommand.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerExtensions.cs">
+      <Link>Data\TypeDeserialize\OracleTypeDeserializerExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>

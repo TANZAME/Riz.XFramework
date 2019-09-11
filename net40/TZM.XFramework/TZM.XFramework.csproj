@@ -337,6 +337,12 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ConvertBoxExtensions.cs">
+      <Link>Data\TypeDeserialize\ConvertBoxExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\GetMethodExtensions.cs">
+      <Link>Data\TypeDeserialize\GetMethodExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
       <Link>Data\TypeDeserialize\IMapping.cs</Link>
     </Compile>
@@ -354,6 +360,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerExtensions.cs">
+      <Link>Data\TypeDeserialize\TypeDeserializerExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer`1.cs</Link>

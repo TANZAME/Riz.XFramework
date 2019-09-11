@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 单个实体反序列化
     /// </summary>
-    internal class TypeDeserializer<T>
+    public class TypeDeserializer<T>
     {
         private IDataRecord _reader = null;
         private IMapping _map = null;
@@ -369,11 +369,6 @@ namespace TZM.XFramework.Data
             static readonly MethodInfo _getString = typeof(IDataRecord).GetMethod("GetString", new Type[] { typeof(int) });
             static readonly MethodInfo _getValue = typeof(IDataRecord).GetMethod("GetValue", new Type[] { typeof(int) });
 
-            static readonly ConstructorInfo _ctorGuid_string = typeof(Guid).GetConstructor(new[] { typeof(string) });
-            static readonly ConstructorInfo _ctorGuid_bytes = typeof(Guid).GetConstructor(new[] { typeof(byte[]) });
-            //static ConstructorInfo _ctorXmlReader = typeof(XmlTextReader).GetConstructor(new[] { typeof(string), typeof(XmlNodeType), typeof(XmlParserContext) });
-            //static ConstructorInfo _ctorSqlXml = typeof(System.Data.SqlTypes.SqlXml).GetConstructor(new[] { typeof(System.Xml.XmlTextReader) });
-
             internal static Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, IDictionary<string, Column> columns = null, int start = 0, int? end = null)
             {
                 //// specify a new assembly name
@@ -476,11 +471,16 @@ namespace TZM.XFramework.Data
 
                     if (specializedConstructor == null) il.Emit(OpCodes.Dup);   // stack is now [target][target]
 
+                    // 数据字段类型
                     Type columnType = reader.GetFieldType(index);
+                    Type columnType2 = columnType;
+                    // 实体属性类型
                     Type memberType = invoker.DataType;
                     Label isDbNullLabel = il.DefineLabel();
                     Label nextLoopLabel = il.DefineLabel();
-                    MethodInfo readMethod = GetReaderMethod(columnType);
+                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, columnType, memberType, ref columnType2);
+                    if (columnType != columnType2) columnType = columnType2;
+
 
                     // 判断字段是否是 DbNull
                     il.Emit(OpCodes.Ldarg_0);
@@ -691,35 +691,18 @@ namespace TZM.XFramework.Data
                 MethodInfo op;
                 if (from == (via ?? to))
                 {
-                    //il.Emit(OpCodes.Unbox_Any, to); // stack is now [target][target][typed-value]
+                    //il.Emit(OpCodes.Unbox_Any, to);                       // stack is now [target][target][typed-value]
                 }
                 else if ((op = GetOperator(from, via ?? to)) != null)
                 {
                     // this is handy for things like decimal <===> double
-                    //il.Emit(OpCodes.Unbox_Any, from);   // stack is now [target][target][data-typed-value]
-                    il.Emit(OpCodes.Call, op);          // stack is now [target][target][typed-value]
+                    // il.Emit(OpCodes.Unbox_Any, from);                    // stack is now [target][target][data-typed-value]
+                    il.Emit(OpCodes.Call, op);                              // stack is now [target][target][typed-value]
                 }
-                else if (from == typeof(byte[]) && to == typeof(Guid))
+                else if (TypeDeserializerExtensions.ConvertBoxExtensions.Convert(il, from, to, via))
                 {
-                    // byte[] => guid
-                    il.Emit(OpCodes.Castclass, typeof(byte[]));
-                    il.Emit(OpCodes.Newobj, _ctorGuid_bytes);
+                    // 自定义扩展
                 }
-                else if (from == typeof(string) && to == typeof(Guid))
-                {
-                    // string => guid
-                    il.Emit(OpCodes.Castclass, typeof(string));
-                    il.Emit(OpCodes.Newobj, _ctorGuid_string);
-                }
-                //else if (from == typeof(string) && to == typeof(System.Data.SqlTypes.SqlXml))
-                //{
-                //    // string => SqlXml
-                //    il.Emit(OpCodes.Castclass, typeof(string));
-                //    il.Emit(OpCodes.Ldc_I4, 9);
-                //    il.Emit(OpCodes.Ldnull);
-                //    il.Emit(OpCodes.Newobj, _ctorXmlReader);
-                //    il.Emit(OpCodes.Newobj, _ctorSqlXml);
-                //}
                 else
                 {
                     bool handled = false;
@@ -809,22 +792,28 @@ namespace TZM.XFramework.Data
                 throw newException;
             }
 
-            static MethodInfo GetReaderMethod(Type fieldType)
+            static MethodInfo GetReaderMethod(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2)
             {
-                if (fieldType == typeof(char)) return _getChar;
-                if (fieldType == typeof(string)) return _getString;
-                if (fieldType == typeof(bool) || fieldType == typeof(bool?)) return _getBoolean;
-                if (fieldType == typeof(byte) || fieldType == typeof(byte?)) return _getByte;
-                if (fieldType == typeof(DateTime) || fieldType == typeof(DateTime?)) return _getDateTime;
-                if (fieldType == typeof(decimal) || fieldType == typeof(decimal?)) return _getDecimal;
-                if (fieldType == typeof(double) || fieldType == typeof(double?)) return _getDouble;
-                if (fieldType == typeof(float) || fieldType == typeof(float?)) return _getFloat;
-                if (fieldType == typeof(Guid) || fieldType == typeof(Guid?)) return _getGuid;
-                if (fieldType == typeof(short) || fieldType == typeof(short?)) return _getInt16;
-                if (fieldType == typeof(int) || fieldType == typeof(int?)) return _getInt32;
-                if (fieldType == typeof(long) || fieldType == typeof(long?)) return _getInt64;
+                MethodInfo result = null;
+                if (columnType == typeof(char)) result = _getChar;
+                else if (columnType == typeof(string)) result = _getString;
+                else if (columnType == typeof(bool) || columnType == typeof(bool?)) result = _getBoolean;
+                else if (columnType == typeof(byte) || columnType == typeof(byte?)) result = _getByte;
+                else if (columnType == typeof(DateTime) || columnType == typeof(DateTime?)) result = _getDateTime;
+                else if (columnType == typeof(decimal) || columnType == typeof(decimal?)) result = _getDecimal;
+                else if (columnType == typeof(double) || columnType == typeof(double?)) result = _getDouble;
+                else if (columnType == typeof(float) || columnType == typeof(float?)) result = _getFloat;
+                else if (columnType == typeof(Guid) || columnType == typeof(Guid?)) result = _getGuid;
+                else if (columnType == typeof(short) || columnType == typeof(short?)) result = _getInt16;
+                else if (columnType == typeof(int) || columnType == typeof(int?)) result = _getInt32;
+                else if (columnType == typeof(long) || columnType == typeof(long?)) result = _getInt64;
+                else result = _getValue;
 
-                return _getValue;
+                // 添加扩展方法
+                MethodInfo m = TypeDeserializerExtensions.GetMethodExtensions.GetMethod(reader, columnType, memberType, ref columnType2);
+                if (m != null) result = m;
+
+                return result;
 
                 //bit	Boolean
                 //tinyint	Byte
