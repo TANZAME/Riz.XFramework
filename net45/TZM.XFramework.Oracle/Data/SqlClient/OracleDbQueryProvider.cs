@@ -272,7 +272,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> subQuery = sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo.HasManyNavigation && subQuery != null && subQuery.StatisExpression != null) sQueryInfo = subQuery;
+            if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.StatisExpression != null) sQueryInfo = subQuery;
 
             bool useStatis = sQueryInfo.StatisExpression != null;
             bool useNesting = sQueryInfo.HaveDistinct || sQueryInfo.GroupByExpression != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
@@ -283,7 +283,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HasManyNavigation = sQueryInfo.HasManyNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -488,7 +488,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (sQueryInfo.HasManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
                 cmd.Convergence();
@@ -785,7 +785,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
                 var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
-                cmd2.HasManyNavigation = dQueryInfo.SelectInfo.HasManyNavigation;
+                cmd2.HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins, dQueryInfo.SelectInfo.WhereExpression);
                 visitor0.Write(cmd2);
@@ -880,7 +880,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor.Write(builder);
 
                 var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
-                cmd2.HasManyNavigation = uQueryInfo.SelectInfo.HasManyNavigation;
+                cmd2.HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins, uQueryInfo.SelectInfo.WhereExpression);
                 visitor0.Write(cmd2);

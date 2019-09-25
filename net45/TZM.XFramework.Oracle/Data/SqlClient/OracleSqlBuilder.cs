@@ -11,10 +11,6 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class OracleSqlBuilder : TextBuilder
     {
-        // 官方数据类型和.NET数据类型映射关系
-        // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
-        // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
-
         /// <summary>
         /// 是否最外层查询
         /// oracle 只有最外层才需要区分大小
@@ -151,5 +147,10 @@ namespace TZM.XFramework.Data
             if (this.IsOuter) _innerBuilder.Append(_escCharRight);
             return this;
         }
+
+
+        // 官方数据类型和.NET数据类型映射关系
+        // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
+        // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
     }
 }

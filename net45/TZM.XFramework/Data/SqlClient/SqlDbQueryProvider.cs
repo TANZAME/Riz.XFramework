@@ -129,7 +129,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             var subQueryInfo = sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo.HasManyNavigation && subQueryInfo != null && subQueryInfo.StatisExpression != null) sQueryInfo = subQueryInfo;
+            if (sQueryInfo.HaveManyNavigation && subQueryInfo != null && subQueryInfo.StatisExpression != null) sQueryInfo = subQueryInfo;
 
             bool useStatis = sQueryInfo.StatisExpression != null;
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
@@ -140,7 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HasManyNavigation = sQueryInfo.HasManyNavigation };
+            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
 
@@ -313,7 +313,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套导航
 
-            if (sQueryInfo.HasManyNavigation && subQueryInfo.StatisExpression == null && subQueryInfo != null && subQueryInfo.OrderBys.Count > 0 && !(subQueryInfo.Skip > 0 || subQueryInfo.Take > 0))
+            if (sQueryInfo.HaveManyNavigation && subQueryInfo.StatisExpression == null && subQueryInfo != null && subQueryInfo.OrderBys.Count > 0 && !(subQueryInfo.Skip > 0 || subQueryInfo.Take > 0))
             {
                 // TODO Include 从表，没分页，OrderBy 报错
                 cmd.Convergence();
@@ -508,7 +508,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 IDbQueryable dbQueryable = dQueryInfo.SourceQuery;
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new SelectCommand(this, aliases, token) { HasManyNavigation = dQueryInfo.SelectInfo.HasManyNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
@@ -602,7 +602,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new SelectCommand(this, aliases, token) { HasManyNavigation = uQueryInfo.SelectInfo.HasManyNavigation };
+                var cmd2 = new SelectCommand(this, aliases, token) { HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

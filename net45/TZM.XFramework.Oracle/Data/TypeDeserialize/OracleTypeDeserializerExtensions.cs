@@ -1,12 +1,9 @@
 ﻿
 using System;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace TZM.XFramework.Data
 {
@@ -35,7 +32,7 @@ namespace TZM.XFramework.Data
 #endif
 #if net40
                    columnType2 = typeof(OracleTimeStampTZ);
-                    return _getOracleTimeStampTZ;
+                   return _getOracleTimeStampTZ;
 #endif
                 }
             });

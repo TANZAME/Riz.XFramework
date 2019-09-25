@@ -372,7 +372,7 @@ namespace TZM.XFramework.Data
                 outQueryInfo.Joins = new List<DbExpression>(0);
                 outQueryInfo.OrderBys = new List<DbExpression>(0);
                 outQueryInfo.Includes = include;
-                outQueryInfo.HasManyNavigation = true;
+                outQueryInfo.HaveManyNavigation = true;
                 outQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, select);
 
                 #region 排序

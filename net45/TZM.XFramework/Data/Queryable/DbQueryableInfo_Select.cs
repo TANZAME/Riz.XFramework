@@ -55,7 +55,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        public bool HasManyNavigation { get; set; }
+        public bool HaveManyNavigation { get; set; }
 
         /// <summary>
         /// 跳过序列中指定数量的元素
