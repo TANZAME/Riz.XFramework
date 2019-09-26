@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
         /// <param name="memberType">实体属性类型</param>
         /// <param name="columnType2">数据字段类型</param>
         /// <returns></returns>
-        public MethodInfo GetMethod(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2)
+        public MethodInfo TryGetMethod(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2)
         {
             foreach (var fn in _extensions)
             {

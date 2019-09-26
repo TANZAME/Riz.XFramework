@@ -810,7 +810,7 @@ namespace TZM.XFramework.Data
                 else result = _getValue;
 
                 // 添加扩展方法
-                MethodInfo m = TypeDeserializerExtensions.GetMethodExtensions.GetMethod(reader, columnType, memberType, ref columnType2);
+                MethodInfo m = TypeDeserializerExtensions.GetMethodExtensions.TryGetMethod(reader, columnType, memberType, ref columnType2);
                 if (m != null) result = m;
 
                 return result;
