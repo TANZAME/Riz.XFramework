@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Data;
-using System.Text;
+using System.Data.Common;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace TZM.XFramework.Data
 {
@@ -50,6 +51,34 @@ namespace TZM.XFramework.Data
             // 返回结果
             return collection;
         }
+
+#if !net40
+
+        /// <summary>
+        /// 异步反序列化实体集合
+        /// </summary>
+        public async Task<List<T>> DeserializeAsync<T>()
+        {
+            bool isThisLine = false;
+            object prevLine = null;
+            List<T> collection = new List<T>();
+
+            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, _map);
+            while (await (_reader as DbDataReader).ReadAsync())
+            {
+                T model = deserializer.Deserialize(prevLine, out isThisLine);
+                if (!isThisLine)
+                {
+                    collection.Add(model);
+                    prevLine = model;
+                }
+            }
+
+            // 返回结果
+            return collection;
+        }
+
+#endif
 
         /// <summary>
         /// 反序列化实体集合

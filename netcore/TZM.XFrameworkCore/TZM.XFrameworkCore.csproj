@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>TANZAME</Authors>
     <Company>TANZAME</Company>
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
@@ -146,7 +146,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\SelectCommand.cs" Link="Data\TypeDeserialize\SelectCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer45.cs" Link="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerExtensions.cs" Link="Data\TypeDeserialize\TypeDeserializerExtensions.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
 

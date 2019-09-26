@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>TANZAME</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>

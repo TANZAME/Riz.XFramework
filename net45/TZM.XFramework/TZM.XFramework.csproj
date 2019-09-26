@@ -155,7 +155,6 @@
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializer45.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializerExtensions.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
