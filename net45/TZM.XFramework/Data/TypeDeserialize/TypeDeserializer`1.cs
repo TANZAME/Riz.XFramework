@@ -472,14 +472,14 @@ namespace TZM.XFramework.Data
                     if (specializedConstructor == null) il.Emit(OpCodes.Dup);   // stack is now [target][target]
 
                     // 数据字段类型
-                    Type columnType = reader.GetFieldType(index);
-                    Type columnType2 = columnType;
+                    Type myFieldType = reader.GetFieldType(index);
+                    Type myFieldType2 = myFieldType;
                     // 实体属性类型
                     Type memberType = invoker.DataType;
                     Label isDbNullLabel = il.DefineLabel();
                     Label nextLoopLabel = il.DefineLabel();
-                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, columnType, memberType, ref columnType2);
-                    if (columnType != columnType2) columnType = columnType2;
+                    MethodInfo readMethod = InternalTypeDeserializer.GetReaderMethod(reader, myFieldType, memberType, ref myFieldType2);
+                    if (myFieldType != myFieldType2) myFieldType = myFieldType2;
 
 
                     // 判断字段是否是 DbNull
@@ -514,7 +514,7 @@ namespace TZM.XFramework.Data
                         if (unboxType.IsEnum)
                         {
                             Type numericType = Enum.GetUnderlyingType(unboxType);
-                            if (columnType != typeof(string)) BoxConvert(il, columnType, unboxType, numericType);
+                            if (myFieldType != typeof(string)) ConvertBox(reader, il, myFieldType, unboxType, numericType);
                             else
                             {
                                 if (enumDeclareLocal == -1)
@@ -545,10 +545,10 @@ namespace TZM.XFramework.Data
                         }
                         else
                         {
-                            TypeCode dataTypeCode = Type.GetTypeCode(columnType), unboxTypeCode = Type.GetTypeCode(unboxType);
-                            bool useOriginal = columnType == unboxType || dataTypeCode == unboxTypeCode || dataTypeCode == Type.GetTypeCode(nullUnderlyingType);
+                            TypeCode dataTypeCode = Type.GetTypeCode(myFieldType), unboxTypeCode = Type.GetTypeCode(unboxType);
+                            bool useOriginal = myFieldType == unboxType || dataTypeCode == unboxTypeCode || dataTypeCode == Type.GetTypeCode(nullUnderlyingType);
                             // fix issue# oracle guid
-                            useOriginal = useOriginal && !((nullUnderlyingType ?? unboxType) == typeof(Guid) && columnType == typeof(byte[]));
+                            useOriginal = useOriginal && !((nullUnderlyingType ?? unboxType) == typeof(Guid) && myFieldType == typeof(byte[]));
 
 
                             if (useOriginal)
@@ -558,10 +558,10 @@ namespace TZM.XFramework.Data
                             }
                             else
                             {
-                                if (readMethod == _getValue && columnType.IsValueType)// stack is now [target][target][value]
-                                    il.Emit(OpCodes.Unbox_Any, columnType);
+                                if (readMethod == _getValue && myFieldType.IsValueType)// stack is now [target][target][value]
+                                    il.Emit(OpCodes.Unbox_Any, myFieldType);
                                 // not a direct match; need to tweak the unbox
-                                BoxConvert(il, columnType, nullUnderlyingType ?? unboxType, null);
+                                ConvertBox(reader, il, myFieldType, nullUnderlyingType ?? unboxType, null);
                             }
 
                             if (nullUnderlyingType != null)
@@ -686,7 +686,7 @@ namespace TZM.XFramework.Data
             }
 
             // not a direct match; need to tweak the unbox
-            static void BoxConvert(ILGenerator il, Type from, Type to, Type via)
+            static void ConvertBox(IDataRecord reader, ILGenerator il, Type from, Type to, Type via)
             {
                 MethodInfo op;
                 if (from == (via ?? to))
@@ -699,7 +699,7 @@ namespace TZM.XFramework.Data
                     // il.Emit(OpCodes.Unbox_Any, from);                    // stack is now [target][target][data-typed-value]
                     il.Emit(OpCodes.Call, op);                              // stack is now [target][target][typed-value]
                 }
-                else if (TypeDeserializerExtensions.ConvertBoxExtensions.Convert(il, from, to, via))
+                else if (TypeDeserializerExtensions.ConvertBoxExtensions.Convert(reader, il, from, to, via))
                 {
                     // 自定义扩展
                 }
@@ -792,25 +792,25 @@ namespace TZM.XFramework.Data
                 throw newException;
             }
 
-            static MethodInfo GetReaderMethod(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2)
+            static MethodInfo GetReaderMethod(IDataRecord reader, Type myFieldType, Type memberType, ref Type columnType2)
             {
                 MethodInfo result = null;
-                if (columnType == typeof(char)) result = _getChar;
-                else if (columnType == typeof(string)) result = _getString;
-                else if (columnType == typeof(bool) || columnType == typeof(bool?)) result = _getBoolean;
-                else if (columnType == typeof(byte) || columnType == typeof(byte?)) result = _getByte;
-                else if (columnType == typeof(DateTime) || columnType == typeof(DateTime?)) result = _getDateTime;
-                else if (columnType == typeof(decimal) || columnType == typeof(decimal?)) result = _getDecimal;
-                else if (columnType == typeof(double) || columnType == typeof(double?)) result = _getDouble;
-                else if (columnType == typeof(float) || columnType == typeof(float?)) result = _getFloat;
-                else if (columnType == typeof(Guid) || columnType == typeof(Guid?)) result = _getGuid;
-                else if (columnType == typeof(short) || columnType == typeof(short?)) result = _getInt16;
-                else if (columnType == typeof(int) || columnType == typeof(int?)) result = _getInt32;
-                else if (columnType == typeof(long) || columnType == typeof(long?)) result = _getInt64;
+                if (myFieldType == typeof(char)) result = _getChar;
+                else if (myFieldType == typeof(string)) result = _getString;
+                else if (myFieldType == typeof(bool) || myFieldType == typeof(bool?)) result = _getBoolean;
+                else if (myFieldType == typeof(byte) || myFieldType == typeof(byte?)) result = _getByte;
+                else if (myFieldType == typeof(DateTime) || myFieldType == typeof(DateTime?)) result = _getDateTime;
+                else if (myFieldType == typeof(decimal) || myFieldType == typeof(decimal?)) result = _getDecimal;
+                else if (myFieldType == typeof(double) || myFieldType == typeof(double?)) result = _getDouble;
+                else if (myFieldType == typeof(float) || myFieldType == typeof(float?)) result = _getFloat;
+                else if (myFieldType == typeof(Guid) || myFieldType == typeof(Guid?)) result = _getGuid;
+                else if (myFieldType == typeof(short) || myFieldType == typeof(short?)) result = _getInt16;
+                else if (myFieldType == typeof(int) || myFieldType == typeof(int?)) result = _getInt32;
+                else if (myFieldType == typeof(long) || myFieldType == typeof(long?)) result = _getInt64;
                 else result = _getValue;
 
                 // 添加扩展方法
-                MethodInfo m = TypeDeserializerExtensions.GetMethodExtensions.TryGetMethod(reader, columnType, memberType, ref columnType2);
+                MethodInfo m = TypeDeserializerExtensions.GetMethodExtensions.TryGetMethod(reader, myFieldType, memberType, ref columnType2);
                 if (m != null) result = m;
 
                 return result;

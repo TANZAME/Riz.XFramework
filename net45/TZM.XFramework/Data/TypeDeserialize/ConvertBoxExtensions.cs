@@ -20,12 +20,13 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 类型转换委托
         /// </summary>
+        /// <param name="reader">DataReader</param>
         /// <param name="il">中间语言指令</param>
         /// <param name="from">源类型</param>
         /// <param name="to">需转换的类型</param>
         /// <param name="via">via</param>
         /// <returns></returns>
-        public delegate bool ConvertBoxDelegate(ILGenerator il, Type from, Type to, Type via);
+        public delegate bool ConvertBoxDelegate(IDataRecord reader, ILGenerator il, Type from, Type to, Type via);
 
         /// <summary>
         /// 实例化类 <see cref="GetMethodExtensions"/> 类的新实例
@@ -35,7 +36,7 @@ namespace TZM.XFramework.Data
             _extensions = new List<ConvertBoxDelegate>();
 
             // byte[] => guid
-            _extensions.Add((il, from, to, via) =>
+            _extensions.Add((reader, il, from, to, via) =>
             {
                 bool isGuid = from == typeof(byte[]) && to == typeof(Guid);
                 if (!isGuid) return false;
@@ -49,7 +50,7 @@ namespace TZM.XFramework.Data
             });
 
             // string => guid
-            _extensions.Add((il, from, to, via) =>
+            _extensions.Add((reader, il, from, to, via) =>
             {
                 bool isGuid = from == typeof(string) && to == typeof(Guid);
                 if (!isGuid) return false;
@@ -85,16 +86,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行类型转换委托
         /// </summary>
+        /// <param name="reader">DataReader</param>
         /// <param name="il">中间语言指令</param>
         /// <param name="from">源类型</param>
         /// <param name="to">需转换的类型</param>
         /// <param name="via">via</param>
         /// <returns></returns>
-        public bool Convert(ILGenerator il, Type from, Type to, Type via)
+        public bool Convert(IDataRecord reader, ILGenerator il, Type from, Type to, Type via)
         {
             foreach (var fn in _extensions)
             {
-                var m = fn(il, from, to, via);
+                var m = fn(reader, il, from, to, via);
                 if (m) return m;
             }
 

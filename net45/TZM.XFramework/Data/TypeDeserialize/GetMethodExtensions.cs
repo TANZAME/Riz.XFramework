@@ -16,11 +16,11 @@ namespace TZM.XFramework.Data
         /// 获取运行行方法委托
         /// </summary>
         /// <param name="reader">DataReader</param>
-        /// <param name="columnType">数据字段类型</param>
+        /// <param name="myFieldType">数据字段类型</param>
         /// <param name="memberType">实体属性类型</param>
-        /// <param name="columnType2">数据字段类型</param>
+        /// <param name="myFieldType2">数据字段类型</param>
         /// <returns></returns>
-        public delegate MethodInfo GetMethodDelegate(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2);
+        public delegate MethodInfo GetMethodDelegate(IDataRecord reader, Type myFieldType, Type memberType, ref Type myFieldType2);
 
         /// <summary>
         /// 实例化类 <see cref="GetMethodExtensions"/> 类的新实例
@@ -46,15 +46,15 @@ namespace TZM.XFramework.Data
         /// </para>
         /// </summary>
         /// <param name="reader">DataReader</param>
-        /// <param name="columnType">数据字段类型</param>
+        /// <param name="myFieldType">数据字段类型</param>
         /// <param name="memberType">实体属性类型</param>
-        /// <param name="columnType2">数据字段类型</param>
+        /// <param name="myFieldType2">数据字段类型</param>
         /// <returns></returns>
-        public MethodInfo TryGetMethod(IDataRecord reader, Type columnType, Type memberType, ref Type columnType2)
+        public MethodInfo TryGetMethod(IDataRecord reader, Type myFieldType, Type memberType, ref Type myFieldType2)
         {
             foreach (var fn in _extensions)
             {
-                var m = fn(reader, columnType, memberType, ref columnType2);
+                var m = fn(reader, myFieldType, memberType, ref myFieldType2);
                 if (m != null) return m;
             }
 
