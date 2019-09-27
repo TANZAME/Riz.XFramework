@@ -27,6 +27,11 @@ namespace TZM.XFramework.Data
         int? CommandTimeout { get; set; }
 
         /// <summary>
+        /// 实体转换映射委托生成器
+        /// </summary>
+        TypeDeserializerImpl TypeDeserializerImpl { get; }
+
+        /// <summary>
         /// 批次执行的SQL查询语句数量
         /// </summary>
         int CommanExecuteSize { get; }

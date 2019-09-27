@@ -47,6 +47,11 @@ namespace TZM.XFramework.Data
         public int? CommandTimeout { get; set; }
 
         /// <summary>
+        /// 实体转换映射委托生成器
+        /// </summary>
+        public virtual TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
+
+        /// <summary>
         /// ~批次执行的SQL数量，默认200个查询语句
         /// </summary>
         public int CommanExecuteSize { get { return _commandExecuteSize; } }
@@ -371,7 +376,7 @@ namespace TZM.XFramework.Data
             try
             {
                 reader = this.ExecuteReader(command);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, definition);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, definition);
                 List<T> result = deserializer.Deserialize<T>();
                 return result.FirstOrDefault();
             }
@@ -453,43 +458,43 @@ namespace TZM.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q1 = deserializer1.Deserialize<T1>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q2 = deserializer2.Deserialize<T2>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q3 = deserializer3.Deserialize<T3>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q4 = deserializer4.Deserialize<T4>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q5 = deserializer5.Deserialize<T5>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q6 = deserializer6.Deserialize<T6>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q7 = deserializer7.Deserialize<T7>();
 
                             break;
@@ -565,7 +570,7 @@ namespace TZM.XFramework.Data
             try
             {
                 reader = this.ExecuteReader(command);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, map);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
                 objList = deserializer.Deserialize<T>();
             }
             finally

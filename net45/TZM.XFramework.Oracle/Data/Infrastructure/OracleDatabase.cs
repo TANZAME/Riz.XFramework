@@ -13,6 +13,11 @@ namespace TZM.XFramework.Data
     internal sealed partial class OracleDatabase : Database
     {
         /// <summary>
+        /// 实体转换映射委托生成器
+        /// </summary>
+        public override TypeDeserializerImpl TypeDeserializerImpl { get { return OracleTypeDeserializerImpl.Instance; } }
+
+        /// <summary>
         /// 初始化 <see cref="OracleDatabase"/> 类的新实例
         /// </summary>
         /// <param name="providerFactory">数据源提供者</param>
@@ -60,17 +65,17 @@ namespace TZM.XFramework.Data
                 {
                     if (q1 == null)
                     {
-                        deserializer1 = new TypeDeserializer(reader, maps.Count > 0 ? maps[0] : null);
+                        deserializer1 = new TypeDeserializer(this, reader, maps.Count > 0 ? maps[0] : null);
                         q1 = deserializer1.Deserialize<T1>();
                     }
                     else if (q2 == null)
                     {
-                        deserializer2 = new TypeDeserializer(reader, maps.Count > 1 ? maps[1] : null);
+                        deserializer2 = new TypeDeserializer(this, reader, maps.Count > 1 ? maps[1] : null);
                         q2 = deserializer2.Deserialize<T2>();
                     }
                     else if (q3 == null)
                     {
-                        deserializer3 = new TypeDeserializer(reader, maps.Count > 2 ? maps[2] : null);
+                        deserializer3 = new TypeDeserializer(this, reader, maps.Count > 2 ? maps[2] : null);
                         q3 = deserializer3.Deserialize<T3>();
                     }
                 }

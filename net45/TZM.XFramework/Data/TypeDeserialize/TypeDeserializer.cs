@@ -11,18 +11,21 @@ namespace TZM.XFramework.Data
     /// </summary>
     public partial class TypeDeserializer
     {
+        private IDatabase _database = null;
         private IDataReader _reader = null;
         private IMapping _map = null;
 
         /// <summary>
         /// 实体化 <see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
+        /// <param name="database">DataReader</param>
         /// <param name="reader">DataReader</param>
         /// <param name="map">命令描述对象，用于解析实体的外键</param>
-        public TypeDeserializer(IDataReader reader, IMapping map)
+        public TypeDeserializer(IDatabase database, IDataReader reader, IMapping map)
         {
-            this._map = map;
+            _map = map;
             _reader = reader;
+            _database = database;
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace TZM.XFramework.Data
             object prevLine = null;
             List<T> collection = new List<T>();
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, _map);
+            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_database, _reader, _map);
             while (_reader.Read())
             {
                 T model = deserializer.Deserialize(prevLine, out isThisLine);
@@ -63,7 +66,7 @@ namespace TZM.XFramework.Data
             object prevLine = null;
             List<T> collection = new List<T>();
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_reader, _map);
+            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_database, _reader, _map);
             while (await (_reader as DbDataReader).ReadAsync())
             {
                 T model = deserializer.Deserialize(prevLine, out isThisLine);
@@ -109,7 +112,7 @@ namespace TZM.XFramework.Data
                 if (isAutoIncrement)
                 {
                     // 输出自增列
-                    if (deserializer2 == null) deserializer2 = new TypeDeserializer<int>(_reader, null);
+                    if (deserializer2 == null) deserializer2 = new TypeDeserializer<int>(_database, _reader, null);
                     if (identitys == null) identitys = new List<int>(1);
                     int model = deserializer2.Deserialize(prevLine, out isThisLine);
                     identitys.Add(model);
@@ -117,7 +120,7 @@ namespace TZM.XFramework.Data
                 else
                 {
                     // 输出指定类型实体
-                    if (deserializer == null) deserializer = new TypeDeserializer<T>(_reader, _map);
+                    if (deserializer == null) deserializer = new TypeDeserializer<T>(_database, _reader, _map);
                     T model = deserializer.Deserialize(prevLine, out isThisLine);
                     if (!isThisLine)
                     {

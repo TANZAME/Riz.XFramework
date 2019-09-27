@@ -68,7 +68,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\ForeignKeyAttribute.cs" Link="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\TableAttribute.cs" Link="Data\Annotation\TableAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbContextBase.cs" Link="Data\DbContextBase.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\DbContextBase45.cs" Link="Data\DbContextBase45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbExpression.cs" Link="Data\DbExpression.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbExpressionType.cs" Link="Data\DbExpressionType.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbFunction.cs" Link="Data\DbFunction.cs" />
@@ -138,15 +137,13 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\SqlMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs" Link="Data\TypeDeserialize\Column.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs" Link="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ConvertBoxExtensions.cs" Link="Data\TypeDeserialize\ConvertBoxExtensions.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\GetMethodExtensions.cs" Link="Data\TypeDeserialize\GetMethodExtensions.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs" Link="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs" Link="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs" Link="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\SelectCommand.cs" Link="Data\TypeDeserialize\SelectCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerExtensions.cs" Link="Data\TypeDeserialize\TypeDeserializerExtensions.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerImpl.cs" Link="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
 
   </ItemGroup>

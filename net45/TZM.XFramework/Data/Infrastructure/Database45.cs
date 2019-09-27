@@ -184,7 +184,7 @@ namespace TZM.XFramework.Data
             {
                 reader = await this.ExecuteReaderAsync(command);
                 conn = command != null ? command.Connection : null;
-                TypeDeserializer deserializer = new TypeDeserializer(reader, map);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
                 List<T> result = await deserializer.DeserializeAsync<T>();
                 return result.FirstOrDefault();
             }
@@ -267,43 +267,43 @@ namespace TZM.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q1 = await deserializer1.DeserializeAsync<T1>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q2 = await deserializer2.DeserializeAsync<T2>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q3 = await deserializer3.DeserializeAsync<T3>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q4 = await deserializer4.DeserializeAsync<T4>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q5 = await deserializer5.DeserializeAsync<T5>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q6 = await deserializer6.DeserializeAsync<T6>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
                             q7 = await deserializer7.DeserializeAsync<T7>();
 
                             break;
@@ -384,7 +384,7 @@ namespace TZM.XFramework.Data
             try
             {
                 reader = await this.ExecuteReaderAsync(command);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, map);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
                 objList = await deserializer.DeserializeAsync<T>();
             }
             finally

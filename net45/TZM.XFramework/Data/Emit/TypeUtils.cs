@@ -48,6 +48,12 @@ namespace TZM.XFramework.Data
             _primitiveTypes.Add(typeof(Nullable<uint>));
             _primitiveTypes.Add(typeof(ulong));
             _primitiveTypes.Add(typeof(Nullable<ulong>));
+            _primitiveTypes.Add(typeof(TimeSpan));
+            _primitiveTypes.Add(typeof(Nullable<TimeSpan>));
+            _primitiveTypes.Add(typeof(DateTimeOffset));
+            _primitiveTypes.Add(typeof(Nullable<DateTimeOffset>));
+            _primitiveTypes.Add(typeof(byte[]));
+            _primitiveTypes.Add(typeof(object));
 
 
             _numericTypes.Add(typeof(byte));

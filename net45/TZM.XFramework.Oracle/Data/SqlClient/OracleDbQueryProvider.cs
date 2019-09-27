@@ -904,11 +904,6 @@ namespace TZM.XFramework.Data.SqlClient
             /// 查询语义提供者实例
             /// </summary>
             public static OracleDbQueryProvider Instance = new OracleDbQueryProvider();
-
-            static Singleton()
-            {
-                OracleTypeDeserializerExtensions.UseExtensions();
-            }
         }
     }
 }

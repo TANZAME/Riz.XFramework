@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -265,7 +266,7 @@ namespace TZM.XFramework.Data
             Func<IDbCommand, object> doExecute = cmd =>
             {
                 reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
+                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
                 do
                 {
                     List<int> autoIncrements = null;
@@ -296,6 +297,54 @@ namespace TZM.XFramework.Data
             }
         }
 
+#if !net40
+
+        /// <summary>
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task<int> SubmitChangesAsync()
+        {
+            int rowCount = _dbQueryables.Count;
+            if (rowCount == 0) return 0;
+
+            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<int> identitys = new List<int>();
+            IDataReader reader = null;
+
+            try
+            {
+                Func<IDbCommand, Task<object>> func = async cmd =>
+                {
+                    reader = await this.Database.ExecuteReaderAsync(cmd);
+                    TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
+                    do
+                    {
+                        List<int> result = null;
+                        deserializer.Deserialize<int>(out result);
+                        if (result != null && result.Count > 0) identitys.AddRange(result);
+                    }
+                    while (reader.NextResult());
+
+                    // 释放当前的reader
+                    if (reader != null) reader.Dispose();
+
+                    return null;
+                };
+
+                await this.Database.ExecuteAsync<object>(sqlList, func);
+                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                return rowCount;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                this.InternalDispose();
+            }
+        }
+
+#endif
+
         /// <summary>
         /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
         /// </summary>
@@ -316,7 +365,7 @@ namespace TZM.XFramework.Data
             Func<IDbCommand, object> doExecute = cmd =>
             {
                 reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(reader, null);
+                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
                 do
                 {
                     List<int> autoIncrements = null;
@@ -384,7 +433,7 @@ namespace TZM.XFramework.Data
                     {
                         // 先查第一个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(reader, maps.Count > 0 ? maps[0] : null);
+                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(this.Database, reader, maps.Count > 0 ? maps[0] : null);
                         var collection = deserializer1.Deserialize<T1>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -401,7 +450,7 @@ namespace TZM.XFramework.Data
                     {
                         // 再查第二个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(reader, maps.Count > 1 ? maps[1] : null);
+                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(this.Database, reader, maps.Count > 1 ? maps[1] : null);
                         var collection = deserializer2.Deserialize<T2>(out autoIncrements);
 
                         if (autoIncrements != null)
