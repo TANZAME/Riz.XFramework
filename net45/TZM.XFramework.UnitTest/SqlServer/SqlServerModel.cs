@@ -28,6 +28,12 @@ namespace TZM.XFramework.UnitTest.SqlServer
 
             }
 
+            public new string DemoByte
+            {
+                get;
+                set;
+            }
+
             /// <summary>
             /// demotext_nullable
             /// </summary>

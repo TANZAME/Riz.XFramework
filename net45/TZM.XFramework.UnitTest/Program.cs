@@ -14,6 +14,11 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
+            Type t1 = typeof(Guid);
+            Type t2 = typeof(Guid?);
+            var c1 = Type.GetTypeCode(t1);
+            var c2 = Type.GetTypeCode(t2);
+
             int m = 1;
             bool testAll = false;
             string fileName = string.Empty;

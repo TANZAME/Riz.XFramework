@@ -22,6 +22,9 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             var context = _newContext();
 
+
+            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 149149);
+
             // 声明表变量
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel.JoinKey>();
             context.AddQuery(string.Format("DECLARE {0} [{1}]", typeRuntime.TableName, typeRuntime.TableName.TrimStart('@')));
@@ -106,7 +109,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoBoolean = true,
                     DemoChar = 'A',
                     DemoNChar = 'B',
-                    DemoByte = 64,
+                    DemoByte = "63",
                     DemoDate = DateTime.Now,
                     DemoDateTime = DateTime.Now,
                     DemoDateTime2 = DateTime.Now,
@@ -136,7 +139,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
-                DemoByte = 64,
+                DemoByte = "63",
                 DemoDate = DateTime.Now,
                 DemoDateTime = DateTime.Now,
                 DemoDateTime2 = DateTime.Now,

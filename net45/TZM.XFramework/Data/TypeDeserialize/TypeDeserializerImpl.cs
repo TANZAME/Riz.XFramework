@@ -22,6 +22,7 @@ namespace TZM.XFramework.Data
         static readonly MethodInfo _throwException = typeof(TypeDeserializerImpl).GetMethod("ThrowDataException", BindingFlags.Static | BindingFlags.NonPublic);
         static readonly MethodInfo _typeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
         static readonly MethodInfo _changeType = typeof(Convert).GetMethod("ChangeType", new Type[] { typeof(object), typeof(Type) });
+        static readonly MethodInfo _toString = typeof(object).GetMethod("ToString", Type.EmptyTypes);
 
         static readonly MethodInfo _isDBNull = typeof(IDataRecord).GetMethod("IsDBNull", new Type[] { typeof(int) });
         static readonly MethodInfo _getBoolean = typeof(IDataRecord).GetMethod("GetBoolean", new Type[] { typeof(int) });
@@ -124,7 +125,7 @@ namespace TZM.XFramework.Data
 
             // try #####
             il.BeginExceptionBlock();
-            if (specializedConstructor == null) il.Emit(OpCodes.Ldloc_1); // [target]
+            if (specializedConstructor == null) il.Emit(OpCodes.Ldloc_1);// [target]
 
             // stack is now [target]
             Label finishLabel = il.DefineLabel();
@@ -143,10 +144,10 @@ namespace TZM.XFramework.Data
                 }
 
                 // 本地变量赋值
-                il.Emit(OpCodes.Ldc_I4, index);                             // [target][index]
-                il.Emit(OpCodes.Stloc_0);                                   // [target]
-                //il.Emit(OpCodes.Ldnull);                                    // [target][null]
-                //il.Emit(OpCodes.Stloc_2);                                   // [target]
+                il.Emit(OpCodes.Ldc_I4, index); // [target][index]
+                il.Emit(OpCodes.Stloc_0);       // [target]
+                il.Emit(OpCodes.Ldnull);      // [target][null]
+                il.Emit(OpCodes.Stloc_2);     // [target]
 
                 // 如果导航属性分割列=DbNull，那么此导航属性赋空值
                 if (memberName == Constant.NAVIGATIONSPLITONNAME)
@@ -160,7 +161,7 @@ namespace TZM.XFramework.Data
                 var invoker = typeRuntime.GetInvoker(memberName);
                 if (invoker == null) continue;
 
-                if (specializedConstructor == null) il.Emit(OpCodes.Dup);   // stack is now [target][target]
+                if (specializedConstructor == null) il.Emit(OpCodes.Dup);// stack is now [target][target]
 
                 // 数据字段类型
                 Type myFieldType = reader.GetFieldType(index);
@@ -180,17 +181,17 @@ namespace TZM.XFramework.Data
                 il.Emit(OpCodes.Brtrue, isDbNullLabel);
 
                 // =>DataReader.Getxx(index)
-                il.Emit(OpCodes.Ldarg_0);                                   // stack is now [target][target][reader]
-                il.Emit(OpCodes.Ldc_I4, index);                             // stack is now [target][target][reader][index]
-                il.Emit(OpCodes.Callvirt, getFieldValue);                   // stack is now [target][target][value-or-object]
+                il.Emit(OpCodes.Ldarg_0);                       // stack is now [target][target][reader]
+                il.Emit(OpCodes.Ldc_I4, index);                 // stack is now [target][target][reader][index]
+                il.Emit(OpCodes.Callvirt, getFieldValue);       // stack is now [target][target][value-or-object]
 
-                //// =>object = value，记录当前处理的值
-                //// 除了string类型之外，其它的都需要要装箱，这里会有性能损失，100w笔记录大概会损失0.8s~
-                //bool useBoxed = getFieldValue != _getValue && myFieldType != typeof(string);
-                //il.Emit(OpCodes.Dup);                                       // stack is now [target][target][value-or-object][value-or-object]
-                //if (useBoxed) il.Emit(OpCodes.Box, myFieldType);            // stack is now [target][target][value-or-object][value-as-object]
-                //else il.Emit(OpCodes.Castclass, typeof(object));            // stack is now [target][target][value][value-as-object]
-                //il.Emit(OpCodes.Stloc_2);                                   // stack is now [target][target][value-or-object]
+                // =>object = value，记录当前处理的值
+                // 除了string类型之外，其它的都需要要装箱，这里会有性能损失，100w笔记录大概会损失0.8s~
+                bool useBoxed = getFieldValue != _getValue && myFieldType != typeof(string);
+                il.Emit(OpCodes.Dup);                           // stack is now [target][target][value-or-object][value-or-object]
+                if (useBoxed) il.Emit(OpCodes.Box, myFieldType);// stack is now [target][target][value-or-object][value-as-object]
+                else il.Emit(OpCodes.Castclass, typeof(object));// stack is now [target][target][value][value-as-object]
+                il.Emit(OpCodes.Stloc_2);                       // stack is now [target][target][value-or-object]
 
                 if (memberType == typeof(char) || memberType == typeof(char?))
                 {
@@ -212,54 +213,71 @@ namespace TZM.XFramework.Data
                             {
                                 enumDeclareLocal = il.DeclareLocal(typeof(string)).LocalIndex;
                             }
-                            il.Emit(OpCodes.Castclass, typeof(string));         // stack is now [target][target][string]
-                            il.StoreLocal(enumDeclareLocal);                    // stack is now [target][target]
-                            il.Emit(OpCodes.Ldtoken, unboxType);                // stack is now [target][target][enum-type-token]
-                            il.EmitCall(OpCodes.Call, _typeFromHandle, null);   // stack is now [target][target][enum-type]
-                            il.LoadLocal(enumDeclareLocal);                     // stack is now [target][target][enum-type][string]
-                            il.Emit(OpCodes.Ldc_I4_1);                          // stack is now [target][target][enum-type][string][true]
-                            il.EmitCall(OpCodes.Call, _enumParse, null);        // stack is now [target][target][enum-as-object]
-                            il.Emit(OpCodes.Unbox_Any, unboxType);              // stack is now [target][target][typed-value]
+                            il.Emit(OpCodes.Castclass, typeof(string));       // stack is now [target][target][string]
+                            il.StoreLocal(enumDeclareLocal);                  // stack is now [target][target]
+                            il.Emit(OpCodes.Ldtoken, unboxType);              // stack is now [target][target][enum-type-token]
+                            il.EmitCall(OpCodes.Call, _typeFromHandle, null); // stack is now [target][target][enum-type]
+                            il.LoadLocal(enumDeclareLocal);                   // stack is now [target][target][enum-type][string]
+                            il.Emit(OpCodes.Ldc_I4_1);                        // stack is now [target][target][enum-type][string][true]
+                            il.EmitCall(OpCodes.Call, _enumParse, null);      // stack is now [target][target][enum-as-object]
+                            il.Emit(OpCodes.Unbox_Any, unboxType);            // stack is now [target][target][typed-value]
                         }
 
-                        if (nullUnderlyingType != null)
-                        {
-                            var ctor = memberType.GetConstructor(new[] { nullUnderlyingType });
-                            il.Emit(OpCodes.Newobj, ctor);                      // stack is now [target][target][typed-value]
-                        }
+                        // new Nullable<TValue>(TValue)
+                        if (nullUnderlyingType != null) EmitNewNullable(il, memberType); // stack is now [target][target][typed-value]
                     }
                     else if (memberType.FullName == _linqBinaryName)
                     {
                         var ctor = memberType.GetConstructor(new Type[] { typeof(byte[]) });
-                        il.Emit(OpCodes.Unbox_Any, typeof(byte[]));             // stack is now [target][target][byte-array]
-                        il.Emit(OpCodes.Newobj, ctor);                          // stack is now [target][target][binary]
+                        il.Emit(OpCodes.Unbox_Any, typeof(byte[]));           // stack is now [target][target][byte-array]
+                        il.Emit(OpCodes.Newobj, ctor);                        // stack is now [target][target][binary]
                     }
                     else
                     {
+                        // Guid,Timespan,DateTimeOffset,object ###
+
                         TypeCode dataTypeCode = Type.GetTypeCode(myFieldType), unboxTypeCode = Type.GetTypeCode(unboxType);
-                        bool useOriginal = myFieldType == unboxType || dataTypeCode == unboxTypeCode || dataTypeCode == Type.GetTypeCode(nullUnderlyingType);
-                        // fix issue# oracle guid
-                        useOriginal = useOriginal && !((nullUnderlyingType ?? unboxType) == typeof(Guid) && myFieldType == typeof(byte[]));
+                        bool noBoxed = myFieldType == unboxType || myFieldType == nullUnderlyingType || dataTypeCode == unboxTypeCode || dataTypeCode == Type.GetTypeCode(nullUnderlyingType);
 
+                        // myFieldType和实体属性类型一致， 如果用 DataReader.GetValue，则要强制转换{object}为实体属性定义的类型
+                        if (noBoxed && getFieldValue == _getValue && unboxType != typeof(object))
+                            il.EmitCast(nullUnderlyingType ?? unboxType);     // stack is now [target][target][typed-value]
 
-                        if (useOriginal)
+                        // myFieldType和实体属性类型不一致，需要做类型转换
+                        if (!noBoxed)
                         {
-                            if (getFieldValue == _getValue && unboxType != typeof(object))
-                                il.EmitCast(nullUnderlyingType ?? unboxType);       // stack is now [target][target][typed-value]
-                        }
-                        else
-                        {
-                            if (getFieldValue == _getValue && myFieldType.IsValueType) // stack is now [target][target][value]
-                                il.Emit(OpCodes.Unbox_Any, myFieldType);
+                            if (getFieldValue == _getValue && myFieldType.IsValueType) il.Emit(OpCodes.Unbox_Any, myFieldType);// stack is now [target][target][value]
                             // not a direct match; need to tweak the unbox
                             ConvertBox(reader, il, myFieldType, nullUnderlyingType ?? unboxType, null);
                         }
 
-                        if (nullUnderlyingType != null)
-                        {
-                            var ctor = unboxType.GetConstructor(new[] { nullUnderlyingType });
-                            il.Emit(OpCodes.Newobj, ctor);                          // stack is now [target][target][typed-value]
-                        }
+                        // new Nullable<TValue>(TValue)
+                        if (nullUnderlyingType != null) EmitNewNullable(il, memberType);// stack is now [target][target][typed-value]
+
+                        // Guid,Timespan,DateTimeOffset,object
+
+                        //// fix issue# oracle guid
+                        //useOri = useOri && !((nullUnderlyingType ?? unboxType) == typeof(Guid) && myFieldType == typeof(byte[]));
+
+
+                        //if (useOri)
+                        //{
+                        //    if (getFieldValue == _getValue && unboxType != typeof(object))
+                        //        il.EmitCast(nullUnderlyingType ?? unboxType);       // stack is now [target][target][typed-value]
+                        //}
+                        //else
+                        //{
+                        //    if (getFieldValue == _getValue && myFieldType.IsValueType) // stack is now [target][target][value]
+                        //        il.Emit(OpCodes.Unbox_Any, myFieldType);
+                        //    // not a direct match; need to tweak the unbox
+                        //    ConvertBox(reader, il, myFieldType, nullUnderlyingType ?? unboxType, null);
+                        //}
+
+                        //if (nullUnderlyingType != null)
+                        //{
+                        //    var ctor = unboxType.GetConstructor(new[] { nullUnderlyingType });
+                        //    il.Emit(OpCodes.Newobj, ctor);                          // stack is now [target][target][typed-value]
+                        //}
                     }
                 }
 
@@ -274,10 +292,10 @@ namespace TZM.XFramework.Data
                     }
                 }
 
-                il.Emit(OpCodes.Br_S, nextLoopLabel);                       // stack is now [target]
+                il.Emit(OpCodes.Br_S, nextLoopLabel);   // stack is now [target]
 
 
-                il.MarkLabel(isDbNullLabel);                                // incoming stack: [target][target]
+                il.MarkLabel(isDbNullLabel);    // incoming stack: [target][target]
                 if (specializedConstructor == null) il.Emit(OpCodes.Pop);   // stack is now [target]
                 else
                 {
@@ -397,17 +415,22 @@ namespace TZM.XFramework.Data
             MethodInfo op;
             if (from == (via ?? to))
             {
-                //il.Emit(OpCodes.Unbox_Any, to);                       // stack is now [target][target][typed-value]
+                //il.Emit(OpCodes.Unbox_Any, to);    // stack is now [target][target][typed-value]
             }
             else if ((op = GetOperator(from, via ?? to)) != null)
             {
                 // this is handy for things like decimal <===> double
-                // il.Emit(OpCodes.Unbox_Any, from);                    // stack is now [target][target][data-typed-value]
-                il.Emit(OpCodes.Call, op);                              // stack is now [target][target][typed-value]
+                // il.Emit(OpCodes.Unbox_Any, from); // stack is now [target][target][data-typed-value]
+                il.Emit(OpCodes.Call, op);           // stack is now [target][target][typed-value]
+            }
+            else if (from.IsValueType && (via ?? to) == typeof(string))
+            {
+                // this is handy for things like value <===> string
+                il.Emit(OpCodes.Castclass, typeof(object));
+                il.Emit(OpCodes.Callvirt, _toString);
             }
             else if (this.ConvertBoxExtendsion(reader, il, from, to, via))
             {
-                // 自定义扩展
             }
             else
             {
@@ -568,6 +591,12 @@ namespace TZM.XFramework.Data
 
             newException = new DataException(string.Format("Error parsing column {0} ({1}={2})", index, name, value), ex);
             throw newException;
+        }
+
+        static void EmitNewNullable(ILGenerator il, Type nullableType)
+        {
+            var ctor = nullableType.GetConstructor(new[] { Nullable.GetUnderlyingType(nullableType) });
+            il.Emit(OpCodes.Newobj, ctor);
         }
     }
 }
