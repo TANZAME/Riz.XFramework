@@ -155,7 +155,7 @@ namespace TZM.XFramework.Data
 
 
         /// <summary>
-        /// 默认值，在新增记录时用到
+        /// 默认值表达式
         /// </summary>
         public object Default { get; set; }
     }

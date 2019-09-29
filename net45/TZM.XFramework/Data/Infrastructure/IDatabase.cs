@@ -61,9 +61,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="definition">命令描述</param>
+        /// <param name="cmd">命令描述</param>
         /// <returns></returns>
-        IDbCommand CreateCommand(Command definition);
+        IDbCommand CreateCommand(Command cmd);
 
         /// <summary>
         /// 创建 SQL 命令

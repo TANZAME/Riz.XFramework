@@ -32,12 +32,12 @@ namespace TZM.XFramework.Data
         }
 
         // 获取对应每列的读取方法
-        protected override MethodInfo GetReaderMethod(IDataRecord reader, Type myFieldType, Type memberType, ref Type myFieldType2)
+        protected override MethodInfo GetReaderMethod(Type myFieldType, Type memberType, ref Type myFieldType2)
         {
             // DateTimeOffset 类型时，DataReaer.GetFieldType = DateTime
             // 需要强制转换为 DateTimeOffset 类型
             bool isTimezone = myFieldType == typeof(DateTime) && (memberType == typeof(DateTimeOffset) || memberType == typeof(DateTimeOffset?));
-            if (!isTimezone) return base.GetReaderMethod(reader, myFieldType, memberType, ref myFieldType2);
+            if (!isTimezone) return base.GetReaderMethod( myFieldType, memberType, ref myFieldType2);
             else
             {
 #if !net40
@@ -53,34 +53,33 @@ namespace TZM.XFramework.Data
 
 #if net40
 
-        /// <summary>
-        /// 自定义类型转换
-        /// </summary>
-        /// <param name="reader">数据读取器</param>
-        /// <param name="il">IL 指令</param>
-        /// <param name="from">源类型</param>
-        /// <param name="to">目标类型</param>
-        /// <param name="via">拆箱类型</param>
-        /// <returns></returns>
-        protected override bool ConvertBoxExtendsion(IDataRecord reader, ILGenerator il, Type from, Type to, Type via)
+        // 自定义类型转换
+        protected override bool ConvertBoxExtendsion(ILGenerator il, Type from, Type to, Type via)
         {
-            bool isExecuted = base.ConvertBoxExtendsion(reader, il, from, to, via);
+            bool isExecuted = base.ConvertBoxExtendsion(il, from, to, via);
             if (isExecuted) return isExecuted;
 
             bool isTimezone = from == typeof(OracleTimeStampTZ) && (to == typeof(DateTimeOffset) || to == typeof(DateTimeOffset?));
             if (isTimezone)
             {
-                int valueLocal = il.DeclareLocal(typeof(DateTime)).LocalIndex;
-                int offsetLocal = il.DeclareLocal(typeof(TimeSpan)).LocalIndex;
+                int timezoneDeclareIndex = il.DeclareLocal(typeof(OracleTimeStampTZ)).LocalIndex;
+                il.StoreLocal(timezoneDeclareIndex);
 
+                //int valueDeclareIndex = il.DeclareLocal(typeof(DateTime)).LocalIndex;
+                il.LoadLocal(timezoneDeclareIndex);
                 il.EmitCall(OpCodes.Call, _getValue, null);
-                il.StoreLocal(valueLocal);
 
+                //int offsetDeclareIndex = il.DeclareLocal(typeof(TimeSpan)).LocalIndex;
+                il.LoadLocal(timezoneDeclareIndex);
                 il.EmitCall(OpCodes.Call, _getTimeZoneOffset, null);
-                il.StoreLocal(offsetLocal);
 
-                il.LoadLocal(valueLocal);
-                il.LoadLocal(offsetLocal);
+
+                //il.StoreLocal(valueDeclareIndex);
+
+                //il.StoreLocal(offsetDeclareIndex);
+
+                //il.LoadLocal(valueDeclareIndex);
+                //il.LoadLocal(offsetDeclareIndex);
                 il.Emit(OpCodes.Newobj, _ctorDateTimeOffset);
 
                 return true;

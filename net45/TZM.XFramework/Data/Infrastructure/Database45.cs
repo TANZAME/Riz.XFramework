@@ -414,8 +414,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public async Task<DataTable> ExecuteDataTableAsync(IDbQueryable query)
         {
-            Command definition = query.Resolve();
-            IDbCommand command = this.CreateCommand(definition);
+            Command cmd = query.Resolve();
+            IDbCommand command = this.CreateCommand(cmd);
             return await this.ExecuteDataTableAsync(command);
         }
 

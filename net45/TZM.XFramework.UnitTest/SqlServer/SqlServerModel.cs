@@ -8,6 +8,12 @@ namespace TZM.XFramework.UnitTest.SqlServer
 {
     public class SqlServerModel
     {
+        public enum MyEnum
+        {
+            None = 0,
+            DBNull = 127
+        }
+
         [Table(Name = "Sys_Demo")]
         public class SqlServerDemo : Model.Demo
         {
@@ -26,12 +32,6 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 : base(model)
             {
 
-            }
-
-            public new string DemoByte
-            {
-                get;
-                set;
             }
 
             /// <summary>

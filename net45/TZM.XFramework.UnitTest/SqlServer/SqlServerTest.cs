@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Text;
+using System.Data.SqlClient;
 using System.Collections.Generic;
 using TZM.XFramework.Data;
 using TZM.XFramework.Data.SqlClient;
@@ -22,8 +23,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             var context = _newContext();
 
-
-            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 149149);
+            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 152243);
 
             // 声明表变量
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel.JoinKey>();
@@ -109,7 +109,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoBoolean = true,
                     DemoChar = 'A',
                     DemoNChar = 'B',
-                    DemoByte = "63",
+                    DemoByte =  127,
                     DemoDate = DateTime.Now,
                     DemoDateTime = DateTime.Now,
                     DemoDateTime2 = DateTime.Now,
@@ -139,7 +139,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
-                DemoByte = "63",
+                DemoByte =  128,
                 DemoDate = DateTime.Now,
                 DemoDateTime = DateTime.Now,
                 DemoDateTime2 = DateTime.Now,

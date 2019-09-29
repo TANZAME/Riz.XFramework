@@ -554,7 +554,9 @@ namespace TZM.XFramework.Data
         {
             if (value is byte[]) throw new NotSupportedException("System.Byte[] does not support serialization into strings.");
 
-            if (TypeUtils.IsPrimitiveType(value.GetType()))
+            if (value.GetType().IsEnum)
+                return Convert.ToInt32(value).ToString();
+            else if (TypeUtils.IsPrimitiveType(value.GetType()))
                 return value.ToString();
             else
                 return this.EscapeQuote(value.ToString(), false, false);

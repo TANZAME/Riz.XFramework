@@ -97,7 +97,7 @@ namespace TZM.XFramework.UnitTest
                 //}
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                fileName = baseDirectory + @"\" + databaseType + "Log.sql";
+                fileName = baseDirectory + @"\Sql_" + databaseType + ".sql";
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
                 if (test != null)

@@ -135,11 +135,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="definition">命令描述</param>
+        /// <param name="cmd">命令描述</param>
         /// <returns></returns>
-        public IDbCommand CreateCommand(Command definition)
+        public IDbCommand CreateCommand(Command cmd)
         {
-            return this.CreateCommand(definition.CommandText, definition.CommandType, definition.Parameters);
+            return this.CreateCommand(cmd.CommandText, cmd.CommandType, cmd.Parameters);
         }
 
         /// <summary>
@@ -369,14 +369,14 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand command, SelectCommand definition)
+        T Execute<T>(IDbCommand command, SelectCommand map)
         {
             IDataReader reader = null;
 
             try
             {
                 reader = this.ExecuteReader(command);
-                TypeDeserializer deserializer = new TypeDeserializer(this, reader, definition);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
                 List<T> result = deserializer.Deserialize<T>();
                 return result.FirstOrDefault();
             }
