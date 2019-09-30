@@ -68,23 +68,12 @@ namespace TZM.XFramework.UnitTest.Postgre
 
             // ############################### 美丽的分隔线 ###################################
 
-
-//#if netcore
             /// <summary>
             /// Time 类型，映射到 .NET DateTime类型
             /// <para>如果映射到TimeSpan类型会报错</para>
             /// </summary>
             [Column(DbType = NpgsqlDbType.Time, Precision = 2)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
-//#endif
-//#if !netcore
-//            /// <summary>
-//            /// Time 类型，映射到 .NET DateTime类型
-//            /// <para>如果映射到TimeSpan类型会报错</para>
-//            /// </summary>
-//            [Column(DbType = NpgsqlDbType.Timestamp, Precision = 2)]
-//            public virtual Nullable<DateTime> DemoTime_Nullable { get; set; }
-//#endif
 
             /// <summary>
             /// demotext_nullable

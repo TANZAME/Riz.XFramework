@@ -32,9 +32,19 @@ namespace TZM.XFramework.Data
 
         protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
+#if !netcore
+
+            if (value is TimeSpan)
+            {
+                value = new DateTime(((TimeSpan)value).Ticks);
+                dbType = NpgsqlDbType.Timestamp;
+            }
+
+#endif
+
             NpgsqlParameter parameter = (NpgsqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
             // 补充 DbType
-            parameter.SetDbType(dbType);
+            parameter.PrepareDbType(dbType);
             return parameter;
         }
 
