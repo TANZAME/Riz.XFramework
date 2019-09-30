@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
+    <Compile Include="Data\Infrastructure\NpgDatabase.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\NpgDbContext.cs" />
     <Compile Include="Data\TypeDeserialize\NpgCommandType.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Data\SqlClient\NpgDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\NpgMethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\NpgSqlBuilder.cs" />
+    <Compile Include="Data\TypeDeserialize\NpgTypeDeserializerImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

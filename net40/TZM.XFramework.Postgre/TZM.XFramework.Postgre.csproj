@@ -60,6 +60,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\Infrastructure\NpgDatabase.cs">
+      <Link>Data\Infrastructure\NpgDatabase.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\DbTypeUtils.cs">
       <Link>Data\SqlClient\DbTypeUtils.cs</Link>
     </Compile>
@@ -80,6 +83,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgSelectInfoCommand.cs">
       <Link>Data\TypeDeserialize\NpgSelectInfoCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs">
+      <Link>Data\TypeDeserialize\NpgTypeDeserializerImpl.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

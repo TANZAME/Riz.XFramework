@@ -13,10 +13,6 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class NpgSqlBuilder : TextBuilder
     {
-        // http://shouce.jb51.net/postgresql/ postgre 文档
-        // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。
-        // https://blog.csdn.net/pg_hgdb/article/details/79018366
-
         /// <summary>
         /// 是否最外层查询
         /// pgsql 只有最外层才需要区分大小
@@ -96,7 +92,7 @@ namespace TZM.XFramework.Data
 
             string date = ((DateTimeOffset)value).DateTime.ToString(format);
             string span = ((DateTimeOffset)value).Offset.ToString(@"hh");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset.Hours >= 0 ? '+' : '-', span);
+            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
 
             string result = string.Format("(TIMESTAMPTZ '{0}{1}')", date, span);
             return result;
@@ -133,5 +129,10 @@ namespace TZM.XFramework.Data
             if (this.IsOuter) _innerBuilder.Append(_escCharRight);
             return this;
         }
+
+        // http://www.npgsql.org/doc/index.html
+        // http://shouce.jb51.net/postgresql/ postgre 文档
+        // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。
+        // https://blog.csdn.net/pg_hgdb/article/details/79018366
     }
 }

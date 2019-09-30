@@ -40,6 +40,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" Link="ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" Link="ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" Link="ExpressionVisitor\NpgWhereExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\Infrastructure\NpgDatabase.cs" Link="Infrastructure\NpgDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\DbTypeUtils.cs" Link="SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbContext.cs" Link="SqlClient\NpgDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs" Link="SqlClient\NpgDbQueryProvider.cs" />
@@ -47,11 +48,13 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs" Link="SqlClient\NpgSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs" Link="TypeDeserialize\NpgCommandType.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgSelectInfoCommand.cs" Link="TypeDeserialize\NpgSelectInfoCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs" Link="TypeDeserialize\NpgTypeDeserializerImpl.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="SqlClient\" />
     <Folder Include="TypeDeserialize\" />
+    <Folder Include="Infrastructure\" />
   </ItemGroup>
 
   <ItemGroup>

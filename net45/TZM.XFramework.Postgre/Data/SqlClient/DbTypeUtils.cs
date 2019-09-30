@@ -34,8 +34,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsTime(object dbType)
         {
-#if netcore
-
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
@@ -44,11 +42,6 @@ namespace TZM.XFramework.Data
                 return ((NpgsqlDbType)dbType) == NpgsqlDbType.Time;
             else
                 return DbTypeUtils.ThrowException(dbType);
-
-#endif
-#if !netcore
-            throw new NotSupportedException("Npgsql does not support Time DbType.");
-#endif
         }
 
         /// <summary>

@@ -73,12 +73,7 @@ namespace TZM.XFramework.UnitTest.Postgre
                     DemoShort = 64,
                     DemoInt = 64,
                     DemoLong = 64,
-#if netcore
-                    DemoTime_Nullable = new TimeSpan(10, 9, 9),
-#endif
-#if !netcore
-                    DemoTime_Nullable = DateTime.Now,
-#endif
+                    DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
                     DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
@@ -107,13 +102,7 @@ namespace TZM.XFramework.UnitTest.Postgre
                 DemoGuid = Guid.NewGuid(),
                 DemoShort = 64,
                 DemoInt = 64,
-                DemoLong = 64,
-#if netcore
-                DemoTime_Nullable = new TimeSpan(10, 9, 9),
-#endif
-#if !netcore
-                DemoTime_Nullable = DateTime.Now,
-#endif
+                DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
                 DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
                 DemoTimestamp_Nullable = DateTime.Now,
                 DemoText_Nullable = "TEXT 类型",

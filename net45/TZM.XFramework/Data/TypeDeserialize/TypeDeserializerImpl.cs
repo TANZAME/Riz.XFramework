@@ -63,19 +63,19 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, IDictionary<string, Column> columns = null, int start = 0, int? end = null)
         {
-            //// specify a new assembly name
+            // specify a new assembly name
             //var assemblyName = new AssemblyName("TZM.Deserialize");
 
-            //// create assembly builder
+            // create assembly builder
             //var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
 
-            //// create module builder
+            // create module builder
             //var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName.Name + ".dll", true);
 
-            //// create type builder for a class
+            // create type builder for a class
             //var typeBuilder = moduleBuilder.DefineType("TZM.Deserialize.Deserializer", TypeAttributes.Public);
 
-            //// create method builder
+            // create method builder
             //var methodBuilder = typeBuilder.DefineMethod("GetModel",
             //  MethodAttributes.Public | MethodAttributes.Static,
             //  typeof(object),
