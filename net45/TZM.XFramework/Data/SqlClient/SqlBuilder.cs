@@ -60,7 +60,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 获取 DatetTime 类型的 SQL 片断
-        protected override string GetSqlValueByDateTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             // 默认精度为3
             string format = "yyyy-MM-dd HH:mm:ss.fff";
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (DbTypeUtils.IsDateTime2(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(pad))
                     format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
                 else
@@ -81,20 +81,20 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 获取 DateTimeOffset 类型的 SQL 片断
-        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
             // 默认精度为7
             string format = "yyyy-MM-dd HH:mm:ss.fffffff";
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
             string date = this.EscapeQuote(((DateTimeOffset)value).DateTime.ToString(format), false, false);
             string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset.Hours >= 0 ? '+' : '-', span);
+            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
             span = this.EscapeQuote(span, false, false);
 
             string result = string.Format("TODATETIMEOFFSET({0},{1})", date, span);

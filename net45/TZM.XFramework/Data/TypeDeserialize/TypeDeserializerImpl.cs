@@ -63,28 +63,28 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, IDictionary<string, Column> columns = null, int start = 0, int? end = null)
         {
-            // specify a new assembly name
-            var assemblyName = new AssemblyName("TZM.Deserialize");
+            //// specify a new assembly name
+            //var assemblyName = new AssemblyName("TZM.Deserialize");
 
-            // create assembly builder
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
+            //// create assembly builder
+            //var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
 
-            // create module builder
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName.Name + ".dll", true);
+            //// create module builder
+            //var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName.Name + ".dll", true);
 
-            // create type builder for a class
-            var typeBuilder = moduleBuilder.DefineType("TZM.Deserialize.Deserializer", TypeAttributes.Public);
+            //// create type builder for a class
+            //var typeBuilder = moduleBuilder.DefineType("TZM.Deserialize.Deserializer", TypeAttributes.Public);
 
-            // create method builder
-            var methodBuilder = typeBuilder.DefineMethod("GetModel",
-              MethodAttributes.Public | MethodAttributes.Static,
-              typeof(object),
-              new Type[] { typeof(IDataRecord) });
+            //// create method builder
+            //var methodBuilder = typeBuilder.DefineMethod("GetModel",
+            //  MethodAttributes.Public | MethodAttributes.Static,
+            //  typeof(object),
+            //  new Type[] { typeof(IDataRecord) });
 
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             DynamicMethod method = new DynamicMethod(string.Format("Deserialize{0}", Guid.NewGuid()), typeof(object), new Type[] { typeof(IDataRecord) }, true);
-            ILGenerator il = methodBuilder.GetILGenerator();
-            //ILGenerator il = method.GetILGenerator();
+            //ILGenerator il = methodBuilder.GetILGenerator();
+            ILGenerator il = method.GetILGenerator();
 
             il.DeclareLocal(typeof(int));
             il.DeclareLocal(type);
@@ -307,10 +307,10 @@ namespace TZM.XFramework.Data
             il.Emit(OpCodes.Ldloc_1);   // stack is [rval]
             il.Emit(OpCodes.Ret);
 
-            // then create the whole class type
-            var deserializerType = typeBuilder.CreateType();
-            // save assembly
-            assemblyBuilder.Save(assemblyName.Name + ".dll");
+            //// then create the whole class type
+            //typeBuilder.CreateType();
+            //// save assembly
+            //assemblyBuilder.Save(assemblyName.Name + ".dll");
 
             ////// set entry point for this assembly for exe
             ////assemblyBuilder.SetEntryPoint( helloKittyClassType.GetMethod("SayHelloMethod"));

@@ -63,7 +63,7 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 DatetTime 类型的 SQL 片断（包括DateTime和TimeStamp)
-        protected override string GetSqlValueByDateTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             // 默认精度为0
             string format = "yyyy-MM-dd HH:mm:ss";
@@ -71,7 +71,7 @@ namespace TZM.XFramework.Data
             else if (DbTypeUtils.IsDateTime(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
@@ -80,7 +80,7 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 DateTimeOffset 类型的 SQL 片断
-        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision = null)
+        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale = null)
         {
             DbTypeUtils.IsDateTimeOffset(dbType);
             return null;

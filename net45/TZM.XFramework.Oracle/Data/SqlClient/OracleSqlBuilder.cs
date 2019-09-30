@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace TZM.XFramework.Data
 {
@@ -39,10 +40,12 @@ namespace TZM.XFramework.Data
                 value = ((Guid)value).ToByteArray();
                 dbType = OracleDbType.Raw;
             }
-            //else if (value is DateTimeOffset)
-            //{
-            //    value = new Oracle.ManagedDataAccess.Types.OracleTimeStampTZ(((DateTimeOffset)value).LocalDateTime, TimeZone.CurrentTimeZone.StandardName);
-            //}
+            else if (value is DateTimeOffset)
+            {
+                var dto = (DateTimeOffset)value;
+                var zone = (dto.Offset < TimeSpan.Zero ? "-" : "+") + dto.Offset.ToString("hh\\:mm");
+                value = new OracleTimeStampTZ(dto.DateTime, zone);
+            }
 
             OracleParameter parameter = (OracleParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
             // 补充 DbType
@@ -108,13 +111,23 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 DateTimeOffset 类型的 SQL 片断
-        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
-            string msg = 
-                "ODP.NET does not support DateTimeOffset type " +
-                Environment.NewLine +
-                "For more infomation,see https://docs.oracle.com/database/121/ODPNT/featTypes.htm.";
-            throw new XFrameworkException(msg);
+            // 默认精度为7
+            string format = "yyyy-MM-dd HH:mm:ss.fffffff";
+            if (DbTypeUtils.IsDateTimeOffset(dbType))
+            {
+                string pad = string.Empty;
+                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+            }
+
+            string date = ((DateTimeOffset)value).DateTime.ToString(format);
+            string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
+            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
+
+            string result = string.Format("TO_TIMESTAMP_TZ('{0} {1}','yyyy-mm-dd hh24:mi:ss.ff tzh:tzm')", date, span);
+            return result;
         }
 
         // 获取 Guid 类型的 SQL 片断

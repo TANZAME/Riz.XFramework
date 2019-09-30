@@ -98,7 +98,7 @@ namespace TZM.XFramework.Data
             else if (dbType is DbType)
                 return ((DbType)dbType) == DbType.DateTimeOffset;
             else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ || ((OracleDbType)dbType) == OracleDbType.TimeStampLTZ;
+                return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ;// || ((OracleDbType)dbType) == OracleDbType.TimeStampLTZ;
             else
                 return DbTypeUtils.ThrowException(dbType);
         }

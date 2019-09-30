@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     sealed class OracleTypeDeserializerImpl : TypeDeserializerImpl
     {
-        static readonly MethodInfo _getValue = typeof(OracleTimeStampTZ).GetMethod("get_Value");
+        static readonly MethodInfo _getValue = typeof(OracleTimeStampTZ).GetProperty("Value", BindingFlags.Public | BindingFlags.Instance).GetGetMethod();
         static readonly MethodInfo _getTimeZoneOffset = typeof(OracleTimeStampTZ).GetMethod("GetTimeZoneOffset");
         static readonly MethodInfo _getDateTimeOffset = typeof(OracleDataReader).GetMethod("GetDateTimeOffset", new Type[] { typeof(int) });
         static readonly MethodInfo _getOracleTimeStampTZ = typeof(OracleDataReader).GetMethod("GetOracleTimeStampTZ", new Type[] { typeof(int) });
@@ -37,7 +37,7 @@ namespace TZM.XFramework.Data
             // DateTimeOffset 类型时，DataReaer.GetFieldType = DateTime
             // 需要强制转换为 DateTimeOffset 类型
             bool isTimezone = myFieldType == typeof(DateTime) && (memberType == typeof(DateTimeOffset) || memberType == typeof(DateTimeOffset?));
-            if (!isTimezone) return base.GetReaderMethod( myFieldType, memberType, ref myFieldType2);
+            if (!isTimezone) return base.GetReaderMethod(myFieldType, memberType, ref myFieldType2);
             else
             {
 #if !net40
@@ -62,24 +62,18 @@ namespace TZM.XFramework.Data
             bool isTimezone = from == typeof(OracleTimeStampTZ) && (to == typeof(DateTimeOffset) || to == typeof(DateTimeOffset?));
             if (isTimezone)
             {
-                int timezoneDeclareIndex = il.DeclareLocal(typeof(OracleTimeStampTZ)).LocalIndex;
-                il.StoreLocal(timezoneDeclareIndex);
+                int localIndex = il.DeclareLocal(typeof(OracleTimeStampTZ)).LocalIndex;
+                il.StoreLocal(localIndex);
 
-                //int valueDeclareIndex = il.DeclareLocal(typeof(DateTime)).LocalIndex;
-                il.LoadLocal(timezoneDeclareIndex);
-                il.EmitCall(OpCodes.Call, _getValue, null);
+                // OracleTimeStampTZ.Value
+                il.LoadLocalAddress(localIndex);
+                il.Emit(OpCodes.Call, _getValue);
 
-                //int offsetDeclareIndex = il.DeclareLocal(typeof(TimeSpan)).LocalIndex;
-                il.LoadLocal(timezoneDeclareIndex);
-                il.EmitCall(OpCodes.Call, _getTimeZoneOffset, null);
+                // OracleTimeStampTZ.GetTimeZoneOffset
+                il.LoadLocalAddress(localIndex);
+                il.Emit(OpCodes.Call, _getTimeZoneOffset);
 
 
-                //il.StoreLocal(valueDeclareIndex);
-
-                //il.StoreLocal(offsetDeclareIndex);
-
-                //il.LoadLocal(valueDeclareIndex);
-                //il.LoadLocal(offsetDeclareIndex);
                 il.Emit(OpCodes.Newobj, _ctorDateTimeOffset);
 
                 return true;

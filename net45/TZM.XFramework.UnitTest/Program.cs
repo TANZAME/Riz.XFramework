@@ -113,5 +113,21 @@ namespace TZM.XFramework.UnitTest
             Console.WriteLine("回车退出~");
             Console.ReadLine();
         }
+
+        public class A
+        {
+            public void Write()
+            {
+                Console.WriteLine("A");
+            }
+        }
+
+        public class B : A 
+        {
+            public new void Write()
+            {
+                Console.WriteLine("B");
+            }
+        }
     }
 }

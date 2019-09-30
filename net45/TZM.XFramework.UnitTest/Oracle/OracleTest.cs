@@ -9,6 +9,7 @@ using TZM.XFramework;
 using TZM.XFramework.Data;
 using TZM.XFramework.Data.SqlClient;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace TZM.XFramework.UnitTest.Oracle
 {
@@ -31,7 +32,7 @@ namespace TZM.XFramework.UnitTest.Oracle
         public override void Run(DatabaseType dbType)
         {
             var context = _newContext();
-            var demo = context .GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == 1001323);
+            var demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == 1001323);
 
             base.Run(dbType);
         }
@@ -94,7 +95,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                     DemoInt = 64,
                     DemoLong = 64,
                     DemoTime_Nullable = new TimeSpan(-9, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                    DemoDatetimeOffset_Nullable = DateTime.Now,
+                    DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型"
@@ -124,7 +125,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                 DemoInt = 64,
                 DemoLong = 64,
                 DemoTime_Nullable = new TimeSpan(59, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                DemoDatetimeOffset_Nullable = DateTime.Now,
+                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
                 DemoTimestamp_Nullable = DateTime.Now,
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
