@@ -103,7 +103,7 @@ namespace TZM.XFramework.UnitTest.Postgre
                 DemoShort = 64,
                 DemoInt = 64,
                 DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
+                DemoDatetimeOffset_Nullable = sDateOffset,//DateTimeOffset.Now,
                 DemoTimestamp_Nullable = DateTime.Now,
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",

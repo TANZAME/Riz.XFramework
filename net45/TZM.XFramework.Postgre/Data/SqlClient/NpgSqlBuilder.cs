@@ -104,7 +104,7 @@ namespace TZM.XFramework.Data
             string span = ((DateTimeOffset)value).Offset.ToString(@"hh");
             span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
 
-            string result = string.Format("(TIMESTAMPTZ '{0}{1}')", date, span);
+            string result = string.Format("(TIMESTAMP WITH TIME ZONE '{0}{1}')", date, span);
             return result;
 
             // Npgsql 的显示都是以本地时区显示的？###
