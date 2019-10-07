@@ -70,13 +70,13 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ParserToken token)
+        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token)
         {
             // 设置该查询是否需要参数化
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
             if (dbQueryable.Parameterized)
             {
-                if (token == null) token = new ParserToken();
+                if (token == null) token = new ResolveToken();
                 if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
             }
 
@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data
         public virtual List<Command> Resolve(List<object> dbQueryables)
         {
             List<Command> sqlList = new List<Command>();
-            ParserToken token = null;
+            ResolveToken token = null;
 
             foreach (var obj in dbQueryables)
             {
@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data
                 {
                     IDbQueryable dbQueryable = (IDbQueryable)obj;
                     dbQueryable.Parameterized = true;
-                    if (token == null) token = new ParserToken();
+                    if (token == null) token = new ResolveToken();
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
@@ -128,7 +128,7 @@ namespace TZM.XFramework.Data
                     {
                         // 1000个参数，就要重新分批
                         sqlList.Add(null);
-                        token = new ParserToken();
+                        token = new ResolveToken();
                         token.Parameters = new List<IDbDataParameter>(8);
                     }
 
@@ -168,7 +168,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public abstract ITextBuilder CreateSqlBuilder(ParserToken parameter);
+        public abstract ITextBuilder CreateSqlBuilder(ResolveToken parameter);
 
         /// <summary>
         /// 创建方法表达式访问器
@@ -181,19 +181,19 @@ namespace TZM.XFramework.Data
         #region 私有函数
 
         // 创建 SELECT 命令
-        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken token);
+        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token);
 
         // 创建 INSRT 命令
-        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserToken token);
+        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ResolveToken token);
 
         // 创建 DELETE 命令
-        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserToken token);
+        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ResolveToken token);
 
         // 创建 UPDATE 命令
-        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken token);
+        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ResolveToken token);
 
         // 获取 JOIN 子句关联表的的别名
-        protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query, ParserToken token)
+        protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query, ResolveToken token)
         {
             TableAliasCache aliases = new TableAliasCache((query.Joins != null ? query.Joins.Count : 0) + 1, token != null ? token.TableAliasName : null);
             foreach (DbExpression exp in query.Joins)

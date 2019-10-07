@@ -542,7 +542,7 @@ namespace TZM.XFramework.Data
             {
                 IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
 
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ParserToken
+                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
                 {
                     Parameters = _builder.Token.Parameters,
                     TableAliasName = "u"

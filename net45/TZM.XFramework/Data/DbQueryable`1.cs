@@ -68,7 +68,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public override Command Resolve(int indent, bool isOuter, ParserToken token)
+        public override Command Resolve(int indent, bool isOuter, ResolveToken token)
         {
             var cmd = this.Provider.Resolve(this, indent, isOuter, token);
             return cmd;

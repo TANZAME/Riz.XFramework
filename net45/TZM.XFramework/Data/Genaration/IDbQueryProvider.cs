@@ -61,7 +61,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ParserToken token);
+        Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token);
 
         /// <summary>
         /// 创建数据会话
@@ -76,7 +76,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        ITextBuilder CreateSqlBuilder(ParserToken token);
+        ITextBuilder CreateSqlBuilder(ResolveToken token);
 
         /// <summary>
         /// 创建方法表达式访问器

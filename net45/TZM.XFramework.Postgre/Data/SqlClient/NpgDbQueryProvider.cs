@@ -104,7 +104,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public override ITextBuilder CreateSqlBuilder(ParserToken token)
+        public override ITextBuilder CreateSqlBuilder(ResolveToken token)
         {
             return new NpgSqlBuilder(this, token);
         }
@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken token)
+        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token)
         {
             var cmd = (Command_Select)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
             cmd.Combine();
@@ -128,7 +128,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        Command ParseSelectCommandImpl<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken token)
+        Command ParseSelectCommandImpl<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -366,7 +366,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ParserToken token)
+        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ResolveToken token)
         {
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -479,7 +479,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 DELETE 命令
-        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ParserToken token)
+        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ResolveToken token)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
@@ -536,7 +536,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 UPDATE 命令
-        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ParserToken token)
+        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ResolveToken token)
         {
             ITextBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();

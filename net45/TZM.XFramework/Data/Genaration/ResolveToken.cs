@@ -5,9 +5,9 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 解析上下文携带参数
+    /// 解析SQL命令时的参数上下文
     /// </summary>
-    public class ParserToken
+    public class ResolveToken
     {
         /// <summary>
         /// 参数列表

@@ -89,7 +89,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
-        public Command_Select(IDbQueryProvider provider, TableAliasCache aliases, ParserToken token)
+        public Command_Select(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;

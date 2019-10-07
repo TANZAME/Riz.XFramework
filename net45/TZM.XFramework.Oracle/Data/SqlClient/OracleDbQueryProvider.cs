@@ -107,7 +107,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public override ITextBuilder CreateSqlBuilder(ParserToken token)
+        public override ITextBuilder CreateSqlBuilder(ResolveToken token)
         {
             return new OracleSqlBuilder(this, token);
         }
@@ -132,7 +132,7 @@ namespace TZM.XFramework.Data.SqlClient
         public override List<Command> Resolve(List<object> dbQueryables)
         {
             List<Command> sqlList = new List<Command>();
-            ParserToken token = null;
+            ResolveToken token = null;
 
             bool haveBegin = false;
 
@@ -145,7 +145,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     IDbQueryable dbQueryable = (IDbQueryable)obj;
                     dbQueryable.Parameterized = true;
-                    if (token == null) token = new ParserToken();
+                    if (token == null) token = new ResolveToken();
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
@@ -155,7 +155,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                         sqlList.Add(cmd2);
                         sqlList.Add(null);
-                        token = new ParserToken();
+                        token = new ResolveToken();
                         token.Parameters = new List<IDbDataParameter>(8);
                     }
                     else
@@ -171,7 +171,7 @@ namespace TZM.XFramework.Data.SqlClient
                             // 1000个参数，就要重新分批
                             sqlList.Add(new Command("END;"));
                             sqlList.Add(null);
-                            token = new ParserToken();
+                            token = new ResolveToken();
                             token.Parameters = new List<IDbDataParameter>(8);
                             haveBegin = false;
                         }
@@ -186,7 +186,7 @@ namespace TZM.XFramework.Data.SqlClient
                                     sqlList.Add(new Command("END;"));
                                     haveBegin = false;
                                 }
-                                token = new ParserToken();
+                                token = new ResolveToken();
                                 token.Parameters = new List<IDbDataParameter>(8);
                             }
                         }
@@ -205,7 +205,7 @@ namespace TZM.XFramework.Data.SqlClient
                                     sqlList.Add(new Command("END;"));
                                     haveBegin = false;
                                 }
-                                token = new ParserToken();
+                                token = new ResolveToken();
                                 token.Parameters = new List<IDbDataParameter>(8);
                             }
                         }
@@ -257,7 +257,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ParserToken token)
+        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -585,7 +585,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ParserToken token)
+        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
         {
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -744,7 +744,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 DELETE 命令
-        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ParserToken token)
+        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ResolveToken token)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
@@ -801,7 +801,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 UPDATE 命令
-        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQueryInfo, ParserToken token)
+        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQueryInfo, ResolveToken token)
         {
             ITextBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();

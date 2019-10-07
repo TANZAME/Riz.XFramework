@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         protected string _escCharQuote;
         protected StringBuilder _innerBuilder = null;
         protected IDbQueryProvider _provider = null;
-        private ParserToken _token = null;
+        private ResolveToken _token = null;
 
         /// <summary>
         /// TAB 制表符
@@ -55,7 +55,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析上下文参数
         /// </summary>
-        public ParserToken Token
+        public ResolveToken Token
         {
             get { return _token; }
             set { _token = value; }
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
         /// <param name="token">解析上下文参数</param>
-        public TextBuilder(IDbQueryProvider provider, ParserToken token)
+        public TextBuilder(IDbQueryProvider provider, ResolveToken token)
         {
             _provider = provider;
             _token = token;
