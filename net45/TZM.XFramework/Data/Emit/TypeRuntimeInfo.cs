@@ -121,12 +121,11 @@ namespace TZM.XFramework.Data
             {
                 if (_keyInvokers == null)
                 {
-                    Func<MemberInvokerBase, bool> predicate = x => x != null && x.Column != null && x.Column.IsKey;
                     Dictionary<string, MemberInvokerBase> keyInvokers = new Dictionary<string, MemberInvokerBase>();
                     foreach (var kvp in this.Invokers)
                     {
                         MemberInvokerBase invoker = kvp.Value;
-                        if (predicate(invoker)) keyInvokers.Add(kvp.Key, invoker);
+                        if (invoker.Column != null && invoker.Column.IsKey) keyInvokers.Add(kvp.Key, invoker);
                     }
                     _keyInvokers = keyInvokers;
                 }

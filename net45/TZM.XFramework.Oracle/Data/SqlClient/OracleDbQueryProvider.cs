@@ -897,26 +897,4 @@ namespace TZM.XFramework.Data.SqlClient
     }
 }
 
-//说明：
-//1.第一句用的是insert all into 不是 insert into
-//2.最后跟的selecr 1 from dual语句中的dual表可以被替换为任何一个只要不是tb_red的表
-//3.和mysql的写法不一样，多个values之间不用逗号分隔，但是需要加into tablename的形式的语句在每个values前面
-//4.只适合于Oralce 9i以上版本
-//5.例：
-//INSERT ALL INTO tb_red VALUES(1000, 8001, '2016-10-10 10:59:59', 1, 8001, '测试用户1000', '红名单0', '男', '膜法学院', '被测')  
-//INTO tb_red  VALUES (1001, 8001, '2016-10-10 11:00:00', 2, 8001, '测试用户1001', '红名单1', '男', '膜法学院', '被测')  
-//INTO tb_red  VALUES (1002, 8001, '2016-10-10 11:00:01', 0, 8001, '测试用户1002', '红名单2', '男', '膜法学院', '被测')  
-//INTO tb_red  VALUES (1003, 8001, '2016-10-11 10:59:59', 1, 8001, '测试用户1003', '红名单3', '男', '膜法学院', '被测')  
-//INTO tb_red  VALUES (1004, 8001, '2016-10-11 11:00:00', 2, 8001, '测试用户1004', '红名单4', '男', '膜法学院', '被测')  
-//INTO tb_red  VALUES (1005, 8001, '2016-10-11 11:00:01', 0, 8001, '测试用户1005', '红名单5', '男', '膜法学院', '被测')  
-//select 1 from dual;
-//--------------------- 
-//INSERT INTO TIMEZONE_TEST SELECT TIMESTAMP '2016-04-24 15:14:00 +3:00',TIMESTAMP '2016-04-24 15:14:00 +3:00',TIMESTAMP '2016-04-24 15:14:00 +3:00' FROM DUAL;
-//SQL>  insert into ff values(TO_TIMESTAMP_TZ('2006-12-14 19:45:09.9003 13:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'))
-
-//insert into TIMESTAMP_TEST values(
-//TO_TIMESTAMP_TZ('2010-12-01 23:12:56.788 -12:44', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'),
-//TO_TIMESTAMP_TZ('2010-12-01 23:12:56.788-12:44', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'),
-//TO_TIMESTAMP_TZ('2010-12-01 23:12:56.788 -12:44', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'),
-//TO_TIMESTAMP_TZ('2010-12-0123:12:56.788 -12:44', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'));
-//（tzh：时区中的小时，tzm:时区中的分）
+//说明：删除 https://blog.csdn.net/paul50060049/article/details/54425087/

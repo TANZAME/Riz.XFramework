@@ -471,7 +471,6 @@ namespace TZM.XFramework.Data.SqlClient
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
-            bool useKey = false;
 
             builder.Append("DELETE t0 FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -479,30 +478,27 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dQueryInfo.Entity != null)
             {
+                if(typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                    throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
+
                 object entity = dQueryInfo.Entity;
 
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var kv in typeRuntime.Invokers)
+                foreach (var kvp in typeRuntime.KeyInvokers)
                 {
-                    MemberInvokerBase invoker = kv.Value;
+                    var invoker = kvp.Value;
                     var column = invoker.Column;
 
-                    if (column != null && column.IsKey)
-                    {
-                        useKey = true;
-                        var value = invoker.Invoke(entity);
-                        var seg = builder.GetSqlValue(value, column);
-                        builder.AppendMember("t0", invoker.Member.Name);
-                        builder.Append(" = ");
-                        builder.Append(seg);
-                        builder.Append(" AND ");
-                    };
+                    var value = invoker.Invoke(entity);
+                    var seg = builder.GetSqlValue(value, column);
+                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.Append(" = ");
+                    builder.Append(seg);
+                    builder.Append(" AND ");
                 }
                 builder.Length -= 5;
-
-                if (!useKey) throw new XFrameworkException("Delete<T>(T value) require T must have key column.");
             }
             else if (dQueryInfo.SelectInfo != null)
             {
@@ -574,7 +570,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
                 }
 
-                if (!useKey) throw new XFrameworkException("Update<T>(T value) require T must have key column.");
+                if (!useKey) throw new XFrameworkException("Update<T>(T value) require entity must have key column.");
 
                 builder.Length = length;
                 whereBuilder.Length -= 5;
