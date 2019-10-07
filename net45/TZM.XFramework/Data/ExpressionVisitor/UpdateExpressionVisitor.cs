@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace TZM.XFramework.Data
 {
@@ -21,7 +20,7 @@ namespace TZM.XFramework.Data
             _aliases = aliases;
         }
 
-        //{new App() {Id = p.Id}} 
+        //{new App() {Id = p.Id}}
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.Bindings == null || node.Bindings.Count == 0)

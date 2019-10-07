@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -19,11 +18,6 @@ namespace TZM.XFramework.Data
         public ExpressionNominator(Func<Expression, bool> fnCanBeEvaluated)
         {
             this._canBeEvaluated = fnCanBeEvaluated ?? new Func<Expression, bool>(ExpressionNominator.CanBeEvaluatedLocally);
-        }
-
-        private static bool CanBeEvaluatedLocally(Expression exp)
-        {
-            return exp.NodeType != ExpressionType.Parameter && exp.NodeType != ExpressionType.MemberInit && exp.NodeType != ExpressionType.New;
         }
 
         public HashSet<Expression> Nominate(Expression expression)
@@ -58,7 +52,10 @@ namespace TZM.XFramework.Data
             }
             return expression;
         }
+
+        private static bool CanBeEvaluatedLocally(Expression exp)
+        {
+            return exp.NodeType != ExpressionType.Parameter && exp.NodeType != ExpressionType.MemberInit && exp.NodeType != ExpressionType.New;
+        }
     }
-
-
 }
