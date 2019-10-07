@@ -15,9 +15,9 @@ namespace TZM.XFramework.Data.SqlClient
     public sealed class OracleDbQueryProvider : DbQueryProvider
     {
         /// <summary>
-        /// 查询语义提供者 单例
+        /// 查询语义提供者实例
         /// </summary>
-        public static OracleDbQueryProvider Instance = Singleton.Instance;
+        public static OracleDbQueryProvider Instance = new OracleDbQueryProvider();
 
         /// <summary>
         /// 数据源类的提供程序实现的实例
@@ -893,17 +893,6 @@ namespace TZM.XFramework.Data.SqlClient
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
-        }
-        
-        /// <summary>
-        /// 单例提供者
-        /// </summary>
-        class Singleton
-        {
-            /// <summary>
-            /// 查询语义提供者实例
-            /// </summary>
-            public static OracleDbQueryProvider Instance = new OracleDbQueryProvider();
         }
     }
 }

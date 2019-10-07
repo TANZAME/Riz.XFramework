@@ -12,13 +12,10 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public sealed class NpgDbQueryProvider : DbQueryProvider
     {
-        // 注意：在core 版本在，nuget上的ngpsql.4.0.6.dll standard版本不能运行~
-        // 需要去github上下载4.1.0版本重新编译成本地包再引用
-
         /// <summary>
-        /// 查询语义提供者 单例
+        /// 查询语义提供者实例
         /// </summary>
-        public static NpgDbQueryProvider Instance = Singleton.Instance;
+        public static NpgDbQueryProvider Instance = new NpgDbQueryProvider();
 
         /// <summary>
         /// 数据源类的提供程序实现的实例
@@ -621,17 +618,6 @@ namespace TZM.XFramework.Data.SqlClient
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
-        }
-
-        /// <summary>
-        /// 单例提供者
-        /// </summary>
-        class Singleton
-        {
-            /// <summary>
-            /// 查询语义提供者实例
-            /// </summary>
-            public static NpgDbQueryProvider Instance = new NpgDbQueryProvider();
         }
     }
 }
