@@ -122,7 +122,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token)
         {
             var cmd = (Command_Select)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
-            cmd.Combine();
+            cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
@@ -298,7 +298,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -313,7 +313,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (sQuery.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -325,7 +325,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQuery.Unions != null && sQuery.Unions.Count > 0)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 for (int index = 0; index < sQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -344,7 +344,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQuery.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Combine();
+                cmd.CombineFragments();
 
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQuery.Take == 0 && sQuery.Skip == 0)

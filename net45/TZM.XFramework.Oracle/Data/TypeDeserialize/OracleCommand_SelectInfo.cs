@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 合并外键、WHERE、JOIN
         /// </summary>
-        public override void Combine()
+        public override void CombineFragments()
         {
             if (!_hasCombine)
             {

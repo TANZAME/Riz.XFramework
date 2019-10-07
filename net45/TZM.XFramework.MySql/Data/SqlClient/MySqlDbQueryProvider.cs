@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ResolveToken token)
         {
             var cmd = (Command_Select)this.ParseSelectCommandImpl(sQueryInfo, indent, isOuter, token);
-            cmd.Combine();
+            cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
@@ -336,7 +336,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useSubQuery)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -351,7 +351,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -363,7 +363,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 for (int index = 0; index < sQueryInfo.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -381,7 +381,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sf != null)
             {
                 // 合并 WHERE
-                cmd.Combine();
+                cmd.CombineFragments();
 
                 indent -= 1;
                 jf.Indent = indent;
@@ -407,7 +407,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Combine();
+                cmd.CombineFragments();
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQueryInfo.Take == 0 && sQueryInfo.Skip == 0)
                 {

@@ -475,7 +475,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -491,7 +491,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
-                cmd.Combine();
+                cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -503,7 +503,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 for (int index = 0; index < sQueryInfo.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -521,7 +521,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.Take > 0 || sQueryInfo.Skip > 0)
             {
                 // 合并 WHERE
-                cmd.Combine();
+                cmd.CombineFragments();
 
                 indent -= 1;
                 jf.Indent = indent;
@@ -560,7 +560,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Combine();
+                cmd.CombineFragments();
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQueryInfo.Take == 0 && sQueryInfo.Skip == 0)
                 {

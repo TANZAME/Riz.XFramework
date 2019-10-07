@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 合并外键、WHERE、JOIN
         /// </summary>
-        public virtual void Combine()
+        public virtual void CombineFragments()
         {
             if (!_hasCombine)
             {
@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (!_hasCombine) this.Combine();
+                if (!_hasCombine) this.CombineFragments();
                 this.Parameters = _joinFragment.Token != null ? _joinFragment.Token.Parameters : null;
                 string commandText = _joinFragment.ToString();
                 return commandText;

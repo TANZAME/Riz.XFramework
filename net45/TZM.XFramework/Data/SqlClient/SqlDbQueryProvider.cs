@@ -300,7 +300,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useSubQuery)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -316,7 +316,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveManyNavigation && subQueryInfo.StatisExpression == null && subQueryInfo != null && subQueryInfo.OrderBys.Count > 0 && !(subQueryInfo.Skip > 0 || subQueryInfo.Take > 0))
             {
                 // TODO Include 从表，没分页，OrderBy 报错
-                cmd.Combine();
+                cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQueryInfo.OrderBys);
                 visitor.Write(jf);
             }
@@ -328,7 +328,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 for (int index = 0; index < sQueryInfo.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 'Any' 子句
             if (sQueryInfo.HaveAny)
             {
-                cmd.Combine();
+                cmd.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
