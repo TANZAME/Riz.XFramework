@@ -20,13 +20,13 @@ namespace TZM.XFramework
         /// 总页数
         /// </summary>
         [DataMember]
-        public int TotalPages { get; set; }
+        public int Pages { get; set; }
 
         /// <summary>
         /// 记录总数
         /// </summary>
         [DataMember]
-        public int TotalCount { get; set; }
+        public int RowCount { get; set; }
 
         /// <summary>
         /// 当前页码
@@ -43,6 +43,7 @@ namespace TZM.XFramework
         /// <summary>
         /// 是否有上一页
         /// </summary>
+        [DataMember]
         public bool HasPreviousPage
         {
             get
@@ -54,17 +55,19 @@ namespace TZM.XFramework
         /// <summary>
         /// 是否有下一页
         /// </summary>
+        [DataMember]
         public bool HasNextPage
         {
             get
             {
-                return this.PageIndex < this.TotalPages;
+                return this.PageIndex < this.Pages;
             }
         }
 
         /// <summary>
         /// 当前页记录数
         /// </summary>
+        [DataMember]
         public int Count
         {
             get
@@ -103,13 +106,13 @@ namespace TZM.XFramework
             if (index < 1) index = 1;
             this.PageSize = pageSize;
             this.PageIndex = index;
-            this.TotalCount = totalCount;
-            this.TotalPages = this.TotalCount / this.PageSize;
-            if (this.TotalCount > this.TotalPages * this.PageSize) this.TotalPages = this.TotalPages + 1;
+            this.RowCount = totalCount;
+            this.Pages = this.RowCount / this.PageSize;
+            if (this.RowCount > this.Pages * this.PageSize) this.Pages = this.Pages + 1;
 
-            if (this.PageIndex > this.TotalCount)
+            if (this.PageIndex > this.RowCount)
             {
-                this.PageIndex = this.TotalCount;
+                this.PageIndex = this.RowCount;
             }
         }
     }

@@ -124,8 +124,8 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ParserToken token)
         {
-            var cmd = (SelectCommand)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
-            cmd.Convergence();
+            var cmd = (Command_Select)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
+            cmd.Combine();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
@@ -156,7 +156,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveManyNavigation = sQuery.HaveManyNavigation };
+            Command_Select cmd = new Command_Select(this, aliases, token) { HaveManyNavigation = sQuery.HaveManyNavigation };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -301,7 +301,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -316,7 +316,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (sQuery.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.Convergence();
+                cmd.Combine();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -328,7 +328,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQuery.Unions != null && sQuery.Unions.Count > 0)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 for (int index = 0; index < sQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQuery.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Convergence();
+                cmd.Combine();
 
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQuery.Take == 0 && sQuery.Skip == 0)
@@ -463,7 +463,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectCommand cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, token) as SelectCommand;
+                Command_Select cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, token) as Command_Select;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var kvp in cmd2.Columns)
                 {
@@ -522,7 +522,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
-                var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.DELETE, token);
+                var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.DELETE, token);
                 cmd2.HaveManyNavigation = dQuery.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Joins, NpgCommandType.DELETE);
@@ -607,7 +607,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new NpgUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new NpgSelectInfoCommand(this, aliases, NpgCommandType.UPDATE, token);
+                var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.UPDATE, token);
                 cmd2.HaveManyNavigation = uQuery.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Joins, NpgCommandType.UPDATE);

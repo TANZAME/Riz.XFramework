@@ -109,8 +109,8 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ParserToken token)
         {
-            var cmd = (SelectCommand)this.ParseSelectCommandImpl(sQueryInfo, indent, isOuter, token);
-            cmd.Convergence();
+            var cmd = (Command_Select)this.ParseSelectCommandImpl(sQueryInfo, indent, isOuter, token);
+            cmd.Combine();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
+            Command_Select cmd = new Command_Select(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             ITextBuilder sf = null;
@@ -336,7 +336,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useSubQuery)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -351,7 +351,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.Convergence();
+                cmd.Combine();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -363,7 +363,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 for (int index = 0; index < sQueryInfo.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -381,7 +381,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sf != null)
             {
                 // 合并 WHERE
-                cmd.Convergence();
+                cmd.Combine();
 
                 indent -= 1;
                 jf.Indent = indent;
@@ -407,7 +407,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Convergence();
+                cmd.Combine();
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQueryInfo.Take == 0 && sQueryInfo.Skip == 0)
                 {
@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, true, token) as SelectCommand;
+                Command_Select cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, true, token) as Command_Select;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -575,7 +575,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQueryInfo.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation };
+                var cmd2 = new Command_Select(this, aliases, token) { HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
@@ -658,7 +658,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd2 = new SelectCommand(this, aliases, token) { HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation };
+                var cmd2 = new Command_Select(this, aliases, token) { HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

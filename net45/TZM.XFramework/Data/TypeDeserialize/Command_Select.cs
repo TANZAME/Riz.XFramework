@@ -6,14 +6,14 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// SELECT 语义的SQL命令描述
+    /// 查询语义的SQL命令
     /// </summary>
-    public class DbCommandDefinition_Select : DbCommandDefinition
+    public class Command_Select : Command, IMapping
     {
-        private bool _haveListNavigation = false;
-        private bool _convergence = false;
-        private ISqlBuilder _joinFragment = null;
-        private ISqlBuilder _whereFragment = null;
+        private bool _haveManyNavigation = false;
+        private bool _hasCombine = false;
+        private ITextBuilder _joinFragment = null;
+        private ITextBuilder _whereFragment = null;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
         private IDictionary<string, MemberExpression> _navMembers = null;
@@ -21,22 +21,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        public bool HaveListNavigation
+        public bool HaveManyNavigation
         {
-            get { return _haveListNavigation; }
-            set { _haveListNavigation = value; }
+            get { return _haveManyNavigation; }
+            set { _haveManyNavigation = value; }
         }
 
         /// <summary>
         /// 合并外键、WHERE、JOIN
         /// </summary>
-        public virtual void Convergence()
+        public virtual void Combine()
         {
-            if (!_convergence)
+            if (!_hasCombine)
             {
                 this.AppendNavigation();
                 _joinFragment.Append(_whereFragment);
-                _convergence = true;
+                _hasCombine = true;
             }
         }
 
@@ -47,8 +47,8 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (!_convergence) this.Convergence();
-                this.Parameters = _joinFragment.Parameters;
+                if (!_hasCombine) this.Combine();
+                this.Parameters = _joinFragment.Token != null ? _joinFragment.Token.Parameters : null;
                 string commandText = _joinFragment.ToString();
                 return commandText;
             }
@@ -76,28 +76,28 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// JOIN（含） 之前的片断
         /// </summary>
-        public virtual ISqlBuilder JoinFragment { get { return _joinFragment; } }
+        public virtual ITextBuilder JoinFragment { get { return _joinFragment; } }
 
         /// <summary>
         /// Where 之后的片断
         /// </summary>
-        public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
+        public virtual ITextBuilder WhereFragment { get { return _whereFragment; } }
 
         /// <summary>
-        /// 实例化 <see cref="DbCommandDefinition_Select"/> 类的新实例
+        /// 实例化 <see cref="Command_Select"/> 类的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
-        /// <param name="parameters">已存在的参数列表</param>
-        public DbCommandDefinition_Select(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
+        /// <param name="token">解析上下文参数</param>
+        public Command_Select(IDbQueryProvider provider, TableAliasCache aliases, ParserToken token)
             : base(string.Empty, null, System.Data.CommandType.Text)
         {
             _provider = provider;
             _aliases = aliases;
             _navMembers = new Dictionary<string, MemberExpression>();
 
-            _joinFragment = provider.CreateSqlBuilder(parameters);
-            _whereFragment = provider.CreateSqlBuilder(parameters);
+            _joinFragment = provider.CreateSqlBuilder(token);
+            _whereFragment = provider.CreateSqlBuilder(token);
         }
 
         /// <summary>
@@ -120,9 +120,9 @@ namespace TZM.XFramework.Data
             if (this._navMembers == null || this._navMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HaveListNavigation) _aliases = new TableAliasCache(_aliases.ObviousAlias);
+            if (this.HaveManyNavigation) _aliases = new TableAliasCache(_aliases.Declared);
             //开始产生LEFT JOIN 子句
-            ISqlBuilder builder = this.JoinFragment;
+            ITextBuilder builder = this.JoinFragment;
             foreach (var kvp in _navMembers)
             {
                 string key = kvp.Key;
@@ -152,11 +152,12 @@ namespace TZM.XFramework.Data
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (_navMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
+                        innerAlias = _aliases.GetNavigationTableAlias(innerKey);
                     }
                 }
 
                 string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
-                string alias2 = _aliases.GetTableAlias(outerKey);
+                string alias2 = _aliases.GetNavigationTableAlias(outerKey);
 
 
                 builder.AppendNewLine();

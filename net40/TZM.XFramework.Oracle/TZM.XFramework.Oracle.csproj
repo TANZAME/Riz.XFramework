@@ -80,11 +80,11 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs">
       <Link>Data\SqlClient\OracleSqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleInsertCommand.cs">
-      <Link>Data\TypeDeserialize\OracleInsertCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_Insert.cs">
+      <Link>Data\TypeDeserialize\OracleCommand_Insert.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleSelectInfoCommand.cs">
-      <Link>Data\TypeDeserialize\OracleSelectInfoCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_SelectInfo.cs">
+      <Link>Data\TypeDeserialize\OracleCommand_SelectInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\OracleTypeDeserializerImpl.cs</Link>

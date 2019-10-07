@@ -81,8 +81,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs">
       <Link>Data\TypeDeserialize\NpgCommandType.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgSelectInfoCommand.cs">
-      <Link>Data\TypeDeserialize\NpgSelectInfoCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommand_SelectInfo.cs">
+      <Link>Data\TypeDeserialize\NpgCommand_SelectInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\NpgTypeDeserializerImpl.cs</Link>

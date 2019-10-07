@@ -149,7 +149,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
-                    if (cmd2 is SelectCommand)
+                    if (cmd2 is Command_Select)
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
 
@@ -283,7 +283,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            SelectCommand cmd = new SelectCommand(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
+            Command_Select cmd = new Command_Select(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -475,7 +475,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -491,7 +491,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
-                cmd.Convergence();
+                cmd.Combine();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -503,7 +503,7 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
             {
-                cmd.Convergence();
+                cmd.Combine();
                 for (int index = 0; index < sQueryInfo.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
@@ -521,7 +521,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.Take > 0 || sQueryInfo.Skip > 0)
             {
                 // 合并 WHERE
-                cmd.Convergence();
+                cmd.Combine();
 
                 indent -= 1;
                 jf.Indent = indent;
@@ -560,7 +560,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (sQueryInfo.HaveAny)
             {
                 // 产生 WHERE 子句
-                cmd.Convergence();
+                cmd.Combine();
                 // 如果没有分页，则显式指定只查一笔记录
                 if (sQueryInfo.Take == 0 && sQueryInfo.Skip == 0)
                 {
@@ -724,7 +724,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                SelectCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, false, token) as SelectCommand;
+                Command_Select cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, false, token) as Command_Select;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -738,7 +738,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var cmd = new OracleInsertCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            var cmd = new OracleCommand_Insert(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
             cmd.HaveSEQ = useSEQ;
             return cmd;
         }
@@ -784,7 +784,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQueryInfo.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
+                var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
                 cmd2.HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins, dQueryInfo.SelectInfo.WhereExpression);
@@ -879,7 +879,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new OracleUpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new OracleSelectInfoCommand(this, aliases, token);
+                var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
                 cmd2.HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins, uQueryInfo.SelectInfo.WhereExpression);

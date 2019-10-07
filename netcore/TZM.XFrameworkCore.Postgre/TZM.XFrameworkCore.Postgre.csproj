@@ -47,7 +47,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs" Link="SqlClient\NpgMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs" Link="SqlClient\NpgSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs" Link="TypeDeserialize\NpgCommandType.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgSelectInfoCommand.cs" Link="TypeDeserialize\NpgSelectInfoCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommand_SelectInfo.cs" Link="TypeDeserialize\NpgCommand_SelectInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs" Link="TypeDeserialize\NpgTypeDeserializerImpl.cs" />
   </ItemGroup>
 

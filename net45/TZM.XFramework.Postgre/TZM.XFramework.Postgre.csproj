@@ -58,7 +58,7 @@
     <Compile Include="Data\SqlClient\NpgDbContext.cs" />
     <Compile Include="Data\TypeDeserialize\NpgCommandType.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" />
-    <Compile Include="Data\TypeDeserialize\NpgSelectInfoCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\NpgCommand_SelectInfo.cs" />
     <Compile Include="Data\SqlClient\NpgDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\NpgMethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\NpgSqlBuilder.cs" />

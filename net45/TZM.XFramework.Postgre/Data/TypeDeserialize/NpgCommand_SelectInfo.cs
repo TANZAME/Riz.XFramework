@@ -8,10 +8,10 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class NpgSelectInfoCommand : SelectCommand
+    public sealed class NpgCommand_SelectInfo : Command_Select
     {
         private ITextBuilder _onPhrase = null;
-        private bool _convergence = false;
+        private bool _hasCombine = false;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
         private readonly string _keywordName = string.Empty;
@@ -28,9 +28,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 合并外键、WHERE、JOIN
         /// </summary>
-        public override void Convergence()
+        public override void Combine()
         {
-            if (!_convergence)
+            if (!_hasCombine)
             {
                 this.AppendNavigation();
                 this.JoinFragment
@@ -42,15 +42,15 @@ namespace TZM.XFramework.Data
                     if (_onPhrase.Length > 0) this.JoinFragment.Append(" AND ");
                     this.JoinFragment.Append(this.WhereFragment);
                 }
-                _convergence = true;
+                _hasCombine = true;
             }
         }
 
         /// <summary>
-        /// 实例化 <see cref="Builder" /> 的新实例
+        /// 实例化 <see cref="NpgCommand_SelectInfo" /> 的新实例
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public NpgSelectInfoCommand(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserToken token)
+        public NpgCommand_SelectInfo(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ParserToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;

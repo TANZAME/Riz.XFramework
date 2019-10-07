@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         public static new NpgTypeDeserializerImpl Instance = new NpgTypeDeserializerImpl();
 
         /// <summary>
-        /// 实例化 <see cref="OracleTypeDeserializerImpl"/> 类的新实例
+        /// 实例化 <see cref="NpgTypeDeserializerImpl"/> 类的新实例
         /// </summary>
         NpgTypeDeserializerImpl() : base()
         {

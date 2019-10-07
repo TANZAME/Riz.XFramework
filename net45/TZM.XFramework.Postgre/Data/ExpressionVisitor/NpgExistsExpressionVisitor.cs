@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(NpgSelectInfoCommand cmd)
+        public void Write(NpgCommand_SelectInfo cmd)
         {
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder on = cmd.OnPhrase;

@@ -1,24 +1,22 @@
-﻿using System;
-using System.Data;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿
+using System;
 
 namespace TZM.XFramework.Data
 {
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class OracleDbCommandDefinition_Delete : DbCommandDefinition_Select
+    public sealed class OracleCommand_SelectInfo : Command_Select
     {
-        private ISqlBuilder _onPhrase = null;
-        private bool _convergence = false;
+        private ITextBuilder _onPhrase = null;
+        private bool _hasCombine = false;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
 
         /// <summary>
         /// 导航属性的Join 表达式的 ON 子句
         /// </summary>
-        public ISqlBuilder OnPhrase
+        public ITextBuilder OnPhrase
         {
             get { return _onPhrase; }
         }
@@ -26,9 +24,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 合并外键、WHERE、JOIN
         /// </summary>
-        public override void Convergence()
+        public override void Combine()
         {
-            if (!_convergence)
+            if (!_hasCombine)
             {
                 this.AppendNavigation();
                 this.JoinFragment
@@ -40,26 +38,26 @@ namespace TZM.XFramework.Data
                     if (_onPhrase.Length > 0) this.JoinFragment.Append(" AND ");
                     this.JoinFragment.Append(this.WhereFragment);
                 }
-                _convergence = true;
+                _hasCombine = true;
             }
         }
 
         /// <summary>
         /// 实例化 <see cref="Builder" /> 的新实例
         /// </summary>
-        public OracleDbCommandDefinition_Delete(IDbQueryProvider provider, TableAliasCache aliases, List<IDbDataParameter> parameters)
-            : base(provider, aliases, parameters)
+        public OracleCommand_SelectInfo(IDbQueryProvider provider, TableAliasCache aliases, ParserToken token)
+            : base(provider, aliases, token)
         {
             _provider = provider;
             _aliases = aliases;
-            _onPhrase = _provider.CreateSqlBuilder(parameters);
+            _onPhrase = _provider.CreateSqlBuilder(token);
         }
 
         // 添加导航属性关联
         protected override void AppendNavigation()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
-            throw new NotSupportedException("OracleDbQueryProvider not support associate DELETE / UPDATE.  ");            
+            throw new NotSupportedException("OracleDbQueryProvider not support associate DELETE / UPDATE.  ");
         }
     }
 }

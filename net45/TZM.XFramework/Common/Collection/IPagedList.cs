@@ -22,12 +22,12 @@ namespace TZM.XFramework
         /// <summary>
         /// 记录总数
         /// </summary>
-        int TotalCount { get; }
+        int RowCount { get; }
 
         /// <summary>
         /// 总页数
         /// </summary>
-        int TotalPages { get; }
+        int Pages { get; }
 
         /// <summary>
         /// 能否进行上一次查询

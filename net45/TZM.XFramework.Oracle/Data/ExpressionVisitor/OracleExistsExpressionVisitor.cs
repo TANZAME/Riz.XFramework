@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(OracleSelectInfoCommand cmd)
+        public void Write(OracleCommand_SelectInfo cmd)
         {
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder on = cmd.OnPhrase;
