@@ -12,6 +12,11 @@ namespace TZM.XFramework.Data.SqlClient
     public class SqlBuilder : TextBuilder
     {
         /// <summary>
+        /// 无参数化 Builder
+        /// </summary>
+        internal static SqlBuilder NonTokenBuilder = null;
+
+        /// <summary>
         /// 实例化 <see cref="SqlBuilder"/> 类的新实例
         /// </summary>
         /// <param name="provider">提供者</param>
