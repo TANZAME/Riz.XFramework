@@ -45,17 +45,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL 命令是否含 DISTINCT 
         /// </summary>
-        public bool HaveDistinct { get; set; }
+        public bool HasDistinct { get; set; }
 
         /// <summary>
         /// 表达式是否是 Any 表达式
         /// </summary>
-        public bool HaveAny { get; set; }
+        public bool HasAny { get; set; }
 
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        public bool HaveManyNavigation { get; set; }
+        public bool HasMany { get; set; }
 
         /// <summary>
         /// 跳过序列中指定数量的元素
@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool ResultByManyNavigation { get; set; }
+        public bool SubQueryByMany { get; set; }
 
         /// <summary>
         /// 并集

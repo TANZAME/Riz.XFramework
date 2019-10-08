@@ -34,7 +34,6 @@ namespace TZM.XFramework.Data
 
                 if (member.Expression.CanEvaluate())
                     _builder.Append(member.Expression.Evaluate().Value, member.Member, node.Type);
-                //base.VisitConstant(member.Expression.Evaluate(), member.Member);
                 else
                     base.Visit(member.Expression);
 

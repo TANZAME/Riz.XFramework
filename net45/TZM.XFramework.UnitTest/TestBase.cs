@@ -1188,6 +1188,14 @@ namespace TZM.XFramework.UnitTest
             var demo = new TDemo { DemoId = 1 };
             context.Delete(demo);
             context.SubmitChanges();
+
+            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault();
+            if (account != null)
+            {
+                context.Delete(account);
+                context.SubmitChanges();
+            }
+
 #if !net40
             demo = new TDemo { DemoId = 1 };
             context.Delete(demo);

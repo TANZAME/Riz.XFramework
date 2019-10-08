@@ -23,7 +23,8 @@ namespace TZM.XFramework.Data
         //{new App() {Id = p.Id}} 
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            if (node.Bindings.Count == 0) throw new XFrameworkException("Update<T>(Expression<Func<T, T>> action, Expression<Func<T, bool>> predicate) at least update one member.");
+            if (node.Bindings == null || node.Bindings.Count == 0)
+                throw new XFrameworkException("Update<T> at least update one member.");
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {

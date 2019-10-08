@@ -272,18 +272,18 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> subQuery = sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.StatisExpression != null) sQueryInfo = subQuery;
+            if (sQueryInfo.HasMany && subQuery != null && subQuery.StatisExpression != null) sQueryInfo = subQuery;
 
             bool useStatis = sQueryInfo.StatisExpression != null;
-            bool useNesting = sQueryInfo.HaveDistinct || sQueryInfo.GroupByExpression != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
+            bool useNesting = sQueryInfo.HasDistinct || sQueryInfo.GroupByExpression != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || sQueryInfo.Skip > 0) && !sQueryInfo.HaveAny && (!sQueryInfo.ResultByManyNavigation || (sQueryInfo.Skip > 0 || sQueryInfo.Take > 0));
+            bool useOrderBy = (!useStatis || sQueryInfo.Skip > 0) && !sQueryInfo.HasAny && (!sQueryInfo.SubQueryByMany || (sQueryInfo.Skip > 0 || sQueryInfo.Take > 0));
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HaveManyNavigation = sQueryInfo.HaveManyNavigation };
+            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -320,7 +320,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (jf.Indent > 0) jf.AppendNewLine();
             jf.Append("SELECT ");
 
-            if (sQueryInfo.HaveAny)
+            if (sQueryInfo.HasAny)
             {
                 jf.Append("CASE WHEN COUNT(1) = 1 THEN 1 ELSE 0 END FROM (");
                 indent += 1;
@@ -340,11 +340,11 @@ namespace TZM.XFramework.Data.SqlClient
             else
             {
                 // DISTINCT 子句
-                if (sQueryInfo.HaveDistinct) jf.Append("DISTINCT ");
+                if (sQueryInfo.HasDistinct) jf.Append("DISTINCT ");
 
                 #region 选择字段
 
-                if (!sQueryInfo.HaveAny)
+                if (!sQueryInfo.HasAny)
                 {
                     // SELECT 范围
                     ITextBuilder sf = this.CreateSqlBuilder(token);
@@ -488,7 +488,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (sQueryInfo.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQueryInfo.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
                 cmd.CombineFragments();
@@ -557,7 +557,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region Any 子句
 
             // 'Any' 子句
-            if (sQueryInfo.HaveAny)
+            if (sQueryInfo.HasAny)
             {
                 // 产生 WHERE 子句
                 cmd.CombineFragments();
@@ -748,7 +748,6 @@ namespace TZM.XFramework.Data.SqlClient
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
-            bool useKey = false;
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -756,36 +755,33 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dQueryInfo.Entity != null)
             {
+                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                    throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
+
                 object entity = dQueryInfo.Entity;
 
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var kv in typeRuntime.Invokers)
+                foreach (var kvp in typeRuntime.KeyInvokers)
                 {
-                    MemberInvokerBase invoker = kv.Value;
+                    var invoker = kvp.Value;
                     var column = invoker.Column;
 
-                    if (column != null && column.IsKey)
-                    {
-                        useKey = true;
-                        var value = invoker.Invoke(entity);
-                        var seg = builder.GetSqlValue(value, column);
-                        builder.AppendMember("t0", invoker.Member.Name);
-                        builder.Append(" = ");
-                        builder.Append(seg);
-                        builder.Append(" AND ");
-                    };
+                    var value = invoker.Invoke(entity);
+                    var seg = builder.GetSqlValue(value, column);
+                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.Append(" = ");
+                    builder.Append(seg);
+                    builder.Append(" AND ");
                 }
                 builder.Length -= 5;
-
-                if (!useKey) throw new XFrameworkException("Delete<T>(T value) require T must have key column.");
             }
             else if (dQueryInfo.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
                 var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
-                cmd2.HaveManyNavigation = dQueryInfo.SelectInfo.HaveManyNavigation;
+                cmd2.HasMany = dQueryInfo.SelectInfo.HasMany;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins, dQueryInfo.SelectInfo.WhereExpression);
                 visitor0.Write(cmd2);
@@ -874,13 +870,22 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (uQueryInfo.Expression != null)
             {
+                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                    throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
+
+                builder.Length = 0;
+                builder.Append("MERGE INTO ");
+                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                builder.AppendNewLine(" t0");
+                builder.Append("USING (");
+
                 TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
                 visitor = new OracleUpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
                 visitor.Write(builder);
 
                 var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
-                cmd2.HaveManyNavigation = uQueryInfo.SelectInfo.HaveManyNavigation;
+                cmd2.HasMany = uQueryInfo.SelectInfo.HasMany;
 
                 var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins, uQueryInfo.SelectInfo.WhereExpression);
                 visitor0.Write(cmd2);

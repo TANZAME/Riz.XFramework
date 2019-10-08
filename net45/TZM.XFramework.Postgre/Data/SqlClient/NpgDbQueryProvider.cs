@@ -142,18 +142,18 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> subQuery = sQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQuery.HaveManyNavigation && subQuery != null && subQuery.StatisExpression != null) sQuery = subQuery;
+            if (sQuery.HasMany && subQuery != null && subQuery.StatisExpression != null) sQuery = subQuery;
 
             bool useStatis = sQuery.StatisExpression != null;
-            bool useNesting = sQuery.HaveDistinct || sQuery.GroupByExpression != null || sQuery.Skip > 0 || sQuery.Take > 0;
+            bool useNesting = sQuery.HasDistinct || sQuery.GroupByExpression != null || sQuery.Skip > 0 || sQuery.Take > 0;
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
             // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HaveAny && (!sQuery.ResultByManyNavigation || (sQuery.Skip > 0 || sQuery.Take > 0));
+            bool useOrderBy = (!useStatis || sQuery.Skip > 0) && !sQuery.HasAny && (!sQuery.SubQueryByMany || (sQuery.Skip > 0 || sQuery.Take > 0));
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HaveManyNavigation = sQuery.HaveManyNavigation };
+            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQuery.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -190,7 +190,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (jf.Indent > 0) jf.AppendNewLine();
             jf.Append("SELECT ");
 
-            if (sQuery.HaveAny)
+            if (sQuery.HasAny)
             {
                 jf.Append("CASE WHEN COUNT(1) = 1 THEN 1 ELSE 0 END FROM (");
                 indent += 1;
@@ -211,11 +211,11 @@ namespace TZM.XFramework.Data.SqlClient
             {
 
                 // DISTINCT 子句
-                if (sQuery.HaveDistinct) jf.Append("DISTINCT ");
+                if (sQuery.HasDistinct) jf.Append("DISTINCT ");
 
                 #region 选择字段
 
-                if (!sQuery.HaveAny)
+                if (!sQuery.HasAny)
                 {
                     // SELECT 范围
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, sQuery);
@@ -311,7 +311,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (sQuery.HaveManyNavigation && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQuery.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
@@ -341,7 +341,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region Any 子句
 
             // 'Any' 子句
-            if (sQuery.HaveAny)
+            if (sQuery.HasAny)
             {
                 // 产生 WHERE 子句
                 cmd.CombineFragments();
@@ -483,7 +483,6 @@ namespace TZM.XFramework.Data.SqlClient
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
-            bool useKey = false;
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -491,36 +490,33 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dQuery.Entity != null)
             {
+                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                    throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
+
                 object entity = dQuery.Entity;
 
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var kv in typeRuntime.Invokers)
+                foreach (var kvp in typeRuntime.KeyInvokers)
                 {
-                    MemberInvokerBase invoker = kv.Value;
+                    var invoker = kvp.Value;
                     var column = invoker.Column;
 
-                    if (column != null && column.IsKey)
-                    {
-                        useKey = true;
-                        var value = invoker.Invoke(entity);
-                        var seg = builder.GetSqlValue(value, column);
-                        builder.AppendMember("t0", invoker.Member.Name);
-                        builder.Append(" = ");
-                        builder.Append(seg);
-                        builder.Append(" AND ");
-                    };
+                    var value = invoker.Invoke(entity);
+                    var seg = builder.GetSqlValue(value, column);
+                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.Append(" = ");
+                    builder.Append(seg);
+                    builder.Append(" AND ");
                 }
                 builder.Length -= 5;
-
-                if (!useKey) throw new XFrameworkException("Delete<T>(T value) require T must have key column.");
             }
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
                 var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.DELETE, token);
-                cmd2.HaveManyNavigation = dQuery.SelectInfo.HaveManyNavigation;
+                cmd2.HasMany = dQuery.SelectInfo.HasMany;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Joins, NpgCommandType.DELETE);
                 visitor0.Write(cmd2);
@@ -605,7 +601,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor.Write(builder);
 
                 var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.UPDATE, token);
-                cmd2.HaveManyNavigation = uQuery.SelectInfo.HaveManyNavigation;
+                cmd2.HasMany = uQuery.SelectInfo.HasMany;
 
                 var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Joins, NpgCommandType.UPDATE);
                 visitor0.Write(cmd2);

@@ -21,7 +21,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        public bool HaveManyNavigation
+        public bool HasMany
         {
             get { return _haveManyNavigation; }
             set { _haveManyNavigation = value; }
@@ -120,7 +120,7 @@ namespace TZM.XFramework.Data
             if (this._navMembers == null || this._navMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HaveManyNavigation) _aliases = new TableAliasCache(_aliases.Declared);
+            if (this.HasMany) _aliases = new TableAliasCache(_aliases.Declared);
             //开始产生LEFT JOIN 子句
             ITextBuilder builder = this.JoinFragment;
             foreach (var kvp in _navMembers)

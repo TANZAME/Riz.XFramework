@@ -137,7 +137,7 @@ namespace TZM.XFramework.Data
 
                     case DbExpressionType.SelectMany:
                         selectExpression = curExpr.Expressions[1];
-                        if (CheckSelectMany(dbQuery.DbExpressions, curExpr, startIndex)) joins.Add(curExpr);
+                        if (IsSelectMany(dbQuery.DbExpressions, curExpr, startIndex)) joins.Add(curExpr);
                         continue;
 
                     case DbExpressionType.Single:
@@ -189,8 +189,8 @@ namespace TZM.XFramework.Data
 
             var sQueryInfo = new DbQueryableInfo_Select<TElement>();
             sQueryInfo.FromType = type;
-            sQueryInfo.HaveDistinct = isDistinct;
-            sQueryInfo.HaveAny = isAny;
+            sQueryInfo.HasDistinct = isDistinct;
+            sQueryInfo.HasAny = isAny;
             sQueryInfo.Joins = joins;
             sQueryInfo.OrderBys = orderBys;
             sQueryInfo.GroupByExpression = groupByExpression;
@@ -343,12 +343,12 @@ namespace TZM.XFramework.Data
             var initExpression = expression as MemberInitExpression;
             var newExpression = expression as NewExpression;
 
-            bool hasManyNavgation = CheckManyNavigation(include);
-            if (!hasManyNavgation) hasManyNavgation = initExpression != null && CheckManyNavigation<TElement>(initExpression);
+            bool hasMany = DbQueryParser.IsHasMany(include);
+            if (!hasMany) hasMany = initExpression != null && IsHasMany<TElement>(initExpression);
 
             #region 嵌套语义
 
-            if (hasManyNavgation)
+            if (hasMany)
             {
 
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
@@ -363,7 +363,7 @@ namespace TZM.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     sQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                sQueryInfo.ResultByManyNavigation = true;
+                sQueryInfo.SubQueryByMany = true;
                 sQueryInfo.Includes = new List<DbExpression>(0);
 
                 var outQueryInfo = new DbQueryableInfo_Select<TElement>();
@@ -372,7 +372,7 @@ namespace TZM.XFramework.Data
                 outQueryInfo.Joins = new List<DbExpression>(0);
                 outQueryInfo.OrderBys = new List<DbExpression>(0);
                 outQueryInfo.Includes = include;
-                outQueryInfo.HaveManyNavigation = true;
+                outQueryInfo.HasMany = true;
                 outQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, select);
 
                 #region 排序
@@ -393,8 +393,8 @@ namespace TZM.XFramework.Data
                         List<DbExpression> innerOrderBy = null;
                         foreach (var dbExpression in sQueryInfo.OrderBys)
                         {
-                            hasManyNavgation = CheckManyNavigation(dbExpression.Expressions[0] as LambdaExpression);
-                            if (!hasManyNavgation)
+                            hasMany = IsHasMany(dbExpression.Expressions[0] as LambdaExpression);
+                            if (!hasMany)
                             {
                                 if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
                                 innerOrderBy.Add(dbExpression);
@@ -459,7 +459,7 @@ namespace TZM.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        static bool CheckManyNavigation<T>(MemberInitExpression node)
+        static bool IsHasMany<T>(MemberInitExpression node)
         {
             for (int i = 0; i < node.Bindings.Count; i++)
             {
@@ -474,7 +474,7 @@ namespace TZM.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool hasManyNavgation = CheckManyNavigation<T>(initExpression);
+                    bool hasManyNavgation = IsHasMany<T>(initExpression);
                     if (hasManyNavgation) return true;
                 }
             }
@@ -483,9 +483,9 @@ namespace TZM.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        static bool CheckManyNavigation(LambdaExpression node)
+        static bool IsHasMany(LambdaExpression node)
         {
-            bool hasManyNavgation = false;
+            bool hasMany = false;
             Expression myExpression = node.Body;
             while (myExpression.Acceptable())
             {
@@ -497,21 +497,21 @@ namespace TZM.XFramework.Data
                     if (isGetItem) myExpression = methodExpression.Object;
                 }
 
+                // 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
                 if (TypeUtils.IsCollectionType(myExpression.Type))
                 {
-                    hasManyNavgation = true;
+                    hasMany = true;
                     break;
                 }
             }
 
-            return hasManyNavgation;
+            return hasMany;
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        static bool CheckManyNavigation(List<DbExpression> include)
+        static bool IsHasMany(List<DbExpression> include)
         {
-            bool hasManyNavgation = false;
-
+            bool hasMany = false;
             foreach (DbExpression dbExpression in include)
             {
                 Expression myExpression = dbExpression.Expressions[0];
@@ -521,12 +521,12 @@ namespace TZM.XFramework.Data
                 // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
                 if (TypeUtils.IsCollectionType(myExpression.Type))
                 {
-                    hasManyNavgation = true;
+                    hasMany = true;
                     break;
                 }
             }
 
-            return hasManyNavgation;
+            return hasMany;
         }
 
         // 合并 'Where' 表达式谓词
@@ -545,7 +545,7 @@ namespace TZM.XFramework.Data
         }
 
         // 判断表达式是否是 CROSS JOIN
-        static bool CheckSelectMany(IList<DbExpression> collection, DbExpression expr, int start = 0)
+        static bool IsSelectMany(IList<DbExpression> collection, DbExpression expr, int start = 0)
         {
             Expression node = expr.Expressions[0];
             if (node.NodeType == ExpressionType.Lambda)

@@ -116,7 +116,7 @@ namespace TZM.XFramework.Data
                 if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(typeof(T), _reader, _map.Columns, 0, _map.Navigations.MinIndex);
                 model = (T)_modelDeserializer(_reader);
                 // 若有 1:n 的导航属性，判断当前行数据与上一行数据是否相同
-                if (prevModel != null && _map.HaveManyNavigation)
+                if (prevModel != null && _map.HasMany)
                 {
                     isThisLine = true;
                     foreach (var key in _typeRuntime.KeyInvokers)

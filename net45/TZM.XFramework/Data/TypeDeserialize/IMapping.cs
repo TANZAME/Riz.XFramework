@@ -25,6 +25,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
         /// </summary>
-        bool HaveManyNavigation { get; set; }
+        bool HasMany { get; set; }
     }
 }
