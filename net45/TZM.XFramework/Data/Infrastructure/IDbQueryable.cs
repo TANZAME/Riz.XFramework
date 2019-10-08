@@ -33,7 +33,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 当前查询上下文
         /// </summary>
-        IDbContext DbContext { get; set; }
+        IDbContext DbContext { get; }
 
         /// <summary>
         /// 获取或设置该查询是否需要参数化

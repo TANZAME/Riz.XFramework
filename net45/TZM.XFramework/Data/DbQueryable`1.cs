@@ -26,8 +26,8 @@ namespace TZM.XFramework.Data
         /// <param name="context"></param>
         /// <param name="collection"></param>
         public DbQueryable(IDbContext context, IList<DbExpression> collection)
+            : base(context)
         {
-            this.DbContext = context;
             this._dbExpressions = new ReadOnlyCollection<DbExpression>(collection != null ? collection : new List<DbExpression>(0));
         }
 

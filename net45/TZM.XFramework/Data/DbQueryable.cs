@@ -72,10 +72,15 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 当前查询上下文
         /// </summary>
-        public IDbContext DbContext
+        public IDbContext DbContext { get { return _context; } }
+
+        /// <summary>
+        /// 实例化类<see cref="DbQueryable"/>的新实例
+        /// </summary>
+        /// <param name="context"></param>
+        public DbQueryable(IDbContext context)
         {
-            get { return _context; }
-            set { _context = value; }
+            this._context = context;
         }
 
         /// <summary>
