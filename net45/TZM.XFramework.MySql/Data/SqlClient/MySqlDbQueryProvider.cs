@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (Command_Select)this.ParseSelectCommandImpl(sQueryInfo, indent, isOuter, token);
+            var cmd = (NavigationCommand)this.ParseSelectCommandImpl(sQueryInfo, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             ITextBuilder sf = null;
@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                Command_Select cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, true, token) as Command_Select;
+                NavigationCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, true, token) as NavigationCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -571,7 +571,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQueryInfo.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new Command_Select(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
@@ -654,7 +654,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd2 = new Command_Select(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

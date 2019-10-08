@@ -6,7 +6,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class OracleCommand_SelectInfo : Command_Select
+    public sealed class OracleCommand_SelectInfo : NavigationCommand
     {
         private ITextBuilder _onPhrase = null;
         private bool _hasCombine = false;

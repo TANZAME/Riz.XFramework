@@ -149,7 +149,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
-                    if (cmd2 is Command_Select)
+                    if (cmd2 is NavigationCommand)
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
 
@@ -283,7 +283,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).IsOuter = isOuter;
@@ -724,7 +724,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                Command_Select cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, false, token) as Command_Select;
+                NavigationCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, false, token) as NavigationCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -880,20 +880,33 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append("USING (");
 
                 TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
-                ExpressionVisitorBase visitor = null;
-                visitor = new OracleUpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
-                visitor.Write(builder);
+                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                ITextBuilder jf = cmd2.JoinFragment;
+                ITextBuilder wf = cmd2.WhereFragment;
 
-                var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
-                cmd2.HasMany = uQueryInfo.SelectInfo.HasMany;
+                // SELECT 范围
+                var visitor2 = new ColumnExpressionVisitor(this, aliases, uQueryInfo.Expression);
+                visitor2.Write(jf);
+                cmd2.Columns = visitor2.Columns;
+                cmd2.Navigations = visitor2.Navigations;
+                cmd2.AddNavMembers(visitor2.NavMembers);
 
-                var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins, uQueryInfo.SelectInfo.WhereExpression);
-                visitor0.Write(cmd2);
 
-                var visitor1 = new OracleWhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
-                visitor1.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor1.NavMembers);
-                builder.Append(cmd2.CommandText);
+
+                //ExpressionVisitorBase visitor = null;
+                //visitor = new OracleUpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
+                //visitor.Write(builder);
+
+                //var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
+                //cmd2.HasMany = uQueryInfo.SelectInfo.HasMany;
+
+                //var visitor0 = new OracleExistsExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins, uQueryInfo.SelectInfo.WhereExpression);
+                //visitor0.Write(cmd2);
+
+                //var visitor1 = new OracleWhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
+                //visitor1.Write(cmd2.WhereFragment);
+                //cmd2.AddNavMembers(visitor1.NavMembers);
+                //builder.Append(cmd2.CommandText);
             }
 
             builder.Append(';');

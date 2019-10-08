@@ -148,7 +148,7 @@
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="Data\TypeDeserialize\Command_Select.cs" />
+    <Compile Include="Data\TypeDeserialize\NavigationCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />

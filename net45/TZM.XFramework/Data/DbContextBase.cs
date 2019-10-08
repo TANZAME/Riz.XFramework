@@ -171,8 +171,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Update<T>(T TEntity)
         {
-            IDbQueryable<T> query = this.GetTable<T>();
-            this.Update<T>(Expression.Constant(TEntity), query);
+            IDbQueryable<T> source = this.GetTable<T>();
+            this.Update<T>(Expression.Constant(TEntity), source);
         }
 
         /// <summary>
@@ -180,50 +180,50 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual void Update<T>(Expression<Func<T, object>> updateExpression, Expression<Func<T, bool>> predicate)
         {
-            IDbQueryable<T> query = this.GetTable<T>();
-            this.Update<T>((Expression)updateExpression, query.Where(predicate));
+            IDbQueryable<T> source = this.GetTable<T>();
+            this.Update<T>((Expression)updateExpression, source.Where(predicate));
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> query)
+        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> source)
         {
-            this.Update<T>((Expression)updateExpression, query);
+            this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> query)
+        public virtual void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> source)
         {
-            this.Update<T>((Expression)updateExpression, query);
+            this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> query)
+        public virtual void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> source)
         {
-            this.Update<T>((Expression)updateExpression, query);
+            this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> query)
+        public virtual void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> source)
         {
-            this.Update<T>((Expression)updateExpression, query);
+            this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        protected void Update<T>(Expression updateExpression, IDbQueryable<T> query)
+        protected void Update<T>(Expression updateExpression, IDbQueryable<T> source)
         {
-            query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Update, updateExpression));
+            source = source.CreateQuery<T>(new DbExpression(DbExpressionType.Update, updateExpression));
             lock (this._oLock)
-                _dbQueryables.Add(query);
+                _dbQueryables.Add(source);
         }
 
         /// <summary>

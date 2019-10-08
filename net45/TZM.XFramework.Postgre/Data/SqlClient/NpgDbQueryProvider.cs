@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (Command_Select)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
+            var cmd = (NavigationCommand)this.ParseSelectCommandImpl<T>(sQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -153,7 +153,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQuery.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQuery, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQuery.HasMany };
+            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQuery.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -460,7 +460,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                Command_Select cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, token) as Command_Select;
+                NavigationCommand cmd2 = this.ParseSelectCommandImpl(nQuery.SelectInfo, 0, false, token) as NavigationCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var kvp in cmd2.Columns)
                 {

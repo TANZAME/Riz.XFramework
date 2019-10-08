@@ -550,12 +550,12 @@ namespace TZM.XFramework.Data
                 _builder.Append("EXISTS(");
                 _builder.Append(cmd.CommandText);
 
-                if (((Command_Select)cmd).WhereFragment.Length > 0)
+                if (((NavigationCommand)cmd).WhereFragment.Length > 0)
                     _builder.Append(" AND ");
                 else
                     _builder.Append("WHERE ");
 
-                var kv = ((Command_Select)cmd).Columns.FirstOrDefault();
+                var kv = ((NavigationCommand)cmd).Columns.FirstOrDefault();
                 _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
 
                 _builder.Append(" = ");

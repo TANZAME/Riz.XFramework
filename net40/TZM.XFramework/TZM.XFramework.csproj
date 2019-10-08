@@ -337,9 +337,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command_Select.cs">
-      <Link>Data\TypeDeserialize\Command_Select.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
       <Link>Data\TypeDeserialize\IMapping.cs</Link>
     </Compile>
@@ -348,6 +345,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs">
       <Link>Data\TypeDeserialize\NavigationCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCommand.cs">
+      <Link>Data\TypeDeserialize\NavigationCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>

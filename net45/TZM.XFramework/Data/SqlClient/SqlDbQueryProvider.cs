@@ -1,9 +1,9 @@
 ﻿
 using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq.Expressions;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Data.Common;
 
 namespace TZM.XFramework.Data.SqlClient
 {
@@ -93,7 +93,6 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         private SqlDbQueryProvider() : base()
         {
-
         }
 
         /// <summary>
@@ -140,7 +139,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            Command_Select cmd = new Command_Select(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
 
@@ -167,7 +166,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Indent = indent;
             }
 
-            #endregion
+            #endregion 嵌套查询
 
             #region 选择子句
 
@@ -197,7 +196,7 @@ namespace TZM.XFramework.Data.SqlClient
                 if (sQueryInfo.HasDistinct) jf.Append("DISTINCT ");
                 // TOP 子句
                 if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", jf.GetSqlValue(sQueryInfo.Take));
-                // Any 
+                // Any
                 if (sQueryInfo.HasAny) jf.Append("TOP 1 1");
 
                 #region 字段
@@ -213,10 +212,10 @@ namespace TZM.XFramework.Data.SqlClient
                     cmd.AddNavMembers(visitor2.NavMembers);
                 }
 
-                #endregion
+                #endregion 字段
             }
 
-            #endregion
+            #endregion 选择子句
 
             #region 顺序解析
 
@@ -274,7 +273,7 @@ namespace TZM.XFramework.Data.SqlClient
                 cmd.AddNavMembers(visitor.NavMembers);
             }
 
-            #endregion
+            #endregion 顺序解析
 
             #region 分页查询
 
@@ -294,7 +293,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
             }
 
-            #endregion
+            #endregion 分页查询
 
             #region 嵌套查询
 
@@ -309,7 +308,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Append(' ');
             }
 
-            #endregion
+            #endregion 嵌套查询
 
             #region 嵌套导航
 
@@ -321,7 +320,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor.Write(jf);
             }
 
-            #endregion
+            #endregion 嵌套导航
 
             #region 并集查询
 
@@ -337,10 +336,9 @@ namespace TZM.XFramework.Data.SqlClient
                     Command cmd2 = this.ParseSelectCommand<T>(sQueryInfo.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
                     jf.Append(cmd2.CommandText);
                 }
-
             }
 
-            #endregion
+            #endregion 并集查询
 
             #region Any 子句
 
@@ -354,7 +352,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Append(") SELECT 1 ELSE SELECT 0");
             }
 
-            #endregion
+            #endregion Any 子句
 
             return cmd;
         }
@@ -450,7 +448,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                Command_Select cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as Command_Select;
+                NavigationCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as NavigationCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -478,7 +476,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dQueryInfo.Entity != null)
             {
-                if(typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
                     throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
 
                 object entity = dQueryInfo.Entity;
@@ -504,7 +502,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 IDbQueryable dbQueryable = dQueryInfo.SourceQuery;
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new Command_Select(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
@@ -580,11 +578,9 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.Append(" t0");
 
-
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
                 builder.Append(whereBuilder);
-
             }
             else if (uQueryInfo.Expression != null)
             {
@@ -598,7 +594,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new Command_Select(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

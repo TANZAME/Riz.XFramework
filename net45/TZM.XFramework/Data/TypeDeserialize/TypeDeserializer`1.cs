@@ -267,7 +267,7 @@ namespace TZM.XFramework.Data
                                 bool isAny = false;
                                 if (_map.Navigations.Count > 1)
                                 {
-                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => CheckHaveManyNavigation(x.Value.Member));
+                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Value.Member));
                                     if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
                                         if (!_manyNavvgationKeys.ContainsKey(keyName)) _manyNavvgationKeys[keyName] = new HashSet<string>();
@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data
         }
 
         // 检查当前成员是否是1：N关系的导航属性
-        static bool CheckHaveManyNavigation(MemberInfo info)
+        static bool IsHasMany(MemberInfo info)
         {
             if (info == null) return false;
 

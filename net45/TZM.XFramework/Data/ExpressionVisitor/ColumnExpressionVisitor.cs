@@ -59,13 +59,21 @@ namespace TZM.XFramework.Data
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
         /// </summary>
         public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select qQuery)
-            : base(provider, aliases, qQuery.SelectExpression.Expressions != null ? qQuery.SelectExpression.Expressions[0] : null)
+            : this(provider, aliases, qQuery.SelectExpression.Expressions != null ? qQuery.SelectExpression.Expressions[0] : null)
         {
-            _provider = provider;
-            _aliases = aliases;
             _qQuery = qQuery;
             _groupBy = qQuery.GroupByExpression;
             _include = qQuery.Includes;
+        }
+
+        /// <summary>
+        /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
+        /// </summary>
+        public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
+            : base(provider, aliases, expression)
+        {
+            _provider = provider;
+            _aliases = aliases;
 
             if (_columns == null) _columns = new Dictionary<string, Column>();
             _navigations = new NavigationCollection();
@@ -135,9 +143,6 @@ namespace TZM.XFramework.Data
                     var newNode = base.VisitLambda(node);
                     string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
                     string newName = AddColumn(_columns, (lambda.Body as MemberExpression).Member.Name, alias);
-                    //_builder.AppendAs(newName);
-                    //_builder.Append(',');
-                    //_builder.AppendNewLine();
                     return newNode;
                 }
             }
@@ -147,13 +152,13 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // {new App() {Id = p.Id}} 
+        // {new App() {Id = p.Id}}
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             return VisitMemberInitImpl(node, true);
         }
 
-        // {new App() {Id = p.Id}} 
+        // {new App() {Id = p.Id}}
         private Expression VisitMemberInitImpl(MemberInitExpression node, bool topBinding)
         {
             // 如果有一对多的导航属性会产生嵌套的SQL，这时需要强制主表选择的列里面必须包含导航外键
@@ -190,7 +195,7 @@ namespace TZM.XFramework.Data
                     _builder.AppendNewLine();
                 }
 
-                #endregion
+                #endregion 一般属性
 
                 #region 导航属性
 
@@ -208,13 +213,13 @@ namespace TZM.XFramework.Data
                     int n = _navChainHopper.Count;
                     string keyName = _navChainHopper.Count > 0 ? _navChainHopper[_navChainHopper.Count - 1] : string.Empty;
                     keyName = !string.IsNullOrEmpty(keyName) ? keyName + "." + binding.Member.Name : binding.Member.Name;
-                    Navigation descriptor = new Navigation(keyName, binding.Member);
+                    Navigation nav = new Navigation(keyName, binding.Member);
                     if (!_navigations.ContainsKey(keyName))
                     {
                         // fix issue# XC 列占一个位
-                        descriptor.Start = _columns.Count;
-                        descriptor.FieldCount = GetFieldCount(binding.Expression) + (binding.Expression.NodeType == ExpressionType.MemberAccess && binding.Expression.Acceptable() ? 1 : 0);
-                        _navigations.Add(keyName, descriptor);
+                        nav.Start = _columns.Count;
+                        nav.FieldCount = GetFieldCount(binding.Expression) + (binding.Expression.NodeType == ExpressionType.MemberAccess && binding.Expression.Acceptable() ? 1 : 0);
+                        _navigations.Add(keyName, nav);
                         _navChainHopper.Add(keyName);
                     }
 
@@ -229,7 +234,7 @@ namespace TZM.XFramework.Data
                     if (_navChainHopper.Count != n) _navChainHopper.RemoveAt(_navChainHopper.Count - 1);
                 }
 
-                #endregion
+                #endregion 导航属性
 
                 base._visitedMark.Clear();
             }
@@ -283,7 +288,7 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        // {new  {Id = p.Id}} 
+        // {new  {Id = p.Id}}
         protected override Expression VisitNew(NewExpression node)
         {
             // TODO 未支持匿名类的导航属性
@@ -354,7 +359,6 @@ namespace TZM.XFramework.Data
                 LambdaExpression keySelector = _groupBy.Expressions[0] as LambdaExpression;
                 Expression exp = null;
                 Expression body = keySelector.Body;
-
 
                 if (body.NodeType == ExpressionType.MemberAccess)
                 {
@@ -487,7 +491,7 @@ namespace TZM.XFramework.Data
                     {
                         // fix issue# XC 列占一个位
                         Navigation descriptor = new Navigation(keyName, memberExpression.Member);
-                        descriptor.Start = i == 0 ? _columns.Count : -1;//_columns.Count; 
+                        descriptor.Start = i == 0 ? _columns.Count : -1;//_columns.Count;
                         descriptor.FieldCount = i == 0 ? (GetFieldCount(exp) + 1) : -1; //i == 0 ? (GetFieldCount(exp) + 1) : 1;//-1;
                         _navigations.Add(keyName, descriptor);
                     }
@@ -540,7 +544,7 @@ namespace TZM.XFramework.Data
             return newName;
         }
 
-        // 计算数据库字段数量 
+        // 计算数据库字段数量
         private static int GetFieldCount(Expression node)
         {
             int num = 0;
@@ -594,8 +598,9 @@ namespace TZM.XFramework.Data
             if (trim > 0) builder.Length -= trim;
         }
 
-        static Func<Expression, int> _typeFieldAggregator = exp =>
-            exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type) ? 1 : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).DataFieldCount;
-        static Func<Type, int> _primitiveAggregator = type => TypeUtils.IsPrimitiveType(type) ? 1 : 0;
+        private static Func<Expression, int> _typeFieldAggregator = exp =>
+              exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type) ? 1 : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).DataFieldCount;
+
+        private static Func<Type, int> _primitiveAggregator = type => TypeUtils.IsPrimitiveType(type) ? 1 : 0;
     }
 }

@@ -337,7 +337,7 @@ namespace TZM.XFramework.Data
         {
             Command command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as Command_Select);
+            return this.Execute<T>(cmd, command as NavigationCommand);
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(List<Command> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is Command_Select) as Command_Select));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is NavigationCommand) as NavigationCommand));
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand command, Command_Select map)
+        T Execute<T>(IDbCommand command, NavigationCommand map)
         {
             IDataReader reader = null;
 

@@ -71,22 +71,22 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T>(Expression<Func<T, object>> action, IDbQueryable<T> query);
+        void Update<T>(Expression<Func<T, object>> action, IDbQueryable<T> source);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TSource>(Expression<Func<T, TSource, object>> action, IDbQueryable<T> query);
+        void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> source);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> action, IDbQueryable<T> query);
+        void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> source);
 
         /// <summary>
         /// 更新记录
         /// </summary>
-        void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> action, IDbQueryable<T> query);
+        void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> source);
 
         /// <summary>
         /// 附加查询项
