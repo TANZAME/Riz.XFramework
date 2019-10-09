@@ -1315,6 +1315,7 @@ namespace TZM.XFramework.UnitTest
             {
                 DemoDateTime2 = DateTime.UtcNow,
                 DemoDateTime2_Nullable = null,
+                DemoByte = 67
                 //DemoTime_Nullable = ts
             }, x => x.DemoName == "001'.N" || x.DemoCode == "001'.N");
 

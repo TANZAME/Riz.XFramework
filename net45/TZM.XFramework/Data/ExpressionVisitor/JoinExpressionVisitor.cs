@@ -88,7 +88,8 @@ namespace TZM.XFramework.Data
                 // 嵌套
                 var cmd = sQuery.Resolve(builder.Indent + 1, false, builder.Token);
                 builder.Append("(");
-                builder.AppendNewLine(cmd.CommandText);
+                builder.Append(cmd.CommandText);
+                builder.AppendNewLine();
                 builder.Append(')');
             }
 
