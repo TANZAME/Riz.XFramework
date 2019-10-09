@@ -1318,69 +1318,66 @@ namespace TZM.XFramework.UnitTest
                 //DemoTime_Nullable = ts
             }, x => x.DemoName == "001'.N" || x.DemoCode == "001'.N");
 
-            if (_databaseType != DatabaseType.Oracle)
+            // 3.Query 关联批量更新
+            var query =
+                from a in context.GetTable<Model.Client>()
+                where a.CloudServer.CloudServerId != 0
+                select a;
+            context.Update<Model.Client>(a => new // Model.Client
             {
-                // 3.Query 关联批量更新
-                var query =
-                    from a in context.GetTable<Model.Client>()
-                    where a.CloudServer.CloudServerId != 0
-                    select a;
-                context.Update<Model.Client>(a => new // Model.Client
-                {
-                    Remark = "001.TAN"
-                }, query);
-                //SQL=> 
-                //UPDATE t0 SET
-                //t0.[DemoCode] = 'Code0000004',
-                //t0.[DemoName] = N'001''.N',
-                //***
-                //t0.[DemoLong] = 8192000000000,
-                //t0.[DemoLong_Nullable] = 8192000000000
-                //FROM [Sys_Demo] t0
-                //WHERE t0.[DemoId] = 4
-                //UPDATE t0 SET
-                //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
-                //t0.[DemoDateTime2_Nullable] = NULL
-                //FROM [Sys_Demo] AS [t0]
-                //WHERE t0.[DemoId] = 4
-                //UPDATE t0 SET
-                //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
-                //t0.[DemoDateTime2_Nullable] = NULL
-                //FROM [Sys_Demo] AS [t0]
-                //WHERE (t0.[DemoName] = N'001''.N') OR (t0.[DemoCode] = '001''.N')
-                //UPDATE t0 SET
-                //t0.[Remark] = N'001.TAN'
-                //FROM [Bas_Client] AS [t0]
-                //LEFT JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
-                //WHERE t1.[CloudServerId] <> 0
+                Remark = "001.TAN"
+            }, query);
+            //SQL=> 
+            //UPDATE t0 SET
+            //t0.[DemoCode] = 'Code0000004',
+            //t0.[DemoName] = N'001''.N',
+            //***
+            //t0.[DemoLong] = 8192000000000,
+            //t0.[DemoLong_Nullable] = 8192000000000
+            //FROM [Sys_Demo] t0
+            //WHERE t0.[DemoId] = 4
+            //UPDATE t0 SET
+            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
+            //t0.[DemoDateTime2_Nullable] = NULL
+            //FROM [Sys_Demo] AS [t0]
+            //WHERE t0.[DemoId] = 4
+            //UPDATE t0 SET
+            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
+            //t0.[DemoDateTime2_Nullable] = NULL
+            //FROM [Sys_Demo] AS [t0]
+            //WHERE (t0.[DemoName] = N'001''.N') OR (t0.[DemoCode] = '001''.N')
+            //UPDATE t0 SET
+            //t0.[Remark] = N'001.TAN'
+            //FROM [Bas_Client] AS [t0]
+            //LEFT JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
+            //WHERE t1.[CloudServerId] <> 0
 
-                // 更新本表值等于从表的字段值
-                query =
-                    from a in context.GetTable<Model.Client>()
-                    join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
-                    join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
-                    where c.AccountId == "12"
-                    select a;
-                context.Update<Model.Client, Model.CloudServer>((a, b) => new Model.Client
-                {
-                    CloudServerId = b.CloudServerId,
-                    Remark = "001.TAN"
-                }, query);
+            // 更新本表值等于从表的字段值
+            query =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
+                where c.AccountId == "12"
+                select a;
+            context.Update<Model.Client, Model.CloudServer>((a, b) => new Model.Client
+            {
+                CloudServerId = b.CloudServerId,
+                Remark = "001.TAN"
+            }, query);
 
-                // 更新本表值等于从表的字段值
-                query =
-                    from a in context.GetTable<Model.Client>()
-                    join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
-                    join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
-                    where c.AccountId == "12"
-                    select a;
-                context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
-                {
-                    CloudServerId = b.CloudServerId,
-                    Qty = c.Qty,
-                    Remark = "001.TAN"
-                }, query);
-            }
+            // 更新本表值等于从表的字段值
+            query =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
+                where c.AccountId == "12"
+                select a;
+            context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
+            {
+                CloudServerId = b.CloudServerId,
+                Qty = c.Qty,
+                Remark = "001.TAN"
+            }, query);
 
             context.SubmitChanges();
             //SQL=>
@@ -1402,7 +1399,7 @@ namespace TZM.XFramework.UnitTest
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
-            if (_databaseType == DatabaseType.SqlServer || _databaseType == DatabaseType.MySql)
+            if (_databaseType != DatabaseType.Postgre)
             {
                 var uQuery =
                    from a in context.GetTable<Model.Client>()

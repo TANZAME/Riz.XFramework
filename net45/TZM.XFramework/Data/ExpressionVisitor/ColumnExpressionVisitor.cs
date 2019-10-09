@@ -59,21 +59,13 @@ namespace TZM.XFramework.Data
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
         /// </summary>
         public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select qQuery)
-            : this(provider, aliases, qQuery.SelectExpression.Expressions != null ? qQuery.SelectExpression.Expressions[0] : null)
-        {
-            _qQuery = qQuery;
-            _groupBy = qQuery.GroupByExpression;
-            _include = qQuery.Includes;
-        }
-
-        /// <summary>
-        /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
-        /// </summary>
-        public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
-            : base(provider, aliases, expression)
+            : base(provider, aliases, qQuery.SelectExpression.Expressions != null ? qQuery.SelectExpression.Expressions[0] : null)
         {
             _provider = provider;
             _aliases = aliases;
+            _qQuery = qQuery;
+            _groupBy = qQuery.GroupByExpression;
+            _include = qQuery.Includes;
 
             if (_columns == null) _columns = new Dictionary<string, Column>();
             _navigations = new NavigationCollection();

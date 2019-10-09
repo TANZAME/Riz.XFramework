@@ -29,14 +29,6 @@ namespace TZM.XFramework.UnitTest.Oracle
             return new OracleDbContext(connString);
         }
 
-        public override void Run(DatabaseType dbType)
-        {
-            var context = _newContext();
-            var demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == 1001323);
-
-            base.Run(dbType);
-        }
-
         protected override void QueryWithParameterizedConstructor()
         {
             var context = _newContext();

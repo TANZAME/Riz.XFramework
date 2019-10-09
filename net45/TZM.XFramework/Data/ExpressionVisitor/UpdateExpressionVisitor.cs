@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
 
                 if (index < node.Arguments.Count - 1)
                 {
-                    _builder.Append(",");
+                    _builder.Append(',');
                     _builder.AppendNewLine();
                 }
             }

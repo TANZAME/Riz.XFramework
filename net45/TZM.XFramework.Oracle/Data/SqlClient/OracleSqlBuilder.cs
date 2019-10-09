@@ -165,5 +165,6 @@ namespace TZM.XFramework.Data
         // 官方数据类型和.NET数据类型映射关系
         // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
         // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
+        // UTL_RAW.CAST_TO_RAW
     }
 }
