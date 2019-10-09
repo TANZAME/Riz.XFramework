@@ -35,7 +35,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="connString">数据库连接字符串</param>
         /// </summary>
         public SqlDbContext(string connString)
-            : base(connString)
+            : this(connString, null)
         {
         }
 
@@ -56,7 +56,7 @@ namespace TZM.XFramework.Data.SqlClient
         public void BulkCopy(DataTable table)
         {
             bool wasClosed = false;
-            var conn = base.Database.Connection;
+            var conn = this.Database.Connection;
             if (conn == null)
             {
                 conn = base.Database.CreateConnection(true);

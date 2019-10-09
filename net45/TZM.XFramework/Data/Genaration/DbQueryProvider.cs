@@ -150,20 +150,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 创建数据会话
-        /// </summary>
-        /// <param name="connString">数据库连接字符串</param>
-        /// <param name="commandTimeout">执行命令超时时间</param>
-        /// <returns></returns>
-        public virtual IDatabase CreateDbSession(string connString, int? commandTimeout)
-        {
-            return new Database(this.DbProviderFactory, connString)
-            {
-                CommandTimeout = commandTimeout
-            };
-        }
-
-        /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>

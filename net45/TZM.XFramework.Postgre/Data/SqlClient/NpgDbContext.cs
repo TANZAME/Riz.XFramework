@@ -8,10 +8,29 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public class NpgDbContext : DbContextBase
     {
+        private IDatabase _database = null;
+        private string _connString = null;
+        private int? _commandTimeout = null;
+
         /// <summary>
         /// 查询语义提供者
         /// </summary>
         public override IDbQueryProvider Provider { get { return NpgDbQueryProvider.Instance; } }
+
+        /// <summary>
+        /// 数据库对象，持有当前上下文的会话
+        /// </summary>
+        public override IDatabase Database
+        {
+            get
+            {
+                if (_database == null) _database = new NpgDatabase(this.Provider.DbProviderFactory, _connString)
+                {
+                    CommandTimeout = _commandTimeout
+                };
+                return _database;
+            }
+        }
 
         /// <summary>
         /// 初始化 <see cref="NpgDbContext"/> 类的新实例
@@ -29,7 +48,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="connString">数据库连接字符串</param>
         /// </summary>
         public NpgDbContext(string connString)
-            : base(connString)
+            : this(connString, null)
         {
         }
 
@@ -41,6 +60,8 @@ namespace TZM.XFramework.Data.SqlClient
         public NpgDbContext(string connString, int? commandTimeout)
             : base(connString, commandTimeout)
         {
+            _connString = connString;
+            _commandTimeout = commandTimeout;
         }
     }
 }

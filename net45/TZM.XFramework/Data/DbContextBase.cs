@@ -17,11 +17,11 @@ namespace TZM.XFramework.Data
 
         #region 私有字段
 
-        protected readonly List<object> _dbQueryables = new List<object>();
-        private readonly object _oLock = new object();
         private IDatabase _database = null;
         private string _connString = null;
         private int? _commandTimeout = null;
+        private readonly object _oLock = new object();
+        protected readonly List<object> _dbQueryables = new List<object>();
 
         #endregion
 
@@ -35,11 +35,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 数据库对象，持有当前上下文的会话
         /// </summary>
-        public IDatabase Database
+        public virtual IDatabase Database
         {
             get
             {
-                if (_database == null) _database = this.Provider.CreateDbSession(_connString, _commandTimeout);
+                if (_database == null) _database = new Database(this.Provider.DbProviderFactory, _connString)
+                {
+                    CommandTimeout = _commandTimeout
+                };
                 return _database;
             }
         }
