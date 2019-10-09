@@ -87,6 +87,7 @@
     <Compile Include="Common\XFrameworkValidator.cs" />
     <Compile Include="Data\Genaration\ResolveToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
+    <Compile Include="Data\Genaration\ValueFragment.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
