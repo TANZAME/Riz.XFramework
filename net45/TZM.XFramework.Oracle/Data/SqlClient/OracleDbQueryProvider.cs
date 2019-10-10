@@ -864,12 +864,6 @@ namespace TZM.XFramework.Data.SqlClient
                 if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
                     throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
 
-                builder.Length = 0;
-                builder.Append("MERGE INTO ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-                builder.AppendNewLine(" t0");
-                builder.Append("USING (");
-
                 // SELECT 表达式
                 LambdaExpression lambda = uQueryInfo.Expression as LambdaExpression;
                 var body = lambda.Body;
@@ -909,29 +903,51 @@ namespace TZM.XFramework.Data.SqlClient
                     expression = Expression.MemberInit(newExpression2, bindings);
                 }
 
-                // ON 表达式
+                // 解析 SELECT 部分，非参数化
                 uQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, expression);
-                var cmd2 = this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false, token);
-                builder.AppendNewLine(cmd2.CommandText);
-                builder.Append(") t1 ON (");
-                foreach (var kvp in typeRuntime.KeyInvokers)
+                var cmd = (NavigationCommand)this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false,null);//, token);
+
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || uQueryInfo.SelectInfo.Joins.Count > 0)
                 {
-                    MemberInvokerBase invoker = kvp.Value;
-                    builder.AppendMember("t0", invoker.Member.Name);
-                    builder.Append(" = ");
-                    builder.AppendMember("t1", invoker.Member.Name);
-                    builder.Append(" AND ");
+                    // 有导航属性或者关联查询，使用 MERGE INTO 语法
+                    builder.Length = 0;
+                    builder.Append("MERGE INTO ");
+                    builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                    builder.AppendNewLine(" t0");
+                    builder.Append("USING (");
+
+                    builder.AppendNewLine(cmd.CommandText);
+                    builder.Append(") t1 ON (");
+                    foreach (var kvp in typeRuntime.KeyInvokers)
+                    {
+                        MemberInvokerBase invoker = kvp.Value;
+                        builder.AppendMember("t0", invoker.Member.Name);
+                        builder.Append(" = ");
+                        builder.AppendMember("t1", invoker.Member.Name);
+                        builder.Append(" AND ");
+                    }
+                    builder.Length -= 5;
+                    builder.Append(')');
+
+                    // UPDATE
+                    builder.AppendNewLine();
+                    builder.AppendNewLine("WHEN MATCHED THEN UPDATE SET ");
+
+                    // SET 字段
+                    var visitor = new OracleUpdateExpressionVisitor(this, null, uQueryInfo.Expression);
+                    visitor.Write(builder);
                 }
-                builder.Length -= 5;
-                builder.Append(')');
+                else
+                {
+                    // 直接 SQL 的 UPDATE 语法
+                    TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
+                    ExpressionVisitorBase visitor = null;
+                    visitor = new UpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
+                    visitor.Write(builder);
 
-                // UPDATE
-                builder.AppendNewLine();
-                builder.AppendNewLine("WHEN MATCHED THEN UPDATE SET ");
-
-                // SET 字段
-                var visitor = new OracleUpdateExpressionVisitor(this, null, uQueryInfo.Expression);
-                visitor.Write(builder);
+                    visitor = new WhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
+                    visitor.Write(builder);
+                }
             }
 
             builder.Append(';');
