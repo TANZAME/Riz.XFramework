@@ -183,13 +183,11 @@ namespace TZM.XFramework.Data.SqlClient
                         }
                         else if (i + 1 < dbQueryables.Count && (dbQueryables[i + 1] is string))
                         {
-                            string sql = obj
-                                .ToString()
-                                .TrimStart();
+                            string sql = obj .ToString() .TrimStart();
                             string method = string.Empty;
                             if (sql.Length > 5) method = sql.Substring(0, 6);
-                            method = method.ToUpper();
-                            if (!(method == "INSERT" || method == "UPDATE" || method == "DELETE"))
+                            method = method.Trim().ToUpper();
+                            if (!(method == "INSERT" || method == "UPDATE" || method == "DELETE" || method == "MERGE"))
                             {
                                 if (haveBegin)
                                 {
