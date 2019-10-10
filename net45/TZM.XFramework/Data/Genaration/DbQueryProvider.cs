@@ -45,6 +45,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         public abstract DbProviderFactory DbProviderFactory { get; }
 
+        /// <summary>
+        /// SQL字段值生成器
+        /// </summary>
+        public abstract ValueGenerator Generator { get; }
+
         #endregion
 
         #region 构造函数
@@ -281,6 +286,4 @@ namespace TZM.XFramework.Data
 
         #endregion
     }
-
-
 }

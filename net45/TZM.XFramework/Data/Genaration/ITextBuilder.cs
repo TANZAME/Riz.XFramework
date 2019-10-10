@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析上下文参数
         /// </summary>
-        ResolveToken Token { get; set; }
+        ResolveToken Token { get; }
 
         /// <summary>
         /// 追加列名
@@ -134,55 +134,5 @@ namespace TZM.XFramework.Data
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。
         /// </summary>
         ITextBuilder Replace(string oldValue, string newValue);
-
-        /// <summary>
-        /// 生成 value 对应的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="node">成员访问表达式</param>
-        /// <returns></returns>
-        string GetSqlValue(object value, MemberExpression node = null);
-
-        /// <summary>
-        /// 生成 value 对应的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="member">成员</param>
-        /// <param name="runtimeType">成员所属类型</param>
-        /// <returns></returns>
-        string GetSqlValue(object value, MemberInfo member, Type runtimeType);
-
-        /// <summary>
-        /// 生成 value 对应的 SQL 片断
-        /// </summary>
-        string GetSqlValue(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null);
-
-        /// <summary>
-        /// 生成 value 对应的 SQL 片断
-        /// <para>因为会使用到默认值，故此重载仅限 INSERT / UPDATE 时使用</para>
-        /// </summary>
-        string GetSqlValueWidthDefault(object value, ColumnAttribute attribute);
-
-        /// <summary>
-        /// 生成 value 对应的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="attribute">字段属性</param>
-        string GetSqlValue(object value, ColumnAttribute attribute);
-
-        /// <summary>
-        /// 单引号转义
-        /// </summary>
-        /// <param name="s">源字符串</param>
-        /// <param name="unicode">是否需要加N</param>
-        /// <param name="replace">单引号替换成双引号</param>
-        /// <param name="quote">前后两端是否加引号</param>
-        /// <returns></returns>
-        string EscapeQuote(string s, bool unicode = false, bool replace = false, bool quote = true);
-
-        /// <summary>
-        /// 获取指定成员的 <see cref="ColumnAttribute"/>
-        /// </summary>
-        ColumnAttribute GetColumnAttribute(System.Reflection.MemberInfo member, Type runtimeType);
     }
 }

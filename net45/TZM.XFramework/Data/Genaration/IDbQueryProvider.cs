@@ -41,6 +41,11 @@ namespace TZM.XFramework.Data
         DbProviderFactory DbProviderFactory { get; }
 
         /// <summary>
+        /// SQL字段值生成器
+        /// </summary>
+        ValueGenerator Generator { get; }
+
+        /// <summary>
         /// 解析 SQL 命令
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>

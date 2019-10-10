@@ -237,7 +237,7 @@ namespace TZM.XFramework.Data
             var builder = this.Provider.CreateSqlBuilder(null);
             if (args != null && !string.IsNullOrEmpty(query))
             {
-                for (int i = 0; i < args.Length; i++) args[i] = builder.GetSqlValue(args[i]);
+                for (int i = 0; i < args.Length; i++) args[i] = this.Provider.Generator.GetSqlValue(args[i], null);
                 query = string.Format(query, args);
             }
             lock (this._oLock)

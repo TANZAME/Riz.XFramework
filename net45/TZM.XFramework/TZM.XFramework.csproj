@@ -87,7 +87,7 @@
     <Compile Include="Common\XFrameworkValidator.cs" />
     <Compile Include="Data\Genaration\ResolveToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
-    <Compile Include="Data\Genaration\ValueFragment.cs" />
+    <Compile Include="Data\Genaration\ValueGenerator.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
@@ -144,6 +144,7 @@
     <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\SqlBuilder.cs" />
+    <Compile Include="Data\SqlClient\SqlValueGenerator.cs" />
     <Compile Include="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="Data\TypeDeserialize\Column.cs" />
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />

@@ -14,13 +14,5 @@ namespace TZM.XFramework.Data.SqlClient
             : base(provider, visitor)
         {
         }
-
-        /// <summary>
-        /// 判断指定类型是否是unicode
-        /// </summary>
-        protected override bool IsUnicode(object dbType)
-        {
-            return DbTypeUtils.IsUnicode(dbType);
-        }
     }
 }

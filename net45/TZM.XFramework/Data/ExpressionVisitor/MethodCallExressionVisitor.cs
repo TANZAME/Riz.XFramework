@@ -140,8 +140,8 @@ namespace TZM.XFramework.Data
 
             string name = "NVARCHAR";
             var member = _visitedMark.Current;
-            var column = _builder.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool unicode = this.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
             name = unicode ? "NVARCHAR" : "VARCHAR";
 
             if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
@@ -309,7 +309,7 @@ namespace TZM.XFramework.Data
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _builder.GetSqlValue(index, System.Data.DbType.Int32);
+                    string value = _provider.Generator.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -345,30 +345,25 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 判断指定类型是否是unicode
-        /// </summary>
-        protected abstract bool IsUnicode(object dbType);
-
-        /// <summary>
         /// 生成SQL片断
         /// </summary>
         protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             var member = _visitedMark.Current;
-            var column = _builder.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            unicode = this.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
 
             if (_builder.Parameterized)
             {
                 unicode = false;
-                string value = _builder.GetSqlValue(c.Value, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+                string value = _provider.Generator.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
                 return value;
             }
             else
             {
                 string value = c.Value != null ? c.Value.ToString() : string.Empty;
-                value = _builder.EscapeQuote(value, false, true, false);
-                unicode = this.IsUnicode(column != null ? column.DbType : null);
+                value = _provider.Generator.EscapeQuote(value, false, true, false);
+                unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
 
                 return value;
             }

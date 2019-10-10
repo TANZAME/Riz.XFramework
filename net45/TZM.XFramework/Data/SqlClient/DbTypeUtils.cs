@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void PrepareDbType(this SqlParameter parameter, object dbType)
+        public static void DbType(this SqlParameter parameter, object dbType)
         {
             if (dbType != null)
             {
@@ -35,7 +35,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Time;
+                return ((DbType)dbType) == System.Data.DbType.Time;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.Time;
             else
@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Date;
+                return ((DbType)dbType) == System.Data.DbType.Date;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.Date;
             else
@@ -65,7 +65,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTime;
+                return ((DbType)dbType) == System.Data.DbType.DateTime;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.DateTime;
             else
@@ -80,7 +80,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTime2;
+                return ((DbType)dbType) == System.Data.DbType.DateTime2;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.DateTime2;
             else
@@ -95,7 +95,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTimeOffset;
+                return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.DateTimeOffset;
             else
@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
+                return ((DbType)dbType) == System.Data.DbType.String || ((DbType)dbType) == System.Data.DbType.StringFixedLength;
             else if (dbType is SqlDbType)
                 return ((SqlDbType)dbType) == SqlDbType.NVarChar || ((SqlDbType)dbType) == SqlDbType.NChar || ((SqlDbType)dbType) == SqlDbType.NText;
             else
