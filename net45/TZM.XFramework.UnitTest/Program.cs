@@ -14,6 +14,7 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
+            var g1 = new { Name = 22 };
             Type t1 = typeof(Guid);
             Type t2 = typeof(Guid?);
             var c1 = Type.GetTypeCode(t1);

@@ -505,7 +505,6 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dQueryInfo.SelectInfo != null)
             {
-                IDbQueryable dbQueryable = dQueryInfo.SourceQuery;
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
                 var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
 

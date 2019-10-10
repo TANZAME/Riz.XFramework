@@ -700,7 +700,7 @@ namespace TZM.XFramework.UnitTest
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
             where a.ClientId > 0
-            orderby a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending,a.ClientId
+            orderby a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending, a.ClientId
             select a;
             query = query
                 .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
@@ -1214,32 +1214,34 @@ namespace TZM.XFramework.UnitTest
             // 2.WHERE 条件批量删除
             context.Delete<TDemo>(qeury);
 
-            if (_databaseType != DatabaseType.Oracle)
-            {
-                // 3.Query 关联批量删除
-                var query1 =
-                    from a in context.GetTable<Model.Client>()
-                    join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
-                    join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
-                    where c.ClientId == 5 && c.AccountId == "1" && c.MarketId == 1
-                    select a;
-                context.Delete<Model.Client>(query1);
+            // 3.Query 关联批量删除
+            var query1 =
+                from a in context.GetTable<Model.Client>()
+                    where a.ClientId == 2
+                select a;
+            context.Delete<Model.Client>(query1);
+            query1 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
+                where c.ClientId == 5 && c.AccountId == "1" && c.MarketId == 1
+                select a;
+            context.Delete<Model.Client>(query1);
 
-                // oracle 不支持导航属性关联删除
-                // 3.Query 关联批量删除
-                var query2 =
-                    from a in context.GetTable<Model.Client>()
-                    join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
-                    where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                    select a;
-                context.Delete<Model.Client>(query2);
-                // 4.Query 关联批量删除
-                var query3 =
-                    from a in context.GetTable<Model.Client>()
-                    where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                    select a;
-                context.Delete<Model.Client>(query3);
-            }
+            // oracle 不支持导航属性关联删除
+            // 3.Query 关联批量删除
+            var query2 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
+                select a;
+            context.Delete<Model.Client>(query2);
+            // 4.Query 关联批量删除
+            var query3 =
+                from a in context.GetTable<Model.Client>()
+                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
+                select a;
+            context.Delete<Model.Client>(query3);
 
             // 5.子查询批量删除
             // 子查询更新
@@ -1434,7 +1436,7 @@ namespace TZM.XFramework.UnitTest
             //WHERE t1.[ClientId] > 0
 
             var client = context.GetTable<Model.Client>().FirstOrDefault();
-            context.Update(client);
+            if (client != null) context.Update(client);
             // 一次性提交，里面自带事务
             context.SubmitChanges();
             // SQL=>

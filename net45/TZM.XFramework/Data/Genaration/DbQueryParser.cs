@@ -540,7 +540,9 @@ namespace TZM.XFramework.Data
                 Expression expression = predicates[i];
                 if (expression != null) body = Expression.And(body, ((LambdaExpression)expression.ReduceUnary()).Body);
             }
-            return body;
+
+            LambdaExpression lambda = Expression.Lambda(body, ((LambdaExpression)predicates[0]).Parameters);
+            return lambda;
 
         }
 

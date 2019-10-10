@@ -14,6 +14,8 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public sealed class OracleDbQueryProvider : DbQueryProvider
     {
+        static Expression<Func<OracleRowId, string>> _rowIdExpression = x => x.RowId;
+
         /// <summary>
         /// 查询语义提供者实例
         /// </summary>
@@ -183,7 +185,7 @@ namespace TZM.XFramework.Data.SqlClient
                         }
                         else if (i + 1 < dbQueryables.Count && (dbQueryables[i + 1] is string))
                         {
-                            string sql = obj .ToString() .TrimStart();
+                            string sql = obj.ToString().TrimStart();
                             string method = string.Empty;
                             if (sql.Length > 5) method = sql.Substring(0, 6);
                             method = method.Trim().ToUpper();
@@ -768,23 +770,59 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dQueryInfo.SelectInfo != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new OracleCommand_SelectInfo(this, aliases, token);
-                cmd2.HasMany = dQueryInfo.SelectInfo.HasMany;
+                LambdaExpression lambda = null;
+                var dbQuery = dQueryInfo.SourceQuery;
+                if (dbQuery.DbExpressions != null && dbQuery.DbExpressions.Count > 1)
+                {
+                    switch (dbQuery.DbExpressions[1].DbExpressionType)
+                    {
+                        case DbExpressionType.Join:
+                        case DbExpressionType.GroupJoin:
+                        case DbExpressionType.GroupRightJoin:
+                            lambda = (LambdaExpression)dbQuery.DbExpressions[1].Expressions[1];
+                            break;
 
-                var visitor0 = new OracleExistsExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins, dQueryInfo.SelectInfo.WhereExpression);
-                visitor0.Write(cmd2);
+                        case DbExpressionType.Select:
+                        case DbExpressionType.SelectMany:
+                            lambda = (LambdaExpression)dbQuery.DbExpressions[1].Expressions[0];
+                            break;
+                    }
+                }
+                if (lambda == null)
+                {
+                    DbExpression dbExpression = dQueryInfo.SelectInfo.SelectExpression;
+                    dbExpression = dQueryInfo.SelectInfo.WhereExpression;
+                    if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
+                }
 
-                var visitor1 = new OracleWhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression);
-                visitor1.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor1.NavMembers);
-                builder.Append(cmd2.CommandText);
+                // 解析查询以确定是否需要嵌套
+                var parameter = Expression.Parameter(typeof(OracleRowId), lambda != null ? lambda.Parameters[0].Name : "x");
+                var expression = Expression.MakeMemberAccess(parameter, (_rowIdExpression.Body as MemberExpression).Member);
+                dQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (NavigationCommand)this.ParseSelectCommand<T>(dQueryInfo.SelectInfo, 1, false, null);
+
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dQueryInfo.SelectInfo.Joins.Count > 0)
+                {
+                    cmd = (NavigationCommand)this.ParseSelectCommand<T>(dQueryInfo.SelectInfo, 1, false, token);
+                    builder.Append("WHERE t0.RowID IN(");
+                    builder.AppendNewLine(cmd.CommandText);
+                    builder.Append(')');
+                }
+                else
+                {
+                    TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
+                    ExpressionVisitorBase visitor = null;
+
+                    visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
+                    visitor.Write(builder);
+
+                    visitor = new WhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression);
+                    visitor.Write(builder);
+                }
             }
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
-
-            // 删除说明：https://blog.csdn.net/paul50060049/article/details/54425087/
         }
 
         // 创建 UPDATE 命令
@@ -861,9 +899,6 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (uQueryInfo.Expression != null)
             {
-                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
-                    throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
-
                 // SELECT 表达式
                 LambdaExpression lambda = uQueryInfo.Expression as LambdaExpression;
                 var body = lambda.Body;
@@ -903,19 +938,24 @@ namespace TZM.XFramework.Data.SqlClient
                     expression = Expression.MemberInit(newExpression2, bindings);
                 }
 
-                // 解析 SELECT 部分，非参数化
+                // 解析查询以确定是否需要嵌套
                 uQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (NavigationCommand)this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false,null);//, token);
+                var cmd = (NavigationCommand)this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false, null);//, token);
 
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || uQueryInfo.SelectInfo.Joins.Count > 0)
                 {
-                    // 有导航属性或者关联查询，使用 MERGE INTO 语法
+                    // 有导航属性或者关联查询，使用 MERGE INTO 语法。要求必须有主键
+
+                    if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                        throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
+
                     builder.Length = 0;
                     builder.Append("MERGE INTO ");
                     builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                     builder.AppendNewLine(" t0");
                     builder.Append("USING (");
 
+                    cmd = (NavigationCommand)this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false, token);
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(") t1 ON (");
                     foreach (var kvp in typeRuntime.KeyInvokers)
@@ -952,6 +992,17 @@ namespace TZM.XFramework.Data.SqlClient
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+        }
+
+        /// <summary>
+        /// 行记录ID
+        /// </summary>
+        public class OracleRowId
+        {
+            /// <summary>
+            /// 行记录ID
+            /// </summary>
+            public string RowId { get; set; }
         }
     }
 }

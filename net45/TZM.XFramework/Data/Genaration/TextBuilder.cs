@@ -247,7 +247,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ITextBuilder AppendNewLine(string value)
         {
-            _innerBuilder.AppendLine(value);
+            _innerBuilder.Append(value);
+            _innerBuilder.AppendLine();
             return this;
         }
 
