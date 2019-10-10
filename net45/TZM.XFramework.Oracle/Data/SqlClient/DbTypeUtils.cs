@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void PrepareDbType(this OracleParameter parameter, object dbType)
+        public static void DbType(this OracleParameter parameter, object dbType)
         {
             if (dbType != null)
             {
@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Time;
+                return ((DbType)dbType) == System.Data.DbType.Time;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.IntervalDS;
             else
@@ -51,7 +51,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Date;
+                return ((DbType)dbType) == System.Data.DbType.Date;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.Date;
             else
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTime;
+                return ((DbType)dbType) == System.Data.DbType.DateTime;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.TimeStamp;
             else
@@ -81,7 +81,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTime2;
+                return ((DbType)dbType) == System.Data.DbType.DateTime2;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.TimeStamp;
             else
@@ -96,7 +96,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTimeOffset;
+                return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ;// || ((OracleDbType)dbType) == OracleDbType.TimeStampLTZ;
             else
@@ -111,7 +111,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.String || ((DbType)dbType) == DbType.StringFixedLength;
+                return ((DbType)dbType) == System.Data.DbType.String || ((DbType)dbType) == System.Data.DbType.StringFixedLength;
             else if (dbType is OracleDbType)
                 return ((OracleDbType)dbType) == OracleDbType.NVarchar2 || ((OracleDbType)dbType) == OracleDbType.NChar || ((OracleDbType)dbType) == OracleDbType.NClob;
             else

@@ -103,6 +103,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ResolveToken.cs" Link="Data\Genaration\ResolveToken.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs" Link="Data\Genaration\TableAliasCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs" Link="Data\Genaration\TextBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ValueGenerator.cs" Link="Data\Genaration\ValueGenerator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs" Link="Data\Infrastructure\Constant.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database.cs" Link="Data\Infrastructure\Database.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Database45.cs" Link="Data\Infrastructure\Database45.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbContext.cs" Link="Data\SqlClient\SqlDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbQueryProvider.cs" Link="Data\SqlClient\SqlDbQueryProvider.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\SqlMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlValueGenerator.cs" Link="Data\SqlClient\SqlValueGenerator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs" Link="Data\TypeDeserialize\Column.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs" Link="Data\TypeDeserialize\Command.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs" Link="Data\TypeDeserialize\IMapping.cs" />
@@ -155,7 +157,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\XFrameworkExtensions.cs" Link="Common\XFrameworkExtensions.cs" />
     <Folder Include="Data\Annotation\" />
     <Folder Include="Data\Emit\" />
-    <Folder Include="Data\SqlClient\" />
     <Folder Include="Data\TypeDeserialize\" />
     <Folder Include="Data\Infrastructure\" />
     <Folder Include="Data\Queryable\" />

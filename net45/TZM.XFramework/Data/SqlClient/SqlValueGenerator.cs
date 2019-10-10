@@ -16,7 +16,7 @@ namespace TZM.XFramework.Data.SqlClient
         public static SqlValueGenerator Instance = new SqlValueGenerator();
 
         /// <summary>
-        /// 实例化 <see cref="SqlBuilder"/> 类的新实例
+        /// 实例化 <see cref="SqlValueGenerator"/> 类的新实例
         /// </summary>
         protected SqlValueGenerator()
             : base(SqlDbQueryProvider.Instance)

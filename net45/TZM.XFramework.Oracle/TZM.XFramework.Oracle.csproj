@@ -61,6 +61,7 @@
     <Compile Include="Data\Infrastructure\OracleDatabase.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\OracleDbContext.cs" />
+    <Compile Include="Data\SqlClient\OracleValueGenerator.cs" />
     <Compile Include="Data\SqlClient\OracleSqlBuilder.cs" />
     <Compile Include="Data\TypeDeserialize\OracleCommand_SelectInfo.cs" />
     <Compile Include="Data\TypeDeserialize\OracleCommand_Insert.cs" />

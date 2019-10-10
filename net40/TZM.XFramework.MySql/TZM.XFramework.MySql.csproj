@@ -65,6 +65,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\MySqlMethodCallExressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlValueGenerator.cs">
+      <Link>Data\SqlClient\MySqlValueGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>

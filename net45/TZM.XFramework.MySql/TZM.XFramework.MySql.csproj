@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\MySqlBuilder.cs" />
+    <Compile Include="Data\SqlClient\MySqlValueGenerator.cs" />
     <Compile Include="Data\SqlClient\MySqlDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\MySqlDbContext.cs" />

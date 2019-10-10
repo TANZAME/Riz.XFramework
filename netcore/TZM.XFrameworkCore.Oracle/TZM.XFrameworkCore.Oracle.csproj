@@ -40,6 +40,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbQueryProvider.cs" Link="Data\SqlClient\OracleDbQueryProvider.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs" Link="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleValueGenerator.cs" Link="Data\SqlClient\OracleValueGenerator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_Insert.cs" Link="Data\TypeDeserialize\OracleCommand_Insert.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_SelectInfo.cs" Link="Data\TypeDeserialize\OracleCommand_SelectInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" Link="Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" />

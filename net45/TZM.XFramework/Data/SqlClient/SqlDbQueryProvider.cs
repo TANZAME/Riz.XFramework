@@ -147,7 +147,6 @@ namespace TZM.XFramework.Data.SqlClient
             NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
-            var generator = SqlValueGenerator.Instance;
 
             jf.Indent = indent;
 
@@ -201,7 +200,7 @@ namespace TZM.XFramework.Data.SqlClient
                 // DISTINCT 子句
                 if (sQueryInfo.HasDistinct) jf.Append("DISTINCT ");
                 // TOP 子句
-                if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", generator.GetSqlValue(sQueryInfo.Take, token));
+                if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", this.Generator.GetSqlValue(sQueryInfo.Take, token));
                 // Any
                 if (sQueryInfo.HasAny) jf.Append("TOP 1 1");
 
@@ -288,13 +287,13 @@ namespace TZM.XFramework.Data.SqlClient
                 if (sQueryInfo.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                 wf.AppendNewLine();
                 wf.Append("OFFSET ");
-                wf.Append(generator.GetSqlValue(sQueryInfo.Skip, token));
+                wf.Append(this.Generator.GetSqlValue(sQueryInfo.Skip, token));
                 wf.Append(" ROWS");
 
                 if (sQueryInfo.Take > 0)
                 {
                     wf.Append(" FETCH NEXT ");
-                    wf.Append(generator.GetSqlValue(sQueryInfo.Take, token));
+                    wf.Append(this.Generator.GetSqlValue(sQueryInfo.Take, token));
                     wf.Append(" ROWS ONLY ");
                 }
             }
@@ -366,7 +365,6 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 INSRT 命令
         protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
         {
-            var generator = SqlValueGenerator.Instance;
             TableAliasCache aliases = new TableAliasCache();
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -410,7 +408,7 @@ namespace TZM.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = invoker.Invoke(entity);
-                        string seg = generator.GetSqlValueWidthDefault(value, null, column);
+                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -474,7 +472,6 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 DELETE 命令
         protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ResolveToken token)
         {
-            var generator = SqlValueGenerator.Instance;
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -498,7 +495,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = generator.GetSqlValue(value, token, column);
+                    var seg = this.Generator.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -528,7 +525,6 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 UPDATE 命令
         protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQueryInfo, ResolveToken token)
         {
-            var generator = SqlValueGenerator.Instance;
             ITextBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -557,7 +553,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 gotoLabel:
                     var value = invoker.Invoke(entity);
-                    var seg = generator.GetSqlValueWidthDefault(value, null, column);
+                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
                     {

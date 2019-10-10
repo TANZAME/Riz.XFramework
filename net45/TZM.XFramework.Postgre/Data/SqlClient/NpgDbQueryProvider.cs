@@ -23,6 +23,11 @@ namespace TZM.XFramework.Data.SqlClient
         public override DbProviderFactory DbProviderFactory { get { return NpgsqlFactory.Instance; } }
 
         /// <summary>
+        /// SQL字段值生成器
+        /// </summary>
+        public override ValueGenerator Generator { get { return NpgValueGenerator.Instance; } }
+
+        /// <summary>
         /// 数据库安全字符 左
         /// </summary>
         public override string QuotePrefix
@@ -275,8 +280,8 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 分页查询
 
-            if (sQuery.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", wf.GetSqlValue(sQuery.Take));
-            if (sQuery.Skip > 0) wf.AppendFormat(" OFFSET {0}", wf.GetSqlValue(sQuery.Skip));
+            if (sQuery.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Generator.GetSqlValue(sQuery.Take, token));
+            if (sQuery.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Generator.GetSqlValue(sQuery.Skip, token));
 
             #endregion
 
@@ -396,7 +401,7 @@ namespace TZM.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = invoker.Invoke(entity);
-                        string seg = builder.GetSqlValueWidthDefault(value, column);
+                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -490,7 +495,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValue(value, column);
+                    var seg = this.Generator.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -549,7 +554,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 gotoLabel:
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValueWidthDefault(value, column);
+                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
                     {

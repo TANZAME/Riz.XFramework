@@ -6,7 +6,7 @@ using Npgsql;
 using NpgsqlTypes;
 using System.Net;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// SQL 语句构造器
@@ -28,92 +28,6 @@ namespace TZM.XFramework.Data
             : base(provider, token)
         {
 
-        }
-
-        protected override IDbDataParameter AddParameter(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
-        {
-#if !netcore
-
-            if (value is TimeSpan)
-            {
-                value = new DateTime(((TimeSpan)value).Ticks);
-                dbType = NpgsqlDbType.Timestamp;
-            }
-
-#endif
-
-            NpgsqlParameter parameter = (NpgsqlParameter)base.AddParameter(value, dbType, size, precision, scale, direction);
-            // 补充 DbType
-            parameter.PrepareDbType(dbType);
-            return parameter;
-        }
-
-        // 获取 String 类型的 SQL 片断
-        protected override string GetSqlValueByString(object value, object dbType, int? size = null)
-        {
-            string result = this.EscapeQuote(value.ToString(), false, true);
-            return result;
-        }
-
-        // 获取 Time 类型的 SQL 片断
-        protected override string GetSqlValueByTime(object value, object dbType, int? precision)
-        {
-            // 默认精度6
-            string format = @"hh\:mm\:ss\.ffffff";
-            if (DbTypeUtils.IsTime(dbType))
-            {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
-            }
-
-            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
-            return result;
-        }
-
-        // 获取 DatetTime 类型的 SQL 片断
-        protected override string GetSqlValueByDateTime(object value, object dbType, int? precision)
-        {
-            // 默认精度6
-            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
-            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
-            else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
-            {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
-            }
-
-            string result = this.EscapeQuote(((DateTime)value).ToString(format), false, false);
-            return result;
-        }
-
-        // 获取 DateTimeOffset 类型的 SQL 片断
-        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
-        {
-            // 默认精度6
-            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
-            if (DbTypeUtils.IsDateTimeOffset(dbType))
-            {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
-            }
-
-            string date = ((DateTimeOffset)value).DateTime.ToString(format);
-            string span = ((DateTimeOffset)value).Offset.ToString(@"hh");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
-
-            string result = string.Format("(TIMESTAMP WITH TIME ZONE '{0}{1}')", date, span);
-            return result;
-
-            // Npgsql 的显示都是以本地时区显示的？###
-        }
-
-        // 获取 Boolean 类型的 SQL 片断
-        protected override string GetSqlValueByBoolean(object value, object dbType)
-        {
-            return ((bool)value) ? "TRUE" : "FALSE";
         }
 
         /// <summary>
@@ -139,10 +53,5 @@ namespace TZM.XFramework.Data
             if (this.IsOuter) _innerBuilder.Append(_escCharRight);
             return this;
         }
-
-        // http://www.npgsql.org/doc/index.html
-        // http://shouce.jb51.net/postgresql/ postgre 文档
-        // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。
-        // https://blog.csdn.net/pg_hgdb/article/details/79018366
     }
 }

@@ -78,6 +78,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs">
       <Link>Data\SqlClient\NpgSqlBuilder.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgValueGenerator.cs">
+      <Link>Data\SqlClient\NpgValueGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs">
       <Link>Data\TypeDeserialize\NpgCommandType.cs</Link>
     </Compile>

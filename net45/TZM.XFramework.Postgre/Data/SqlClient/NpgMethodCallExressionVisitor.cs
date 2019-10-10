@@ -199,7 +199,7 @@ namespace TZM.XFramework.Data.SqlClient
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _builder.GetSqlValue(index);
+                    string value = _provider.Generator.GetSqlValue(index, _builder.Token);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -232,14 +232,6 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append(")");
 
             return m;
-        }
-
-        /// <summary>
-        /// 判断指定类型是否是unicode
-        /// </summary>
-        protected override bool IsUnicode(object dbType)
-        {
-            return DbTypeUtils.IsUnicode(dbType);
         }
 
         /// <summary>

@@ -244,6 +244,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs">
       <Link>Data\Genaration\TextBuilder.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ValueGenerator.cs">
+      <Link>Data\Genaration\ValueGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
       <Link>Data\Infrastructure\Constant.cs</Link>
     </Compile>
@@ -330,6 +333,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\SqlMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlValueGenerator.cs">
+      <Link>Data\SqlClient\SqlValueGenerator.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
       <Link>Data\TypeDeserialize\Column.cs</Link>

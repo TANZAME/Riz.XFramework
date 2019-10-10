@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using MySql.Data.MySqlClient;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据类型公用方法
@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void PrepareDbType(this MySqlParameter parameter, object dbType)
+        public static void DbType(this MySqlParameter parameter, object dbType)
         {
             if (dbType != null)
             {
@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Time;
+                return ((DbType)dbType) == System.Data.DbType.Time;
             else if (dbType is MySqlDbType)
                 return ((MySqlDbType)dbType) == MySqlDbType.Time;
             else
@@ -51,7 +51,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.Date;
+                return ((DbType)dbType) == System.Data.DbType.Date;
             else if (dbType is MySqlDbType)
                 return ((MySqlDbType)dbType) == MySqlDbType.Date;
             else
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
-                return ((DbType)dbType) == DbType.DateTime;
+                return ((DbType)dbType) == System.Data.DbType.DateTime;
             else if (dbType is MySqlDbType)
                 return ((MySqlDbType)dbType) == MySqlDbType.DateTime;
             else

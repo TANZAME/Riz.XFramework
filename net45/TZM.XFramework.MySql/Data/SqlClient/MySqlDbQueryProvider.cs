@@ -25,6 +25,11 @@ namespace TZM.XFramework.Data.SqlClient
         public override DbProviderFactory DbProviderFactory { get { return MySqlClientFactory.Instance; } }
 
         /// <summary>
+        /// SQL字段值生成器
+        /// </summary>
+        public override ValueGenerator Generator { get { return MySqlValueGenerator.Instance; } }
+
+        /// <summary>
         /// 数据库安全字符 左
         /// </summary>
         public override string QuotePrefix
@@ -326,8 +331,8 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (sQueryInfo.Take > 0)
             {
-                wf.AppendNewLine().AppendFormat("LIMIT {0}", wf.GetSqlValue(sQueryInfo.Take));
-                wf.AppendFormat(" OFFSET {0}", wf.GetSqlValue(sQueryInfo.Skip));
+                wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Generator.GetSqlValue(sQueryInfo.Take, token));
+                wf.AppendFormat(" OFFSET {0}", this.Generator.GetSqlValue(sQueryInfo.Skip, token));
             }
 
             #endregion
@@ -395,7 +400,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     jf.AppendMember(alias0, "Row_Number0");
                     jf.Append(" > ");
-                    jf.Append(jf.GetSqlValue(sQueryInfo.Skip));
+                    jf.Append(this.Generator.GetSqlValue(sQueryInfo.Skip, token));
                 }
             }
 
@@ -430,9 +435,9 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 INSRT 命令
         protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
         {
+            TableAliasCache aliases = new TableAliasCache();
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            TableAliasCache aliases = new TableAliasCache();
 
             if (nQueryInfo.Entity != null)
             {
@@ -472,7 +477,7 @@ namespace TZM.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = invoker.Invoke(entity);
-                        string seg = builder.GetSqlValueWidthDefault(value, column);
+                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -537,8 +542,8 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 DELETE 命令
         protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ResolveToken token)
         {
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ITextBuilder builder = this.CreateSqlBuilder(token);
+            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("DELETE t0 FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -560,7 +565,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValue(value, column);
+                    var seg = this.Generator.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -619,7 +624,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 gotoLabel:
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValueWidthDefault(value, column);
+                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
                     {

@@ -25,6 +25,11 @@ namespace TZM.XFramework.Data.SqlClient
         public override DbProviderFactory DbProviderFactory { get { return OracleClientFactory.Instance; } }
 
         /// <summary>
+        /// SQL字段值生成器
+        /// </summary>
+        public override ValueGenerator Generator { get { return OracleValueGenerator.Instance; } }
+
+        /// <summary>
         /// 数据库安全字符 左
         /// </summary>
         public override string QuotePrefix
@@ -527,14 +532,14 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     jf.AppendMember(alias0, "Row_Number0");
                     jf.Append(" > ");
-                    jf.Append(jf.GetSqlValue(sQueryInfo.Skip));
+                    jf.Append(this.Generator.GetSqlValue(sQueryInfo.Skip, token));
                 }
                 if (sQueryInfo.Take > 0)
                 {
                     if (sQueryInfo.Skip > 0) jf.Append(" AND ");
                     jf.AppendMember(alias0, "Row_Number0");
                     jf.Append(" <= ");
-                    jf.Append(jf.GetSqlValue((sQueryInfo.Skip + sQueryInfo.Take)));
+                    jf.Append(this.Generator.GetSqlValue((sQueryInfo.Skip + sQueryInfo.Take), token));
                 }
             }
 
@@ -643,7 +648,7 @@ namespace TZM.XFramework.Data.SqlClient
                     else
                     {
                         var value = invoker.Invoke(entity);
-                        string seg = builder.GetSqlValueWidthDefault(value, column);
+                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -755,7 +760,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValue(value, column);
+                    var seg = this.Generator.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -820,7 +825,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (column == null || !column.IsIdentity)
                     {
                         var value = invoker.Invoke(entity);
-                        var seg = builder.GetSqlValueWidthDefault(value, column);
+                        var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
 
                         builder.Append(seg);
                         length = builder.Length;
@@ -841,7 +846,7 @@ namespace TZM.XFramework.Data.SqlClient
                     MemberInvokerBase invoker = kv.Value;
                     var column = invoker.Column;
                     var value = invoker.Invoke(entity);
-                    var seg = builder.GetSqlValueWidthDefault(value, column);
+                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
                     index += 1;
 
                     whereBuilder.AppendMember(invoker.Member.Name);
