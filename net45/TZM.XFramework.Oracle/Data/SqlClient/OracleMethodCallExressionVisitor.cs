@@ -60,11 +60,15 @@ namespace TZM.XFramework.Data.SqlClient
         public override Expression VisitUnary(UnaryExpression node)
         {
             // ORACLE的AVG函数，DataReader.GetValue()会抛异常
+            // Number having precision p and scale s.The precision p can range from 1 to 38.The scale s can range from - 84 to 127.
+            // Both precision and scale are in decimal digits. A NUMBER value requires from 1 to 22 bytes.
+            // .net 的 decimal scale <= 28, will raise overflow error.
+            // 79228162514264337593543950335
             if (node.NodeType == ExpressionType.Convert)
             {
                 string name = "";
                 if (node.Type == typeof(float)) name = "BINARY_FLOAT";
-                else if (node.Type == typeof(double) || node.Type == typeof(decimal)) name = "BINARY_DOUBLE";
+                else if (node.Type == typeof(double)) name = "BINARY_DOUBLE";
                 if (!string.IsNullOrEmpty(name))
                 {
                     _builder.Append("CAST(");
