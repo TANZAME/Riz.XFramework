@@ -978,6 +978,7 @@ namespace TZM.XFramework.UnitTest
             var q3 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
             var query6 = q1.Union(q2).Union(q3);
             var result6 = query6.ToList();
+            result6 = query6.OrderBy(a => a.ActiveDate).ToList();
             result6 = query6.Take(2).ToList();
             result6 = query6.OrderBy(a => a.ClientId).Skip(2).ToList();
             query6 = query6.Take(2);
@@ -1228,7 +1229,6 @@ namespace TZM.XFramework.UnitTest
                 select a;
             context.Delete<Model.Client>(query1);
 
-            // oracle 不支持导航属性关联删除
             // 3.Query 关联批量删除
             var query2 =
                 from a in context.GetTable<Model.Client>()
@@ -1271,17 +1271,11 @@ namespace TZM.XFramework.UnitTest
             // 4.oracle 不支持~
 
 
-            if (_databaseType != DatabaseType.Oracle)
-            {
-                context.AddQuery(sum);
-                // context.AddQuery('Exec #存储过程#');
-                // context.AddQuery('#文本脚本#');
-                List<Model.Client> result0 = null;
-                context.SubmitChanges(out result0);
-            }
-            else context.SubmitChanges();
-            //// 一次性提交
-            //context.SubmitChanges();
+            context.AddQuery(sum);
+            // context.AddQuery('Exec #存储过程#');
+            // context.AddQuery('#文本脚本#');
+            List<Model.Client> result0 = null;
+            context.SubmitChanges(out result0);
             //SQL=> 
             //DELETE t0 FROM [Sys_Demo] t0 
             //WHERE ((t0.[DemoId] = 2) OR (t0.[DemoId] = 3)) OR (t0.[DemoName] = N'N0000004')
@@ -1413,7 +1407,7 @@ namespace TZM.XFramework.UnitTest
             }
             else
             {
-                // npg oracle 翻译成 EXISTS,更新字段的值不支持来自子查询
+                // npg 翻译成 EXISTS,更新字段的值不支持来自子查询
                 var uQuery =
                     from a in context.GetTable<Model.Client>()
                     join b in sum on a.ClientId equals b.ClientId
@@ -1600,7 +1594,7 @@ namespace TZM.XFramework.UnitTest
                     DemoLong = 65
                 };
                 demos.Add(demo4);
-                if (index == 10 && _databaseType != DatabaseType.Oracle)
+                if (index == 10)
                 {
                     var query22 = context.GetTable<Model.Demo>().Where(x => x.DemoId <= 20);
                     context.AddQuery(query22);
