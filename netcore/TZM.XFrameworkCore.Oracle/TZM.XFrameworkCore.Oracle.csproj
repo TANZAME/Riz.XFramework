@@ -30,9 +30,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleExistsExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleWhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs" Link="Data\Infrastructure\OracleDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase45.cs" Link="Data\Infrastructure\OracleDatabase45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
@@ -41,8 +39,6 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleMethodCallExressionVisitor.cs" Link="Data\SqlClient\OracleMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleValueGenerator.cs" Link="Data\SqlClient\OracleValueGenerator.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_Insert.cs" Link="Data\TypeDeserialize\OracleCommand_Insert.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleCommand_SelectInfo.cs" Link="Data\TypeDeserialize\OracleCommand_SelectInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" Link="Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" />
   </ItemGroup>
 

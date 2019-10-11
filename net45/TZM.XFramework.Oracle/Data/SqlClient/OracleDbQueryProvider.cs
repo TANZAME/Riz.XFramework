@@ -581,7 +581,6 @@ namespace TZM.XFramework.Data.SqlClient
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
-            bool useSEQ = false;
 
             if (nQueryInfo.Entity != null)
             {
@@ -669,7 +668,7 @@ namespace TZM.XFramework.Data.SqlClient
                         builder.Append(seqParameter.ParameterName);
                         builder.Append(" FROM DUAL;");
                         builder.AppendNewLine();
-                        useSEQ = true;
+                        //useSEQ = true;
                     }
                     builder.Append("INSERT ");
                 }
@@ -729,8 +728,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var cmd = new OracleCommand_Insert(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
-            cmd.HaveSEQ = useSEQ;
+            var cmd = new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
             return cmd;
         }
 

@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         // 主表反序列化器
         private Func<IDataRecord, object> _modelDeserializer = null;
         // 一对多导航属性键
-        private Dictionary<string, HashSet<string>> _manyNavvgationKeys = null;
+        private Dictionary<string, HashSet<string>> _manyNavigationKeys = null;
         // 一对多导航属性数量
         private int? _manyNavigationNumber = null;
 
@@ -45,7 +45,7 @@ namespace TZM.XFramework.Data
             _database = database;
             _deserializerImpl = _database.TypeDeserializerImpl;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
-            _manyNavvgationKeys = new Dictionary<string, HashSet<string>>(8);
+            _manyNavigationKeys = new Dictionary<string, HashSet<string>>(8);
             _isDynamic = typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object);
             _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
         }
@@ -128,7 +128,7 @@ namespace TZM.XFramework.Data
                         if (!isThisLine)
                         {
                             // fix issue#换行时清空上一行的导航键缓存
-                            _manyNavvgationKeys.Clear();
+                            _manyNavigationKeys.Clear();
                             break;
                         }
                     }
@@ -270,7 +270,7 @@ namespace TZM.XFramework.Data
                                     if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Value.Member));
                                     if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
-                                        if (!_manyNavvgationKeys.ContainsKey(keyName)) _manyNavvgationKeys[keyName] = new HashSet<string>();
+                                        if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();
                                         curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                                         StringBuilder keyBuilder = new StringBuilder(64);
 
@@ -281,13 +281,13 @@ namespace TZM.XFramework.Data
                                             keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
                                         }
                                         string hash = keyBuilder.ToString();
-                                        if (_manyNavvgationKeys[keyName].Contains(hash))
+                                        if (_manyNavigationKeys[keyName].Contains(hash))
                                         {
                                             isAny = true;
                                         }
                                         else
                                         {
-                                            _manyNavvgationKeys[keyName].Add(hash);
+                                            _manyNavigationKeys[keyName].Add(hash);
                                         }
                                     }
                                 }
@@ -319,8 +319,8 @@ namespace TZM.XFramework.Data
                                 keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
                             }
                             string hash = keyBuilder.ToString();
-                            if (!_manyNavvgationKeys.ContainsKey(keyName)) _manyNavvgationKeys[keyName] = new HashSet<string>();
-                            if (!_manyNavvgationKeys[keyName].Contains(hash)) _manyNavvgationKeys[keyName].Add(hash);
+                            if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();
+                            if (!_manyNavigationKeys[keyName].Contains(hash)) _manyNavigationKeys[keyName].Add(hash);
                         }
                     }
 
