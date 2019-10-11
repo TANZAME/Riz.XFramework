@@ -94,8 +94,8 @@ namespace TZM.XFramework.Data
                 }
                 // Include 表达式解析<导航属性>
                 this.VisitInclude();
-                // 修剪尾部的空白字符
-                ColumnExpressionVisitor.TrimBuilder(_builder);
+                // 去掉空白字符
+                _builder.TrimEnd(' ', ',');
             }
         }
 
@@ -565,29 +565,6 @@ namespace TZM.XFramework.Data
             }
 
             return num;
-        }
-
-        // 修剪SQL生成器以去掉尾部的空白部分
-        private static void TrimBuilder(ITextBuilder builder)
-        {
-            char[] chars = new char[Environment.NewLine.Length + 2];
-            for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];
-            chars[Environment.NewLine.Length] = ' ';
-            chars[Environment.NewLine.Length + 1] = ',';
-
-            int trim = 0;
-            int index = builder.Length - 1;
-            while (index > 0)
-            {
-                char @char = builder[index];
-                if (!chars.Contains(@char)) break;
-                else
-                {
-                    index--;
-                    trim++;
-                }
-            }
-            if (trim > 0) builder.Length -= trim;
         }
 
         private static Func<Expression, int> _typeFieldAggregator = exp =>

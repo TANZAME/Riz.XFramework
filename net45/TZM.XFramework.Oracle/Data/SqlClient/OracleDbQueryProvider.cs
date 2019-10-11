@@ -942,6 +942,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || uQueryInfo.SelectInfo.Joins.Count > 0)
                 {
+                    // 无法使用 DISTINCT, GROUP BY 等子句从视图中选择 ROWID 或采样。UPDATE 不能用rowid
                     // 有导航属性或者关联查询，使用 MERGE INTO 语法。要求必须有主键
 
                     if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)

@@ -9,7 +9,7 @@ using System.Data;
 namespace TZM.XFramework.UnitTest
 {
 
-    public class TestBase<TDemo> : ITest where TDemo : Model.Demo, new()
+    public abstract class TestBase<TDemo> : ITest where TDemo : Model.Demo, new()
     {
         private string _demoName = "002F";
         private int[] _demoIdList = new int[] { 2, 3 };
@@ -22,10 +22,7 @@ namespace TZM.XFramework.UnitTest
             _newContext = this.CreateDbContext;
         }
 
-        public virtual IDbContext CreateDbContext()
-        {
-            return null;
-        }
+        public abstract IDbContext CreateDbContext();
 
         public virtual void Run(DatabaseType dbType)
         {
@@ -1259,7 +1256,7 @@ namespace TZM.XFramework.UnitTest
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 join c in context.GetTable<Model.CloudServer>() on a.CloudServerId equals c.CloudServerId
                 join d in sum on a.ClientId equals d.ClientId
-                where a.ClientId > 10 && a.CloudServerId < 0
+                where a.ClientId > 10 && a.CloudServerId > 0
                 select a;
             context.Delete<Model.Client>(query4);
 

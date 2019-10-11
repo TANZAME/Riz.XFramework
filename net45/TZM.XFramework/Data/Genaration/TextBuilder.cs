@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Text;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace TZM.XFramework.Data
@@ -276,6 +277,35 @@ namespace TZM.XFramework.Data
         public ITextBuilder Replace(string oldValue, string newValue)
         {
             _innerBuilder.Replace(oldValue, newValue);
+            return this;
+        }
+
+        /// <summary>
+        /// 去掉尾部的空白字符
+        /// </summary>
+        public ITextBuilder TrimEnd(params char[] @params)
+        {
+            char[] chars = new char[Environment.NewLine.Length + (@params != null ? @params.Length : 0)];
+            for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];
+
+            for (var i = 0; i < @params.Length; i++)
+            {
+                chars[Environment.NewLine.Length + i] = @params[i];
+            }
+
+            int trim = 0;
+            int index = this.Length - 1;
+            while (index > 0)
+            {
+                char @char = this[index];
+                if (!chars.Contains(@char)) break;
+                else
+                {
+                    index--;
+                    trim++;
+                }
+            }
+            if (trim > 0) this.Length -= trim;
             return this;
         }
 

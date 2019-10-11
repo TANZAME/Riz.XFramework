@@ -134,5 +134,10 @@ namespace TZM.XFramework.Data
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。
         /// </summary>
         ITextBuilder Replace(string oldValue, string newValue);
+
+        /// <summary>
+        /// 去掉尾部的空白字符
+        /// </summary>
+        ITextBuilder TrimEnd(params char[] chars);
     }
 }
