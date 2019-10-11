@@ -1,4 +1,9 @@
 
+CREATE SEQUENCE SYS_DEMO_DEMOID_SEQ --创建序列名称
+INCREMENT BY 1                      --增长幅度
+START WITH 1                        --初始值
+MAXVALUE 9999999999999999;          --最大值
+
 call spSys_DropIfExists('Bas_Client');
 CREATE TABLE Bas_Client(
   ClientId int PRIMARY KEY NOT NULL,
@@ -126,7 +131,7 @@ DECLARE rowIndex INT;
 BEGIN
     rowIndex := 1;
     rowCount2 := 1000000;
-  
+    
     Delete FROM Sys_CloudServer;
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (1,'0181',N'181服务器');
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (2,'0182',N'182服务器');

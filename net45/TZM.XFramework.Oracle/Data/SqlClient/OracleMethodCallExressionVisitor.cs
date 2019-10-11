@@ -64,7 +64,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 string name = "";
                 if (node.Type == typeof(float)) name = "BINARY_FLOAT";
-                else if (node.Type == typeof(double)) name = "BINARY_DOUBLE";
+                else if (node.Type == typeof(double) || node.Type == typeof(decimal)) name = "BINARY_DOUBLE";
                 if (!string.IsNullOrEmpty(name))
                 {
                     _builder.Append("CAST(");
