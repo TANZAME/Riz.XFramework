@@ -23,7 +23,11 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             var context = _newContext();
 
-            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 152243);
+            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 5);
+            if (demo.DemoBinary_Nullable != null)
+            {
+                string binary = Encoding.UTF8.GetString(demo.DemoBinary_Nullable);
+            }
 
             // 声明表变量
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel.JoinKey>();
