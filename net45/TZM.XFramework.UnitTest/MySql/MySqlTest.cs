@@ -51,7 +51,6 @@ namespace TZM.XFramework.UnitTest.MySql
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<MySqlModel.MySqlDemo>(x => x.DemoId > 1000000);
             var demos = new List<MySqlModel.MySqlDemo>();
             for (int i = 0; i < 5; i++)
             {
@@ -78,11 +77,17 @@ namespace TZM.XFramework.UnitTest.MySql
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
             context.Insert<MySqlModel.MySqlDemo>(demos);
             context.SubmitChanges();
+            var myList = context
+                .GetTable<MySqlModel.MySqlDemo>()
+                .OrderByDescending(x => x.DemoId)
+                .Take(5).ToList();
 
             // byte[]
             var demo = new MySqlModel.MySqlDemo

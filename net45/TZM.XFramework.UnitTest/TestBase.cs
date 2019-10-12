@@ -1208,7 +1208,7 @@ namespace TZM.XFramework.UnitTest
             var qeury =
                 context
                 .GetTable<TDemo>()
-                .Where(a => a.DemoId == 2 || a.DemoId == 3 || a.DemoName == "N0000004");
+                .Where(a => a.DemoId > 10000);
             // 2.WHERE 条件批量删除
             context.Delete<TDemo>(qeury);
 

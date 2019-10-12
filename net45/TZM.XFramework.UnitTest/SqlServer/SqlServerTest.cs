@@ -23,12 +23,6 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             var context = _newContext();
 
-            var demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == 5);
-            if (demo.DemoBinary_Nullable != null)
-            {
-                string binary = Encoding.UTF8.GetString(demo.DemoBinary_Nullable);
-            }
-
             // 声明表变量
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel.JoinKey>();
             context.AddQuery(string.Format("DECLARE {0} [{1}]", typeRuntime.TableName, typeRuntime.TableName.TrimStart('@')));
@@ -102,7 +96,6 @@ namespace TZM.XFramework.UnitTest.SqlServer
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<SqlServerModel.SqlServerDemo>(x => x.DemoId > 1000000);
             var demos = new List<SqlServerModel.SqlServerDemo>();
             for (int i = 0; i < 5; i++)
             {
@@ -113,7 +106,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoBoolean = true,
                     DemoChar = 'A',
                     DemoNChar = 'B',
-                    DemoByte =  127,
+                    DemoByte = 127,
                     DemoDate = DateTime.Now,
                     DemoDateTime = DateTime.Now,
                     DemoDateTime2 = DateTime.Now,
@@ -128,12 +121,17 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
-                    //DemoXml_Nullable = newXml
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
             context.Insert<SqlServerModel.SqlServerDemo>(demos);
             context.SubmitChanges();
+            var myList = context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .OrderByDescending(x => x.DemoId)
+                .Take(5).ToList();
 
             // byte[]
             var demo = new SqlServerModel.SqlServerDemo

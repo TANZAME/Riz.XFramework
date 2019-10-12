@@ -240,7 +240,26 @@ namespace TZM.XFramework
         {
             byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(str);
 
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
+            foreach (var c in buffer)
+            {
+                string hex = Convert.ToString(c, 16);
+                if (hex.Length == 1) builder.Append("0");
+                builder.Append(upper ? hex.ToUpper() : hex);
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// 将字符串转为 16 进制形式
+        /// </summary>
+        public static string BytesToHex(byte[] buffer,bool use0x = true, bool upper = false)
+        {
+            if (buffer == null) return null;
+            if (buffer.Length == 0) return "0x";
+
+            var builder = new StringBuilder(use0x && buffer.Length > 0 ? "0x" : "");
             foreach (var c in buffer)
             {
                 string hex = Convert.ToString(c, 16);

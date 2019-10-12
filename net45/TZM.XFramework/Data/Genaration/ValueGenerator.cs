@@ -134,15 +134,24 @@ namespace TZM.XFramework.Data
             {
                 // 非参数化 ##########
 
+                // 枚举类型
+                if (type.IsEnum)
+                    return this.GetSqlValueByEnum(value);
                 // Guid 类型
-                if (value is Guid)
+                else if (value is Guid)
                     return this.GetSqlValueByGuid(value);
+                // 数据类型
+                else if (TypeUtils.IsNumericType(type))
+                    return this.GetSqlValueByNumeric(value);
+                // byte[] 类型
+                else if (value is byte[])
+                    return this.GetSqlValueByBytes(value);
                 // 布尔类型
                 else if (value is bool)
                     return this.GetSqlValueByBoolean(value, dbType);
                 // 字符类型
                 else if (value is char || value is string)
-                    return GetSqlValueByString(value, dbType, size);
+                    return this.GetSqlValueByString(value, dbType, size);
                 // 时间类型
                 else if (value is TimeSpan)
                     return this.GetSqlValueByTime(value, dbType, scale);
@@ -155,9 +164,11 @@ namespace TZM.XFramework.Data
                 // 集合类型
                 else if (value is IEnumerable)
                     return this.GetSqlValue(value as IEnumerable, token, dbType, size, precision, scale);
-                // 其它 <int byte long etc.>
                 else
-                    return this.GetSqlValueByOther(value, dbType, size, precision, scale, direction);
+                {
+                    throw new NotSupportedException(string.Format("type {0} not supported serialize to string", type.FullName));
+                }
+
             }
         }
 
@@ -202,6 +213,66 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 获取枚举类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        protected virtual string GetSqlValueByEnum(object value)
+        {
+            return Convert.ToUInt64(value).ToString();
+        }
+
+        /// <summary>
+        /// 获取 Guid 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        protected virtual string GetSqlValueByGuid(object value)
+        {
+            return this.EscapeQuote(value.ToString(), false, false);
+        }
+
+        /// <summary>
+        /// 获取数字类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        protected virtual string GetSqlValueByNumeric(object value)
+        {
+            return value.ToString();
+        }
+
+        /// <summary>
+        /// 获取 byte[] 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        protected virtual string GetSqlValueByBytes(object value)
+        {
+            byte[] bytes = (byte[])value;
+            string hex = XfwCommon.BytesToHex(bytes, true, true);
+            return hex;
+        }
+
+        /// <summary>
+        /// 获取 Boolean 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        /// <param name="dbType">数据类型</param>
+        protected virtual string GetSqlValueByBoolean(object value, object dbType)
+        {
+            return ((bool)value) ? "1" : "0";
+        }
+
+        /// <summary>
+        /// 获取 String 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">字符串长度</param>
+        /// <returns></returns>
+        protected abstract string GetSqlValueByString(object value, object dbType, int? size = null);
+
+        /// <summary>
         ///  获取 Time 类型的 SQL 片断
         /// </summary>
         /// <param name="value">SQL值</param>
@@ -227,57 +298,6 @@ namespace TZM.XFramework.Data
         /// <param name="scale">小数位</param>
         /// <returns></returns>
         protected abstract string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale = null);
-
-        /// <summary>
-        /// 获取 String 类型的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="dbType">数据类型</param>
-        /// <param name="size">字符串长度</param>
-        /// <returns></returns>
-        protected abstract string GetSqlValueByString(object value, object dbType, int? size = null);
-
-        /// <summary>
-        /// 获取 Boolean 类型的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="dbType">数据类型</param>
-        protected virtual string GetSqlValueByBoolean(object value, object dbType)
-        {
-            return ((bool)value) ? "1" : "0";
-        }
-
-        /// <summary>
-        /// 获取 Guid 类型的 SQL 片断
-        /// </summary>
-        /// <param name="value">值</param>
-        /// <returns></returns>
-        protected virtual string GetSqlValueByGuid(object value)
-        {
-            return this.EscapeQuote(value.ToString(), false, false);
-        }
-
-        /// <summary>
-        /// 获取其它未枚举类型的 SQL 片断
-        /// </summary>
-        /// <param name="value">SQL值</param>
-        /// <param name="dbType">数据类型</param>
-        /// <param name="size">长度</param>
-        /// <param name="precision">精度</param>
-        /// <param name="scale">小数位</param>
-        /// <param name="direction">查询参数类型</param>
-        /// <returns></returns>
-        protected virtual string GetSqlValueByOther(object value, object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
-        {
-            if (value is byte[]) throw new NotSupportedException("System.Byte[] does not support serialization into strings.");
-
-            if (value.GetType().IsEnum)
-                return Convert.ToInt32(value).ToString();
-            else if (TypeUtils.IsPrimitiveType(value.GetType()))
-                return value.ToString();
-            else
-                return this.EscapeQuote(value.ToString(), false, false);
-        }
 
         /// <summary>
         /// 增加一个SQL参数
