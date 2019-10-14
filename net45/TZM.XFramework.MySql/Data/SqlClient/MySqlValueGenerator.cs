@@ -35,6 +35,14 @@ namespace TZM.XFramework.Data.SqlClient
             return parameter;
         }
 
+        // 获取 byte[] 类型的 SQL 片断
+        protected override string GetSqlValueByBytes(object value)
+        {
+            string hex = base.GetSqlValueByBytes(value);
+            if (hex == "0x") hex = "_binary''";
+            return hex;
+        }
+
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {

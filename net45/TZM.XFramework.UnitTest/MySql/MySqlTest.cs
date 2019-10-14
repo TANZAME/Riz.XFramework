@@ -19,7 +19,24 @@ namespace TZM.XFramework.UnitTest.MySql
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            return new MySqlDbContext(connString);
+            var context = new MySqlDbContext(connString);
+
+            //var demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == 37950);
+            //using (System.IO.FileStream stream = new System.IO.FileStream(@"C:\Users\it0160\Desktop\贝索斯.jpg", System.IO.FileMode.Open, System.IO.FileAccess.Read))
+
+            //{
+            //    byte[] buffer = new byte[stream.Length];
+            //    stream.Read(buffer, 0, (int)stream.Length);
+            //    stream.Close();
+
+            //    context.Update<MySqlModel.MySqlDemo>(x=>new MySqlModel.MySqlDemo
+            //    {
+            //        DemVarBinary_Nullable = buffer
+            //    }, x => x.DemoId == 37950);
+            //    context.SubmitChanges();
+            //}
+
+            return context;
         }
 
         protected override void QueryWithParameterizedConstructor()
@@ -78,7 +95,7 @@ namespace TZM.XFramework.UnitTest.MySql
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG") : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -114,7 +131,7 @@ namespace TZM.XFramework.UnitTest.MySql
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
+                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG"),
             };
             context.Insert(demo);
             context.SubmitChanges();
