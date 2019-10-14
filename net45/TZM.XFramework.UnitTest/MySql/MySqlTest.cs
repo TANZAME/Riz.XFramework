@@ -18,7 +18,7 @@ namespace TZM.XFramework.UnitTest.MySql
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
-            // new SqlDbContext();
+            // new MySqlDbContext();
             var context = new MySqlDbContext(connString);
 
             //var demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == 37950);

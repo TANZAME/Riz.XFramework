@@ -102,6 +102,7 @@ namespace TZM.XFramework
 
             if (node.NodeType == ExpressionType.ListInit) return true;
             if (node.NodeType == ExpressionType.NewArrayInit) return true;
+            if (node.NodeType == ExpressionType.NewArrayBounds) return true;
             if (node.NodeType != ExpressionType.MemberAccess) return false;
 
             var memberExpression = node as MemberExpression;

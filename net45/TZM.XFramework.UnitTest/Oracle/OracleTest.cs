@@ -25,8 +25,23 @@ namespace TZM.XFramework.UnitTest.Oracle
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
-            // new SqlDbContext();
+            // new OracleDbContext();
             var context = new OracleDbContext(connString);
+
+            string sql = "SELECT DemVarBinary_Nullable FROM SYS_DEMO WHERE DemoId = 1018638 ORDER BY DEMOID DESC";
+            var reader = context.Database.ExecuteReader(sql);
+            while (reader.Read())
+            {
+                object value = reader.GetValue(0);
+            }
+
+            var demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == 1018638);
+            context.Update<OracleModel.OracleDemo>(x => new OracleModel.OracleDemo
+            {
+                DemVarBinary_Nullable = new byte[0]
+            }, x => x.DemoId == 1015848);
+            context.SubmitChanges();
+            
             return context;
         }
 
@@ -123,7 +138,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式")
+                DemVarBinary_Nullable = new byte[0]
             };
             context.Insert(demo);
             context.SubmitChanges();
