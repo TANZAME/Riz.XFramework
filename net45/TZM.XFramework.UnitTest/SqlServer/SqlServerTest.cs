@@ -85,14 +85,6 @@ namespace TZM.XFramework.UnitTest.SqlServer
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
-            //Model.CloudServer server = new Model.CloudServer 
-            //{
-            //    CloudServerId = 1,
-            //    CloudServerCode = "Server01",
-            //    CloudServerName = "1号服务器'--"
-            //};
-            //string xml = SerializeHelper.SerializeToXml(server);
-            //SqlXml newXml = new SqlXml(new XmlTextReader(xml, XmlNodeType.Document, null));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值

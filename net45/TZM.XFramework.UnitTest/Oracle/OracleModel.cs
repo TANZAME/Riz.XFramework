@@ -95,13 +95,13 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// demotext_nullable
             /// </summary>
-            [Column(DbType = OracleDbType.NClob)]
+            [Column(DbType = OracleDbType.Clob)]
             public virtual string DemoText_Nullable { get; set; }
 
             /// <summary>
             /// demontext_nullable
             /// </summary>
-            [Column(DbType = OracleDbType.Clob)]
+            [Column(DbType = OracleDbType.NClob)]
             public virtual string DemoNText_Nullable { get; set; }
 
             /// <summary>

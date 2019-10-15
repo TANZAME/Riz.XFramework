@@ -235,6 +235,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ITextBuilder.cs">
       <Link>Data\Genaration\ITextBuilder.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\RawSql.cs">
+      <Link>Data\Genaration\RawSql.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ResolveToken.cs">
       <Link>Data\Genaration\ResolveToken.cs</Link>
     </Compile>

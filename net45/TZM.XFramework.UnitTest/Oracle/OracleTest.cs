@@ -27,21 +27,6 @@ namespace TZM.XFramework.UnitTest.Oracle
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new OracleDbContext();
             var context = new OracleDbContext(connString);
-
-            string sql = "SELECT DemVarBinary_Nullable FROM SYS_DEMO WHERE DemoId = 1018638 ORDER BY DEMOID DESC";
-            var reader = context.Database.ExecuteReader(sql);
-            while (reader.Read())
-            {
-                object value = reader.GetValue(0);
-            }
-
-            var demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == 1018638);
-            context.Update<OracleModel.OracleDemo>(x => new OracleModel.OracleDemo
-            {
-                DemVarBinary_Nullable = new byte[0]
-            }, x => x.DemoId == 1015848);
-            context.SubmitChanges();
-            
             return context;
         }
 
@@ -76,11 +61,8 @@ namespace TZM.XFramework.UnitTest.Oracle
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
 
-            var modelsssss = context.GetTable<OracleModel.OracleDemo>().OrderByDescending(a => a.DemoId).FirstOrDefault();
-
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<OracleModel.OracleDemo>(x => x.DemoId > 1000000);
             var demos = new List<OracleModel.OracleDemo>();
             for (int i = 0; i < 5; i++)
             {
@@ -106,12 +88,18 @@ namespace TZM.XFramework.UnitTest.Oracle
                     DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
-                    DemoNText_Nullable = "NTEXT 类型"
+                    DemoNText_Nullable = "NTEXT 类型",
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
             context.Insert<OracleModel.OracleDemo>(demos);
             context.SubmitChanges();
+            var myList = context
+                .GetTable<OracleModel.OracleDemo>()
+                .OrderByDescending(x => x.DemoId)
+                .Take(5).ToList();
 
             // byte[]
             var demo = new OracleModel.OracleDemo
@@ -138,7 +126,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = new byte[0]
+                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
             };
             context.Insert(demo);
             context.SubmitChanges();

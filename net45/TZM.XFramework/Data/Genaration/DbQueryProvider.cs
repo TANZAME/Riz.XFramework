@@ -136,7 +136,29 @@ namespace TZM.XFramework.Data
                         token = new ResolveToken();
                         token.Parameters = new List<IDbDataParameter>(8);
                     }
+                }
+                else if (obj is RawSql)
+                {
+                    RawSql rawSql = (RawSql)obj;
+                    if (token == null) token = new ResolveToken();
+                    if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
+                    // 解析参数
+                    object[] args = null;
+                    if (rawSql.Parameters != null)
+                        args = rawSql.Parameters.Select(x => this.Generator.GetSqlValue(x, token)).ToArray();
+                    string sql = rawSql.CommandText;
+                    if (args != null && args.Length > 0) sql = string.Format(sql, args);
+
+                    var cmd2 = new Command(sql, token.Parameters, CommandType.Text);
+                    sqlList.Add(cmd2);
+                    if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
+                    {
+                        // 1000个参数，就要重新分批
+                        sqlList.Add(null);
+                        token = new ResolveToken();
+                        token.Parameters = new List<IDbDataParameter>(8);
+                    }
                 }
                 else if (obj is string)
                 {

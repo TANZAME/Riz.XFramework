@@ -232,16 +232,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 附加查询项
         /// </summary>
-        public void AddQuery(string query, params object[] args)
+        public void AddQuery(string sql, params object[] args)
         {
-            var builder = this.Provider.CreateSqlBuilder(null);
-            if (args != null && !string.IsNullOrEmpty(query))
+            if (!string.IsNullOrEmpty(sql))
             {
-                for (int i = 0; i < args.Length; i++) args[i] = this.Provider.Generator.GetSqlValue(args[i], null);
-                query = string.Format(query, args);
+                var query = new RawSql(sql, args);
+                lock (this._oLock) 
+                    _dbQueryables.Add(query);
             }
-            lock (this._oLock)
-                if (!string.IsNullOrEmpty(query)) _dbQueryables.Add(query);
         }
 
         /// <summary>

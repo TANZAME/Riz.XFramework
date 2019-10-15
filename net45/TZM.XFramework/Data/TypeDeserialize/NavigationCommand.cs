@@ -48,7 +48,6 @@ namespace TZM.XFramework.Data
             get
             {
                 if (!_hasCombine) this.CombineFragments();
-                this.Parameters = _joinFragment.Token != null ? _joinFragment.Token.Parameters : null;
                 string commandText = _joinFragment.ToString();
                 return commandText;
             }
@@ -90,7 +89,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
         public NavigationCommand(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
-            : base(string.Empty, null, System.Data.CommandType.Text)
+            : base(string.Empty, token != null ? token.Parameters : null, System.Data.CommandType.Text)
         {
             _provider = provider;
             _aliases = aliases;

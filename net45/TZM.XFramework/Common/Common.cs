@@ -254,10 +254,10 @@ namespace TZM.XFramework
         /// <summary>
         /// 将字符串转为 16 进制形式
         /// </summary>
-        public static string BytesToHex(byte[] buffer,bool use0x = true, bool upper = false)
+        public static string BytesToHex(byte[] buffer, bool use0x = true, bool upper = false)
         {
             if (buffer == null) return null;
-            if (buffer.Length == 0) return "0x";
+            if (buffer.Length == 0) return use0x ? "0x" : string.Empty;
 
             var builder = new StringBuilder(use0x && buffer.Length > 0 ? "0x" : "");
             foreach (var c in buffer)

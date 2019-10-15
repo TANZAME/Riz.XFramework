@@ -1920,8 +1920,8 @@ namespace TZM.XFramework.UnitTest
                 }, x => x.ClientId == result.ClientId);
                 result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
-                string sql = @"UPDATE Bas_Client SET ClientName = N'事务5' WHERE ClientID=2;UPDATE Bas_Client SET ClientName = N'事务6' WHERE ClientID=3;";
-                context.AddQuery(sql);
+                context.AddQuery(@"UPDATE Bas_Client SET ClientName = {0} WHERE ClientID={1}; UPDATE Bas_Client SET ClientName = {2} WHERE ClientID={3};",
+                    "事务4", 4, "事务5", 5);
                 context.SubmitChanges();
 
 

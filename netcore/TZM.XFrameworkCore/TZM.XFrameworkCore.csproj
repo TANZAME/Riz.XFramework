@@ -100,6 +100,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryProvider.cs" Link="Data\Genaration\DbQueryProvider.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs" Link="Data\Genaration\IDbQueryProvider.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ITextBuilder.cs" Link="Data\Genaration\ITextBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\RawSql.cs" Link="Data\Genaration\RawSql.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ResolveToken.cs" Link="Data\Genaration\ResolveToken.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs" Link="Data\Genaration\TableAliasCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs" Link="Data\Genaration\TextBuilder.cs" />

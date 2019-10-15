@@ -124,10 +124,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         public override List<Command> Resolve(List<object> dbQueryables)
         {
-            List<Command> sqlList = new List<Command>();
-            ResolveToken token = null;
-
             bool haveBegin = false;
+            ResolveToken token = null;
+            List<Command> sqlList = new List<Command>();
 
             for (int i = 0; i < dbQueryables.Count; i++)
             {
@@ -144,6 +143,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var cmd2 = dbQueryable.Resolve(0, true, token);
                     if (cmd2 is NavigationCommand)
                     {
+                        // 查询单独执行
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
 
                         sqlList.Add(cmd2);
@@ -153,6 +153,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
                     else
                     {
+                        // 增删改
                         if (!haveBegin)
                         {
                             sqlList.Add(new Command("BEGIN"));
@@ -162,39 +163,48 @@ namespace TZM.XFramework.Data.SqlClient
                         if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
                         {
                             // 1000个参数，就要重新分批
-                            sqlList.Add(new Command("END;"));
-                            sqlList.Add(null);
+                            if (haveBegin)
+                            {
+                                sqlList.Add(new Command("END;"));
+                                haveBegin = false;
+                                sqlList.Add(null);
+                            }
                             token = new ResolveToken();
                             token.Parameters = new List<IDbDataParameter>(8);
-                            haveBegin = false;
                         }
 
-                        if (i + 1 < dbQueryables.Count && (dbQueryables[i + 1] is IDbQueryable))
+                        if (i + 1 < dbQueryables.Count)
                         {
-                            var queryInfo = ((IDbQueryable)dbQueryables[i + 1]).Parse();
-                            if (queryInfo is IDbQueryableInfo_Select)
+                            // 检查下一条是否是选择语句
+                            bool isQuery = false;
+                            if (dbQueryables[i + 1] is IDbQueryable)
                             {
-                                if (haveBegin)
-                                {
-                                    sqlList.Add(new Command("END;"));
-                                    haveBegin = false;
-                                }
-                                token = new ResolveToken();
-                                token.Parameters = new List<IDbDataParameter>(8);
+                                var queryInfo = ((IDbQueryable)dbQueryables[i + 1]).Parse();
+                                isQuery = queryInfo is IDbQueryableInfo_Select;
                             }
-                        }
-                        else if (i + 1 < dbQueryables.Count && (dbQueryables[i + 1] is string))
-                        {
-                            string sql = obj.ToString().TrimStart();
-                            string method = string.Empty;
-                            if (sql.Length > 5) method = sql.Substring(0, 6);
-                            method = method.Trim().ToUpper();
-                            if (!(method == "INSERT" || method == "UPDATE" || method == "DELETE" || method == "MERGE"))
+                            else if ((dbQueryables[i + 1] is string))
+                            {
+                                string sql = dbQueryables[i + 1].ToString();
+                                string method = string.Empty;
+                                if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
+                                isQuery = method == "SELECT";
+                            }
+                            else if (dbQueryables[i + 1] is RawSql)
+                            {
+                                string sql =( (RawSql)dbQueryables[i + 1]).CommandText;
+                                string method = string.Empty;
+                                if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
+                                isQuery = method == "SELECT";
+                            }
+
+                            // 如果下一条是SELECT 语句，则需要结束当前语句块
+                            if (isQuery)
                             {
                                 if (haveBegin)
                                 {
                                     sqlList.Add(new Command("END;"));
                                     haveBegin = false;
+                                    sqlList.Add(null);
                                 }
                                 token = new ResolveToken();
                                 token.Parameters = new List<IDbDataParameter>(8);
@@ -203,31 +213,52 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
                 }
-                else if (obj is string)
+                else if (obj is RawSql || obj is string)
                 {
-                    // 除了 INSERT DELETE UPDATE 语句外，其它的都单独执行
-                    string sql = obj
-                        .ToString()
-                        .TrimStart();
-                    string method = string.Empty;
-                    if (sql.Length > 5) method = sql.Substring(0, 6);
-                    method = method.ToUpper();
-                    if (method == "INSERT" || method == "UPDATE" || method == "DELETE")
-                    {
-                        if (!haveBegin)
-                        {
-                            sqlList.Add(new Command("BEGIN"));
-                            haveBegin = true;
-                        }
-                        sqlList.Add(new Command(sql));
-                    }
+                    string sql = string.Empty;
+                    if (obj is string) sql = obj.ToString();
                     else
                     {
-                        if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
-                        sqlList.Add(new Command(sql));
-                        sqlList.Add(null);
+                        RawSql rawSql = (RawSql)obj;
+                        // 解析参数
+                        object[] args = null;
+                        if (rawSql.Parameters != null)
+                            args = rawSql.Parameters.Select(x => this.Generator.GetSqlValue(x, token)).ToArray();
+                        sql = rawSql.CommandText;
+                        if (args != null && args.Length > 0) sql = string.Format(sql, args);
                     }
 
+
+                    string method = string.Empty;
+                    if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
+                    if (method == "SELECT")
+                    {
+                        if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
+                    }
+
+
+                    var cmd2 = new Command(sql, token.Parameters, CommandType.Text);
+                    sqlList.Add(cmd2);
+
+                    if (method == "SELECT")
+                    {
+                        sqlList.Add(cmd2);
+                        sqlList.Add(null);
+                        token = new ResolveToken();
+                        token.Parameters = new List<IDbDataParameter>(8);
+                    } 
+                    else if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
+                    {
+                        // 1000个参数，就要重新分批
+                        if (haveBegin)
+                        {
+                            sqlList.Add(new Command("END;"));
+                            sqlList.Add(null);
+                            haveBegin = false;
+                        }
+                        token = new ResolveToken();
+                        token.Parameters = new List<IDbDataParameter>(8);
+                    }
                 }
                 else
                 {

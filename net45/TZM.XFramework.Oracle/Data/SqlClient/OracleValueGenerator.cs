@@ -49,6 +49,20 @@ namespace TZM.XFramework.Data.SqlClient
             return parameter;
         }
 
+        // 获取 byte[] 类型的 SQL 片断
+        protected override string GetSqlValueByBytes(object value)
+        {
+            byte[] bytes = (byte[])value;
+            string hex = XfwCommon.BytesToHex(bytes, false, true);
+            string result = string.Empty;
+            if (string.IsNullOrEmpty(hex)) 
+                result = "EMPTY_BLOB()";
+            else
+                result = string.Format("TO_BLOB(HEXTORAW('{0}'))", hex);
+
+            return result;
+        }
+
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
@@ -79,9 +93,7 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
-        /// <summary>
-        /// 获取 DatetTime 类型的 SQL 片断
-        /// </summary>
+        // 获取 DatetTime 类型的 SQL 片断
         protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             DateTime date = (DateTime)value;
