@@ -140,6 +140,7 @@
     <Content Include="Oracle\OracleModel.sql" />
     <Content Include="Oracle\spSys_DropIfExists.sql" />
     <Content Include="Postgre\PostgreModel.sql" />
+    <Content Include="SQLite\Inte_XFramework.db" />
     <Content Include="SqlServer\SqlServerModel.sql" />
   </ItemGroup>
   <ItemGroup>
