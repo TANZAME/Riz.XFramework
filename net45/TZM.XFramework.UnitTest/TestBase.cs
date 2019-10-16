@@ -1210,9 +1210,10 @@ namespace TZM.XFramework.UnitTest
 
             // 3.Query 关联批量删除
             var query1 =
-                from a in context.GetTable<Model.Client>()
-                where a.ClientId == 2
-                select a;
+                context
+                .GetTable<Model.Client>()
+                .SelectMany(a => context.GetTable<Model.ClientAccount>(), (a, b) => a)
+                .Where(a => a.ClientId < 10);
             context.Delete<Model.Client>(query1);
             query1 =
                 from a in context.GetTable<Model.Client>()
@@ -1388,25 +1389,31 @@ namespace TZM.XFramework.UnitTest
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
-            if (_databaseType != DatabaseType.Postgre)
-            {
-                var uQuery =
-                   from a in context.GetTable<Model.Client>()
-                   join b in sum on a.ClientId equals b.ClientId
-                   where a.ClientId > 0 && b.ClientId > 0
-                   select a;
-                context.Update<Model.Client, Model.Client>((a, b) => new Model.Client { Qty = b.Qty }, uQuery);
-            }
-            else
-            {
-                // npg 翻译成 EXISTS,更新字段的值不支持来自子查询
-                var uQuery =
-                    from a in context.GetTable<Model.Client>()
-                    join b in sum on a.ClientId equals b.ClientId
-                    where a.ClientId > 0 // b.ClientId > 0
-                    select a;
-                context.Update<Model.Client>(a => new Model.Client { Qty = 9 }, uQuery);
-            }
+            var uQuery =
+               from a in context.GetTable<Model.Client>()
+               join b in sum on a.ClientId equals b.ClientId
+               where a.ClientId > 0 && b.ClientId > 0
+               select a;
+            context.Update<Model.Client, Model.Client>((a, b) => new Model.Client { Qty = b.Qty }, uQuery);
+            //if (_databaseType != DatabaseType.Postgre)
+            //{
+            //    var uQuery =
+            //       from a in context.GetTable<Model.Client>()
+            //       join b in sum on a.ClientId equals b.ClientId
+            //       where a.ClientId > 0 && b.ClientId > 0
+            //       select a;
+            //    context.Update<Model.Client, Model.Client>((a, b) => new Model.Client { Qty = b.Qty }, uQuery);
+            //}
+            //else
+            //{
+            //    // npg 翻译成 EXISTS,更新字段的值不支持来自子查询
+            //    var uQuery =
+            //        from a in context.GetTable<Model.Client>()
+            //        join b in sum on a.ClientId equals b.ClientId
+            //        where a.ClientId > 0 // b.ClientId > 0
+            //        select a;
+            //    context.Update<Model.Client>(a => new Model.Client { Qty = 9 }, uQuery);
+            //}
             //SQL =>
             //UPDATE t0 SET
             //t0.[Qty] = t1.[Qty]
@@ -1658,7 +1665,7 @@ namespace TZM.XFramework.UnitTest
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<TDemo>(x => x.DemoId > 1000000);
+            context.Delete<TDemo>(x => x.DemoId > 10000);
             demos = new List<TDemo>();
             for (int i = 0; i < 1002; i++)
             {

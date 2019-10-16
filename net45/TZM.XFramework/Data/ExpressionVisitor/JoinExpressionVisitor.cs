@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 写入SQL片断
         /// </summary>
         public override void Write(ITextBuilder builder)
         {
@@ -73,13 +73,13 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ITextBuilder builder, DbExpression exp, TableAliasCache aliases)
+        private void AppendLfInJoin(ITextBuilder builder, DbExpression dbExpression, TableAliasCache aliases)
         {
             builder.Append(' ');
-            IDbQueryable sQuery = (IDbQueryable)((exp.Expressions[0] as ConstantExpression).Value);
+            IDbQueryable sQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (sQuery.DbExpressions.Count == 1 && sQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
-                Type type = exp.Expressions[0].Type.GetGenericArguments()[0];
+                Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             }
@@ -94,13 +94,13 @@ namespace TZM.XFramework.Data
             }
 
 
-            LambdaExpression left = exp.Expressions[1] as LambdaExpression;
-            LambdaExpression right = exp.Expressions[2] as LambdaExpression;
+            LambdaExpression left = dbExpression.Expressions[1] as LambdaExpression;
+            LambdaExpression right = dbExpression.Expressions[2] as LambdaExpression;
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
-                ? aliases.GetTableAlias(exp.Expressions[2])
-                : aliases.GetTableAlias(right.Parameters[0]);//(body2.Arguments[0]);
+                ? aliases.GetTableAlias(dbExpression.Expressions[2])
+                : aliases.GetTableAlias(right.Parameters[0]);
             builder.Append(' ');
             builder.Append(alias);
             builder.Append(' ');

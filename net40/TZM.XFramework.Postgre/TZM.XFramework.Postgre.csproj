@@ -54,6 +54,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs</Link>
     </Compile>
@@ -81,11 +84,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgValueGenerator.cs">
       <Link>Data\SqlClient\NpgValueGenerator.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommandType.cs">
-      <Link>Data\TypeDeserialize\NpgCommandType.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgCommand_SelectInfo.cs">
-      <Link>Data\TypeDeserialize\NpgCommand_SelectInfo.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgNavigationCommand.cs">
+      <Link>Data\TypeDeserialize\NpgNavigationCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\NpgTypeDeserializerImpl.cs</Link>

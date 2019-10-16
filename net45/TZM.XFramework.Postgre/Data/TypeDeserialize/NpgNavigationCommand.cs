@@ -8,14 +8,15 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class NpgCommand_SelectInfo : NavigationCommand
+    public sealed class NpgNavigationCommand : NavigationCommand
     {
         private ITextBuilder _onPhrase = null;
         private bool _hasCombine = false;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
         private readonly string _keywordName = string.Empty;
-        private NpgCommandType _operationType;
+        private DbExpressionType _dbExpressionType = DbExpressionType.None;
+        private string _pad = "";
 
         /// <summary>
         /// 导航属性的Join 表达式的 ON 子句，拼在 WHERE 后面
@@ -47,20 +48,20 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="NpgCommand_SelectInfo" /> 的新实例
+        /// 实例化 <see cref="NpgNavigationCommand" /> 的新实例
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public NpgCommand_SelectInfo(IDbQueryProvider provider, TableAliasCache aliases, NpgCommandType operationType, ResolveToken token)
+        public NpgNavigationCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;
             _aliases = aliases;
             _onPhrase = _provider.CreateSqlBuilder(token);
-            _operationType = operationType;
+            _dbExpressionType = dbExpressionType;
 
-            if (_operationType == NpgCommandType.DELETE) _keywordName = "USING";
-            else if (_operationType == NpgCommandType.UPDATE) _keywordName = "FROM";
-
+            if (_dbExpressionType == DbExpressionType.Delete) _keywordName = "USING ";
+            else if (_dbExpressionType == DbExpressionType.Update) _keywordName = "FROM ";
+            _pad = "".PadLeft(_keywordName.Length, ' ');
         }
 
         // 添加导航属性关联
@@ -123,12 +124,11 @@ namespace TZM.XFramework.Data
                 string alias2 = _aliases.GetNavigationTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
-                if (_aliases.Declared > 1 || index > 0) jf.Append("     ");
+                if (_aliases.Declared > 1 || index > 0) jf.Append(_pad);
 
                 Type type = m.Type;
                 var typeRumtime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                 if (type.IsGenericType) type = type.GetGenericArguments()[0];
-                jf.Append(' ');
                 jf.AppendMember(typeRumtime2.TableName, typeRumtime2.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias2);

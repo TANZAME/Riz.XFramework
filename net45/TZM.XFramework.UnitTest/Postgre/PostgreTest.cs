@@ -16,8 +16,9 @@ namespace TZM.XFramework.UnitTest.Postgre
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
-            // new SqlDbContext();
-            return new NpgDbContext(connString);
+            // new NpgDbContext();
+            var context = new NpgDbContext(connString);
+            return context;
         }
 
         protected override void QueryWithParameterizedConstructor()
@@ -51,7 +52,6 @@ namespace TZM.XFramework.UnitTest.Postgre
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<PostgreModel.PostgreDemo>(x => x.DemoId > 1000000);
             var demos = new List<PostgreModel.PostgreDemo>();
             for (int i = 0; i < 5; i++)
             {
@@ -77,12 +77,18 @@ namespace TZM.XFramework.UnitTest.Postgre
                     DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
-                    DemoNText_Nullable = "NTEXT 类型"
+                    DemoNText_Nullable = "NTEXT 类型",
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
             context.Insert<PostgreModel.PostgreDemo>(demos);
             context.SubmitChanges();
+            var myList = context
+                .GetTable<PostgreModel.PostgreDemo>()
+                .OrderByDescending(x => x.DemoId)
+                .Take(5).ToList();
 
             // byte[]
             var demo = new PostgreModel.PostgreDemo

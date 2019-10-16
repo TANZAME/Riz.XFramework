@@ -506,10 +506,9 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQuery.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQuery.SelectInfo, token);
-                var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.DELETE, token);
-                cmd2.HasMany = dQuery.SelectInfo.HasMany;
+                var cmd2 = new NpgNavigationCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dQuery.SelectInfo.HasMany };
 
-                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, dQuery.SelectInfo.Joins, NpgCommandType.DELETE);
+                var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dQuery.SelectInfo.Joins, DbExpressionType.Delete);
                 visitor0.Write(cmd2);
 
                 var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dQuery.SelectInfo.WhereExpression);
@@ -591,10 +590,9 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new NpgUpdateExpressionVisitor(this, aliases, uQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new NpgCommand_SelectInfo(this, aliases, NpgCommandType.UPDATE, token);
-                cmd2.HasMany = uQuery.SelectInfo.HasMany;
+                var cmd2 = new NpgNavigationCommand(this, aliases, DbExpressionType.Update, token) { HasMany = uQuery.SelectInfo.HasMany };
 
-                var visitor0 = new NpgExistsExpressionVisitor(this, aliases, uQuery.SelectInfo.Joins, NpgCommandType.UPDATE);
+                var visitor0 = new NpgJoinExpressionVisitor(this, aliases, uQuery.SelectInfo.Joins, DbExpressionType.Update);
                 visitor0.Write(cmd2);
 
                 var visitor1 = new NpgWhereExpressionVisitor(this, aliases, uQuery.SelectInfo.WhereExpression);
