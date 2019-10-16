@@ -1,4 +1,4 @@
-
+:: 运行之前需要 填充api_key，修改spec文件的引用版本
 @echo off
 set api_key=
 set source_api_uri=https://api.nuget.org/v3/index.json
@@ -47,7 +47,8 @@ dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.
 
 for /R %cd% %%f in (*.nupkg) do ( 
 echo=
-dotnet nuget push %%f -k %api_key% -s %source_api_uri%
+::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
+pause
 )
 
 echo=
