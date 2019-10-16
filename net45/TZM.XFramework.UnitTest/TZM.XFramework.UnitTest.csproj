@@ -118,6 +118,8 @@
     <Compile Include="Oracle\OracleTest.cs" />
     <Compile Include="Postgre\PostgreModel.cs" />
     <Compile Include="Postgre\PostgreTest.cs" />
+    <Compile Include="SQLite\SQLiteModel.cs" />
+    <Compile Include="SQLite\SQLiteTest.cs" />
     <Compile Include="SqlServer\SqlServerModel.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="Model.cs" />
@@ -140,6 +142,7 @@
     <Content Include="Oracle\OracleModel.sql" />
     <Content Include="Oracle\spSys_DropIfExists.sql" />
     <Content Include="Postgre\PostgreModel.sql" />
+    <Content Include="SQLite\SQLiteModel.sql" />
     <Content Include="SqlServer\SqlServerModel.sql" />
   </ItemGroup>
   <ItemGroup>
