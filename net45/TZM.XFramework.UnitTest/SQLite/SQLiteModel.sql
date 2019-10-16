@@ -1,9 +1,9 @@
 
 CREATE TABLE IF NOT EXISTS Bas_Client(
-	ClientId INTEGER PRIMARY KEY NOT NULL,
-	ClientCode TEXT NOT NULL,
-	ClientName TEXT NULL,
-	CloudServerId INTEGER NOT NULL DEFAULT 0,
+	ClientId int PRIMARY KEY NOT NULL,
+	ClientCode varchar(200) NOT NULL,
+	ClientName varchar(200) NULL,
+	CloudServerId int NOT NULL DEFAULT 0,
 	ActiveDate datetime NULL,
 	Qty int not null default 0,
 	State SMALLINT NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS Sys_Demo(
 );
 
 CREATE TABLE IF NOT EXISTS Sys_Rabbit(
-	DemoId serial PRIMARY KEY NOT NULL,
+	DemoId integer PRIMARY KEY autoincrement NOT NULL,
 	DemoCode varchar(32) NULL,
 	DemoName varchar(32) NOT NULL,
 	DemoBoolean BOOL NOT NULL,
