@@ -1261,7 +1261,6 @@ namespace TZM.XFramework.UnitTest
             // 1.先插入数据到表变量
             // 2.提交并查出当批数据
             // 3.或者将存储过程/脚本插在当前上下文一起执行
-            // 4.oracle 不支持~
 
 
             context.AddQuery(sum);

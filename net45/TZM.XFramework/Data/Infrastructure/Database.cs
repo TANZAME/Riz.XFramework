@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(List<Command> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is NavigationCommand) as NavigationCommand));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapping) as IMapping));
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        T Execute<T>(IDbCommand command, NavigationCommand map)
+        protected virtual T Execute<T>(IDbCommand command, IMapping map)
         {
             IDataReader reader = null;
 
@@ -425,7 +425,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
+        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -458,43 +458,43 @@ namespace TZM.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q1 = deserializer1.Deserialize<T1>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q2 = deserializer2.Deserialize<T2>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q3 = deserializer3.Deserialize<T3>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q4 = deserializer4.Deserialize<T4>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q5 = deserializer5.Deserialize<T5>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q6 = deserializer6.Deserialize<T6>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null ? maps[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q7 = deserializer7.Deserialize<T7>();
 
                             break;
@@ -562,7 +562,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        List<T> ExecuteList<T>(IDbCommand command, IMapping map)
+        protected virtual List<T> ExecuteList<T>(IDbCommand command, IMapping map)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();
@@ -647,7 +647,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(string sql)
+        public virtual DataSet ExecuteDataSet(string sql)
         {
             IDbCommand command = this.CreateCommand(sql);
             return this.ExecuteDataSet(command);
@@ -668,7 +668,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(IDbCommand command)
+        public virtual DataSet ExecuteDataSet(IDbCommand command)
         {
             IDataReader reader = null;
             DataSet result = null;
