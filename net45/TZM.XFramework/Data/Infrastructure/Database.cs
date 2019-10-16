@@ -658,7 +658,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public DataSet ExecuteDataSet(List<Command> sqlList)
+        public virtual DataSet ExecuteDataSet(List<Command> sqlList)
         {
             return this.DoExecute<DataSet>(sqlList, this.ExecuteDataSet);
         }
@@ -802,17 +802,16 @@ namespace TZM.XFramework.Data
                     command = this.CreateCommand(sql);
                     if (command.Connection == null) command.Connection = _connection;
 
-                    // 组织命令参数
-                    List<IDbDataParameter> prevParameters = null;
+                    // 组织命令参数，参数不能重复使用
+                    var used = new HashSet<List<IDbDataParameter>>();
                     foreach (var cmd in myList)
                     {
-                        if (cmd.Parameters != null)
+                        if (cmd.Parameters == null) continue;
+                        else if (used.Contains(cmd.Parameters)) continue;
+                        else
                         {
-                            if (prevParameters == null || cmd.Parameters != prevParameters)
-                            {
-                                command.Parameters.AddRange(cmd.Parameters);
-                                prevParameters = cmd.Parameters;
-                            }
+                            command.Parameters.AddRange(cmd.Parameters);
+                            used.Add(cmd.Parameters);
                         }
                     }
 

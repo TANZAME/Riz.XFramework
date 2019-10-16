@@ -459,7 +459,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sql">SQL 命令</param>
         /// <returns></returns>
-        public async Task<DataSet> ExecuteDataSetAsync(string sql)
+        public virtual async Task<DataSet> ExecuteDataSetAsync(string sql)
         {
             IDbCommand command = this.CreateCommand(sql);
             return await this.ExecuteDataSetAsync(command);
@@ -470,7 +470,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList)
+        public virtual async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList)
         {
             return await this.DoExecuteAsync<DataSet>(sqlList, this.ExecuteDataSetAsync);
         }

@@ -477,20 +477,16 @@ namespace TZM.XFramework.UnitTest
             query = query.Take(18);
             result3 = context.Database.ExecuteDataTableAsync(query).Result;
 #endif
-
-            // ORACLE 不支持同时跑多个 SELECT并返回DataSet
-            if (_databaseType != DatabaseType.Oracle)
-            {
-                // DataSet
-                var cmd = query.Resolve();
-                List<Command> sqlList = new List<Command> { cmd, cmd, cmd };
-                var result4 = context.Database.ExecuteDataSet(sqlList);
+            // DataSet
+            var cmd = query.Resolve();
+            List<Command> sqlList = new List<Command> { cmd, cmd, cmd };
+            var result4 = context.Database.ExecuteDataSet(sqlList);
 #if !net40
-                cmd = query.Resolve();
-                sqlList = new List<Command> { cmd, cmd, cmd };
-                result4 = context.Database.ExecuteDataSetAsync(sqlList).Result;
+            cmd = query.Resolve();
+            sqlList = new List<Command> { cmd, cmd, cmd };
+            result4 = context.Database.ExecuteDataSetAsync(sqlList).Result;
 #endif
-            }
+
         }
 
         // 多表查询
@@ -1215,7 +1211,7 @@ namespace TZM.XFramework.UnitTest
             // 3.Query 关联批量删除
             var query1 =
                 from a in context.GetTable<Model.Client>()
-                    where a.ClientId == 2
+                where a.ClientId == 2
                 select a;
             context.Delete<Model.Client>(query1);
             query1 =

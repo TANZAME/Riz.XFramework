@@ -90,5 +90,38 @@ namespace TZM.XFramework.Data
             await Task.FromResult(0);
             throw new NotSupportedException("Oracle ExecuteMultiple not supported.");
         }
+
+        /// <summary>
+        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// </summary>
+        /// <param name="sqlList">SQL 命令</param>
+        /// <returns></returns>
+        public override async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList)
+        {
+            int index = 0;
+            var result = new DataSet();
+            IDataReader reader = null;
+            List<Command> myList = this.Resove(sqlList);
+
+            Func<IDbCommand, Task<DataTable>> doExecute = async cmd =>
+            {
+                DataTable table = await this.ExecuteDataTableAsync(cmd);
+                table.TableName = string.Format("TALBE{0}", index);
+                index += 1;
+                result.Tables.Add(table);
+                return null;
+            };
+
+            try
+            {
+                await this.DoExecuteAsync<DataTable>(myList, doExecute);
+                return result;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+            }
+        }
+
     }
 }

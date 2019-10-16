@@ -186,14 +186,14 @@ namespace TZM.XFramework.Data.SqlClient
                             {
                                 string sql = dbQueryables[i + 1].ToString();
                                 string method = string.Empty;
-                                if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
+                                if (sql.Length > 6) method = sql.Substring(0, 6).Trim().ToUpper();
                                 isQuery = method == "SELECT";
                             }
                             else if (dbQueryables[i + 1] is RawSql)
                             {
-                                string sql =( (RawSql)dbQueryables[i + 1]).CommandText;
+                                string sql = ((RawSql)dbQueryables[i + 1]).CommandText;
                                 string method = string.Empty;
-                                if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
+                                if (sql.Length > 6) method = sql.Substring(0, 6).Trim().ToUpper();
                                 isQuery = method == "SELECT";
                             }
 
@@ -229,9 +229,9 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
 
-                    string method = string.Empty;
-                    if (sql.Length > 5) method = sql.Substring(0, 6).Trim().ToUpper();
-                    if (method == "SELECT")
+                    string methodName = string.Empty;
+                    if (sql.Length > 6) methodName = sql.Substring(0, 6).Trim().ToUpper();
+                    if (methodName == "SELECT")
                     {
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
                     }
@@ -240,13 +240,13 @@ namespace TZM.XFramework.Data.SqlClient
                     var cmd2 = new Command(sql, token.Parameters, CommandType.Text);
                     sqlList.Add(cmd2);
 
-                    if (method == "SELECT")
+                    if (methodName == "SELECT")
                     {
                         sqlList.Add(cmd2);
                         sqlList.Add(null);
                         token = new ResolveToken();
                         token.Parameters = new List<IDbDataParameter>(8);
-                    } 
+                    }
                     else if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
                     {
                         // 1000个参数，就要重新分批
