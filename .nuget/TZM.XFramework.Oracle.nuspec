@@ -15,7 +15,7 @@
 	<dependencies>
       <group targetFramework=".NETFramework4.5">
         <dependency id="Oracle.ManagedDataAccess" version="19.3.0" exclude="Build,Analyzers" />
-        <dependency id="TZM.XFramework" version="1.0.2" exclude="Build,Analyzers" />
+        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
