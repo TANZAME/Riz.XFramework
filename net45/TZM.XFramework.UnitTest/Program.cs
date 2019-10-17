@@ -91,11 +91,11 @@ namespace TZM.XFramework.UnitTest
                     test = new Postgre.PostgreTest();
                     databaseType = DatabaseType.Postgre;
                 }
-                //else if (m == 5)
-                //{
-                //    test = new SQLite.SQLiteTest();
-                //    databaseType = DatabaseType.SQLite;
-                //}
+                else if (m == 5)
+                {
+                    test = new SQLite.SQLiteTest();
+                    databaseType = DatabaseType.SQLite;
+                }
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 fileName = baseDirectory + @"\Log_" + databaseType + ".sql";

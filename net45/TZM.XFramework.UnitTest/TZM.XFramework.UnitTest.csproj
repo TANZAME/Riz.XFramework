@@ -46,7 +46,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1701;1702;0472</NoWarn>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -91,6 +91,10 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Data.SQLite, Version=1.0.111.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\TZM.XFramework.SQLite\lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\TZM.XFramework.MySql\lib\System.Memory.dll</HintPath>
@@ -158,6 +162,10 @@
     <ProjectReference Include="..\TZM.XFramework.Postgre\TZM.XFramework.Postgre.csproj">
       <Project>{7f583adb-feb4-4fa9-beb0-74931370ad6a}</Project>
       <Name>TZM.XFramework.Postgre</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TZM.XFramework.SQLite\TZM.XFramework.SQLite.csproj">
+      <Project>{7f27347f-3ef1-4052-9fe8-53b44bd6ea6f}</Project>
+      <Name>TZM.XFramework.SQLite</Name>
     </ProjectReference>
     <ProjectReference Include="..\TZM.XFramework\TZM.XFramework.csproj">
       <Project>{77fac559-b1f6-4972-814f-9be09fcafb1c}</Project>

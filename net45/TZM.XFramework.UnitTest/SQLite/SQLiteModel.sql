@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS Bas_Client(
 	ClientCode varchar(200) NOT NULL,
 	ClientName varchar(200) NULL,
 	CloudServerId int NOT NULL DEFAULT 0,
-	ActiveDate datetime NULL,
+	ActiveDate DATETIME(6) NULL,
 	Qty int not null default 0,
 	State SMALLINT NOT NULL,
 	Remark varchar(250) NULL DEFAULT '默认值'
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS Sys_Demo(
 	DemoText_Nullable text NULL,
 	DemoNText_Nullable text NULL,
 	DemoTime_Nullable time(2) NULL,			-- 不指定默认6位
-	DemoDatetimeOffset_Nullable datetime(6) NULL,
+	DemoDatetimeOffset_Nullable datetimeoffset(6) NULL,
 	DemoBinary_Nullable blob NULL,
 	DemVarBinary_Nullable blob NULL,
 	DemoTimestamp_Nullable  datetime(6) NULL
@@ -106,3 +106,186 @@ CREATE TABLE IF NOT EXISTS Sys_Rabbit(
 	DemoLong bigint NOT NULL,
 	DemoLong_Nullable bigint NULL
 );
+
+begin transaction;
+    Delete FROM Sys_CloudServer;
+    Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (1,'0181','181服务器');
+    Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (2,'0182','182服务器');
+    Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (3,'0183','183服务器');    
+    
+    DELETE FROM Sys_Demo;
+    DELETE FROM Bas_Client;
+    DELETE FROM Bas_ClientAccount;
+    DELETE FROM Bas_ClientAccountMarket;
+    DELETE FROM Sys_Rabbit;
+    
+    INSERT INTO Sys_Demo
+          (DemoId
+          ,DemoCode
+          ,DemoName
+          ,DemoBoolean
+          ,DemoBoolean_Nullable
+          ,DemoChar
+          ,DemoNChar
+          ,DemoChar_Nullable
+          ,DemoByte
+          ,DemoByte_Nullable
+          ,DemoDate
+          ,DemoDate_Nullable
+          ,DemoDateTime
+          ,DemoDateTime_Nullable
+          ,DemoDateTime2
+          ,DemoDateTime2_Nullable
+          ,DemoDecimal
+          ,DemoDecimal_Nullable
+          ,DemoDouble
+          ,DemoDouble_Nullable
+          ,DemoFloat
+          ,DemoFloat_Nullable
+          ,DemoGuid
+          ,DemoGuid_Nullable
+          ,DemoShort
+          ,DemoShort_Nullable
+          ,DemoInt
+          ,DemoInt_Nullable
+          ,DemoLong
+          ,DemoLong_Nullable)
+          VALUES(NULL
+              ,'D0000001'
+              ,'N0000001'
+              ,1
+              ,NULL
+              ,'A'
+              ,'B'
+              ,NULL
+              ,127
+              ,NULL
+              ,DATE('now')
+              ,NULL
+              ,DATETIME('now')
+              ,NULL
+              ,DATETIME('now')
+              ,NULL
+              ,1024.123456789
+              ,NULL
+              ,2048.123456789
+              ,NULL
+              ,4096.123456789
+              ,NULL
+              ,'C09BFAF272B8824A82059FFCABDF2990'
+              ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
+              ,8192
+              ,NULL
+              ,819200000
+              ,NULL
+              ,8192000000000
+              ,NULL
+      );
+      
+    INSERT INTO Sys_Rabbit
+          (DemoId
+          ,DemoCode
+          ,DemoName
+          ,DemoBoolean
+          ,DemoBoolean_Nullable
+          ,DemoChar
+          ,DemoNChar
+          ,DemoChar_Nullable
+          ,DemoByte
+          ,DemoByte_Nullable
+          ,DemoDate
+          ,DemoDate_Nullable
+          ,DemoDateTime
+          ,DemoDateTime_Nullable
+          ,DemoDateTime2
+          ,DemoDateTime2_Nullable
+          ,DemoDecimal
+          ,DemoDecimal_Nullable
+          ,DemoDouble
+          ,DemoDouble_Nullable
+          ,DemoFloat
+          ,DemoFloat_Nullable
+          ,DemoGuid
+          ,DemoGuid_Nullable
+          ,DemoShort
+          ,DemoShort_Nullable
+          ,DemoInt
+          ,DemoInt_Nullable
+          ,DemoLong
+          ,DemoLong_Nullable)
+          VALUES(NULL
+              ,'D0000001'
+              ,'N0000001'
+              ,1
+              ,NULL
+              ,'A'
+              ,'B'
+              ,NULL
+              ,127
+              ,NULL
+              ,DATE('now')
+              ,NULL
+              ,DATETIME('now')
+              ,NULL
+              ,DATETIME('now')
+              ,NULL
+              ,1024.123456789
+              ,NULL
+              ,2048.123456789
+              ,NULL
+              ,4096.123456789
+              ,NULL
+              ,'C09BFAF272B8824A82059FFCABDF2990'
+              ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
+              ,8192
+              ,NULL
+              ,819200000
+              ,NULL
+              ,8192000000000
+              ,NULL
+      );
+      
+    INSERT INTO Bas_Client
+        (ClientId
+        ,ClientCode
+        ,ClientName
+        ,CloudServerId
+        ,ActiveDate
+        ,State
+        ,Remark)
+      VALUES
+        (1
+        ,'XFramework1'
+        ,'XFramework1'
+        ,1
+        ,DATETIME('now')
+        ,1
+        ,'XFramework1');
+        
+    INSERT INTO Bas_ClientAccount
+        (ClientId
+        ,AccountId
+        ,AccountCode
+        ,AccountName
+        ,Qty)
+      VALUES
+        (1
+        ,1
+        ,'XFramework1'
+        ,'XFramework1'
+        
+        ,1);
+    INSERT INTO Bas_ClientAccountMarket
+        (ClientId
+        ,AccountId
+        ,MarketId
+        ,MarketCode
+        ,MarketName)
+      VALUES
+        (1
+        ,1
+        ,1
+        ,'XFramework'
+        ,'XFramework');
+        
+commit;

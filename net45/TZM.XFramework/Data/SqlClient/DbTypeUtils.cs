@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据类型公用方法

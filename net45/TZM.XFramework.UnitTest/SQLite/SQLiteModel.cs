@@ -31,13 +31,11 @@ namespace TZM.XFramework.UnitTest.SQLite
             /// <summary>
             /// demotext_nullable
             /// </summary>
-            [Column(DbType = System.Data.DbType.AnsiString)]
             public virtual string DemoText_Nullable { get; set; }
 
             /// <summary>
             /// demontext_nullable
             /// </summary>
-            [Column(DbType = System.Data.DbType.AnsiString)]
             public virtual string DemoNText_Nullable { get; set; }
 
             /// <summary>

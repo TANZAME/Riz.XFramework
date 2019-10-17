@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using Oracle.ManagedDataAccess.Client;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据类型公用方法

@@ -53,8 +53,7 @@ namespace TZM.XFramework.Data
             _primitiveTypes.Add(typeof(DateTimeOffset));
             _primitiveTypes.Add(typeof(Nullable<DateTimeOffset>));
             _primitiveTypes.Add(typeof(byte[]));
-            _primitiveTypes.Add(typeof(object));
-
+            // object 类型不能加进来，不然会与dynamic类型产生冲突
 
             _numericTypes.Add(typeof(byte));
             _numericTypes.Add(typeof(Nullable<byte>));

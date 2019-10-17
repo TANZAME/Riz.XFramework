@@ -265,7 +265,6 @@ namespace TZM.XFramework.UnitTest
             //ORDER BY t0.[DemoCode]
             //OFFSET 1 ROWS FETCH NEXT 18 ROWS ONLY
 
-            // Mysql 不支持 limit n,-1 语法 ###
             query =
                 from a in context.GetTable<TDemo>()
                 where a.DemoId <= 10
@@ -339,7 +338,7 @@ namespace TZM.XFramework.UnitTest
             // 点标记
             query = context.GetTable<TDemo>().Where(a => a.DemoName == "D0000002" || a.DemoCode == "D0000002");
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("004"));
+            query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("00"));
             result1 = query.ToList();
             query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("Code000036"));
             result1 = query.ToList();
