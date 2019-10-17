@@ -1,7 +1,8 @@
 ﻿
 using System;
-using System.Text;
+using System.Linq;
 using System.Collections.Generic;
+
 using TZM.XFramework.Data;
 using TZM.XFramework.Data.SqlClient;
 
@@ -25,8 +26,6 @@ namespace TZM.XFramework.UnitTest.SQLite
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             var context = new SQLiteDbContext(connString);
             return context;
-            // LAST_INSERT_ROWID()
-            
         }
 
         protected override void QueryWithParameterizedConstructor()
@@ -34,9 +33,9 @@ namespace TZM.XFramework.UnitTest.SQLite
             var context = _newContext();
             // 构造函数
             var query =
-                 from a in context.GetTable<Model.Demo>()
+                 from a in context.GetTable<SQLiteModel.SQLiteDemo>()
                  where a.DemoId <= 10
-                 select new Model.Demo(a);
+                 select new SQLiteModel.SQLiteDemo(a);
             var r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -47,9 +46,9 @@ namespace TZM.XFramework.UnitTest.SQLite
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
             query =
-               from a in context.GetTable<Model.Demo>()
+               from a in context.GetTable<SQLiteModel.SQLiteDemo>()
                where a.DemoId <= 10
-               select new Model.Demo(a.DemoId, a.DemoName);
+               select new SQLiteModel.SQLiteDemo(a.DemoId, a.DemoName);
             r1 = query.ToList();
             //SQL=>
             //SELECT 

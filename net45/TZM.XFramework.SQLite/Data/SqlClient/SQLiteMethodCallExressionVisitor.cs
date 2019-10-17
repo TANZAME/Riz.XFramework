@@ -1,6 +1,6 @@
 ﻿
-
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -95,7 +95,6 @@ namespace TZM.XFramework.Data.SqlClient
 
             return m;
         }
-
 
         /// <summary>
         /// 访问 StartWidth 方法
@@ -234,6 +233,49 @@ namespace TZM.XFramework.Data.SqlClient
         {
             System.Guid guid = System.Guid.NewGuid();
             _builder.Append(guid, null);
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IDbQueryable.Contains 方法
+        /// </summary>
+        protected override Expression VisitQueryableContains(MethodCallExpression m)
+        {
+            if (m.Arguments[0].CanEvaluate())
+            {
+                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+
+                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
+                {
+                    Parameters = _builder.Token.Parameters,
+                    TableAliasName = "s"
+                } : null);
+                _builder.Append("EXISTS(");
+                _builder.Append(cmd.CommandText);
+
+                if (((NavigationCommand)cmd).WhereFragment.Length > 0)
+                    _builder.Append(" AND ");
+                else
+                    _builder.Append("WHERE ");
+
+                var kv = ((NavigationCommand)cmd).Columns.FirstOrDefault();
+                _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
+
+                _builder.Append(" = ");
+
+                // exists 不能用别名
+                var token = _builder.Token;
+                if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
+                {
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
+                    _builder.AppendMember(typeRuntime.TableName);
+                    _builder.Append('.');
+                }
+
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
+            else throw new XFrameworkException("IDbQueryable must be a local variable.");
             return m;
         }
     }

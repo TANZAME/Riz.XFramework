@@ -32,47 +32,90 @@ CREATE TABLE IF NOT EXISTS Sys_CloudServer(
 	CloudServerCode varchar(50) NOT NULL,
 	CloudServerName varchar(50) NOT NULL
 );
-
+-- 原始类型
+-- 使用原始类型和使用.net常用类型建表，都能被 System.Data.SQLite.dll 正确映射
 CREATE TABLE IF NOT EXISTS Sys_Demo(
 	DemoId integer PRIMARY KEY autoincrement NOT NULL,
-	DemoCode varchar(32) NULL,
-	DemoName varchar(32) NOT NULL,
-	DemoBoolean BOOL NOT NULL,
-	DemoBoolean_Nullable BOOL NULL,
-	DemoChar char(1) NOT NULL,
-	DemoNChar char(1) NOT NULL,
-	DemoChar_Nullable char(1) NULL,
-	DemoByte smallint NOT NULL,
-	DemoByte_Nullable smallint NULL,
-	DemoDate date NOT NULL,
-	DemoDate_Nullable date NULL,
-	DemoDateTime datetime NOT NULL,
-	DemoDateTime_Nullable datetime NULL,
-	DemoDateTime2 datetime(6) NOT NULL,
-	DemoDateTime2_Nullable datetime(6) NULL,
-	DemoDecimal decimal(18, 2) NOT NULL,
-	DemoDecimal_Nullable decimal(18, 2) NULL,
-	DemoDouble float NOT NULL,
-	DemoDouble_Nullable float NULL,
+	DemoCode text NULL,
+	DemoName text NOT NULL,
+	DemoBoolean int NOT NULL,
+	DemoBoolean_Nullable int NULL,
+	DemoChar text NOT NULL,
+	DemoNChar text NOT NULL,
+	DemoChar_Nullable text NULL,
+	DemoByte int NOT NULL,
+	DemoByte_Nullable int NULL,
+	DemoDate TEXT NOT NULL,
+	DemoDate_Nullable TEXT NULL,
+	DemoDateTime TEXT NOT NULL,
+	DemoDateTime_Nullable TEXT NULL,
+	DemoDateTime2 TEXT NOT NULL,
+	DemoDateTime2_Nullable TEXT NULL,
+	DemoDecimal NUMERIC NOT NULL,
+	DemoDecimal_Nullable NUMERIC NULL,
+	DemoDouble REAL NOT NULL,
+	DemoDouble_Nullable real NULL,
 	DemoFloat real NOT NULL,
 	DemoFloat_Nullable real NULL,
-	DemoGuid uuid NOT NULL,
-	DemoGuid_Nullable uuid NULL,
-	DemoShort smallint NOT NULL,
-	DemoShort_Nullable smallint NULL,
+	DemoGuid TEXT NOT NULL,
+	DemoGuid_Nullable TEXT NULL,
+	DemoShort integer NOT NULL,
+	DemoShort_Nullable integer NULL,
 	DemoInt int NOT NULL,
 	DemoInt_Nullable int NULL,
-	DemoLong bigint NOT NULL,
-	DemoLong_Nullable bigint NULL,
+	DemoLong integer NOT NULL,
+	DemoLong_Nullable integer NULL,
 	
 	DemoText_Nullable text NULL,
 	DemoNText_Nullable text NULL,
-	DemoTime_Nullable time(2) NULL,			-- 不指定默认6位
-	DemoDatetimeOffset_Nullable datetimeoffset(6) NULL,
+	DemoTime_Nullable text NULL,			-- 不指定默认6位
+	DemoDatetimeOffset_Nullable text NULL,
 	DemoBinary_Nullable blob NULL,
 	DemVarBinary_Nullable blob NULL,
-	DemoTimestamp_Nullable  datetime(6) NULL
+	DemoTimestamp_Nullable  text NULL
 );
+
+---- .net 类型
+--CREATE TABLE IF NOT EXISTS Sys_Demo(
+--	DemoId integer PRIMARY KEY autoincrement NOT NULL,
+--	DemoCode varchar(32) NULL,
+--	DemoName varchar(32) NOT NULL,
+--	DemoBoolean BOOL NOT NULL,
+--	DemoBoolean_Nullable BOOL NULL,
+--	DemoChar char(1) NOT NULL,
+--	DemoNChar char(1) NOT NULL,
+--	DemoChar_Nullable char(1) NULL,
+--	DemoByte smallint NOT NULL,
+--	DemoByte_Nullable smallint NULL,
+--	DemoDate date NOT NULL,
+--	DemoDate_Nullable date NULL,
+--	DemoDateTime datetime NOT NULL,
+--	DemoDateTime_Nullable datetime NULL,
+--	DemoDateTime2 datetime(6) NOT NULL,
+--	DemoDateTime2_Nullable datetime(6) NULL,
+--	DemoDecimal decimal(18, 2) NOT NULL,
+--	DemoDecimal_Nullable decimal(18, 2) NULL,
+--	DemoDouble float NOT NULL,
+--	DemoDouble_Nullable float NULL,
+--	DemoFloat real NOT NULL,
+--	DemoFloat_Nullable real NULL,
+--	DemoGuid uuid NOT NULL,
+--	DemoGuid_Nullable uuid NULL,
+--	DemoShort smallint NOT NULL,
+--	DemoShort_Nullable smallint NULL,
+--	DemoInt int NOT NULL,
+--	DemoInt_Nullable int NULL,
+--	DemoLong bigint NOT NULL,
+--	DemoLong_Nullable bigint NULL,
+	
+--	DemoText_Nullable text NULL,
+--	DemoNText_Nullable text NULL,
+--	DemoTime_Nullable time(2) NULL,			-- 不指定默认6位
+--	DemoDatetimeOffset_Nullable datetimeoffset(6) NULL,
+--	DemoBinary_Nullable blob NULL,
+--	DemVarBinary_Nullable blob NULL,
+--	DemoTimestamp_Nullable  datetime(6) NULL
+--);
 
 CREATE TABLE IF NOT EXISTS Sys_Rabbit(
 	DemoId integer PRIMARY KEY autoincrement NOT NULL,
@@ -172,7 +215,7 @@ begin transaction;
               ,NULL
               ,4096.123456789
               ,NULL
-              ,'C09BFAF272B8824A82059FFCABDF2990'
+              ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
               ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
               ,8192
               ,NULL
@@ -235,7 +278,7 @@ begin transaction;
               ,NULL
               ,4096.123456789
               ,NULL
-              ,'C09BFAF272B8824A82059FFCABDF2990'
+              ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
               ,'67329bff-518e-4fa8-8ab8-8872fc401dcf'
               ,8192
               ,NULL

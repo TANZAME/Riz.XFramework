@@ -19,5 +19,10 @@ namespace TZM.XFramework.Data
         /// <para>用于翻译 IDbQueryable.Contains 语法</para>
         /// </summary>
         public string TableAliasName { get; set; }
+
+        /// <summary>
+        /// 扩展参数
+        /// </summary>
+        public IDictionary<string,object> Extendsions { get; set; }
     }
 }

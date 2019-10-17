@@ -37,7 +37,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 单表查询
-        void Query()
+        protected virtual void Query()
         {
             var context = _newContext();
 
@@ -489,7 +489,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 多表查询
-        void Join()
+        protected virtual void Join()
         {
             var context = _newContext();
 
@@ -1173,12 +1173,12 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 删除记录
-        void Delete()
+        protected virtual void Delete()
         {
             var context = _newContext();
 
             // 1. 删除单个记录
-            var demo = new TDemo { DemoId = 1 };
+            var demo = new TDemo { DemoId = 10001 };
             context.Delete(demo);
             context.SubmitChanges();
 
@@ -1227,8 +1227,8 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
                 where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                select a;
-            context.Delete<Model.Client>(query2);
+                select a.ClientId;
+            context.Delete<Model.Client>(a => a.ClientId != 0 && query2.Contains(a.ClientId));
             // 4.Query 关联批量删除
             var query3 =
                 from a in context.GetTable<Model.Client>()
@@ -1285,7 +1285,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 更新记录
-        void Update()
+        protected virtual void Update()
         {
             var context = _newContext();
 
@@ -1458,7 +1458,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 新增记录
-        void Insert()
+        protected virtual void Insert()
         {
             var context = _newContext();
 
@@ -1944,7 +1944,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 性能测试
-        void Rabbit()
+        protected virtual void Rabbit()
         {
             Stopwatch stop = new Stopwatch();
             var context = _newContext();

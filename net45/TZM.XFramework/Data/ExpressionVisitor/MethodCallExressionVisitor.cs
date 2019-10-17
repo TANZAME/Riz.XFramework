@@ -540,7 +540,7 @@ namespace TZM.XFramework.Data
                 var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
                 {
                     Parameters = _builder.Token.Parameters,
-                    TableAliasName = "u"
+                    TableAliasName = "s"
                 } : null);
                 _builder.Append("EXISTS(");
                 _builder.Append(cmd.CommandText);
@@ -557,7 +557,7 @@ namespace TZM.XFramework.Data
                 _visitor.Visit(m.Arguments[1]);
                 _builder.Append(")");
             }
-            else throw new XFrameworkException("IDbQueryable must declare as a local variable.");
+            else throw new XFrameworkException("IDbQueryable must be a local variable.");
             return m;
         }
 

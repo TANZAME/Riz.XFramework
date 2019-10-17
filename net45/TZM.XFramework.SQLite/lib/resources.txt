@@ -1,5 +1,6 @@
-http://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki
+﻿http://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki
 官网：https://www.sqlite.org/index.html
+指引：https://www.tutorialspoint.com/sqlite/sqlite_delete_query.htm
 关于SQLite的connection string说明：http://www.connectionstrings.com/sqlite/
 SQLite GUI客户端列表：http://www.sqlite.org/cvstrac/wiki?p=ManagementTools
 SQLite Administrator下载地址：http://download.orbmu2k.de/files/sqliteadmin.zip

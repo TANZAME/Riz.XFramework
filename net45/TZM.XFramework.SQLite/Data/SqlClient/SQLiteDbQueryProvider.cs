@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
@@ -12,6 +13,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public sealed class SQLiteDbQueryProvider : DbQueryProvider
     {
+        static Expression<Func<SQLiteRowId, string>> _rowIdExpression = x => x.RowId;
 
         /// <summary>
         /// 查询语义提供者实例
@@ -435,7 +437,7 @@ namespace TZM.XFramework.Data.SqlClient
                 if (nQueryInfo.Bulk == null && nQueryInfo.AutoIncrement != null)
                 {
                     builder.AppendNewLine();
-                    builder.Append("SELECT SCOPE_IDENTITY()");
+                    builder.Append("SELECT LAST_INSERT_ROWID()");
                     builder.AppendAs(Constant.AUTOINCREMENTNAME);
                 }
             }
@@ -468,9 +470,9 @@ namespace TZM.XFramework.Data.SqlClient
             ITextBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
-            builder.Append("DELETE t0 FROM ");
+            builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-            builder.Append(" t0 ");
+            builder.Append(" ");
 
             if (dQueryInfo.Entity != null)
             {
@@ -489,7 +491,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     var value = invoker.Invoke(entity);
                     var seg = this.Generator.GetSqlValue(value, token, column);
-                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.AppendMember(invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
                     builder.Append(" AND ");
@@ -498,19 +500,65 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dQueryInfo.SelectInfo != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                LambdaExpression lambda = null;
+                var dbQuery = dQueryInfo.SourceQuery;
+                if (dbQuery.DbExpressions != null && dbQuery.DbExpressions.Count > 1)
+                {
+                    switch (dbQuery.DbExpressions[1].DbExpressionType)
+                    {
+                        case DbExpressionType.Join:
+                        case DbExpressionType.GroupJoin:
+                        case DbExpressionType.GroupRightJoin:
+                            lambda = (LambdaExpression)dbQuery.DbExpressions[1].Expressions[1];
+                            break;
 
-                ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
-                visitor.Write(cmd2.JoinFragment);
+                        case DbExpressionType.Select:
+                        case DbExpressionType.SelectMany:
+                            lambda = (LambdaExpression)dbQuery.DbExpressions[1].Expressions[0];
+                            break;
+                    }
+                }
+                if (lambda == null)
+                {
+                    DbExpression dbExpression = dQueryInfo.SelectInfo.SelectExpression;
+                    dbExpression = dQueryInfo.SelectInfo.WhereExpression;
+                    if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
+                }
 
-                visitor = new WhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression);
-                visitor.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor.NavMembers);
+                // 解析查询以确定是否需要嵌套
+                var parameter = Expression.Parameter(typeof(SQLiteRowId), lambda != null ? lambda.Parameters[0].Name : "x");
+                var expression = Expression.MakeMemberAccess(parameter, (_rowIdExpression.Body as MemberExpression).Member);
+                dQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (NavigationCommand)this.ParseSelectCommand<T>(dQueryInfo.SelectInfo, 1, false, null);
+                if (token != null && token.Extendsions == null)
+                {
+                    token.Extendsions = new Dictionary<string, object>();
+                    if (!token.Extendsions.ContainsKey("SQLiteDelete")) token.Extendsions.Add("SQLiteDelete", null);
+                }
 
-                builder.Append(cmd2.CommandText);
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dQueryInfo.SelectInfo.Joins.Count > 0)
+                {
+                    cmd = (NavigationCommand)this.ParseSelectCommand<T>(dQueryInfo.SelectInfo, 1, false, token);
+                    builder.Append("WHERE ");
+                    builder.AppendMember("RowID");
+                    builder.Append(" IN(");
+                    builder.AppendNewLine(cmd.CommandText);
+                    builder.Append(')');
+                }
+                else
+                {
+                    TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
+                    ExpressionVisitorBase visitor = null;
+
+                    visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
+                    visitor.Write(builder);
+
+                    visitor = new SQLiteWhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression, null);
+                    visitor.Write(builder);
+                }
             }
 
+            builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
@@ -604,6 +652,17 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+        }
+
+        /// <summary>
+        /// 行记录ID
+        /// </summary>
+        public class SQLiteRowId
+        {
+            /// <summary>
+            /// 行记录ID
+            /// </summary>
+            public string RowId { get; set; }
         }
     }
 }
