@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -245,6 +246,57 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitNewGuid(MethodCallExpression m)
         {
             _builder.Append("UUID()");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IDbQueryable.Contains 方法
+        /// </summary>
+        protected override Expression VisitQueryableContains(MethodCallExpression m)
+        {
+            if (m.Arguments[0].CanEvaluate())
+            {
+                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+                ResolveToken token = _builder.Token;
+                bool isDelete = token != null && token.Extendsions != null && token.Extendsions.ContainsKey("MySqlDelete");
+
+                var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
+                {
+                    Parameters = token.Parameters,
+                    TableAliasName = "s",
+                    IsDebug = token.IsDebug
+                } : null);
+                Column column = ((MappingCommand)cmd).Columns.First().Value;
+                _builder.Append("EXISTS(");
+
+                if (isDelete)
+                {
+                    _builder.Append("SELECT 1 FROM(");
+                    _builder.Append(cmd.CommandText);
+                    _builder.Append(") ");
+                    _builder.Append(column.TableAlias);
+                    _builder.Append(" WHERE ");
+
+                    _builder.AppendMember(column.TableAlias, column.Name);
+                    _builder.Append(" = ");                    
+                    _visitor.Visit(m.Arguments[1]);
+                    _builder.Append(")");
+                }
+                else
+                {
+                    _builder.Append(cmd.CommandText);
+                    if (((MappingCommand)cmd).WhereFragment.Length > 0)
+                        _builder.Append(" AND ");
+                    else
+                        _builder.Append("WHERE ");
+
+                    _builder.AppendMember(column.TableAlias, column.Name);
+                    _builder.Append(" = ");
+                    _visitor.Visit(m.Arguments[1]);
+                    _builder.Append(")");
+                }
+            }
+            else throw new XFrameworkException("IDbQueryable must be a local variable.");
             return m;
         }
 

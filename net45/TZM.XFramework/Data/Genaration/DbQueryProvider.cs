@@ -289,14 +289,14 @@ namespace TZM.XFramework.Data
             {
                 var dbQueryables = bulkList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
                 int i = 0;
-                int t = dbQueryables.Count();
+                int count = dbQueryables.Count();
                 var builder = new System.Text.StringBuilder(128);
 
                 foreach (IDbQueryable query in dbQueryables)
                 {
                     i += 1;
                     query.Parameterized = false;
-                    query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == t };
+                    query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == count };
 
                     Command cmd = query.Resolve();
                     builder.Append(cmd.CommandText);

@@ -497,15 +497,10 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append("VALUES");
                 }
 
-                if (nQueryInfo.Bulk != null && nQueryInfo.Bulk.OnlyValue) builder.AppendNewTab();
                 builder.Append('(');
                 builder.Append(valuesBuilder);
                 builder.Append(')');
-                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos)
-                {
-                    builder.Append(",");
-                    builder.AppendNewLine();
-                }
+                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos) builder.Append(",");
 
                 if (nQueryInfo.Bulk == null && nQueryInfo.AutoIncrement != null)
                 {
@@ -577,6 +572,11 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
                 var cmd2 = new MappingCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                if (token != null && token.Extendsions == null)
+                {
+                    token.Extendsions = new Dictionary<string, object>();
+                    if (!token.Extendsions.ContainsKey("MySqlDelete")) token.Extendsions.Add("MySqlDelete", null);
+                }
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

@@ -429,15 +429,10 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append("VALUES");
                 }
 
-                if (nQueryInfo.Bulk != null && nQueryInfo.Bulk.OnlyValue) builder.AppendNewTab();
                 builder.Append('(');
                 builder.Append(valuesBuilder);
                 builder.Append(')');
-                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos)
-                {
-                    builder.Append(",");
-                    builder.AppendNewLine();
-                }
+                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos) builder.Append(",");
 
                 if (nQueryInfo.Bulk == null && nQueryInfo.AutoIncrement != null)
                 {

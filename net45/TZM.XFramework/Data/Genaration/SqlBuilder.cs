@@ -252,8 +252,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ISqlBuilder AppendNewLine(string value)
         {
-            _innerBuilder.Append(value);
-            _innerBuilder.AppendLine();
+            this.Append(value);
+            this.AppendNewLine();
             return this;
         }
 
