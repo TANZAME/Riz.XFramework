@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// <see cref="SQLiteMethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public class SQLiteMethodCallExressionVisitor : MethodCallExressionVisitor
+    class SQLiteMethodCallExressionVisitor : MethodCallExressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
@@ -243,12 +243,14 @@ namespace TZM.XFramework.Data.SqlClient
         {
             if (m.Arguments[0].CanEvaluate())
             {
+                var token = _builder.Token;
                 IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
 
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
+                var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
                 {
-                    Parameters = _builder.Token.Parameters,
-                    TableAliasName = "s"
+                    Parameters = token.Parameters,
+                    TableAliasName = "s",
+                    IsDebug = token.IsDebug
                 } : null);
                 _builder.Append("EXISTS(");
                 _builder.Append(cmd.CommandText);
@@ -258,13 +260,12 @@ namespace TZM.XFramework.Data.SqlClient
                 else
                     _builder.Append("WHERE ");
 
-                var kv = ((MappingCommand)cmd).Columns.FirstOrDefault();
-                _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
+                Column column = ((MappingCommand)cmd).Columns.First().Value;
+                _builder.AppendMember(column.TableAlias, column.Name);
 
                 _builder.Append(" = ");
 
                 // exists 不能用别名
-                var token = _builder.Token;
                 if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
                 {
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);

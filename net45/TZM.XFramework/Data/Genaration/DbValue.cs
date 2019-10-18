@@ -38,7 +38,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public string GetSqlValue(object value, ResolveToken token, MemberExpression node = null)
         {
-            return this.GetSqlValue(value, token, node != null ? node.Member : null, node != null ? node.Expression.Type : null);
+            return this.GetSqlValue(value, token, node != null ? node.Member : null, node != null && node.Expression != null ? node.Expression.Type : null);
         }
 
         /// <summary>

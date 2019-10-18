@@ -1217,7 +1217,7 @@ namespace TZM.XFramework.UnitTest
                 context
                 .GetTable<Model.Client>()
                 .SelectMany(a => context.GetTable<Model.ClientAccount>(), (a, b) => a)
-                .Where(a => a.ClientId < 10);
+                .Where(a => a.ClientId > 10000);
             context.Delete<Model.Client>(query1);
             query1 =
                 from a in context.GetTable<Model.Client>()
@@ -1245,7 +1245,7 @@ namespace TZM.XFramework.UnitTest
             // 子查询更新
             var sum =
                 from a in context.GetTable<Model.ClientAccount>()
-                where a.ClientId <= 20
+                where a.ClientId > 10000
                 group a by new { a.ClientId } into g
                 select new Model.Client
                 {
@@ -1257,7 +1257,7 @@ namespace TZM.XFramework.UnitTest
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 join c in context.GetTable<Model.CloudServer>() on a.CloudServerId equals c.CloudServerId
                 join d in sum on a.ClientId equals d.ClientId
-                where a.ClientId > 10 && a.CloudServerId > 0
+                where a.ClientId > 10000 && a.CloudServerId > 0
                 select a;
             context.Delete<Model.Client>(query4);
 
@@ -1321,6 +1321,7 @@ namespace TZM.XFramework.UnitTest
             {
                 Remark = "001.TAN"
             }, query);
+            context.SubmitChanges();
             //SQL=> 
             //UPDATE t0 SET
             //t0.[DemoCode] = 'Code0000004',

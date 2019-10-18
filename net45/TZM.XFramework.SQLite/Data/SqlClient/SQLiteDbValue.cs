@@ -27,6 +27,12 @@ namespace TZM.XFramework.Data.SqlClient
         protected override IDbDataParameter AddParameter(object value, ResolveToken token,
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
+            if (value is Guid)
+            {
+                // 转换一下GUID，否则保存后会出现乱码~
+                value = ((Guid)value).ToString();
+            }
+
             // 补充 DbType
             SQLiteParameter parameter = (SQLiteParameter)base.AddParameter(value, token, dbType, size, precision, scale, direction);
             parameter.DbType(dbType);

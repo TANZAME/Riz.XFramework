@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs</Link>
     </Compile>

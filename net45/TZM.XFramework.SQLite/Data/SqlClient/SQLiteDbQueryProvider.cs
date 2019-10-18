@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data;
+using System.Linq;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -88,7 +89,8 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 实例化 <see cref="SqlServerDbQueryProvider"/> 类的新实例
         /// </summary>
-        private SQLiteDbQueryProvider() : base()
+        private SQLiteDbQueryProvider()
+            : base()
         {
         }
 
@@ -360,9 +362,9 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 INSRT 命令
         protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            TableAliasCache aliases = new TableAliasCache();
 
             if (nQueryInfo.Entity != null)
             {
@@ -380,7 +382,7 @@ namespace TZM.XFramework.Data.SqlClient
                         Expression curExpr = nQueryInfo.EntityColumns[i];
                         if (curExpr.NodeType == ExpressionType.Lambda) curExpr = (curExpr as LambdaExpression).Body.ReduceUnary();
                         if (curExpr.NodeType != ExpressionType.MemberAccess)
-                            throw new XFrameworkException("ERR {0}: Only support MemberAccess expression.", nQueryInfo.EntityColumns[i]);
+                            throw new XFrameworkException("Can't read field name from expression {0}", nQueryInfo.EntityColumns[i]);
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
@@ -394,7 +396,6 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
                     if (column != null && column.NoMapped) continue;
                     if (invoker.ForeignKey != null) continue;
-                    if (invoker.Column != null && column.DbType is SqlDbType && (SqlDbType)column.DbType == SqlDbType.Timestamp) continue; // 行版本号
                     if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
                     if (invoker != nQueryInfo.AutoIncrement)
@@ -408,7 +409,6 @@ namespace TZM.XFramework.Data.SqlClient
                         valuesBuilder.Append(',');
                     }
                 }
-
                 columnsBuilder.Length -= 1;
                 valuesBuilder.Length -= 1;
 
@@ -424,21 +424,21 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append("VALUES");
                 }
 
-                if (nQueryInfo.Bulk != null && nQueryInfo.Bulk.OnlyValue) builder.AppendNewTab();
                 builder.Append('(');
                 builder.Append(valuesBuilder);
                 builder.Append(')');
-                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos)
-                {
-                    builder.Append(",");
-                    builder.AppendNewLine();
-                }
+                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos) builder.Append(",");
 
                 if (nQueryInfo.Bulk == null && nQueryInfo.AutoIncrement != null)
                 {
+                    builder.Append(';');
                     builder.AppendNewLine();
-                    builder.Append("SELECT LAST_INSERT_ROWID()");
-                    builder.AppendAs(Constant.AUTOINCREMENTNAME);
+
+                    builder.AppendFormat("SELECT LAST_INSERT_ROWID()", typeRuntime.TableName, nQueryInfo.AutoIncrement.Member.Name);
+                    builder.Append(" AS ");
+                    builder.Append(this.QuotePrefix);
+                    builder.Append(Constant.AUTOINCREMENTNAME);
+                    builder.Append(this.QuoteSuffix);
                 }
             }
             else if (nQueryInfo.SelectInfo != null)
@@ -448,7 +448,8 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MappingCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as MappingCommand;
+                MappingCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, false, token) as MappingCommand;
+                //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -461,6 +462,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(cmd2.CommandText);
             }
 
+            if (nQueryInfo.Bulk == null || nQueryInfo.Bulk.IsEndPos) builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
@@ -568,7 +570,9 @@ namespace TZM.XFramework.Data.SqlClient
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
-            builder.Append("UPDATE t0 SET");
+            builder.Append("UPDATE ");
+            builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            builder.Append(" SET");
             builder.AppendNewLine();
 
             if (uQueryInfo.Entity != null)
@@ -588,7 +592,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (invoker.ForeignKey != null) continue;
                     if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
-                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.AppendMember(invoker.Member.Name);
                     builder.Append(" = ");
 
                 gotoLabel:
@@ -606,7 +610,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (column != null && column.IsKey)
                     {
                         useKey = true;
-                        whereBuilder.AppendMember("t0", invoker.Member.Name);
+                        whereBuilder.AppendMember(invoker.Member.Name);
                         whereBuilder.Append(" = ");
                         whereBuilder.Append(seg);
                         whereBuilder.Append(" AND ");
@@ -619,38 +623,84 @@ namespace TZM.XFramework.Data.SqlClient
                 whereBuilder.Length -= 5;
 
                 builder.AppendNewLine();
-                builder.Append("FROM ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-                builder.Append(" t0");
-
-                builder.AppendNewLine();
                 builder.Append("WHERE ");
                 builder.Append(whereBuilder);
             }
             else if (uQueryInfo.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
-                ExpressionVisitorBase visitor = null;
-                visitor = new UpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
-                visitor.Write(builder);
+                // SELECT 表达式
+                LambdaExpression lambda = uQueryInfo.Expression as LambdaExpression;
+                var body = lambda.Body;
+                Expression expression = null;
+                if (body.NodeType == ExpressionType.MemberInit)
+                {
+                    var memberInit = body as MemberInitExpression;
+                    var bindings = new List<MemberBinding>(memberInit.Bindings);
+                    foreach (var kvp in typeRuntime.KeyInvokers)
+                    {
+                        var member = Expression.MakeMemberAccess(lambda.Parameters[0], kvp.Value.Member);
+                        var binding = Expression.Bind(kvp.Value.Member, member);
+                        if (!bindings.Any(x => x.Member == kvp.Value.Member)) bindings.Add(binding);
+                    }
+                    expression = Expression.MemberInit(memberInit.NewExpression, bindings);
+                }
+                else if (body.NodeType == ExpressionType.New)
+                {
+                    var newExpression = body as NewExpression;
+                    var bindings = new List<MemberBinding>();
+                    for (int i = 0; i < newExpression.Members.Count; i++)
+                    {
+                        var invoker = typeRuntime.GetInvoker(newExpression.Members[i].Name);
+                        var binding = Expression.Bind(invoker.Member, newExpression.Arguments[i].Type != invoker.DataType
+                            ? Expression.Convert(newExpression.Arguments[i], invoker.DataType)
+                            : newExpression.Arguments[i]);
+                        bindings.Add(binding);
+                    }
 
-                builder.AppendNewLine();
-                builder.Append("FROM ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
-                builder.AppendAs("t0");
+                    foreach (var kvp in typeRuntime.KeyInvokers)
+                    {
+                        var member = Expression.MakeMemberAccess(lambda.Parameters[0], kvp.Value.Member);
+                        var binding = Expression.Bind(kvp.Value.Member, member);
+                        if (!bindings.Any(x => x.Member == kvp.Value.Member)) bindings.Add(binding);
+                    }
 
-                var cmd2 = new MappingCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                    var newExpression2 = Expression.New(typeRuntime.ConstructInvoker.Constructor);
+                    expression = Expression.MemberInit(newExpression2, bindings);
+                }
 
-                visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
-                visitor.Write(cmd2.JoinFragment);
+                // 解析查询以确定是否需要嵌套
+                uQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (MappingCommand)this.ParseSelectCommand<T>(uQueryInfo.SelectInfo, 1, false, null);
 
-                visitor = new WhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
-                visitor.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor.NavMembers);
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || uQueryInfo.SelectInfo.Joins.Count > 0)
+                {
+                    if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                        throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
 
-                builder.Append(cmd2.CommandText);
+                    // SET 字段
+                    var visitor = new SQLiteUpdateExpressionVisitor<T>(this, null, uQueryInfo, null);
+                    visitor.ParseCommand = this.ParseSelectCommand;
+                    visitor.Write(builder);
+
+                    // WHERE部分
+                    builder.AppendNewLine();
+                    builder.Append("WHERE EXISTS");
+                    visitor.VisitArgument(uQueryInfo.SelectInfo.SelectExpression.Expressions[0], true);
+                }
+                else
+                {
+                    // 直接 SQL 的 UPDATE 语法
+                    TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
+                    ExpressionVisitorBase visitor = null;
+                    visitor = new SQLiteUpdateExpressionVisitor<T>(this, aliases, uQueryInfo, null);
+                    visitor.Write(builder);
+
+                    visitor = new SQLiteWhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression, null);
+                    visitor.Write(builder);
+                }
             }
 
+            builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 

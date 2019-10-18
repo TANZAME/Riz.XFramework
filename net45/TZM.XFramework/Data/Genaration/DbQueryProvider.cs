@@ -222,14 +222,14 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 LEFT JOIN / INNER JOIN 子句关联表的的别名
-        private void PrepareLfInJoinAlias(DbExpression exp, TableAliasCache aliases)
+        private void PrepareLfInJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
-            Type type = exp.Expressions[0].Type.GetGenericArguments()[0];
+            Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
 
             // on a.Name equals b.Name 或 on new{ Name = a.Name,Id=a.Id } equals new { Name = b.Name,Id=b.Id }
-            LambdaExpression left = exp.Expressions[1] as LambdaExpression;
-            LambdaExpression right = exp.Expressions[2] as LambdaExpression;
+            LambdaExpression left = dbExpression.Expressions[1] as LambdaExpression;
+            LambdaExpression right = dbExpression.Expressions[2] as LambdaExpression;
             if (left.Body.NodeType == ExpressionType.New)
             {
                 NewExpression body1 = left.Body as NewExpression;
@@ -262,17 +262,17 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                aliases.GetTableAlias(exp.Expressions[1]);
-                string alias = aliases.GetTableAlias(exp.Expressions[2]);
+                aliases.GetTableAlias(dbExpression.Expressions[1]);
+                string alias = aliases.GetTableAlias(dbExpression.Expressions[2]);
                 // 记录显示指定的LEFT JOIN 表别名
                 aliases.AddOrUpdateJoinTableAlias(name, alias);
             }
         }
 
         // 获取 CROSS JOIN 子句关联表的的别名
-        private void PrepareCrossJoinAlias(DbExpression exp, TableAliasCache aliases)
+        private void PrepareCrossJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
-            LambdaExpression lambdaExp = exp.Expressions[1] as LambdaExpression;
+            LambdaExpression lambdaExp = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambdaExp.Parameters.Count; ++index)
             {
                 aliases.GetTableAlias(lambdaExp.Parameters[index]);

@@ -951,8 +951,9 @@ namespace TZM.XFramework.Data.SqlClient
                     for (int i = 0; i < newExpression.Members.Count; i++)
                     {
                         var invoker = typeRuntime.GetInvoker(newExpression.Members[i].Name);
-                        var member = Expression.MakeMemberAccess(lambda.Parameters[0], invoker.Member);
-                        var binding = Expression.Bind(invoker.Member, member);
+                        var binding = Expression.Bind(invoker.Member, newExpression.Arguments[i].Type != invoker.DataType
+                            ? Expression.Convert(newExpression.Arguments[i], invoker.DataType)
+                            : newExpression.Arguments[i]);
                         bindings.Add(binding);
                     }
 
