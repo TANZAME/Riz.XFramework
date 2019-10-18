@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs" />
+    <Compile Include="Data\Infrastructure\SQLiteDatabase.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\SQLiteSqlBuilder.cs" />
     <Compile Include="Data\SqlClient\SQLiteDbContext.cs" />
