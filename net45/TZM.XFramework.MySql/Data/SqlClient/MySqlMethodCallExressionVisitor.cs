@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data.SqlClient
         //SELECT n'some text';
         //SELECT _utf8'some text';
 
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
@@ -23,7 +23,7 @@ namespace TZM.XFramework.Data.SqlClient
         #region 构造函数
 
         /// <summary>
-        /// 实例化 <see cref="SqlMethodCallExressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
         public MySqlMethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
             : base(provider, visitor)

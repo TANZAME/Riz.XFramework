@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL 语句建造器
     /// </summary>
-    public abstract class TextBuilder : ITextBuilder
+    public abstract class SqlBuilder : ISqlBuilder
     {
         protected string _escCharLeft;
         protected string _escCharRight;
@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         public const string TAB = "    ";
 
         /// <summary>
-        /// 获取或设置当前 <see cref="ITextBuilder"/> 对象的长度。
+        /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。
         /// </summary>
         public int Length
         {
@@ -59,11 +59,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="TextBuilder"/> 类的新实例
+        /// 实例化 <see cref="SqlBuilder"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
         /// <param name="token">解析上下文参数</param>
-        public TextBuilder(IDbQueryProvider provider, ResolveToken token)
+        public SqlBuilder(IDbQueryProvider provider, ResolveToken token)
         {
             _provider = provider;
             _token = token;
@@ -116,7 +116,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 追加列名
         /// </summary>
-        public ITextBuilder AppendMember(string alias, string name)
+        public ISqlBuilder AppendMember(string alias, string name)
         {
             if (!string.IsNullOrEmpty(alias))
             {
@@ -132,7 +132,7 @@ namespace TZM.XFramework.Data
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public virtual ITextBuilder AppendMember(string name, bool quote = true)
+        public virtual ISqlBuilder AppendMember(string name, bool quote = true)
         {
             if (quote) _innerBuilder.Append(_escCharLeft);
             _innerBuilder.Append(name);
@@ -143,7 +143,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        public virtual ITextBuilder AppendAs(string name)
+        public virtual ISqlBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             return this.AppendMember(name);
@@ -152,7 +152,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(string value)
+        public ISqlBuilder Append(string value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -161,7 +161,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        public ITextBuilder Insert(int index, string value)
+        public ISqlBuilder Insert(int index, string value)
         {
             _innerBuilder.Insert(index, value);
             return this;
@@ -170,7 +170,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将字符串插入到此实例中的指定字符位置。
         /// </summary>
-        public ITextBuilder Insert(int index, object value)
+        public ISqlBuilder Insert(int index, object value)
         {
             _innerBuilder.Insert(index, value);
             return this;
@@ -179,7 +179,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(int value)
+        public ISqlBuilder Append(int value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -188,7 +188,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(char value)
+        public ISqlBuilder Append(char value)
         {
             _innerBuilder.Append(value);
             return this;
@@ -197,7 +197,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(object value)
+        public ISqlBuilder Append(object value)
         {
             if (value != null) _innerBuilder.Append(value);
             return this;
@@ -206,7 +206,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(object value, MemberExpression m)
+        public ISqlBuilder Append(object value, MemberExpression m)
         {
             var sql = _provider.DbValue.GetSqlValue(value, _token, m);
             return this.Append(sql);
@@ -215,7 +215,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ITextBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
+        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
         {
             var sql = _provider.DbValue.GetSqlValue(value, _token, m, declareType);
             return this.Append(sql);
@@ -224,7 +224,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        public ITextBuilder AppendNewLine()
+        public ISqlBuilder AppendNewLine()
         {
             //if (_token != null && !_token.KeepLine) _innerBuilder.Append(' ');
             //else
@@ -246,7 +246,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加回车符
         /// </summary>
-        public ITextBuilder AppendNewLine(string value)
+        public ISqlBuilder AppendNewLine(string value)
         {
             _innerBuilder.Append(value);
             _innerBuilder.AppendLine();
@@ -256,7 +256,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将通过处理复合格式字符串（包含零个或零个以上格式项）返回的字符串追加到此实例。每个格式项都替换为形参数组中相应实参的字符串表示形式。
         /// </summary>
-        public ITextBuilder AppendFormat(string value, params object[] args)
+        public ISqlBuilder AppendFormat(string value, params object[] args)
         {
             _innerBuilder.AppendFormat(value, args);
             return this;
@@ -265,16 +265,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加制表符
         /// </summary>
-        public ITextBuilder AppendNewTab()
+        public ISqlBuilder AppendNewTab()
         {
-            _innerBuilder.Append(TextBuilder.TAB);
+            _innerBuilder.Append(SqlBuilder.TAB);
             return this;
         }
 
         /// <summary>
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。
         /// </summary>
-        public ITextBuilder Replace(string oldValue, string newValue)
+        public ISqlBuilder Replace(string oldValue, string newValue)
         {
             _innerBuilder.Replace(oldValue, newValue);
             return this;
@@ -283,7 +283,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 去掉尾部的空白字符
         /// </summary>
-        public ITextBuilder TrimEnd(params char[] @params)
+        public ISqlBuilder TrimEnd(params char[] @params)
         {
             char[] chars = new char[Environment.NewLine.Length + (@params != null ? @params.Length : 0)];
             for (int i = 0; i < Environment.NewLine.Length; i++) chars[i] = Environment.NewLine[i];

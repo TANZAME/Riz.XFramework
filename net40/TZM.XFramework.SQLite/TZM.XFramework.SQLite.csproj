@@ -55,14 +55,14 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs">
       <Link>Data\SqlClient\SQLiteDbQueryProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbValue.cs">
+      <Link>Data\SqlClient\SQLiteDbValue.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\SQLiteMethodCallExressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs">
       <Link>Data\SqlClient\SQLiteSqlBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteValueGenerator.cs">
-      <Link>Data\SqlClient\SQLiteValueGenerator.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

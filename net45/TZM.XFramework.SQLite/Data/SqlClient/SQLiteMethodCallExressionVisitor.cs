@@ -11,13 +11,13 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public class SQLiteMethodCallExressionVisitor : MethodCallExressionVisitor
     {
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
 
         /// <summary>
-        /// 实例化 <see cref="SqlMethodCallExressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
         public SQLiteMethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
             : base(provider, visitor)

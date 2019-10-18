@@ -16,7 +16,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            return new SqlDbContext(connString);
+            return new SqlServerDbContext(connString);
         }
 
         public override void Run(DatabaseType dbType)
@@ -184,7 +184,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             table.AcceptChanges();
 
             DateTime sDate2 = DateTime.Now;
-            ((SqlDbContext)context).BulkCopy(table);
+            ((SqlServerDbContext)context).BulkCopy(table);
             var ms = (DateTime.Now - sDate2).TotalMilliseconds;
             // 10w   300ms
             // 100w  4600ms

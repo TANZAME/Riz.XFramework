@@ -10,17 +10,17 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleValueGenerator : DbValue
+    public class OracleDbValue : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例
         /// </summary>
-        public static OracleValueGenerator Instance = new OracleValueGenerator();
+        public static OracleDbValue Instance = new OracleDbValue();
 
         /// <summary>
-        /// 实例化 <see cref="OracleValueGenerator"/> 类的新实例
+        /// 实例化 <see cref="OracleDbValue"/> 类的新实例
         /// </summary>
-        protected OracleValueGenerator()
+        protected OracleDbValue()
             : base(OracleDbQueryProvider.Instance)
         {
 

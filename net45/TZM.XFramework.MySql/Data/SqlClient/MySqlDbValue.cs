@@ -9,17 +9,17 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class MySqlValueGenerator : DbValue
+    public class MySqlDbValue : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例
         /// </summary>
-        public static MySqlValueGenerator Instance = new MySqlValueGenerator();
+        public static MySqlDbValue Instance = new MySqlDbValue();
 
         /// <summary>
-        /// 实例化 <see cref="MySqlValueGenerator"/> 类的新实例
+        /// 实例化 <see cref="MySqlDbValue"/> 类的新实例
         /// </summary>
-        protected MySqlValueGenerator()
+        protected MySqlDbValue()
             : base(MySqlDbQueryProvider.Instance)
         {
 

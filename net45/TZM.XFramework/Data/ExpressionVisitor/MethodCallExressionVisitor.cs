@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public abstract class MethodCallExressionVisitor : IMethodCallExressionVisitor
     {
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;

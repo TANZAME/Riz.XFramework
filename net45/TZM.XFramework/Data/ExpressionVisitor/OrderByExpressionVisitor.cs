@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public void Write(ITextBuilder builder, bool newLine)
+        public void Write(ISqlBuilder builder, bool newLine)
         {
             if (_qOrder.Count > 0)
             {
@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ITextBuilder builder)
+        public override void Write(ISqlBuilder builder)
         {
             this.Write(builder, true);
         }

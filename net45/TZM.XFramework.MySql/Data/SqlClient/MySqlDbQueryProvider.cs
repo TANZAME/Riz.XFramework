@@ -27,7 +27,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        public override DbValue DbValue { get { return MySqlValueGenerator.Instance; } }
+        public override DbValue DbValue { get { return MySqlDbValue.Instance; } }
 
         /// <summary>
         /// 数据库安全字符 左
@@ -97,9 +97,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 parameter=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public override ITextBuilder CreateSqlBuilder(ResolveToken token)
+        public override ISqlBuilder CreateSqlBuilder(ResolveToken token)
         {
-            return new MySqlBuilder(this, token);
+            return new MySqlSqlBuilder(this, token);
         }
 
         /// <summary>
@@ -148,9 +148,9 @@ namespace TZM.XFramework.Data.SqlClient
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
             MappingCommand cmd = new MappingCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
-            ITextBuilder jf = cmd.JoinFragment;
-            ITextBuilder wf = cmd.WhereFragment;
-            ITextBuilder sf = null;
+            ISqlBuilder jf = cmd.JoinFragment;
+            ISqlBuilder wf = cmd.WhereFragment;
+            ISqlBuilder sf = null;
 
             jf.Indent = indent;
 
@@ -436,14 +436,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
         {
             TableAliasCache aliases = new TableAliasCache();
-            ITextBuilder builder = this.CreateSqlBuilder(token);
+            ISqlBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             if (nQueryInfo.Entity != null)
             {
                 object entity = nQueryInfo.Entity;
-                ITextBuilder columnsBuilder = this.CreateSqlBuilder(token);
-                ITextBuilder valuesBuilder = this.CreateSqlBuilder(token);
+                ISqlBuilder columnsBuilder = this.CreateSqlBuilder(token);
+                ISqlBuilder valuesBuilder = this.CreateSqlBuilder(token);
 
                 // 指定插入列
                 Dictionary<string, MemberInvokerBase> invokers = typeRuntime.Invokers;
@@ -542,7 +542,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 DELETE 命令
         protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ResolveToken token)
         {
-            ITextBuilder builder = this.CreateSqlBuilder(token);
+            ISqlBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("DELETE t0 FROM ");
@@ -595,7 +595,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 UPDATE 命令
         protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQueryInfo, ResolveToken token)
         {
-            ITextBuilder builder = this.CreateSqlBuilder(token);
+            ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("UPDATE ");
@@ -605,7 +605,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (uQueryInfo.Entity != null)
             {
                 object entity = uQueryInfo.Entity;
-                ITextBuilder whereBuilder = this.CreateSqlBuilder(token);
+                ISqlBuilder whereBuilder = this.CreateSqlBuilder(token);
                 bool useKey = false;
                 int length = 0;
                 builder.AppendNewLine(" SET");

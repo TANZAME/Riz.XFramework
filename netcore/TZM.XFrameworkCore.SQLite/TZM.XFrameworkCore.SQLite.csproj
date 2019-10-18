@@ -14,9 +14,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs" Link="Data\SqlClient\SQLiteDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbValue.cs" Link="Data\SqlClient\SQLiteDbValue.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" Link="Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs" Link="Data\SqlClient\SQLiteSqlBuilder.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteValueGenerator.cs" Link="Data\SqlClient\SQLiteValueGenerator.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -181,7 +181,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public abstract ITextBuilder CreateSqlBuilder(ResolveToken parameter);
+        public abstract ISqlBuilder CreateSqlBuilder(ResolveToken parameter);
 
         /// <summary>
         /// 创建方法表达式访问器

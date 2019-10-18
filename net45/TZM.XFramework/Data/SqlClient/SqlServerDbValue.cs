@@ -8,18 +8,18 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// MSSQL SQL字段值生成器
     /// </summary>
-    public class SqlValueGenerator : DbValue
+    public class SqlServerDbValue : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例
         /// </summary>
-        public static SqlValueGenerator Instance = new SqlValueGenerator();
+        public static SqlServerDbValue Instance = new SqlServerDbValue();
 
         /// <summary>
-        /// 实例化 <see cref="SqlValueGenerator"/> 类的新实例
+        /// 实例化 <see cref="SqlServerDbValue"/> 类的新实例
         /// </summary>
-        protected SqlValueGenerator()
-            : base(SqlDbQueryProvider.Instance)
+        protected SqlServerDbValue()
+            : base(SqlServerDbQueryProvider.Instance)
         {
 
         }

@@ -75,14 +75,14 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs">
       <Link>Data\SqlClient\NpgDbQueryProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbValue.cs">
+      <Link>Data\SqlClient\NpgDbValue.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\NpgMethodCallExressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs">
       <Link>Data\SqlClient\NpgSqlBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgValueGenerator.cs">
-      <Link>Data\SqlClient\NpgValueGenerator.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgNavigationCommand.cs">
       <Link>Data\TypeDeserialize\NpgNavigationCommand.cs</Link>

@@ -11,17 +11,17 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// Porstgre SQL字段值生成器
     /// </summary>
-    public class NpgValueGenerator : DbValue
+    public class NpgDbValue : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例
         /// </summary>
-        public static NpgValueGenerator Instance = new NpgValueGenerator();
+        public static NpgDbValue Instance = new NpgDbValue();
 
         /// <summary>
-        /// 实例化 <see cref="NpgValueGenerator"/> 类的新实例
+        /// 实例化 <see cref="NpgDbValue"/> 类的新实例
         /// </summary>
-        protected NpgValueGenerator()
+        protected NpgDbValue()
             : base(NpgDbQueryProvider.Instance)
         {
 

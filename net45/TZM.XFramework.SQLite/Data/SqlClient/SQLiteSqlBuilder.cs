@@ -5,7 +5,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// MSSQL 语句建造器
     /// <para>非线程安全</para>
     /// </summary>
-    public class SQLiteSqlBuilder : TextBuilder
+    public class SQLiteSqlBuilder : SqlBuilder
     {
         /// <summary>
         /// 实例化 <see cref="SQLiteSqlBuilder"/> 类的新实例
