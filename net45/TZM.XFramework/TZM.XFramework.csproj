@@ -88,7 +88,7 @@
     <Compile Include="Data\Genaration\RawSql.cs" />
     <Compile Include="Data\Genaration\ResolveToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
-    <Compile Include="Data\Genaration\ValueGenerator.cs" />
+    <Compile Include="Data\Genaration\DbValue.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
@@ -151,7 +151,7 @@
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="Data\TypeDeserialize\NavigationCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\MappingCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />

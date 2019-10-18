@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        public override ValueGenerator Generator { get { return SqlValueGenerator.Instance; } }
+        public override DbValue DbValue { get { return SqlValueGenerator.Instance; } }
 
         /// <summary>
         /// 无阻塞 WITH(NOLOCK)
@@ -144,7 +144,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            MappingCommand cmd = new MappingCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
 
@@ -200,7 +200,7 @@ namespace TZM.XFramework.Data.SqlClient
                 // DISTINCT 子句
                 if (sQueryInfo.HasDistinct) jf.Append("DISTINCT ");
                 // TOP 子句
-                if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", this.Generator.GetSqlValue(sQueryInfo.Take, token));
+                if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", this.DbValue.GetSqlValue(sQueryInfo.Take, token));
                 // Any
                 if (sQueryInfo.HasAny) jf.Append("TOP 1 1");
 
@@ -287,13 +287,13 @@ namespace TZM.XFramework.Data.SqlClient
                 if (sQueryInfo.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                 wf.AppendNewLine();
                 wf.Append("OFFSET ");
-                wf.Append(this.Generator.GetSqlValue(sQueryInfo.Skip, token));
+                wf.Append(this.DbValue.GetSqlValue(sQueryInfo.Skip, token));
                 wf.Append(" ROWS");
 
                 if (sQueryInfo.Take > 0)
                 {
                     wf.Append(" FETCH NEXT ");
-                    wf.Append(this.Generator.GetSqlValue(sQueryInfo.Take, token));
+                    wf.Append(this.DbValue.GetSqlValue(sQueryInfo.Take, token));
                     wf.Append(" ROWS ONLY ");
                 }
             }
@@ -408,7 +408,7 @@ namespace TZM.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = invoker.Invoke(entity);
-                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
+                        string seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -453,7 +453,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                NavigationCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as NavigationCommand;
+                MappingCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as MappingCommand;
                 foreach (var kvp in cmd2.Columns)
                 {
                     builder.AppendMember(kvp.Key);
@@ -495,7 +495,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = this.Generator.GetSqlValue(value, token, column);
+                    var seg = this.DbValue.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -506,7 +506,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dQueryInfo.SelectInfo != null)
             {
                 TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new MappingCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
 
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
@@ -552,7 +552,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 gotoLabel:
                     var value = invoker.Invoke(entity);
-                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
+                    var seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
                     {
@@ -598,7 +598,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new NavigationCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new MappingCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
 
                 visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);

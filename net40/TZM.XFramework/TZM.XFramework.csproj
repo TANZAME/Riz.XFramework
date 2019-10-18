@@ -229,6 +229,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryProvider.cs">
       <Link>Data\Genaration\DbQueryProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbValue.cs">
+      <Link>Data\Genaration\DbValue.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs">
       <Link>Data\Genaration\IDbQueryProvider.cs</Link>
     </Compile>
@@ -246,9 +249,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs">
       <Link>Data\Genaration\TextBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ValueGenerator.cs">
-      <Link>Data\Genaration\ValueGenerator.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
       <Link>Data\Infrastructure\Constant.cs</Link>
@@ -349,14 +349,14 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
       <Link>Data\TypeDeserialize\IMapping.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs">
+      <Link>Data\TypeDeserialize\MappingCommand.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs">
       <Link>Data\TypeDeserialize\NavigationCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCommand.cs">
-      <Link>Data\TypeDeserialize\NavigationCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>

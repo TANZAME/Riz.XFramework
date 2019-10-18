@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// MSSQL SQL字段值生成器
     /// </summary>
-    public class SqlValueGenerator : ValueGenerator
+    public class SqlValueGenerator : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例

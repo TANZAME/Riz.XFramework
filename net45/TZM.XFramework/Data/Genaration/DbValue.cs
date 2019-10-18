@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// SQL字段值生成器
     /// </summary>
-    public abstract class ValueGenerator
+    public abstract class DbValue
     {
         protected string _escCharLeft;
         protected string _escCharRight;
@@ -18,10 +18,10 @@ namespace TZM.XFramework.Data
         protected IDbQueryProvider _provider = null;
 
         /// <summary>
-        /// 实例化 <see cref="ValueGenerator"/> 类的新实例
+        /// 实例化 <see cref="DbValue"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
-        public ValueGenerator(IDbQueryProvider provider)
+        public DbValue(IDbQueryProvider provider)
         {
             _provider = provider;
             _escCharLeft = _provider.QuotePrefix;

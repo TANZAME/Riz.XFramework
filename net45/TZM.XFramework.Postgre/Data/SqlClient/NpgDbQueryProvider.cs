@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        public override ValueGenerator Generator { get { return NpgValueGenerator.Instance; } }
+        public override DbValue DbValue { get { return NpgValueGenerator.Instance; } }
 
         /// <summary>
         /// 数据库安全字符 左
@@ -112,7 +112,7 @@ namespace TZM.XFramework.Data.SqlClient
         // 创建 SELECT 命令
         protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (NavigationCommand)this.ParseSelectCommandImpl<T>(sQueryInfo, indent, isOuter, token);
+            var cmd = (MappingCommand)this.ParseSelectCommandImpl<T>(sQueryInfo, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -144,7 +144,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            NavigationCommand cmd = new NavigationCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            MappingCommand cmd = new MappingCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
             ITextBuilder jf = cmd.JoinFragment;
             ITextBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).IsOuter = isOuter;
@@ -280,8 +280,8 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 分页查询
 
-            if (sQueryInfo.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Generator.GetSqlValue(sQueryInfo.Take, token));
-            if (sQueryInfo.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Generator.GetSqlValue(sQueryInfo.Skip, token));
+            if (sQueryInfo.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.DbValue.GetSqlValue(sQueryInfo.Take, token));
+            if (sQueryInfo.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.DbValue.GetSqlValue(sQueryInfo.Skip, token));
 
             #endregion
 
@@ -401,7 +401,7 @@ namespace TZM.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = invoker.Invoke(entity);
-                        string seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
+                        string seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
                         valuesBuilder.Append(seg);
                         valuesBuilder.Append(',');
                     }
@@ -451,7 +451,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                NavigationCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, false, token) as NavigationCommand;
+                MappingCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, false, token) as MappingCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var kvp in cmd2.Columns)
                 {
@@ -495,7 +495,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var column = invoker.Column;
 
                     var value = invoker.Invoke(entity);
-                    var seg = this.Generator.GetSqlValue(value, token, column);
+                    var seg = this.DbValue.GetSqlValue(value, token, column);
                     builder.AppendMember("t0", invoker.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
@@ -553,7 +553,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 gotoLabel:
                     var value = invoker.Invoke(entity);
-                    var seg = this.Generator.GetSqlValueWidthDefault(value, token, column);
+                    var seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
                     {

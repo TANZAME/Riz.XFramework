@@ -199,7 +199,7 @@ namespace TZM.XFramework.Data.SqlClient
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _provider.Generator.GetSqlValue(index, _builder.Token);
+                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token);
                     _builder.Append(value);
                     _builder.Append(',');
                 }

@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQLite SQL字段值生成器
     /// </summary>
-    public class SQLiteValueGenerator : ValueGenerator
+    public class SQLiteValueGenerator : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例

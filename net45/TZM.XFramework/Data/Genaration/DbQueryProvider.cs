@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        public abstract ValueGenerator Generator { get; }
+        public abstract DbValue DbValue { get; }
 
         #endregion
 
@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data
                     // 解析参数
                     object[] args = null;
                     if (rawSql.Parameters != null)
-                        args = rawSql.Parameters.Select(x => this.Generator.GetSqlValue(x, token)).ToArray();
+                        args = rawSql.Parameters.Select(x => this.DbValue.GetSqlValue(x, token)).ToArray();
                     string sql = rawSql.CommandText;
                     if (args != null && args.Length > 0) sql = string.Format(sql, args);
 

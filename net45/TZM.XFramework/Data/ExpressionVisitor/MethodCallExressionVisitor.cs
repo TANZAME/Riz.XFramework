@@ -140,8 +140,8 @@ namespace TZM.XFramework.Data
 
             string name = "NVARCHAR";
             var member = _visitedMark.Current;
-            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
             name = unicode ? "NVARCHAR" : "VARCHAR";
 
             if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
@@ -309,7 +309,7 @@ namespace TZM.XFramework.Data
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _provider.Generator.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
+                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -350,20 +350,20 @@ namespace TZM.XFramework.Data
         protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             var member = _visitedMark.Current;
-            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
 
             if (_builder.Parameterized)
             {
                 unicode = false;
-                string value = _provider.Generator.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+                string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
                 return value;
             }
             else
             {
                 string value = c.Value != null ? c.Value.ToString() : string.Empty;
-                value = _provider.Generator.EscapeQuote(value, false, true, false);
-                unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+                value = _provider.DbValue.EscapeQuote(value, false, true, false);
+                unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
 
                 return value;
             }
@@ -545,12 +545,12 @@ namespace TZM.XFramework.Data
                 _builder.Append("EXISTS(");
                 _builder.Append(cmd.CommandText);
 
-                if (((NavigationCommand)cmd).WhereFragment.Length > 0)
+                if (((MappingCommand)cmd).WhereFragment.Length > 0)
                     _builder.Append(" AND ");
                 else
                     _builder.Append("WHERE ");
 
-                var kv = ((NavigationCommand)cmd).Columns.FirstOrDefault();
+                var kv = ((MappingCommand)cmd).Columns.FirstOrDefault();
                 _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
 
                 _builder.Append(" = ");

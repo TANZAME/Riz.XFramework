@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleValueGenerator : ValueGenerator
+    public class OracleValueGenerator : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例

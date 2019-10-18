@@ -43,7 +43,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        ValueGenerator Generator { get; }
+        DbValue DbValue { get; }
 
         /// <summary>
         /// 解析 SQL 命令

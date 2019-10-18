@@ -88,7 +88,7 @@ namespace TZM.XFramework.Data
             if (expression.CanEvaluate())
             {
                 ConstantExpression c = expression.Evaluate();
-                string value = _provider.Generator.GetSqlValue(c.Value, _token);
+                string value = _provider.DbValue.GetSqlValue(c.Value, _token);
                 _innerBuilder.Append(value);
                 return value;
             }
@@ -208,7 +208,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ITextBuilder Append(object value, MemberExpression m)
         {
-            var sql = _provider.Generator.GetSqlValue(value, _token, m);
+            var sql = _provider.DbValue.GetSqlValue(value, _token, m);
             return this.Append(sql);
         }
 
@@ -217,7 +217,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ITextBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
         {
-            var sql = _provider.Generator.GetSqlValue(value, _token, m, declareType);
+            var sql = _provider.DbValue.GetSqlValue(value, _token, m, declareType);
             return this.Append(sql);
         }
 

@@ -41,6 +41,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreModel.cs" Link="Postgre\PostgreModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreTest.cs" Link="Postgre\PostgreTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Program.cs" Link="Program.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteModel.cs" Link="SQLite\SQLiteModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteTest.cs" Link="SQLite\SQLiteTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerModel.cs" Link="SqlServer\SqlServerModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerTest.cs" Link="SqlServer\SqlServerTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\TestBase.cs" Link="TestBase.cs" />
@@ -55,12 +57,14 @@
     <Folder Include="MySql\" />
     <Folder Include="Oracle\" />
     <Folder Include="Postgre\" />
+    <Folder Include="SQLite\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj" />
+    <ProjectReference Include="..\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
   </ItemGroup>
 

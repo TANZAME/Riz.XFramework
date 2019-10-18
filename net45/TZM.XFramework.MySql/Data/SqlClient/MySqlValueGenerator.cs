@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class MySqlValueGenerator : ValueGenerator
+    public class MySqlValueGenerator : DbValue
     {
         /// <summary>
         /// SQL字段值生成器实例
