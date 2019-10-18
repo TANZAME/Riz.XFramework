@@ -17,6 +17,11 @@ namespace TZM.XFramework.UnitTest
         // 参数化查询语句数量@@
         protected Func<IDbContext> _newContext = null;
 
+        /// <summary>
+        /// 调式模式，调式模式下产生的SQL会换行，方便阅读
+        /// </summary>
+        public bool IsDebug { get; set; }
+
         public TestBase()
         {
             _newContext = this.CreateDbContext;
@@ -2011,6 +2016,11 @@ namespace TZM.XFramework.UnitTest
 
     public interface ITest
     {
+        /// <summary>
+        /// 调式模式，调式模式下产生的SQL会换行，方便阅读
+        /// </summary>
+        bool IsDebug { get; set; }
+
         void Run(DatabaseType dbType);
     }
 }

@@ -17,7 +17,10 @@ namespace TZM.XFramework.UnitTest.Postgre
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new NpgDbContext();
-            var context = new NpgDbContext(connString);
+            var context = new NpgDbContext(connString)
+            {
+                IsDebug = base.IsDebug
+            };
             return context;
         }
 

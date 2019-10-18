@@ -24,7 +24,10 @@ namespace TZM.XFramework.UnitTest.SQLite
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
-            var context = new SQLiteDbContext(connString);
+            var context = new SQLiteDbContext(connString)
+            {
+                IsDebug = base.IsDebug
+            };
             return context;
         }
 

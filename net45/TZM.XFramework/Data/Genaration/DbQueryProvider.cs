@@ -78,27 +78,27 @@ namespace TZM.XFramework.Data
         public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token)
         {
             // 设置该查询是否需要参数化
+            if (token == null) token = new ResolveToken();
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
-            if (dbQueryable.Parameterized)
-            {
-                if (token == null) token = new ResolveToken();
-                if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
-            }
+            if (dbQueryable.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
+
+            // 调试模式
+            if (token != null && !token.HasSetIsDebug) token.IsDebug = dbQueryable.DbContext.IsDebug;
 
             // 解析查询语义
             IDbQueryableInfo<T> dbQueryInfo = DbQueryParser.Parse(dbQueryable);
 
             DbQueryableInfo_Select<T> sQueryInfo = dbQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, dbQueryable.Parameterized ? token : null);
+            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, token);
 
             DbQueryableInfo_Insert<T> nQueryInfo = dbQueryInfo as DbQueryableInfo_Insert<T>;
-            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, token);
 
             DbQueryableInfo_Update<T> uQueryInfo = dbQueryInfo as DbQueryableInfo_Update<T>;
-            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, token);
 
             DbQueryableInfo_Delete<T> dQueryInfo = dbQueryInfo as DbQueryableInfo_Delete<T>;
-            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, token);
 
             throw new NotImplementedException();
         }

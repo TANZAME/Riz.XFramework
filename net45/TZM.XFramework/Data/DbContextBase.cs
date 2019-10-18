@@ -47,6 +47,11 @@ namespace TZM.XFramework.Data
             }
         }
 
+        /// <summary>
+        /// 调试模式，模式模式下生成的SQL会有换行
+        /// </summary>
+        public bool IsDebug { get; set; }
+
         #endregion
 
         #region 构造函数
@@ -237,7 +242,7 @@ namespace TZM.XFramework.Data
             if (!string.IsNullOrEmpty(sql))
             {
                 var query = new RawSql(sql, args);
-                lock (this._oLock) 
+                lock (this._oLock)
                     _dbQueryables.Add(query);
             }
         }

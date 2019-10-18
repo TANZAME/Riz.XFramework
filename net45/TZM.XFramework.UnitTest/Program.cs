@@ -14,6 +14,7 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
+            bool isDebug = false;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;
@@ -35,7 +36,7 @@ namespace TZM.XFramework.UnitTest
                             writer.Write("-- ");
                             writer.Write(p.ParameterName);
                             writer.Write(" = ");
-                            writer.Write((p.Value ?? string.Empty));
+                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[] ? XfwCommon.BytesToHex((byte[])p.Value, true, true) : p.Value));
                             writer.Write(", DbType = {0}, ", p.DbType);
                             if (p.Size != default(int)) writer.Write("Size = {0}, ", p.Size);
                             if (p.Precision != default(byte)) writer.Write("Precision = {0}, ", p.Precision);
@@ -61,6 +62,7 @@ namespace TZM.XFramework.UnitTest
 
                 var obj = Activator.CreateInstance(null, string.Format("TZM.XFramework.UnitTest.{0}.{0}Test", myDatabaseType));
                 test = (ITest)(obj.Unwrap());
+                test.IsDebug = isDebug;
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 fileName = baseDirectory + @"\Log_" + myDatabaseType + ".sql";

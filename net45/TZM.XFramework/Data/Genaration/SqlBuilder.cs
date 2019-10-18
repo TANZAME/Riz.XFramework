@@ -226,20 +226,24 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ISqlBuilder AppendNewLine()
         {
-            //if (_token != null && !_token.KeepLine) _innerBuilder.Append(' ');
-            //else
-            //{
-            //    _innerBuilder.Append(Environment.NewLine);
-            //    if (this.Indent > 0)
-            //    {
-            //        for (int i = 1; i <= this.Indent; i++) this.AppendNewTab();
-            //    }
-            //}
-            _innerBuilder.Append(Environment.NewLine);
-            if (this.Indent > 0)
+            if (_token != null && !_token.IsDebug)
             {
-                for (int i = 1; i <= this.Indent; i++) this.AppendNewTab();
+                if (this.Length == 0) _innerBuilder.Append(' ');
+                else
+                {
+                    char @char = this[this.Length - 1];
+                    if (!(@char == ' ' || @char == ',' || @char == ';')) _innerBuilder.Append(' ');
+                }
             }
+            else
+            {
+                _innerBuilder.Append(Environment.NewLine);
+                if (this.Indent > 0)
+                {
+                    for (int i = 1; i <= this.Indent; i++) this.AppendNewTab();
+                }
+            }
+
             return this;
         }
 
@@ -267,7 +271,16 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ISqlBuilder AppendNewTab()
         {
-            _innerBuilder.Append(SqlBuilder.TAB);
+            if (_token == null || _token.IsDebug) _innerBuilder.Append(SqlBuilder.TAB);
+            else
+            {
+                if (this.Length == 0) _innerBuilder.Append(' ');
+                else
+                {
+                    char @char = this[this.Length - 1];
+                    if (!(@char == ' ' || @char == ',' || @char == ';')) _innerBuilder.Append(' ');
+                }
+            }
             return this;
         }
 

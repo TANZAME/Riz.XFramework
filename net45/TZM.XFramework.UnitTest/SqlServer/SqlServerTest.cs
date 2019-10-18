@@ -16,7 +16,11 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            return new SqlServerDbContext(connString);
+            var context = new SqlServerDbContext(connString) 
+            {
+                IsDebug = base.IsDebug
+            };
+            return context;
         }
 
         public override void Run(DatabaseType dbType)

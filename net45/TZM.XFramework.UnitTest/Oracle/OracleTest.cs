@@ -26,7 +26,10 @@ namespace TZM.XFramework.UnitTest.Oracle
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new OracleDbContext();
-            var context = new OracleDbContext(connString);
+            var context = new OracleDbContext(connString)
+            {
+                IsDebug = base.IsDebug
+            };
             return context;
         }
 
