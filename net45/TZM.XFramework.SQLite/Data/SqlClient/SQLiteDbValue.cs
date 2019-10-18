@@ -39,6 +39,15 @@ namespace TZM.XFramework.Data.SqlClient
             return parameter;
         }
 
+        // 获取 byte[] 类型的 SQL 片断
+        protected override string GetSqlValueByBytes(object value)
+        {
+            byte[] bytes = (byte[])value;
+            string hex = XfwCommon.BytesToHex(bytes, false, true);
+            hex = string.Format(@"X'{0}'", hex);
+            return hex;
+        }
+
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
@@ -99,12 +108,11 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
-            string date = this.EscapeQuote(((DateTimeOffset)value).DateTime.ToString(format), false, false);
+            string date = ((DateTimeOffset)value).DateTime.ToString(format);
             string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
             span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
-            span = this.EscapeQuote(span, false, false);
 
-            string result = string.Format("TODATETIMEOFFSET({0},{1})", date, span);
+            string result = string.Format("'{0} {1}'", date, span);
             return result;
         }
 
