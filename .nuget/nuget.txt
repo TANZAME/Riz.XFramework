@@ -3,3 +3,7 @@
 # update  # https://blog.csdn.net/gulijiang2008/article/details/41724927
 # https://docs.microsoft.com/zh-cn/nuget/create-packages/creating-a-package
 # oy2ga3ixqf4j4ylfuzrqoonzdfb7ahgu7hjdvfpj543llu-1-2-3
+# git 西游代理设置
+[http]
+    
+proxy = http://127.0.0.1:9999
