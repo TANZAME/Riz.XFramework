@@ -119,9 +119,8 @@ namespace TZM.XFramework.Data
                 if (prevModel != null && _map.HasMany)
                 {
                     isThisLine = true;
-                    foreach (var key in _typeRuntime.KeyInvokers)
+                    foreach (var invoker in _typeRuntime.KeyInvokers)
                     {
-                        var invoker = key.Value;
                         var value1 = invoker.Invoke(prevModel);
                         var value2 = invoker.Invoke(model);
                         isThisLine = isThisLine && value1.Equals(value2);
@@ -274,11 +273,10 @@ namespace TZM.XFramework.Data
                                         curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                                         StringBuilder keyBuilder = new StringBuilder(64);
 
-                                        foreach (var key in curTypeRuntime.KeyInvokers)
+                                        foreach (var invoker in curTypeRuntime.KeyInvokers)
                                         {
-                                            var invoker = key.Value;
                                             var value = invoker.Invoke(navModel);
-                                            keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
+                                            keyBuilder.AppendFormat("{0}={1};", invoker.Name, (value ?? string.Empty).ToString());
                                         }
                                         string hash = keyBuilder.ToString();
                                         if (_manyNavigationKeys[keyName].Contains(hash))
@@ -312,11 +310,10 @@ namespace TZM.XFramework.Data
                             var curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                             StringBuilder keyBuilder = new StringBuilder(64);
 
-                            foreach (var key in curTypeRuntime.KeyInvokers)
+                            foreach (var invoker in curTypeRuntime.KeyInvokers)
                             {
-                                var wrapper = key.Value;
-                                var value = wrapper.Invoke(navModel);
-                                keyBuilder.AppendFormat("{0}={1};", key.Key, (value ?? string.Empty).ToString());
+                                var value = invoker.Invoke(navModel);
+                                keyBuilder.AppendFormat("{0}={1};", invoker.Name, (value ?? string.Empty).ToString());
                             }
                             string hash = keyBuilder.ToString();
                             if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();

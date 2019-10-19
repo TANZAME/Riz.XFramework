@@ -14,5 +14,7 @@ namespace TZM.XFramework.Data.SqlClient
             : base(provider, visitor)
         {
         }
+
+        // CAST 如果转换时没有指定数据类型的长度，则SQServer自动提供长度为30
     }
 }

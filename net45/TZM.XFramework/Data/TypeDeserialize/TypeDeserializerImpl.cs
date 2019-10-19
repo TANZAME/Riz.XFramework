@@ -61,7 +61,7 @@ namespace TZM.XFramework.Data
         /// <param name="start">开始索引</param>
         /// <param name="end">结束索引</param>
         /// <returns></returns>
-        public Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, IDictionary<string, Column> columns = null, int start = 0, int? end = null)
+        public Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, ColumnCollection columns = null, int start = 0, int? end = null)
         {
             // specify a new assembly name
             //var assemblyName = new AssemblyName("TZM.Deserialize");

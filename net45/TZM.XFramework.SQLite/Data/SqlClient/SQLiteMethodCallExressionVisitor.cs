@@ -260,7 +260,7 @@ namespace TZM.XFramework.Data.SqlClient
                 else
                     _builder.Append("WHERE ");
 
-                Column column = ((MappingCommand)cmd).Columns.First().Value;
+                Column column = ((MappingCommand)cmd).Columns.First();
                 _builder.AppendMember(column.TableAlias, column.Name);
 
                 _builder.Append(" = ");

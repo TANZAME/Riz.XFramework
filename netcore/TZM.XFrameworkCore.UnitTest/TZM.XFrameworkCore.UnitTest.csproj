@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DbType.cs" Link="DbType.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DatabaseType.cs" Link="DatabaseType.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Model.cs" Link="Model.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlModel.cs" Link="MySql\MySqlModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlTest.cs" Link="MySql\MySqlTest.cs" />

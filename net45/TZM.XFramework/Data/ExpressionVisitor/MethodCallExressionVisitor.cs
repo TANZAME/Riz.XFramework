@@ -533,31 +533,29 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
-            if (m.Arguments[0].CanEvaluate())
+            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+
+            var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
             {
-                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+                Parameters = _builder.Token.Parameters,
+                TableAliasName = "s",
+                IsDebug = _builder.Token.IsDebug
+            } : null);
+            _builder.Append("EXISTS(");
+            _builder.Append(cmd.CommandText);
 
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
-                {
-                    Parameters = _builder.Token.Parameters,
-                    TableAliasName = "s"
-                } : null);
-                _builder.Append("EXISTS(");
-                _builder.Append(cmd.CommandText);
+            if (((MappingCommand)cmd).WhereFragment.Length > 0)
+                _builder.Append(" AND ");
+            else
+                _builder.Append("WHERE ");
 
-                if (((MappingCommand)cmd).WhereFragment.Length > 0)
-                    _builder.Append(" AND ");
-                else
-                    _builder.Append("WHERE ");
+            var column = ((MappingCommand)cmd).Columns.First();
+            _builder.AppendMember(column.TableAlias, column.Name);
 
-                var kv = ((MappingCommand)cmd).Columns.FirstOrDefault();
-                _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
+            _builder.Append(" = ");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(")");
 
-                _builder.Append(" = ");
-                _visitor.Visit(m.Arguments[1]);
-                _builder.Append(")");
-            }
-            else throw new XFrameworkException("IDbQueryable must be a local variable.");
             return m;
         }
 

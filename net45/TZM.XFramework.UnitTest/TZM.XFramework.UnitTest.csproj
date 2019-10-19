@@ -127,7 +127,7 @@
     <Compile Include="SqlServer\SqlServerModel.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="Model.cs" />
-    <Compile Include="DbType.cs" />
+    <Compile Include="DatabaseType.cs" />
     <Compile Include="SqlServer\SqlServerTest.cs" />
     <Compile Include="MySql\MySqlTest.cs" />
     <Compile Include="MySql\MySqlModel.cs" />

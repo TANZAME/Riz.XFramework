@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         private void InitializeIdentity()
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            _autoIncrement = typeRuntime.Invokers.FirstOrDefault(x => x.Value.Column != null && x.Value.Column.IsIdentity).Value;
+            _autoIncrement = typeRuntime.Invokers.FirstOrDefault(x => x.Column != null && x.Column.IsIdentity);
         }
     }
 }

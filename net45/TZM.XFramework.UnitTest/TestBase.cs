@@ -8,7 +8,6 @@ using System.Data;
 
 namespace TZM.XFramework.UnitTest
 {
-
     public abstract class TestBase<TDemo> : ITest where TDemo : Model.Demo, new()
     {
         private string _demoName = "002F";
@@ -151,7 +150,7 @@ namespace TZM.XFramework.UnitTest
                     select new TDemo
                     {
                         DemoId = (int)a.DemoId,
-                        DemoCode = (a.DemoCode ?? "N001"),
+                        DemoCode = (a.DemoCode ?? "C0000001"),
                         DemoName = a.DemoId.ToString(),
                         DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                         DemoDate = sDate,
@@ -188,12 +187,11 @@ namespace TZM.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            var linq = context.GetTable<TDemo>().Select(e => e.DemoName);
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 100 && linq.Contains(a.DemoName));
+            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && context.GetTable<TDemo>().Select(e => e.DemoName).Contains(a.DemoName));
             result1 = query.ToList();
 
-            linq = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 100 && linq.Contains(a.DemoName));
+            var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
+            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && queryFilters.Contains(a.DemoName));
             result1 = query.ToList();
 
             // 带参数构造函数
@@ -337,16 +335,20 @@ namespace TZM.XFramework.UnitTest
 
             // 过滤条件
             query = from a in context.GetTable<TDemo>()
-                    where a.DemoName == "D0000002" || a.DemoCode == "D0000002" && a.DemoByte_Nullable.Value > 0
+                    where a.DemoName == "N0000002" || a.DemoCode == "C0000002" && a.DemoByte_Nullable.Value > 0
                     select a;
             result1 = query.ToList();
             // 点标记
-            query = context.GetTable<TDemo>().Where(a => a.DemoName == "D0000002" || a.DemoCode == "D0000002");
+            query = context.GetTable<TDemo>().Where(a => a.DemoName == "N0000002" || a.DemoCode == "C0000002");
             result1 = query.ToList();
             query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("00"));
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("Code000036"));
+            Debug.Assert(result1.Count == 100);
+            
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("C000009"));
             result1 = query.ToList();
+            Debug.Assert(result1.Count == 10);
+
             query = context.GetTable<TDemo>().Where(a => a.DemoCode.EndsWith("004"));
             result1 = query.ToList();
             //SQL=>
@@ -675,6 +677,7 @@ namespace TZM.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
+            Debug.Assert(result.Count == 20);
             // Include 分页
             query =
             from a in context

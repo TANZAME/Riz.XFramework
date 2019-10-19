@@ -169,6 +169,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs">
       <Link>Data\Emit\MemberInvokerBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerCollection.cs">
+      <Link>Data\Emit\MemberInvokerCollection.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodInvoker.cs">
       <Link>Data\Emit\MethodInvoker.cs</Link>
     </Compile>
@@ -268,6 +271,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbInterception.cs">
       <Link>Data\Infrastructure\DbInterception.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Enumerator.cs">
+      <Link>Data\Infrastructure\Enumerator.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
       <Link>Data\Infrastructure\IDatabase.cs</Link>
     </Compile>
@@ -342,6 +348,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
       <Link>Data\TypeDeserialize\Column.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ColumnCollection.cs">
+      <Link>Data\TypeDeserialize\ColumnCollection.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>

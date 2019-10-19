@@ -13,6 +13,11 @@ namespace TZM.XFramework.Data
         public string Name { get; set; }
 
         /// <summary>
+        /// AS 列名
+        /// </summary>
+        public string NewName { get; set; }
+
+        /// <summary>
         /// 出现次数
         /// </summary>
         public int DupCount { get; set; }

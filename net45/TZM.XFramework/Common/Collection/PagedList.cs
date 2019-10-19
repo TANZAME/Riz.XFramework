@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 namespace TZM.XFramework
@@ -8,7 +9,7 @@ namespace TZM.XFramework
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DataContract]
-    public class PagedList<T> : IPagedList
+    public class PagedList<T> : IPagedList, IEnumerable<T>
     {
         /// <summary>
         /// 数据项
@@ -65,18 +66,6 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 当前页记录数
-        /// </summary>
-        [DataMember]
-        public int Count
-        {
-            get
-            {
-                return this.Items.Count;
-            }
-        }
-
-        /// <summary>
         /// 获取或设置位于指定索引处的元素
         /// </summary>
         /// <param name="index">索引</param>
@@ -114,6 +103,24 @@ namespace TZM.XFramework
             {
                 this.PageIndex = this.RowCount;
             }
+        }
+
+        /// <summary>
+        /// 获取迭代器
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.Items.GetEnumerator();
+        }
+
+        /// <summary>
+        /// 获取迭代器
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.Items.GetEnumerator();
         }
     }
 }

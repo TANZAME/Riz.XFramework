@@ -76,8 +76,8 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DbType.cs">
-      <Link>DbType.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DatabaseType.cs">
+      <Link>DatabaseType.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Model.cs">
       <Link>Model.cs</Link>

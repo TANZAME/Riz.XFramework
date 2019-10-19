@@ -266,7 +266,7 @@ namespace TZM.XFramework.Data.SqlClient
                     TableAliasName = "s",
                     IsDebug = token.IsDebug
                 } : null);
-                Column column = ((MappingCommand)cmd).Columns.First().Value;
+                Column column = ((MappingCommand)cmd).Columns.First();
                 _builder.Append("EXISTS(");
 
                 if (isDelete)
