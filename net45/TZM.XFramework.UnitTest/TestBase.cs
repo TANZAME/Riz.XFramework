@@ -1186,11 +1186,11 @@ namespace TZM.XFramework.UnitTest
             var context = _newContext();
 
             // 1. 删除单个记录
-            var demo = new TDemo { DemoId = 10001 };
+            var demo = new TDemo { DemoId = 102 };
             context.Delete(demo);
             context.SubmitChanges();
 
-            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault();
+            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault(x=>x.Client);
             if (account != null)
             {
                 context.Delete(account);
