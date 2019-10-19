@@ -1186,32 +1186,33 @@ namespace TZM.XFramework.UnitTest
             var context = _newContext();
 
             // 1. 删除单个记录
-            var demo = new TDemo { DemoId = 102 };
+            var demo = new TDemo { DemoId = 101 };
             context.Delete(demo);
             context.SubmitChanges();
+            //SQL=> 
+            //DELETE t0 FROM [Sys_Demo] t0 
+            //WHERE t0.[DemoId] = 101
+#if !net40
+            demo = new TDemo { DemoId = 101 };
+            context.Delete(demo);
+            var rowCount = context.SubmitChangesAsync().Result;
+#endif
 
-            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault(x=>x.Client);
+            // 多主键删除
+            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault(x => x.ClientId == 101);
             if (account != null)
             {
                 context.Delete(account);
                 context.SubmitChanges();
             }
 
-#if !net40
-            demo = new TDemo { DemoId = 1 };
-            context.Delete(demo);
-            var rowCount = context.SubmitChangesAsync().Result;
-#endif
-            //SQL=> 
-            //DELETE t0 FROM [Sys_Demo] t0 
-            //WHERE t0.[DemoId] = 1
-
             // 2.WHERE 条件批量删除
-            context.Delete<TDemo>(a => a.DemoId == 2 || a.DemoId == 3 || a.DemoName == "N0000004");
+            context.Delete<TDemo>(a => a.DemoId == 101 || a.DemoId == 102 || a.DemoName == "N0000101");
+
             var qeury =
                 context
                 .GetTable<TDemo>()
-                .Where(a => a.DemoId > 10000);
+                .Where(a => a.DemoId > 101);
             // 2.WHERE 条件批量删除
             context.Delete<TDemo>(qeury);
 
@@ -1220,33 +1221,33 @@ namespace TZM.XFramework.UnitTest
                 context
                 .GetTable<Model.Client>()
                 .SelectMany(a => context.GetTable<Model.ClientAccount>(), (a, b) => a)
-                .Where(a => a.ClientId > 10000);
+                .Where(a => a.ClientId == 101);
             context.Delete<Model.Client>(query1);
             query1 =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
                 join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
-                where c.ClientId == 5 && c.AccountId == "1" && c.MarketId == 1
+                where c.ClientId > 101 && c.AccountId == "1" && c.MarketId == 1
                 select a;
             context.Delete<Model.Client>(query1);
 
-            // 3.Query 关联批量删除
-            var query2 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
-                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                select a.ClientId;
-            context.Delete<Model.Client>(a => a.ClientId != 0 && query2.Contains(a.ClientId));
-            // 4.Query 关联批量删除
+            // 3.Query contains
             var query3 =
                 from a in context.GetTable<Model.Client>()
-                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                where a.CloudServer.CloudServerId > 3 && a.LocalServer.CloudServerId > 3
+                select a.ClientId;
+            context.Delete<Model.Client>(a => a.ClientId > 101 && query3.Contains(a.ClientId));
+            // 4.Query 关联批量删除
+            var query4 =
+                from a in context.GetTable<Model.Client>()
+                where a.CloudServer.CloudServerId > 3 && a.LocalServer.CloudServerId > 3
                 select a;
-            context.Delete<Model.Client>(query3);
+            context.Delete<Model.Client>(query4);
 
             // 5.子查询批量删除
             // 子查询更新
-            var sum =
+            var subquery =
                 from a in context.GetTable<Model.ClientAccount>()
                 where a.ClientId > 10000
                 group a by new { a.ClientId } into g
@@ -1255,14 +1256,14 @@ namespace TZM.XFramework.UnitTest
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
-            var query4 =
+            var query5 =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 join c in context.GetTable<Model.CloudServer>() on a.CloudServerId equals c.CloudServerId
-                join d in sum on a.ClientId equals d.ClientId
+                join d in subquery on a.ClientId equals d.ClientId
                 where a.ClientId > 10000 && a.CloudServerId > 0
                 select a;
-            context.Delete<Model.Client>(query4);
+            context.Delete<Model.Client>(query5);
 
             // 提交的同时查出数据
             // 适用场景：批量导入数据
@@ -1271,7 +1272,7 @@ namespace TZM.XFramework.UnitTest
             // 3.或者将存储过程/脚本插在当前上下文一起执行
 
 
-            context.AddQuery(sum);
+            context.AddQuery(subquery);
             // context.AddQuery('Exec #存储过程#');
             // context.AddQuery('#文本脚本#');
             List<Model.Client> result0 = null;
