@@ -302,7 +302,7 @@ BEGIN
            (@rowIndex
            ,'XFramework' + CAST(@rowIndex as nvarchar)
            ,'XFramework' + CAST(@rowIndex as nvarchar)
-           ,CASE WHEN @rowIndex > 700 THEN 3 ELSE 1 END
+           ,CASE WHEN @rowIndex > 100 THEN 1 ELSE 3 END
            ,getdate()
            ,1
            ,'XFramework' + CAST(@rowIndex as nvarchar))

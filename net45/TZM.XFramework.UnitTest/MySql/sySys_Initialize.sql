@@ -29,7 +29,7 @@ begin
 	TRUNCATE TABLE Sys_Rabbit;
     
 	WHILE(rowIndex <= rowCount) do
-		IF rowIndex <= 1100 THEN
+		IF rowIndex <= 100 THEN
 			INSERT INTO Sys_Demo
 			   (DemoCode
 			   ,DemoName
@@ -158,7 +158,7 @@ begin
 	end while; 
     
     set rowIndex := 1;
-	WHILE (rowIndex <= 1100) do
+	WHILE (rowIndex <= 100) do
 		INSERT INTO Bas_Client
 			   (ClientId
 			   ,ClientCode
@@ -171,7 +171,7 @@ begin
 			   (rowIndex
 			   ,CONCAT('XFramework' , cast(rowIndex as char))
 			   ,CONCAT('XFramework' , cast(rowIndex as char))
-			   ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
+			   ,CASE WHEN rowIndex > 100 THEN 1 ELSE 3 END
 			   ,now()
 			   ,1
 			   ,CONCAT('XFramework' , cast(rowIndex as char)));

@@ -191,6 +191,9 @@ namespace TZM.XFramework.UnitTest.SqlServer
             var ms = (DateTime.Now - sDate2).TotalMilliseconds;
             // 10w   300ms
             // 100w  4600ms
+
+            context.Delete<Model.Client>(x => x.ClientId > 100);
+            context.SubmitChanges();
         }
     }
 }
