@@ -14,7 +14,7 @@ namespace TZM.XFramework.UnitTest.SQLite
         static string connString =
             "DataSource=" +
             new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName +
-            @"\SQLite\Inte_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+            @"\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
 
         public SQLiteTest()
             : base()
@@ -32,7 +32,7 @@ namespace TZM.XFramework.UnitTest.SQLite
             return context;
         }
 
-        protected override void QueryWithParameterizedConstructor()
+        protected override void Parameterized()
         {
             var context = _newContext();
             // 构造函数

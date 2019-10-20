@@ -85,7 +85,7 @@ CREATE TABLE [dbo].[Sys_Demo](
 	[DemoTime_Nullable] [time](6) NULL,						-- 不指定精度时默认为7
 	[DemoDatetimeOffset_Nullable] [datetimeoffset](6) NULL,	-- 不指定精度时默认为7
 	[DemoBinary_Nullable] binary(128) NULL,					-- 固定长
-	[DemVarBinary_Nullable] VarBinary(128) NULL,			-- 变长
+	[DemoVarBinary_Nullable] VarBinary(128) NULL,			-- 变长
 	[DemoTimestamp_Nullable]  [timestamp] NULL,				-- 行版本号
 	--[DemoXml_Nullable]  [xml] NULL,						-- XML
 )
@@ -155,7 +155,7 @@ BEGIN TRAN;
 
 WHILE(@rowIndex<=@rowCount)
 BEGIN
-	IF @rowIndex <= 100
+	IF @rowIndex <= 1100
 	BEGIN
 		INSERT INTO [dbo].[Sys_Demo]
            ([DemoCode]
@@ -252,7 +252,7 @@ BEGIN
            ,[DemoLong]
            ,[DemoLong_Nullable])
      VALUES
-           ('D' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
+           ('C' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
            ,'N' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
            ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 0 END
            ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE NULL END
@@ -288,7 +288,7 @@ END
 
 -- 如果转换时没有指定数据类型的长度，则SQServer自动提供长度为30
 SET @rowIndex = 1
-WHILE @rowIndex<=100
+WHILE @rowIndex<=1100
 BEGIN
 	INSERT INTO [dbo].[Bas_Client]
            ([ClientId]
@@ -302,7 +302,7 @@ BEGIN
            (@rowIndex
            ,'XFramework' + CAST(@rowIndex as nvarchar)
            ,'XFramework' + CAST(@rowIndex as nvarchar)
-           ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 3 END
+           ,CASE WHEN @rowIndex > 700 THEN 3 ELSE 1 END
            ,getdate()
            ,1
            ,'XFramework' + CAST(@rowIndex as nvarchar))

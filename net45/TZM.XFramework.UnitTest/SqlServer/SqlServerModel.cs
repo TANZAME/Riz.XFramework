@@ -68,7 +68,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             /// demvarbinary_nullable
             /// </summary>
             [Column(DbType = System.Data.SqlDbType.VarBinary, Size = 128)]
-            public virtual byte[] DemVarBinary_Nullable { get; set; }
+            public virtual byte[] DemoVarBinary_Nullable { get; set; }
 
             /// <summary>
             /// 行版本号
@@ -126,7 +126,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             {
                 get
                 {
-                    return this.DemVarBinary_Nullable != null ? Encoding.UTF8.GetString(this.DemVarBinary_Nullable) : null;
+                    return this.DemoVarBinary_Nullable != null ? Encoding.UTF8.GetString(this.DemoVarBinary_Nullable) : null;
                 }
             }
         }

@@ -29,7 +29,7 @@ begin
 	TRUNCATE TABLE Sys_Rabbit;
     
 	WHILE(rowIndex <= rowCount) do
-		IF rowIndex <= 100 THEN
+		IF rowIndex <= 1100 THEN
 			INSERT INTO Sys_Demo
 			   (DemoCode
 			   ,DemoName
@@ -61,8 +61,8 @@ begin
 			   ,DemoLong
 			   ,DemoLong_Nullable)
 			 VALUES
-				   (CONCAT('Code',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
-				   ,CONCAT('名称',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
+				   (CONCAT('C',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
+				   ,CONCAT('N',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE 0 END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 'A' ELSE 'B' END
@@ -124,8 +124,8 @@ begin
 			   ,DemoLong
 			   ,DemoLong_Nullable)
 			 VALUES
-				   (CONCAT('Code',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
-				   ,CONCAT('名称',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
+				   (CONCAT('C',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
+				   ,CONCAT('N',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE 0 END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 'CN' ELSE 'TW' END
@@ -158,7 +158,7 @@ begin
 	end while; 
     
     set rowIndex := 1;
-	WHILE (rowIndex <= 2000) do
+	WHILE (rowIndex <= 1100) do
 		INSERT INTO Bas_Client
 			   (ClientId
 			   ,ClientCode
@@ -171,7 +171,7 @@ begin
 			   (rowIndex
 			   ,CONCAT('XFramework' , cast(rowIndex as char))
 			   ,CONCAT('XFramework' , cast(rowIndex as char))
-			   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE 3 END
+			   ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
 			   ,now()
 			   ,1
 			   ,CONCAT('XFramework' , cast(rowIndex as char)));

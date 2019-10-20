@@ -82,7 +82,26 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+            if (_typeRuntime == null) 
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            else
+            {
+                object exp = invoker.Invoke(this, new object[] { node });
+                return exp as Expression;
+            }
+        }
+
+        /// <summary>
+        /// 访问表示方法调用的节点
+        /// </summary>
+        /// <param name="node">方法调用节点</param>
+        /// <returns></returns>
+        public virtual Expression VisitMethodCall(BinaryExpression node)
+        {
+            if (_typeRuntime == null) 
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
@@ -330,6 +349,22 @@ namespace TZM.XFramework.Data
             }
 
             return m;
+        }
+
+        /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected virtual Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" + ");
+                _visitor.Visit(b.Right);
+                _visitedMark.Clear();
+            }
+
+            return b;
         }
 
         /// <summary>

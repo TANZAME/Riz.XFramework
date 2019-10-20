@@ -51,7 +51,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             base.Run(dbType);
         }
 
-        protected override void QueryWithParameterizedConstructor()
+        protected override void Parameterized()
         {
             var context = _newContext();
             // 构造函数
@@ -118,7 +118,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -153,8 +153,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                //DemoXml_Nullable = newXml
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
             };
             context.Insert(demo);
             context.SubmitChanges();

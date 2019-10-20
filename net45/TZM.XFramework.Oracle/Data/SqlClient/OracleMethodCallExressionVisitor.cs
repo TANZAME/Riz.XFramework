@@ -253,6 +253,22 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected override Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" || ");
+                _visitor.Visit(b.Right);
+                _visitedMark.Clear();
+            }
+
+            return b;
+        }
+
+        /// <summary>
         /// 访问 Length 属性
         /// </summary>
         protected override Expression VisitLength(MemberExpression m)

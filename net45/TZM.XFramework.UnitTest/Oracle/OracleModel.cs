@@ -120,7 +120,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// demvarbinary_nullable
             /// </summary>
             [Column(DbType = OracleDbType.Blob)]
-            public virtual byte[] DemVarBinary_Nullable { get; set; }
+            public virtual byte[] DemoVarBinary_Nullable { get; set; }
 
             /// <summary>
             /// demotimestamp_nullable
@@ -154,7 +154,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             {
                 get
                 {
-                    return this.DemVarBinary_Nullable != null ? Encoding.UTF8.GetString(this.DemVarBinary_Nullable) : null;
+                    return this.DemoVarBinary_Nullable != null ? Encoding.UTF8.GetString(this.DemoVarBinary_Nullable) : null;
                 }
             }
         }

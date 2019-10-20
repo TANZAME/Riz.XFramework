@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
-            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
+            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
             foreach (DbExpression qj in _qJoin)
             {

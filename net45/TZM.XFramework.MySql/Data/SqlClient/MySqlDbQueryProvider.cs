@@ -106,7 +106,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor)
+        public override IMethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor)
         {
             return new MySqlMethodCallExressionVisitor(this, visitor);
         }

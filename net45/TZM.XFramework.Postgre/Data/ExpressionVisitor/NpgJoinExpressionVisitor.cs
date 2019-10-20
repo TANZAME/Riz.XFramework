@@ -42,7 +42,7 @@ namespace TZM.XFramework.Data
             ISqlBuilder on = cmd.OnPhrase;
 
             base._builder = on;
-            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
+            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
             if (_qJoin != null && _qJoin.Count > 0)
             {

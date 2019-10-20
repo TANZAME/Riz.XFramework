@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS Sys_Demo(
 	DemoTime_Nullable time(2) NULL,			-- 不指定默认6位
 	DemoDatetimeOffset_Nullable timestamptz(6) NULL,
 	DemoBinary_Nullable Bytea NULL,
-	DemVarBinary_Nullable Bytea NULL,
+	DemoVarBinary_Nullable Bytea NULL,
 	DemoTimestamp_Nullable  timestamp NULL
 );
 
@@ -127,7 +127,7 @@ BEGIN
 	TRUNCATE TABLE Sys_Rabbit RESTART IDENTITY;
     
 	WHILE(rowIndex <= rowCount) LOOP
-		IF rowIndex <= 100 THEN
+		IF rowIndex <= 1200 THEN
 			INSERT INTO Sys_Demo
 			   (DemoCode
 			   ,DemoName
@@ -159,8 +159,8 @@ BEGIN
 			   ,DemoLong
 			   ,DemoLong_Nullable)
 			 VALUES(
-				    'Code' || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
-				   ,'名称'  || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
+				    'C' || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
+				   ,'N'  || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
 				   ,CASE WHEN rowIndex % 2 = 0 THEN TRUE ELSE FALSE END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN TRUE ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 'A' ELSE 'B' END
@@ -222,8 +222,8 @@ BEGIN
 			   ,DemoLong
 			   ,DemoLong_Nullable)
 			 VALUES
-				   ('Code' || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
-				   ,'名称'  || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
+				   ('C' || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
+				   ,'N'  || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
 				   ,CASE WHEN rowIndex % 2 = 0 THEN TRUE ELSE FALSE END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN TRUE ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 'CN' ELSE 'TW' END
@@ -256,7 +256,7 @@ BEGIN
 	End Loop; 
     
     rowIndex := 1;
-	WHILE (rowIndex <= 2000) LOOP
+	WHILE (rowIndex <= 1200) LOOP
 		INSERT INTO Bas_Client
 			   (ClientId
 			   ,ClientCode
@@ -269,7 +269,7 @@ BEGIN
 			   (rowIndex
 			   ,'XFramework' || cast(rowIndex as varchar)
 			   ,'XFramework' || cast(rowIndex as varchar)
-			   ,CASE WHEN rowIndex % 2 = 0 THEN 1 ELSE 3 END
+			   ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
 			   ,now()
 			   ,1
 			   ,'XFramework' || cast(rowIndex as varchar));

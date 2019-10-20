@@ -84,7 +84,7 @@ CREATE TABLE Sys_Demo(
 	DemoTime_Nullable INTERVAL DAY(2) TO SECOND(6) NULL,
 	DemoDatetimeOffset_Nullable timestamp(4) WITH TIME ZONE NULL,
 	DemoBinary_Nullable BLOB NULL,
-	DemVarBinary_Nullable BLOB NULL,
+	DemoVarBinary_Nullable BLOB NULL,
 	DemoTimestamp_Nullable  timestamp(4) WITH LOCAL TIME ZONE NULL
 );
 
@@ -144,7 +144,7 @@ BEGIN
     DELETE FROM Sys_Rabbit;
   
     WHILE(rowIndex <= rowCount2) LOOP
-      IF rowIndex <= 100 THEN
+      IF rowIndex <= 1200 THEN
       INSERT INTO Sys_Demo
           (DemoId
           ,DemoCode
@@ -177,8 +177,8 @@ BEGIN
           ,DemoLong
           ,DemoLong_Nullable)
           VALUES(SYS_DEMO_DEMOID_SEQ.nextval
-              , 'Code' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
-              ,N'Ãû³Æ' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+              , 'C' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+              ,N'N' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 'A' ELSE 'B' END
@@ -242,8 +242,8 @@ BEGIN
       ,DemoLong_Nullable)
       VALUES
           (SYS_DEMO_DEMOID_SEQ.nextval
-          , 'Code' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
-          ,N'Ãû³Æ' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+          , 'C' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+          ,N'N' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 'CN' ELSE 'TW' END
@@ -277,7 +277,7 @@ BEGIN
   
    
   rowIndex := 1;
-  WHILE (rowIndex <= 2000) LOOP
+  WHILE (rowIndex <= 1200) LOOP
     INSERT INTO Bas_Client
         (ClientId
         ,ClientCode
@@ -290,7 +290,7 @@ BEGIN
         (rowIndex
         ,'XFramework' || TO_CHAR(rowIndex)
         ,'XFramework' || TO_CHAR(rowIndex)
-        ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 3 END
+        ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
         ,SYSDATE
         ,1
         ,'XFramework' || TO_CHAR(rowIndex));
