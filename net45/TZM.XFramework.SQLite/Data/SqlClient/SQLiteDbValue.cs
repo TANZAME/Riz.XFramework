@@ -32,22 +32,19 @@ namespace TZM.XFramework.Data.SqlClient
                 // 转换一下GUID，否则保存后会出现乱码~
                 value = ((Guid)value).ToString();
             }
-            else if (value is TimeSpan)
+            else if (value is TimeSpan || value is DateTime || value is DateTimeOffset)
             {
-                string result = this.GetSqlValueByTime(value, dbType, scale);
+                string result = null;
+                if (value is TimeSpan)
+                    result = this.GetSqlValueByTime(value, dbType, scale);
+                else if (value is DateTime)
+                    result = this.GetSqlValueByDateTime(value, dbType, scale);
+                else if (value is DateTimeOffset)
+                    result = this.GetSqlValueByDateTimeOffset(value, dbType, scale);
+
                 result = result.Trim('\'');
                 value = result;
                 dbType = DbType.String;
-            }
-            else if (value is DateTime && dbType != null && ((DbType)dbType) == DbType.Date)
-            {
-                value = ((DateTime)value).Date;
-            }
-            else if (value is DateTimeOffset)
-            {
-                string result = this.GetSqlValueByDateTimeOffset(value, dbType, scale);
-                result = result.Trim('\'');
-                value = result;
             }
 
             // 补充 DbType

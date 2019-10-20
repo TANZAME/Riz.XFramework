@@ -29,6 +29,8 @@ namespace TZM.XFramework.UnitTest.SQLite
             {
                 IsDebug = base.IsDebug
             };
+           
+
             return context;
         }
 

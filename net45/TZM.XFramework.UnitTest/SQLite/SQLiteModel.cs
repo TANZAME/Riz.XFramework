@@ -41,13 +41,13 @@ namespace TZM.XFramework.UnitTest.SQLite
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.DbType.Time, Precision = 7)]
+            [Column(DbType = System.Data.DbType.Time, Scale = 7)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.DbType.DateTimeOffset, Precision = 7)]
+            [Column(DbType = System.Data.DbType.DateTimeOffset, Scale = 7)]
             public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>

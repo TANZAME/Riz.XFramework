@@ -49,13 +49,13 @@ namespace TZM.XFramework.UnitTest.SqlServer
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.SqlDbType.Time, Precision = 7)]
+            [Column(DbType = System.Data.SqlDbType.Time, Scale = 7)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.SqlDbType.DateTimeOffset, Precision = 7)]
+            [Column(DbType = System.Data.SqlDbType.DateTimeOffset, Scale = 7)]
             public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>

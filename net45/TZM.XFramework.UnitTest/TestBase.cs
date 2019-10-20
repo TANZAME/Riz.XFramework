@@ -1293,10 +1293,10 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 700) == 0);
 
             // 一次性保存，uow ~~
-            context.Delete<TDemo>(x => x.DemoId > 100);
-            context.Delete<Model.Client>(x => x.ClientId > 100);
-            context.Delete<Model.ClientAccount>(x => x.ClientId > 100);
-            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > 100);
+            context.Delete<TDemo>(x => x.DemoId > 2000);
+            context.Delete<Model.Client>(x => x.ClientId > 2000);
+            context.Delete<Model.ClientAccount>(x => x.ClientId > 2000);
+            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > 2000);
 
             // 提交的同时查出数据
             // 适用场景：批量导入数据
