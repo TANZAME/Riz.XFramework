@@ -155,7 +155,7 @@ BEGIN TRAN;
 
 WHILE(@rowIndex<=@rowCount)
 BEGIN
-	IF @rowIndex <= 1100
+	IF @rowIndex <= 100
 	BEGIN
 		INSERT INTO [dbo].[Sys_Demo]
            ([DemoCode]
@@ -288,7 +288,7 @@ END
 
 -- 如果转换时没有指定数据类型的长度，则SQServer自动提供长度为30
 SET @rowIndex = 1
-WHILE @rowIndex<=1100
+WHILE @rowIndex<=100
 BEGIN
 	INSERT INTO [dbo].[Bas_Client]
            ([ClientId]

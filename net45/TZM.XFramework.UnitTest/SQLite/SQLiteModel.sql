@@ -342,7 +342,7 @@ INSERT INTO Bas_Client
         ,State
         ,Remark)
       VALUES
-        (1002
+        (90
         ,'XFramework1'
         ,'XFramework1'
         ,1
@@ -357,7 +357,7 @@ INSERT INTO Bas_Client
         ,AccountName
         ,Qty)
       VALUES
-        (1002
+        (90
         ,1
         ,'XFramework1'
         ,'XFramework1'
@@ -370,7 +370,7 @@ INSERT INTO Bas_Client
         ,MarketCode
         ,MarketName)
       VALUES
-        (1002
+        (90
         ,1
         ,1
         ,'XFramework'
@@ -385,7 +385,7 @@ INSERT INTO Bas_Client
         ,State
         ,Remark)
       VALUES
-        (1003
+        (91
         ,'XFramework1'
         ,'XFramework1'
         ,1
@@ -400,7 +400,7 @@ INSERT INTO Bas_Client
         ,AccountName
         ,Qty)
       VALUES
-        (1003
+        (91
         ,1
         ,'XFramework1'
         ,'XFramework1'
@@ -413,7 +413,7 @@ INSERT INTO Bas_Client
         ,MarketCode
         ,MarketName)
       VALUES
-        (1003
+        (91
         ,1
         ,1
         ,'XFramework'

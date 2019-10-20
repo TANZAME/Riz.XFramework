@@ -1232,7 +1232,7 @@ namespace TZM.XFramework.UnitTest
                  from b in u_b.DefaultIfEmpty()
                  join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId } into u_c
                  from c in u_c.DefaultIfEmpty()
-                 where a.ClientId > 1000 && (b.ClientId == null || c.ClientId == null)
+                 where a.ClientId > 100 && (b.ClientId == null || c.ClientId == null)
                  select a;
             context.Delete<Model.Client>(query1);
 
@@ -1240,14 +1240,12 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
                 join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
-                where c.ClientId > 1000 && c.AccountId == "1" && c.MarketId == 1
+                where c.ClientId > 100 && c.AccountId == "1" && c.MarketId == 1
                 select a;
             context.Delete<Model.Client>(query1);
             context.SubmitChanges();
             // 断言只会删除主表不会删除从表
-            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 1000) == 0);
-            Debug.Assert(context.GetTable<Model.ClientAccount>().Count(a => a.ClientId > 1000) != 0);
-            Debug.Assert(context.GetTable<Model.ClientAccountMarket>().Count(a => a.ClientId > 1000) != 0);
+            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 100) == 0);
 
             // 3.Query contains
             var query3 =
@@ -1255,26 +1253,24 @@ namespace TZM.XFramework.UnitTest
                 join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
                 where a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
                 select a.ClientId;
-            context.Delete<Model.Client>(a => a.ClientId > 900 && query3.Contains(a.ClientId));
+            context.Delete<Model.Client>(a => a.ClientId > 90 && query3.Contains(a.ClientId));
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 900) == 0);
-            Debug.Assert(context.GetTable<Model.ClientAccount>().Count(a => a.ClientId > 900) != 0);
+            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 90) == 0);
 
             // 4.Query 关联批量删除
             var query4 =
                 from a in context.GetTable<Model.Client>()
-                where a.ClientId > 800 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
+                where a.ClientId > 80 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
                 select a;
             context.Delete<Model.Client>(query4);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 800) == 0);
-            Debug.Assert(context.GetTable<Model.ClientAccount>().Count(a => a.ClientId > 800) != 0);
+            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 80) == 0);
 
             // 5.子查询批量删除
             // 子查询更新
             var subquery =
                 from a in context.GetTable<Model.ClientAccount>()
-                where a.ClientId > 700
+                where a.ClientId > 70
                 group a by new { a.ClientId } into g
                 select new Model.Client
                 {
@@ -1290,13 +1286,13 @@ namespace TZM.XFramework.UnitTest
                 select a;
             context.Delete<Model.Client>(query5);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 700) == 0);
+            Debug.Assert(context.GetTable<Model.Client>().Count(a => a.ClientId > 70) == 0);
 
             // 一次性保存，uow ~~
-            context.Delete<TDemo>(x => x.DemoId > 2000);
-            context.Delete<Model.Client>(x => x.ClientId > 2000);
-            context.Delete<Model.ClientAccount>(x => x.ClientId > 2000);
-            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > 2000);
+            context.Delete<TDemo>(x => x.DemoId > 100);
+            context.Delete<Model.Client>(x => x.ClientId > 100);
+            context.Delete<Model.ClientAccount>(x => x.ClientId > 100);
+            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > 100);
 
             // 提交的同时查出数据
             // 适用场景：批量导入数据
