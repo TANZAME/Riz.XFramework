@@ -126,6 +126,14 @@ DROP SEQUENCE SYS_DEMO_DEMOID_SEQ;
 CREATE SEQUENCE SYS_DEMO_DEMOID_SEQ INCREMENT BY 1;
 COMMIT;
 
+TRUNCATE TABLE Sys_Demo;
+TRUNCATE TABLE Bas_Client;
+TRUNCATE TABLE Bas_ClientAccount;
+TRUNCATE TABLE Bas_ClientAccountMarket;
+TRUNCATE TABLE Sys_CloudServer;
+TRUNCATE TABLE Sys_Rabbit;
+COMMIT;
+
 DECLARE rowIndex INT;
         rowCount2 INT;
 BEGIN
@@ -136,12 +144,7 @@ BEGIN
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (1,'0181',N'181服务器');
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (2,'0182',N'182服务器');
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (3,'0183',N'183服务器');    
-    
-    DELETE FROM Sys_Demo;
-    DELETE FROM Bas_Client;
-    DELETE FROM Bas_ClientAccount;
-    DELETE FROM Bas_ClientAccountMarket;
-    DELETE FROM Sys_Rabbit;
+   
   
     WHILE(rowIndex <= rowCount2) LOOP
       IF rowIndex <= 1200 THEN
@@ -177,8 +180,8 @@ BEGIN
           ,DemoLong
           ,DemoLong_Nullable)
           VALUES(SYS_DEMO_DEMOID_SEQ.nextval
-              , 'C' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
-              ,N'N' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+              ,RPAD('C',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+              ,RPAD('N',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 'A' ELSE 'B' END
@@ -242,8 +245,8 @@ BEGIN
       ,DemoLong_Nullable)
       VALUES
           (SYS_DEMO_DEMOID_SEQ.nextval
-          , 'C' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
-          ,N'N' || RPAD('',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)),'0') || TO_CHAR(rowIndex)
+          ,RPAD('C',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+          ,RPAD('N',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 'CN' ELSE 'TW' END
@@ -290,7 +293,7 @@ BEGIN
         (rowIndex
         ,'XFramework' || TO_CHAR(rowIndex)
         ,'XFramework' || TO_CHAR(rowIndex)
-        ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 3 END
+        ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
         ,SYSDATE
         ,1
         ,'XFramework' || TO_CHAR(rowIndex));

@@ -20,6 +20,11 @@ namespace TZM.XFramework.Data
         static MemberInvokerBase _disposedInvoker = new FieldInvoker(_disposed);
 
         /// <summary>
+        /// 实体转换映射委托生成器
+        /// </summary>
+        public override TypeDeserializerImpl TypeDeserializerImpl { get { return SQLiteDeserializerImpl.Instance; } }
+
+        /// <summary>
         /// 初始化 <see cref="OracleDatabase"/> 类的新实例
         /// </summary>
         /// <param name="providerFactory">数据源提供者</param>

@@ -553,7 +553,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                     visitor.Write(builder);
 
-                    visitor = new SQLiteWhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression, null);
+                    visitor = new WhereExpressionVisitor(this, null, dQueryInfo.SelectInfo.WhereExpression);
                     visitor.Write(builder);
                 }
             }
@@ -688,12 +688,12 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     // 直接 SQL 的 UPDATE 语法
                     TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
-                    ExpressionVisitorBase visitor = null;
-                    visitor = new SQLiteUpdateExpressionVisitor<T>(this, aliases, uQueryInfo, null);
+                    var visitor = new SQLiteUpdateExpressionVisitor<T>(this, aliases, uQueryInfo, null);
+                    visitor.ParseCommand = this.ParseSelectCommand;
                     visitor.Write(builder);
 
-                    visitor = new SQLiteWhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression, null);
-                    visitor.Write(builder);
+                    var visitor2 = new WhereExpressionVisitor(this, null, uQueryInfo.SelectInfo.WhereExpression);
+                    visitor2.Write(builder);
                 }
             }
 

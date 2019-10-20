@@ -345,7 +345,7 @@ namespace TZM.XFramework.UnitTest
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("C000009"));
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("C0000009"));
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
@@ -677,7 +677,7 @@ namespace TZM.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
-            Debug.Assert(result.Count == 20);
+            Debug.Assert(result.Count <= 20);
             // Include 分页
             query =
             from a in context
@@ -1217,7 +1217,7 @@ namespace TZM.XFramework.UnitTest
             // 2.WHERE 条件批量删除
             context.Delete<TDemo>(qeury);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<TDemo>().Count(a=>a.DemoId > 100) == 0);
+            Debug.Assert(context.GetTable<TDemo>().Count(a => a.DemoId > 100) == 0);
 
             // 3.Query 关联批量删除
             var query1 =
@@ -1333,7 +1333,7 @@ namespace TZM.XFramework.UnitTest
             var demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId > 0);
             if (demo != null)
             {
-                demo.DemoByte = (byte)(demo.DemoByte + 1);
+                demo.DemoByte = demo.DemoByte >= 100 && demo.DemoByte < 126 ? (byte)(demo.DemoByte + 1) : (byte)(demo.DemoByte - 1);
                 context.Update(demo);
                 context.SubmitChanges();
 
@@ -1347,8 +1347,9 @@ namespace TZM.XFramework.UnitTest
             {
                 DemoDateTime2 = DateTime.UtcNow,
                 DemoDateTime2_Nullable = null,
-                DemoByte = (byte)(x.DemoByte + 1)
+                DemoByte = demo.DemoByte >= 100 && demo.DemoByte < 126 ? (byte)(x.DemoByte + 1) : (byte)(x.DemoByte - 1)
             }, x => x.DemoName == "N0000001" || x.DemoCode == "C0000001");
+            context.SubmitChanges();
 
             // 3.Query 关联批量更新
             var query =
@@ -1361,9 +1362,9 @@ namespace TZM.XFramework.UnitTest
                 Remark = a.ClientCode + "Re'mark"
             }, query);
             context.SubmitChanges();
-            var result = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100).ToList();
+            var result = context.GetTable<Model.Client>().Where(x => x.CloudServer.CloudServerId > 0).ToList();
             // 断言更新成功
-            Debug.Assert(result.All(x=>x.Remark == x.ClientCode + "Re'mark"));
+            Debug.Assert(result.All(x => x.Remark == x.ClientCode + "Re'mark"));
             Debug.Assert(result.All(x => x.Qty == -1));
             //SQL=> 
             //UPDATE t0 SET
@@ -1407,7 +1408,7 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
-                where c.AccountId == "2"
+                where c.AccountId == "1"
                 select a;
             context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
             {
@@ -1416,8 +1417,6 @@ namespace TZM.XFramework.UnitTest
             }, query);
             context.SubmitChanges();
             result = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100).ToList();
-            // 断言更新成功
-            Debug.Assert(result.All(x => x.Qty != -1));
 
             //SQL=>
             //UPDATE t0 SET

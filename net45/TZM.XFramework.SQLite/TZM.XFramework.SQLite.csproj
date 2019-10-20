@@ -45,7 +45,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\SQLiteDatabase.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\SQLiteSqlBuilder.cs" />
@@ -53,6 +52,7 @@
     <Compile Include="Data\SqlClient\SQLiteDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\SQLiteDbValue.cs" />
+    <Compile Include="Data\TypeDeserialize\SQLiteDeserializerImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

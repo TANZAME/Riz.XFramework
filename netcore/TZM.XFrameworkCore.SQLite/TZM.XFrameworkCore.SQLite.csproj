@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs" Link="Data\Infrastructure\SQLiteDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />
@@ -19,11 +18,13 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbValue.cs" Link="Data\SqlClient\SQLiteDbValue.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" Link="Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs" Link="Data\SqlClient\SQLiteSqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs" Link="TypeDeserialize\SQLiteDeserializerImpl.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Data\ExpressionVisitor\" />
     <Folder Include="Data\SqlClient\" />
+    <Folder Include="TypeDeserialize\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />

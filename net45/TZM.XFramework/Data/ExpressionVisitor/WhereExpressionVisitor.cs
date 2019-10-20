@@ -12,8 +12,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="WhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        public WhereExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression exp)
-            : base(provider, aliases, exp != null && exp.Expressions != null ? exp.Expressions[0] : null)
+        public WhereExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression dbExpression)
+            : base(provider, aliases, dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null)
         {
             _expression = base.Expression;
         }

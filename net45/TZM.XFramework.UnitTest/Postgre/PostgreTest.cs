@@ -11,7 +11,7 @@ namespace TZM.XFramework.UnitTest.Postgre
 {
     public class PostgreTest : TestBase<PostgreModel.PostgreDemo>
     {
-        const string connString = "Host=localhost;Database=Inte_XFramework;uid=postgres;pwd=123456;pooling=true;minpoolsize=1;maxpoolsize=1;";
+        const string connString = "Host=localhost;Database=TZM_XFramework;uid=postgres;pwd=123456;pooling=true;minpoolsize=1;maxpoolsize=1;";
 
         public override IDbContext CreateDbContext()
         {

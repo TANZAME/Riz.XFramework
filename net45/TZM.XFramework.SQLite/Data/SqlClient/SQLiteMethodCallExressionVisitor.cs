@@ -215,6 +215,22 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected override Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" || ");
+                _visitor.Visit(b.Right);
+                _visitedMark.Clear();
+            }
+
+            return b;
+        }
+
+        /// <summary>
         /// 访问 TrimEnd 方法
         /// </summary>
         protected override Expression VisitLength(MemberExpression m)
@@ -241,42 +257,39 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitQueryableContains(MethodCallExpression m)
         {
-            if (m.Arguments[0].CanEvaluate())
+            var token = _builder.Token;
+            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+
+            var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
             {
-                var token = _builder.Token;
-                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+                Parameters = token.Parameters,
+                TableAliasName = "s",
+                IsDebug = token.IsDebug
+            } : null);
+            _builder.Append("EXISTS(");
+            _builder.Append(cmd.CommandText);
 
-                var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
-                {
-                    Parameters = token.Parameters,
-                    TableAliasName = "s",
-                    IsDebug = token.IsDebug
-                } : null);
-                _builder.Append("EXISTS(");
-                _builder.Append(cmd.CommandText);
+            if (((MappingCommand)cmd).WhereFragment.Length > 0)
+                _builder.Append(" AND ");
+            else
+                _builder.Append("WHERE ");
 
-                if (((MappingCommand)cmd).WhereFragment.Length > 0)
-                    _builder.Append(" AND ");
-                else
-                    _builder.Append("WHERE ");
+            Column column = ((MappingCommand)cmd).Columns.First();
+            _builder.AppendMember(column.TableAlias, column.Name);
 
-                Column column = ((MappingCommand)cmd).Columns.First();
-                _builder.AppendMember(column.TableAlias, column.Name);
+            _builder.Append(" = ");
 
-                _builder.Append(" = ");
-
-                // exists 不能用别名
-                if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
-                {
-                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
-                    _builder.AppendMember(typeRuntime.TableName);
-                    _builder.Append('.');
-                }
-
-                _visitor.Visit(m.Arguments[1]);
-                _builder.Append(")");
+            // exists 不能用别名
+            if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
+            {
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
+                _builder.AppendMember(typeRuntime.TableName);
+                _builder.Append('.');
             }
-            else throw new XFrameworkException("IDbQueryable must be a local variable.");
+
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(")");
+
             return m;
         }
     }

@@ -46,9 +46,6 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\SQLiteWhereExpressionVisitor.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
       <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
     </Compile>
@@ -69,6 +66,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs">
       <Link>Data\SqlClient\SQLiteSqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs">
+      <Link>Data\TypeDeserialize\SQLiteDeserializerImpl.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

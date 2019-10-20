@@ -32,6 +32,23 @@ namespace TZM.XFramework.Data.SqlClient
                 // 转换一下GUID，否则保存后会出现乱码~
                 value = ((Guid)value).ToString();
             }
+            else if (value is TimeSpan)
+            {
+                string result = this.GetSqlValueByTime(value, dbType, scale);
+                result = result.Trim('\'');
+                value = result;
+                dbType = DbType.String;
+            }
+            else if (value is DateTime && dbType != null && ((DbType)dbType) == DbType.Date)
+            {
+                value = ((DateTime)value).Date;
+            }
+            else if (value is DateTimeOffset)
+            {
+                string result = this.GetSqlValueByDateTimeOffset(value, dbType, scale);
+                result = result.Trim('\'');
+                value = result;
+            }
 
             // 补充 DbType
             SQLiteParameter parameter = (SQLiteParameter)base.AddParameter(value, token, dbType, size, precision, scale, direction);
