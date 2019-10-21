@@ -1,6 +1,6 @@
 :: 运行之前需要 填充api_key，修改spec文件的引用版本
 @echo off
-set api_key=
+set api_key=oy2kk2ngquhrxcavn5zq5kowltsoisye7cbs23wd3bmtdq
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
