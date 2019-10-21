@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class NavigationCollection : IEnumerable<KeyValuePair<string, Navigation>>
     {
-        private IDictionary<string, Navigation> _navCollection = null;
+        private IDictionary<string, Navigation> _collection = null;
         private int? _minIndex;
 
         /// <summary>
@@ -20,14 +20,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 包含的元素数
         /// </summary>
-        public int Count { get { return _navCollection.Count; } }
+        public int Count { get { return _collection.Count; } }
 
         /// <summary>
         /// 实例化<see cref="NavigationCollection"/>类的新实例
         /// </summary>
         public NavigationCollection()
         {
-            _navCollection = new Dictionary<string, Navigation>(8);
+            _collection = new Dictionary<string, Navigation>(8);
         }
 
         /// <summary>
@@ -36,12 +36,12 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public IEnumerator<KeyValuePair<string, Navigation>> GetEnumerator()
         {
-            return _navCollection.GetEnumerator();
+            return _collection.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _navCollection.GetEnumerator();
+            return _collection.GetEnumerator();
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Add(string key, Navigation descriptor)
         {
-            _navCollection.Add(key, descriptor);
+            _collection.Add(key, descriptor);
             if (descriptor != null && descriptor.FieldCount != 0)
             {
                 if (_minIndex == null)
@@ -68,7 +68,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public bool ContainsKey(string key)
         {
-            return _navCollection.ContainsKey(key);
+            return _collection.ContainsKey(key);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public bool TryGetValue(string key, out Navigation descriptor)
         {
-            return _navCollection.TryGetValue(key, out descriptor);
+            return _collection.TryGetValue(key, out descriptor);
         }
     }
 }

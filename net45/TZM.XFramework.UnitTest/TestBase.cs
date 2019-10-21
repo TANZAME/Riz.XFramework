@@ -8,7 +8,6 @@ using System.Data;
 
 namespace TZM.XFramework.UnitTest
 {
-
     public abstract class TestBase<TDemo> : ITest where TDemo : Model.Demo, new()
     {
         private string _demoName = "002F";
@@ -16,6 +15,11 @@ namespace TZM.XFramework.UnitTest
         private DatabaseType _databaseType = DatabaseType.None;
         // 参数化查询语句数量@@
         protected Func<IDbContext> _newContext = null;
+
+        /// <summary>
+        /// 调式模式，调式模式下产生的SQL会换行，方便阅读
+        /// </summary>
+        public bool IsDebug { get; set; }
 
         public TestBase()
         {
@@ -29,15 +33,15 @@ namespace TZM.XFramework.UnitTest
             _databaseType = dbType;
             Query();
             Join();
-            Delete();
-            Update();
             Insert();
+            Update();
+            Delete();
             API();
             Rabbit();
         }
 
         // 单表查询
-        void Query()
+        protected virtual void Query()
         {
             var context = _newContext();
 
@@ -57,7 +61,7 @@ namespace TZM.XFramework.UnitTest
                     DemoName = a.DemoName,
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                     DemoDate = sDate,
-                    DemoDateTime = sDate,
+                    DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = guid,
                     DemoEnum = Model.State.Complete,
@@ -89,7 +93,7 @@ namespace TZM.XFramework.UnitTest
                     DemoName = a.DemoName,
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                     DemoDate = sDate,
-                    DemoDateTime = sDate,
+                    DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = Guid.NewGuid(),
                     DemoEnum = Model.State.Complete,
@@ -146,7 +150,7 @@ namespace TZM.XFramework.UnitTest
                     select new TDemo
                     {
                         DemoId = (int)a.DemoId,
-                        DemoCode = (a.DemoCode ?? "N001"),
+                        DemoCode = (a.DemoCode ?? "C0000001"),
                         DemoName = a.DemoId.ToString(),
                         DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                         DemoDate = sDate,
@@ -183,16 +187,15 @@ namespace TZM.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            var linq = context.GetTable<TDemo>().Select(e => e.DemoName);
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 100 && linq.Contains(a.DemoName));
+            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && context.GetTable<TDemo>().Select(e => e.DemoName).Contains(a.DemoName));
             result1 = query.ToList();
 
-            linq = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 100 && linq.Contains(a.DemoName));
+            var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
+            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && queryFilters.Contains(a.DemoName));
             result1 = query.ToList();
 
             // 带参数构造函数
-            QueryWithParameterizedConstructor();
+            Parameterized();
             //query =
             //     from a in context.GetTable<TDemo>()
             //     where a.DemoId <= 10
@@ -265,7 +268,6 @@ namespace TZM.XFramework.UnitTest
             //ORDER BY t0.[DemoCode]
             //OFFSET 1 ROWS FETCH NEXT 18 ROWS ONLY
 
-            // Mysql 不支持 limit n,-1 语法 ###
             query =
                 from a in context.GetTable<TDemo>()
                 where a.DemoId <= 10
@@ -333,16 +335,20 @@ namespace TZM.XFramework.UnitTest
 
             // 过滤条件
             query = from a in context.GetTable<TDemo>()
-                    where a.DemoName == "D0000002" || a.DemoCode == "D0000002" && a.DemoByte_Nullable.Value > 0
+                    where a.DemoName == "N0000002" || a.DemoCode == "C0000002" && a.DemoByte_Nullable.Value > 0
                     select a;
             result1 = query.ToList();
             // 点标记
-            query = context.GetTable<TDemo>().Where(a => a.DemoName == "D0000002" || a.DemoCode == "D0000002");
+            query = context.GetTable<TDemo>().Where(a => a.DemoName == "N0000002" || a.DemoCode == "C0000002");
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("004"));
+            query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("00"));
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("Code000036"));
+            Debug.Assert(result1.Count != 0);
+
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("C0000009"));
             result1 = query.ToList();
+            Debug.Assert(result1.Count != 0);
+
             query = context.GetTable<TDemo>().Where(a => a.DemoCode.EndsWith("004"));
             result1 = query.ToList();
             //SQL=>
@@ -450,6 +456,7 @@ namespace TZM.XFramework.UnitTest
                     RowNumber = DbFunction.RowNumber<long>(x => a.DemoCode, false)
                 });
             var reuslt1 = query1.ToList();
+            Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
             //SQL=>
             //SELECT 
             //ROW_NUMBER() Over(Order By t0.[DemoCode]) AS [RowNumber]
@@ -490,7 +497,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 多表查询
-        void Join()
+        protected virtual void Join()
         {
             var context = _newContext();
 
@@ -671,6 +678,7 @@ namespace TZM.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
+            Debug.Assert(result.Count <= 20);
             // Include 分页
             query =
             from a in context
@@ -1074,7 +1082,7 @@ namespace TZM.XFramework.UnitTest
             // 分组后再分页
             var query8 =
                  from a in context.GetTable<Model.Client>()
-                 where a.ClientName == "TAN"
+                 where a.ClientName == "XFramework1"
                  group a by new { a.ClientId, a.ClientName } into g
                  where g.Key.ClientId > 0
                  orderby new { g.Key.ClientName, g.Key.ClientId }
@@ -1173,301 +1181,16 @@ namespace TZM.XFramework.UnitTest
             //var result10 = query.ToPagedList(1, 20);
         }
 
-        // 删除记录
-        void Delete()
-        {
-            var context = _newContext();
-
-            // 1. 删除单个记录
-            var demo = new TDemo { DemoId = 1 };
-            context.Delete(demo);
-            context.SubmitChanges();
-
-            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault();
-            if (account != null)
-            {
-                context.Delete(account);
-                context.SubmitChanges();
-            }
-
-#if !net40
-            demo = new TDemo { DemoId = 1 };
-            context.Delete(demo);
-            var rowCount = context.SubmitChangesAsync().Result;
-#endif
-            //SQL=> 
-            //DELETE t0 FROM [Sys_Demo] t0 
-            //WHERE t0.[DemoId] = 1
-
-            // 2.WHERE 条件批量删除
-            context.Delete<TDemo>(a => a.DemoId == 2 || a.DemoId == 3 || a.DemoName == "N0000004");
-            var qeury =
-                context
-                .GetTable<TDemo>()
-                .Where(a => a.DemoId > 10000);
-            // 2.WHERE 条件批量删除
-            context.Delete<TDemo>(qeury);
-
-            // 3.Query 关联批量删除
-            var query1 =
-                context
-                .GetTable<Model.Client>()
-                .SelectMany(a => context.GetTable<Model.ClientAccount>(), (a, b) => a)
-                .Where(a => a.ClientId < 10);
-            context.Delete<Model.Client>(query1);
-            query1 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
-                join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
-                where c.ClientId == 5 && c.AccountId == "1" && c.MarketId == 1
-                select a;
-            context.Delete<Model.Client>(query1);
-
-            // 3.Query 关联批量删除
-            var query2 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
-                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                select a;
-            context.Delete<Model.Client>(query2);
-            // 4.Query 关联批量删除
-            var query3 =
-                from a in context.GetTable<Model.Client>()
-                where a.CloudServer.CloudServerId == 20 && a.LocalServer.CloudServerId == 2
-                select a;
-            context.Delete<Model.Client>(query3);
-
-            // 5.子查询批量删除
-            // 子查询更新
-            var sum =
-                from a in context.GetTable<Model.ClientAccount>()
-                where a.ClientId <= 20
-                group a by new { a.ClientId } into g
-                select new Model.Client
-                {
-                    ClientId = g.Key.ClientId,
-                    Qty = g.Sum(a => a.Qty)
-                };
-            var query4 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.CloudServer>() on a.CloudServerId equals c.CloudServerId
-                join d in sum on a.ClientId equals d.ClientId
-                where a.ClientId > 10 && a.CloudServerId > 0
-                select a;
-            context.Delete<Model.Client>(query4);
-
-            // 提交的同时查出数据
-            // 适用场景：批量导入数据
-            // 1.先插入数据到表变量
-            // 2.提交并查出当批数据
-            // 3.或者将存储过程/脚本插在当前上下文一起执行
-
-
-            context.AddQuery(sum);
-            // context.AddQuery('Exec #存储过程#');
-            // context.AddQuery('#文本脚本#');
-            List<Model.Client> result0 = null;
-            context.SubmitChanges(out result0);
-            //SQL=> 
-            //DELETE t0 FROM [Sys_Demo] t0 
-            //WHERE ((t0.[DemoId] = 2) OR (t0.[DemoId] = 3)) OR (t0.[DemoName] = N'N0000004')
-            //DELETE t0 FROM [Sys_Demo] t0 
-            //WHERE ((t0.[DemoId] = 2) OR (t0.[DemoId] = 3)) OR (t0.[DemoName] = N'N0000004')
-            //DELETE t0 FROM [Bas_Client] t0 
-            //INNER JOIN [Bas_ClientAccount] t1 ON t0.[ClientId] = t1.[ClientId]
-            //INNER JOIN [Bas_ClientAccountMarket] t2 ON t1.[ClientId] = t2.[ClientId] AND t1.[AccountId] = t2.[AccountId]
-            //WHERE t2.[ClientId] = 5 AND t2.[AccountId] = N'1' AND t2.[MarketId] = 1
-            //DELETE t0 FROM [Bas_Client] t0 
-            //INNER JOIN [Bas_ClientAccount] t1 ON t0.[ClientId] = t1.[ClientId]
-            //LEFT JOIN [Sys_CloudServer] t2 ON t0.[CloudServerId] = t2.[CloudServerId]
-            //LEFT JOIN [Sys_CloudServer] t3 ON t0.[CloudServerId] = t3.[CloudServerId]
-            //WHERE t2.[CloudServerId] = 20 AND t3.[CloudServerId] = 2
-        }
-
-        // 更新记录
-        void Update()
-        {
-            var context = _newContext();
-
-            var demo = context
-                .GetTable<TDemo>()
-                .FirstOrDefault(x => x.DemoId > 0);
-
-            // 整个实体更新
-            demo.DemoName = "001'.N";
-            context.Update(demo);
-            context.SubmitChanges();
-
-            // 2.WHERE 条件批量更新
-            context.Update<TDemo>(x => new TDemo
-            {
-                DemoDateTime2 = DateTime.UtcNow,
-                DemoDateTime2_Nullable = null,
-                DemoByte = 67
-                //DemoTime_Nullable = ts
-            }, x => x.DemoName == "001'.N" || x.DemoCode == "001'.N");
-
-            // 3.Query 关联批量更新
-            var query =
-                from a in context.GetTable<Model.Client>()
-                where a.CloudServer.CloudServerId != 0
-                select a;
-            context.Update<Model.Client>(a => new // Model.Client
-            {
-                Remark = "001.TAN"
-            }, query);
-            //SQL=> 
-            //UPDATE t0 SET
-            //t0.[DemoCode] = 'Code0000004',
-            //t0.[DemoName] = N'001''.N',
-            //***
-            //t0.[DemoLong] = 8192000000000,
-            //t0.[DemoLong_Nullable] = 8192000000000
-            //FROM [Sys_Demo] t0
-            //WHERE t0.[DemoId] = 4
-            //UPDATE t0 SET
-            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
-            //t0.[DemoDateTime2_Nullable] = NULL
-            //FROM [Sys_Demo] AS [t0]
-            //WHERE t0.[DemoId] = 4
-            //UPDATE t0 SET
-            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
-            //t0.[DemoDateTime2_Nullable] = NULL
-            //FROM [Sys_Demo] AS [t0]
-            //WHERE (t0.[DemoName] = N'001''.N') OR (t0.[DemoCode] = '001''.N')
-            //UPDATE t0 SET
-            //t0.[Remark] = N'001.TAN'
-            //FROM [Bas_Client] AS [t0]
-            //LEFT JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
-            //WHERE t1.[CloudServerId] <> 0
-
-            // 更新本表值等于从表的字段值
-            query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
-                where c.AccountId == "12"
-                select a;
-            context.Update<Model.Client, Model.CloudServer>((a, b) => new Model.Client
-            {
-                CloudServerId = b.CloudServerId,
-                Remark = "001.TAN"
-            }, query);
-
-            // 更新本表值等于从表的字段值
-            query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
-                where c.AccountId == "12"
-                select a;
-            context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
-            {
-                CloudServerId = b.CloudServerId,
-                Qty = c.Qty,
-                Remark = "001.TAN"
-            }, query);
-
-            context.SubmitChanges();
-            //SQL=>
-            //UPDATE t0 SET
-            //t0.[CloudServerId] = t1.[CloudServerId],
-            //t0.[Remark] = N'001.TAN'
-            //FROM [Bas_Client] AS [t0]
-            //INNER JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
-            //INNER JOIN [Bas_ClientAccount] t2 ON t0.[ClientId] = t2.[ClientId]
-            //WHERE t2.[AccountId] = N'12'
-
-            // 子查询更新
-            var sum =
-                from a in context.GetTable<Model.ClientAccount>()
-                where a.ClientId > 0
-                group a by new { a.ClientId } into g
-                select new Model.Client
-                {
-                    ClientId = g.Key.ClientId,
-                    Qty = g.Sum(a => a.Qty)
-                };
-            var uQuery =
-               from a in context.GetTable<Model.Client>()
-               join b in sum on a.ClientId equals b.ClientId
-               where a.ClientId > 0 && b.ClientId > 0
-               select a;
-            context.Update<Model.Client, Model.Client>((a, b) => new Model.Client { Qty = b.Qty }, uQuery);
-            //if (_databaseType != DatabaseType.Postgre)
-            //{
-            //    var uQuery =
-            //       from a in context.GetTable<Model.Client>()
-            //       join b in sum on a.ClientId equals b.ClientId
-            //       where a.ClientId > 0 && b.ClientId > 0
-            //       select a;
-            //    context.Update<Model.Client, Model.Client>((a, b) => new Model.Client { Qty = b.Qty }, uQuery);
-            //}
-            //else
-            //{
-            //    // npg 翻译成 EXISTS,更新字段的值不支持来自子查询
-            //    var uQuery =
-            //        from a in context.GetTable<Model.Client>()
-            //        join b in sum on a.ClientId equals b.ClientId
-            //        where a.ClientId > 0 // b.ClientId > 0
-            //        select a;
-            //    context.Update<Model.Client>(a => new Model.Client { Qty = 9 }, uQuery);
-            //}
-            //SQL =>
-            //UPDATE t0 SET
-            //t0.[Qty] = t1.[Qty]
-            //FROM [Bas_Client] AS [t0]
-            //INNER JOIN (
-            //    SELECT 
-            //    t0.[ClientId] AS [ClientId],
-            //    SUM(t0.[Qty]) AS [Qty]
-            //    FROM [Bas_ClientAccount] t0 
-            //    WHERE t0.[ClientId] > 0
-            //    GROUP BY t0.[ClientId]
-            //) t1 ON t0.[ClientId] = t1.[ClientId]
-            //WHERE t1.[ClientId] > 0
-
-            var client = context.GetTable<Model.Client>().FirstOrDefault();
-            if (client != null) context.Update(client);
-            // 一次性提交，里面自带事务
-            context.SubmitChanges();
-            // SQL=>
-            //UPDATE t0 SET
-            //t0.[Qty] = t1.[Qty]
-            //FROM [Bas_Client] AS [t0]
-            //INNER JOIN (
-            //SELECT 
-            //t0.[ClientId] AS [ClientId],
-            //SUM(t0.[Qty]) AS [Qty]
-            //FROM [Bas_ClientAccount] t0 
-            //WHERE t0.[ClientId] > 0
-            //GROUP BY t0.[ClientId]
-            //) t1 ON t0.[ClientId] = t1.[ClientId]
-            //WHERE t1.[ClientId] > 0
-            //UPDATE t0 SET
-            //t0.[ClientId] = 1,
-            //t0.[ClientCode] = N'XFramework1',
-            //t0.[ClientName] = N'XFramework1',
-            //t0.[CloudServerId] = 3,
-            //t0.[ActiveDate] = '2019-04-13 22:31:27.323',
-            //t0.[Qty] = 0,
-            //t0.[State] = 1,
-            //t0.[Remark] = N'001.TAN'
-            //FROM [Bas_Client] t0
-            //WHERE t0.[ClientId] = 1
-        }
-
         // 新增记录
-        void Insert()
+        protected virtual void Insert()
         {
             var context = _newContext();
 
             // 带自增列
             var demo = new TDemo
             {
-                DemoCode = "D0000001",
-                DemoName = "N0000001",
+                DemoCode = "C0000101",
+                DemoName = "N0000101",
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
@@ -1488,8 +1211,8 @@ namespace TZM.XFramework.UnitTest
 
             var demo2 = new TDemo
             {
-                DemoCode = "D0000002",
-                DemoName = "N0000002",
+                DemoCode = "C0000102",
+                DemoName = "N0000102",
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
@@ -1509,8 +1232,8 @@ namespace TZM.XFramework.UnitTest
 
             var demo3 = new TDemo
             {
-                DemoCode = "D0000003",
-                DemoName = "N0000003",
+                DemoCode = "C0000103",
+                DemoName = "N0000103",
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
@@ -1526,44 +1249,45 @@ namespace TZM.XFramework.UnitTest
                 DemoInt = 66,
                 DemoLong = 66
             };
+            context.Insert(demo2);
             context.Insert(demo3);
-            context.Insert(demo);
             context.SubmitChanges();
 
 
             // 适用场景：在新增/修改/删除数据的同时查出数据集合
             context.Insert(demo);
-            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 200);
+            context.Update<TDemo>(a => new TDemo
+            {
+                DemoCode = "C0000102"
+            }, a => a.DemoId == demo.DemoId);
+            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
             context.Update<TDemo>(a => new TDemo
             {
-                DemoCode = "D0000012"
-            }, a => a.DemoId == demo2.DemoId);
-            context.Update<TDemo>(a => new TDemo
-            {
-                DemoCode = "D0000112"
+                DemoCode = "C0000'102"
             }, a => a.DemoId == demo2.DemoId);
             context.Insert(demo3);
             List<Model.Client> result = null;
             context.SubmitChanges(out result);
+            Debug.Assert(result.Count <= 100);
 
             context.Insert(demo);
-            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 200);
+            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
             context.Update<TDemo>(a => new TDemo
             {
-                DemoCode = "D0000012"
+                DemoCode = "C0000102"
             }, a => a.DemoId == demo2.DemoId);
             context.Update<TDemo>(a => new TDemo
             {
-                DemoCode = "D0000112"
-            }, a => a.DemoId == demo2.DemoId);
+                DemoCode = "C0000'102"
+            }, a => a.DemoId == demo3.DemoId);
             context.Insert(demo3);
-            var cQuery2 = context.GetTable<TDemo>().Where(x => x.DemoId <= 200);
+            var cQuery2 = context.GetTable<TDemo>().Where(x => x.DemoId <= 20);
             context.AddQuery(cQuery2);
-            var cQuery3 = context.GetTable<TDemo>().Where(x => x.DemoId <= 20);
+            var cQuery3 = context.GetTable<TDemo>().Where(x => x.DemoId > 100);
             context.AddQuery(cQuery3);
             List<Model.Client> result1 = null;
             List<TDemo> result2 = null;
@@ -1575,8 +1299,8 @@ namespace TZM.XFramework.UnitTest
             {
                 var demo4 = new TDemo
                 {
-                    DemoCode = "D0000002",
-                    DemoName = "N0000002",
+                    DemoCode = "C0000205",
+                    DemoName = "N0000205",
                     DemoBoolean = true,
                     DemoChar = 'A',
                     DemoNChar = 'B',
@@ -1595,40 +1319,65 @@ namespace TZM.XFramework.UnitTest
                 demos.Add(demo4);
                 if (index == 10)
                 {
-                    var query22 = context.GetTable<Model.Demo>().Where(x => x.DemoId <= 20);
-                    context.AddQuery(query22);
+                    var query2 = context.GetTable<Model.Demo>().Where(x => x.DemoId < 100);
+                    context.AddQuery(query2);
                 }
                 context.Insert(demo4);
             }
             context.SubmitChanges();
 
             // 指定ID，默认值支持
-            int maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            int nextId = maxId + 1;
+            int maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            context.Delete<Model.Client>(x => x.ClientId > maxClientId);
+            context.Delete<Model.ClientAccount>(x => x.ClientId > maxClientId);
+            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > maxClientId);
+            context.SubmitChanges();
+
             Model.Client client = new Model.Client
             {
-                ClientId = nextId,
+                ClientId = maxClientId + 1,
                 ClientCode = "ABC",
                 ClientName = "啊啵呲",
                 Remark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
-                CloudServerId = 11,
+                CloudServerId = 3,
                 State = 1
             };
             context.Insert<Model.Client>(client);
 
+            var account = new Model.ClientAccount
+            {
+                ClientId = maxClientId + 1,
+                AccountId = "1",
+                AccountCode = "ABC+",
+                AccountName = "ABC+",
+                Qty = 2
+            };
+            context.Insert(account);
+
+            var market = new Model.ClientAccountMarket
+            {
+                ClientId = maxClientId + 1,
+                AccountId = "1",
+                MarketId = 1,
+                MarketCode = "ABC+",
+                MarketName = "ABC+",
+            };
+            context.Insert(market);
+
+
             // Query 关联新增
-            nextId = nextId + 1;
             var query =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + nextId,
+                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + (maxClientId + 2),
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
-                    CloudServerId = 11,
-                    State = 2
+                    CloudServerId = 3,
+                    State = 2,
+                    ActiveDate = DateTime.Now
                 };
             context.Insert(query);
             context.SubmitChanges();
@@ -1645,8 +1394,7 @@ namespace TZM.XFramework.UnitTest
                 };
             sum = sum.AsSubQuery();
 
-            maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            nextId = maxId + 1;
+            maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
             var nQuery =
                 from a in sum
                 join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId into u_b
@@ -1654,10 +1402,10 @@ namespace TZM.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + nextId,
-                    ClientCode = "ABC3",
-                    ClientName = "啊啵呲3",
-                    CloudServerId = 11,
+                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + (maxClientId + 1),
+                    ClientCode = "XFramework100+",
+                    ClientName = "XFramework100+",
+                    CloudServerId = 3,
                     State = 3,
                     Qty = a.Qty,
                 };
@@ -1665,7 +1413,6 @@ namespace TZM.XFramework.UnitTest
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            context.Delete<TDemo>(x => x.DemoId > 10000);
             demos = new List<TDemo>();
             for (int i = 0; i < 1002; i++)
             {
@@ -1714,25 +1461,359 @@ namespace TZM.XFramework.UnitTest
             //VALUES(...),(),()...
 
             // 指定ID，无自增列批量增加
-            maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            nextId = maxId + 1;
+            maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
             List<Model.Client> clients = new List<Model.Client>();
             for (int index = 0; index < 1002; index++)
             {
-                nextId = nextId + 1;
+                maxClientId++;
                 client = new Model.Client
                 {
-                    ClientId = nextId,
-                    ClientCode = "ABC2",
-                    ClientName = "啊啵呲2",
+                    ClientId = maxClientId,
+                    ClientCode = "XFramework1000+",
+                    ClientName = "XFramework1000+",
                     Remark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
-                    CloudServerId = 11,
+                    CloudServerId = 3,
                     State = 1
                 };
                 clients.Add(client);
+
+                for (var j = 1; j <= 2; j++)
+                {
+                    var account2 = new Model.ClientAccount
+                    {
+                        ClientId = maxClientId,
+                        AccountId = j.ToString(),
+                        AccountCode = "XFrameworkAccount1000+",
+                        AccountName = "XFrameworkAccount1000+",
+                        Qty = index + j
+                    };
+                    context.Insert(account2);
+
+                    for (int m = 1; m <= 2; m++)
+                    {
+                        var market2 = new Model.ClientAccountMarket
+                        {
+                            ClientId = maxClientId,
+                            AccountId = j.ToString(),
+                            MarketId = m,
+                            MarketCode = "XFrameworkAccountMarket1000+",
+                            MarketName = "XFrameworkAccountMarket1000+",
+                        };
+                        context.Insert(market2);
+                    }
+                }
             }
             context.Insert<Model.Client>(clients);
             context.SubmitChanges();
+            Debug.Assert(context.GetTable<Model.Client>().Max(x => x.ClientId) == maxClientId);
+        }
+
+        // 更新记录
+        protected virtual void Update()
+        {
+            var context = _newContext();
+            // 整个实体更新
+            var demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId > 0);
+            if (demo != null)
+            {
+                demo.DemoByte = demo.DemoByte >= 100 && demo.DemoByte < 126 ? (byte)(demo.DemoByte + 1) : (byte)(demo.DemoByte - 1);
+                context.Update(demo);
+                context.SubmitChanges();
+
+                int @byte = demo.DemoByte;
+                demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+                Debug.Assert(demo.DemoByte == @byte);
+            }
+
+            // 2.WHERE 条件批量更新
+            context.Update<TDemo>(x => new TDemo
+            {
+                DemoDateTime2 = DateTime.UtcNow,
+                DemoDateTime2_Nullable = null,
+                DemoByte = demo.DemoByte >= 100 && demo.DemoByte < 126 ? (byte)(x.DemoByte + 1) : (byte)(x.DemoByte - 1)
+            }, x => x.DemoName == "N0000001" || x.DemoCode == "C0000001");
+            context.SubmitChanges();
+
+            // 3.Query 关联批量更新
+            var query =
+                from a in context.GetTable<Model.Client>()
+                where a.CloudServer.CloudServerId > 0
+                select a;
+            context.Update<Model.Client>(a => new
+            {
+                Qty = -1,
+                Remark = a.ClientCode + "Re'mark"
+            }, query);
+            context.SubmitChanges();
+            var result = context.GetTable<Model.Client>().Where(x => x.CloudServer.CloudServerId > 0).ToList();
+            // 断言更新成功
+            Debug.Assert(result.All(x => x.Remark == x.ClientCode + "Re'mark"));
+            Debug.Assert(result.All(x => x.Qty == -1));
+            //SQL=> 
+            //UPDATE t0 SET
+            //t0.[DemoCode] = 'Code0000004',
+            //t0.[DemoName] = N'001''.N',
+            //***
+            //t0.[DemoLong] = 8192000000000,
+            //t0.[DemoLong_Nullable] = 8192000000000
+            //FROM [Sys_Demo] t0
+            //WHERE t0.[DemoId] = 4
+            //UPDATE t0 SET
+            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
+            //t0.[DemoDateTime2_Nullable] = NULL
+            //FROM [Sys_Demo] AS [t0]
+            //WHERE t0.[DemoId] = 4
+            //UPDATE t0 SET
+            //t0.[DemoDateTime2] = '2019-04-13 15:19:59.758789',
+            //t0.[DemoDateTime2_Nullable] = NULL
+            //FROM [Sys_Demo] AS [t0]
+            //WHERE (t0.[DemoName] = N'001''.N') OR (t0.[DemoCode] = '001''.N')
+            //UPDATE t0 SET
+            //t0.[Remark] = N'001.TAN'
+            //FROM [Bas_Client] AS [t0]
+            //LEFT JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
+            //WHERE t1.[CloudServerId] <> 0
+
+            // 更新本表值等于从表的字段值
+            query =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
+                where c.AccountId == "1"
+                select a;
+            context.Update<Model.Client, Model.CloudServer>((a, b) => new Model.Client
+            {
+                CloudServerId = b.CloudServerId
+            }, query);
+
+            // 更新本表值等于从表的字段值
+            query =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.ClientAccount>() on a.ClientId equals c.ClientId
+                where c.AccountId == "1"
+                select a;
+            context.Update<Model.Client, Model.CloudServer, Model.ClientAccount>((a, b, c) => new
+            {
+                CloudServerId = b.CloudServerId,
+                Qty = c.Qty > 0 ? c.Qty : 1,
+            }, query);
+            context.SubmitChanges();
+            result = query.ToList();
+            Debug.Assert(result.All(x => x.Qty >= 1));
+
+            //SQL=>
+            //UPDATE t0 SET
+            //t0.[CloudServerId] = t1.[CloudServerId],
+            //t0.[Remark] = N'001.TAN'
+            //FROM [Bas_Client] AS [t0]
+            //INNER JOIN [Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
+            //INNER JOIN [Bas_ClientAccount] t2 ON t0.[ClientId] = t2.[ClientId]
+            //WHERE t2.[AccountId] = N'12'
+
+            // 子查询更新
+            var sum =
+                from a in context.GetTable<Model.ClientAccount>()
+                where a.ClientId > 0
+                group a by new { a.ClientId } into g
+                select new Model.Client
+                {
+                    ClientId = g.Key.ClientId,
+                    Qty = g.Sum(a => a.Qty)
+                };
+            var uQuery =
+               from a in context.GetTable<Model.Client>()
+               join b in sum on a.ClientId equals b.ClientId
+               where a.ClientId > 0 && b.ClientId > 0
+               select a;
+            context.Update<Model.Client, Model.Client>((a, b) => new Model.Client
+            {
+                Qty = b.Qty
+            }, uQuery);
+            //SQL =>
+            //UPDATE t0 SET
+            //t0.[Qty] = t1.[Qty]
+            //FROM [Bas_Client] AS [t0]
+            //INNER JOIN (
+            //    SELECT 
+            //    t0.[ClientId] AS [ClientId],
+            //    SUM(t0.[Qty]) AS [Qty]
+            //    FROM [Bas_ClientAccount] t0 
+            //    WHERE t0.[ClientId] > 0
+            //    GROUP BY t0.[ClientId]
+            //) t1 ON t0.[ClientId] = t1.[ClientId]
+            //WHERE t1.[ClientId] > 0
+
+            var client = context.GetTable<Model.Client>().FirstOrDefault();
+            if (client != null) context.Update(client);
+            // 一次性提交，里面自带事务
+            context.SubmitChanges();
+            // SQL=>
+            //UPDATE t0 SET
+            //t0.[Qty] = t1.[Qty]
+            //FROM [Bas_Client] AS [t0]
+            //INNER JOIN (
+            //SELECT 
+            //t0.[ClientId] AS [ClientId],
+            //SUM(t0.[Qty]) AS [Qty]
+            //FROM [Bas_ClientAccount] t0 
+            //WHERE t0.[ClientId] > 0
+            //GROUP BY t0.[ClientId]
+            //) t1 ON t0.[ClientId] = t1.[ClientId]
+            //WHERE t1.[ClientId] > 0
+            //UPDATE t0 SET
+            //t0.[ClientId] = 1,
+            //t0.[ClientCode] = N'XFramework1',
+            //t0.[ClientName] = N'XFramework1',
+            //t0.[CloudServerId] = 3,
+            //t0.[ActiveDate] = '2019-04-13 22:31:27.323',
+            //t0.[Qty] = 0,
+            //t0.[State] = 1,
+            //t0.[Remark] = N'001.TAN'
+            //FROM [Bas_Client] t0
+            //WHERE t0.[ClientId] = 1
+        }
+
+        // 删除记录
+        protected virtual void Delete()
+        {
+            var context = _newContext();
+
+            // 1. 删除单个记录
+            var demo = new TDemo { DemoId = 101 };
+            context.Delete(demo);
+            context.SubmitChanges();
+            //SQL=> 
+            //DELETE t0 FROM [Sys_Demo] t0 
+            //WHERE t0.[DemoId] = 101
+#if !net40
+            demo = new TDemo { DemoId = 101 };
+            context.Delete(demo);
+            var rowCount = context.SubmitChangesAsync().Result;
+#endif
+
+            // 多主键删除
+            var account = context.GetTable<Model.ClientAccount>().FirstOrDefault(x => x.ClientId > 100);
+            if (account != null)
+            {
+                context.Delete(account);
+                context.SubmitChanges();
+            }
+
+            // 2.WHERE 条件批量删除
+            context.Delete<TDemo>(a => a.DemoId == 101 || a.DemoId == 102 || a.DemoName == "N0000101");
+            context.SubmitChanges();
+
+            var qeury =
+                context
+                .GetTable<TDemo>()
+                .Where(a => a.DemoId > 100);
+            // 2.WHERE 条件批量删除
+            context.Delete<TDemo>(qeury);
+            context.SubmitChanges();
+            Debug.Assert(context.GetTable<TDemo>().Count(a => a.DemoId > 100) == 0);
+
+            // 3.Query 关联批量删除
+            var query1 =
+                context
+                .GetTable<Model.Client>()
+                .SelectMany(a => context.GetTable<Model.ClientAccount>(), (a, b) => a)
+                .Where(a => a.ClientId == 200);
+            context.Delete<Model.Client>(query1);
+            // 删除不完整的数据
+            query1 =
+                 from a in context.GetTable<Model.Client>()
+                 join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId into u_b
+                 from b in u_b.DefaultIfEmpty()
+                 join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId } into u_c
+                 from c in u_c.DefaultIfEmpty()
+                 where a.ClientId > 100 && (b.ClientId == null || c.ClientId == null)
+                 select a;
+            context.Delete<Model.Client>(query1);
+
+            query1 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                join c in context.GetTable<Model.ClientAccountMarket>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
+                where c.ClientId > 100 && c.AccountId == "1" && c.MarketId == 1
+                select a;
+            context.Delete<Model.Client>(query1);
+            context.SubmitChanges();
+            // 断言
+            Debug.Assert(query1.Count() == 0);
+
+            // 3.Query contains
+            var query3 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                where a.ClientId > 90 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
+                select a.ClientId;
+            context.Delete<Model.Client>(a => query3.Contains(a.ClientId));
+            context.SubmitChanges();
+            Debug.Assert(query3.Count() == 0);
+
+            // 4.Query 关联批量删除
+            var query4 =
+                from a in context.GetTable<Model.Client>()
+                where a.ClientId > 80 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
+                select a;
+            context.Delete<Model.Client>(query4);
+            context.SubmitChanges();
+            Debug.Assert(query4.Count() == 0);
+
+            // 5.子查询批量删除
+            // 子查询更新
+            var subquery =
+                from a in context.GetTable<Model.ClientAccount>()
+                where a.ClientId > 70
+                group a by new { a.ClientId } into g
+                select new Model.Client
+                {
+                    ClientId = g.Key.ClientId,
+                    Qty = g.Sum(a => a.Qty)
+                };
+            var query5 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.CloudServer>() on a.CloudServerId equals c.CloudServerId
+                join d in subquery on a.ClientId equals d.ClientId
+                where a.ClientId > 70 && a.CloudServerId > 0
+                select a;
+            context.Delete<Model.Client>(query5);
+            context.SubmitChanges();
+            Debug.Assert(query5.Count() == 0);
+
+            // 一次性保存，uow ~~
+            context.Delete<TDemo>(x => x.DemoId > 100);
+            context.Delete<Model.Client>(x => x.ClientId > 100);
+            context.Delete<Model.ClientAccount>(x => x.ClientId > 100);
+            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > 100);
+
+            // 提交的同时查出数据
+            // 适用场景：批量导入数据
+            // 1.先插入数据到表变量
+            // 2.提交并查出当批数据
+            // 3.或者将存储过程/脚本插在当前上下文一起执行
+
+            context.AddQuery(subquery);
+            // context.AddQuery('Exec #存储过程#');
+            // context.AddQuery('#文本脚本#');
+            List<Model.Client> result0 = null;
+            context.SubmitChanges(out result0);
+            //SQL=> 
+            //DELETE t0 FROM [Sys_Demo] t0 
+            //WHERE ((t0.[DemoId] = 2) OR (t0.[DemoId] = 3)) OR (t0.[DemoName] = N'N0000004')
+            //DELETE t0 FROM [Sys_Demo] t0 
+            //WHERE ((t0.[DemoId] = 2) OR (t0.[DemoId] = 3)) OR (t0.[DemoName] = N'N0000004')
+            //DELETE t0 FROM [Bas_Client] t0 
+            //INNER JOIN [Bas_ClientAccount] t1 ON t0.[ClientId] = t1.[ClientId]
+            //INNER JOIN [Bas_ClientAccountMarket] t2 ON t1.[ClientId] = t2.[ClientId] AND t1.[AccountId] = t2.[AccountId]
+            //WHERE t2.[ClientId] = 5 AND t2.[AccountId] = N'1' AND t2.[MarketId] = 1
+            //DELETE t0 FROM [Bas_Client] t0 
+            //INNER JOIN [Bas_ClientAccount] t1 ON t0.[ClientId] = t1.[ClientId]
+            //LEFT JOIN [Sys_CloudServer] t2 ON t0.[CloudServerId] = t2.[CloudServerId]
+            //LEFT JOIN [Sys_CloudServer] t3 ON t0.[CloudServerId] = t3.[CloudServerId]
+            //WHERE t2.[CloudServerId] = 20 AND t3.[CloudServerId] = 2
         }
 
         protected virtual void API()
@@ -1777,10 +1858,10 @@ namespace TZM.XFramework.UnitTest
             var dataTalbe = context.GetTable<Model.Client>().ToDataTable();
             var dataSet = context.GetTable<Model.Client>().ToDataSet();
 
-            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 200);
+            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId > 100);
             int rowCount = context.Database.ExecuteNonQuery(cQuery);
 
-            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 200);
+            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId > 100);
             object obj = context.Database.ExecuteScalar(cQuery);
 
             context.Update<Model.Client>(x => new Model.Client
@@ -1945,7 +2026,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 性能测试
-        void Rabbit()
+        protected virtual void Rabbit()
         {
             Stopwatch stop = new Stopwatch();
             var context = _newContext();
@@ -1979,7 +2060,6 @@ namespace TZM.XFramework.UnitTest
                     .GetTable<Model.Client>()
                     .Include(a => a.Accounts)
                     .ToList();
-                // Console.WriteLine(string.Format("第 {0} 次，用时：{1}", 1, (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
             }
             stop.Stop();
             Console.WriteLine(string.Format("运行 100 次 2000 行主从数据，用时：{0}", stop.Elapsed));
@@ -1994,17 +2074,14 @@ namespace TZM.XFramework.UnitTest
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .ToList();
-                //Console.WriteLine(string.Format("第 {0} 次，用时：{1}", 1, (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
             }
             stop.Stop();
             Console.WriteLine(string.Format("运行 100 次 2000 行主从孙数据，用时：{0}", stop.Elapsed));
             //Console.ReadLine();
         }
 
-        /// <summary>
-        /// 有参构造函数查询
-        /// </summary>
-        protected virtual void QueryWithParameterizedConstructor()
+        // 有参构造函数查询
+        protected virtual void Parameterized()
         {
 
         }
@@ -2012,6 +2089,11 @@ namespace TZM.XFramework.UnitTest
 
     public interface ITest
     {
+        /// <summary>
+        /// 调式模式，调式模式下产生的SQL会换行
+        /// </summary>
+        bool IsDebug { get; set; }
+
         void Run(DatabaseType dbType);
     }
 }

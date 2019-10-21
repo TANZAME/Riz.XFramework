@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        public abstract ValueGenerator Generator { get; }
+        public abstract DbValue DbValue { get; }
 
         #endregion
 
@@ -78,27 +78,27 @@ namespace TZM.XFramework.Data
         public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token)
         {
             // 设置该查询是否需要参数化
+            if (token == null) token = new ResolveToken();
             if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
-            if (dbQueryable.Parameterized)
-            {
-                if (token == null) token = new ResolveToken();
-                if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
-            }
+            if (dbQueryable.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
+
+            // 调试模式
+            if (token != null && !token.HasSetIsDebug) token.IsDebug = dbQueryable.DbContext.IsDebug;
 
             // 解析查询语义
             IDbQueryableInfo<T> dbQueryInfo = DbQueryParser.Parse(dbQueryable);
 
             DbQueryableInfo_Select<T> sQueryInfo = dbQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, dbQueryable.Parameterized ? token : null);
+            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, token);
 
             DbQueryableInfo_Insert<T> nQueryInfo = dbQueryInfo as DbQueryableInfo_Insert<T>;
-            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, token);
 
             DbQueryableInfo_Update<T> uQueryInfo = dbQueryInfo as DbQueryableInfo_Update<T>;
-            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, token);
 
             DbQueryableInfo_Delete<T> dQueryInfo = dbQueryInfo as DbQueryableInfo_Delete<T>;
-            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, dbQueryable.Parameterized ? token : null);
+            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, token);
 
             throw new NotImplementedException();
         }
@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data
                     // 解析参数
                     object[] args = null;
                     if (rawSql.Parameters != null)
-                        args = rawSql.Parameters.Select(x => this.Generator.GetSqlValue(x, token)).ToArray();
+                        args = rawSql.Parameters.Select(x => this.DbValue.GetSqlValue(x, token)).ToArray();
                     string sql = rawSql.CommandText;
                     if (args != null && args.Length > 0) sql = string.Format(sql, args);
 
@@ -181,13 +181,13 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="parameter">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        public abstract ITextBuilder CreateSqlBuilder(ResolveToken parameter);
+        public abstract ISqlBuilder CreateSqlBuilder(ResolveToken parameter);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public abstract IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor);
+        public abstract IMethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
 
         #endregion
 
@@ -222,14 +222,14 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 LEFT JOIN / INNER JOIN 子句关联表的的别名
-        private void PrepareLfInJoinAlias(DbExpression exp, TableAliasCache aliases)
+        private void PrepareLfInJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
-            Type type = exp.Expressions[0].Type.GetGenericArguments()[0];
+            Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
 
             // on a.Name equals b.Name 或 on new{ Name = a.Name,Id=a.Id } equals new { Name = b.Name,Id=b.Id }
-            LambdaExpression left = exp.Expressions[1] as LambdaExpression;
-            LambdaExpression right = exp.Expressions[2] as LambdaExpression;
+            LambdaExpression left = dbExpression.Expressions[1] as LambdaExpression;
+            LambdaExpression right = dbExpression.Expressions[2] as LambdaExpression;
             if (left.Body.NodeType == ExpressionType.New)
             {
                 NewExpression body1 = left.Body as NewExpression;
@@ -262,17 +262,17 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                aliases.GetTableAlias(exp.Expressions[1]);
-                string alias = aliases.GetTableAlias(exp.Expressions[2]);
+                aliases.GetTableAlias(dbExpression.Expressions[1]);
+                string alias = aliases.GetTableAlias(dbExpression.Expressions[2]);
                 // 记录显示指定的LEFT JOIN 表别名
                 aliases.AddOrUpdateJoinTableAlias(name, alias);
             }
         }
 
         // 获取 CROSS JOIN 子句关联表的的别名
-        private void PrepareCrossJoinAlias(DbExpression exp, TableAliasCache aliases)
+        private void PrepareCrossJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
-            LambdaExpression lambdaExp = exp.Expressions[1] as LambdaExpression;
+            LambdaExpression lambdaExp = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambdaExp.Parameters.Count; ++index)
             {
                 aliases.GetTableAlias(lambdaExp.Parameters[index]);
@@ -289,14 +289,14 @@ namespace TZM.XFramework.Data
             {
                 var dbQueryables = bulkList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
                 int i = 0;
-                int t = dbQueryables.Count();
+                int count = dbQueryables.Count();
                 var builder = new System.Text.StringBuilder(128);
 
                 foreach (IDbQueryable query in dbQueryables)
                 {
                     i += 1;
                     query.Parameterized = false;
-                    query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == t };
+                    query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == count };
 
                     Command cmd = query.Resolve();
                     builder.Append(cmd.CommandText);

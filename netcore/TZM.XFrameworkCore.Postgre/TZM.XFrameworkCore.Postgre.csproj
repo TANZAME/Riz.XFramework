@@ -6,13 +6,13 @@
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.0.6</Version>
+    <Version>2.0.0</Version>
     <RepositoryUrl />
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
-    <FileVersion>1.0.6.0</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -45,9 +45,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\DbTypeUtils.cs" Link="SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbContext.cs" Link="SqlClient\NpgDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs" Link="SqlClient\NpgDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgDbValue.cs" Link="SqlClient\NpgDbValue.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs" Link="SqlClient\NpgMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs" Link="SqlClient\NpgSqlBuilder.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgValueGenerator.cs" Link="SqlClient\NpgValueGenerator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgNavigationCommand.cs" Link="TypeDeserialize\NpgNavigationCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs" Link="TypeDeserialize\NpgTypeDeserializerImpl.cs" />
   </ItemGroup>

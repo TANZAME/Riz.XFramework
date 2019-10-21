@@ -10,13 +10,17 @@ namespace TZM.XFramework.UnitTest.SqlServer
 {
     public class SqlServerTest : TestBase<SqlServerModel.SqlServerDemo>
     {
-        const string connString = "Server=.;Database=Inte_XFramework;uid=sa;pwd=123456;pooling=true;max pool size=1;min pool size=1;connect timeout=10;";
+        const string connString = "Server=.;Database=TZM_XFramework;uid=sa;pwd=123456;pooling=true;max pool size=1;min pool size=1;connect timeout=10;";
 
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            return new SqlDbContext(connString);
+            var context = new SqlServerDbContext(connString) 
+            {
+                IsDebug = base.IsDebug
+            };
+            return context;
         }
 
         public override void Run(DatabaseType dbType)
@@ -47,7 +51,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             base.Run(dbType);
         }
 
-        protected override void QueryWithParameterizedConstructor()
+        protected override void Parameterized()
         {
             var context = _newContext();
             // 构造函数
@@ -114,7 +118,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -149,8 +153,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                //DemoXml_Nullable = newXml
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
             };
             context.Insert(demo);
             context.SubmitChanges();
@@ -184,7 +187,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             table.AcceptChanges();
 
             DateTime sDate2 = DateTime.Now;
-            ((SqlDbContext)context).BulkCopy(table);
+            ((SqlServerDbContext)context).BulkCopy(table);
             var ms = (DateTime.Now - sDate2).TotalMilliseconds;
             // 10w   300ms
             // 100w  4600ms

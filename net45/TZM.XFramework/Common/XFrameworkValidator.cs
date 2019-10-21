@@ -27,9 +27,8 @@ namespace TZM.XFramework
         {
             IDictionary<ValidationContext, object> result = new Dictionary<ValidationContext, object>();
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(instance.GetType());
-            foreach (var kv in typeRuntime.Invokers)
+            foreach (var invoker in typeRuntime.Invokers)
             {
-                MemberInvokerBase invoker = kv.Value;
                 if (invoker.MemberType == System.Reflection.MemberTypes.Property)
                 {
                     ValidationContext context2 = XFrameworkValidator.CreateValidationContext(instance, context);
@@ -185,9 +184,6 @@ namespace TZM.XFramework
         /// <returns></returns>
         public static bool TryValidateProperty(object value, ValidationContext context, ICollection<ValidationResult> validationResults, bool breakOnFirstError)
         {
-            Type propertyType = XFrameworkValidator._store.GetPropertyType(context);
-            string memberName = context.MemberName;
-            //XFrameworkValidator.EnsureValidPropertyType(memberName, propertyType, value);
             bool result = true;
             IEnumerable<ValidationAttribute> propertyValidationAttributes = XFrameworkValidator._store.GetPropertyValidationAttributes(context);
 

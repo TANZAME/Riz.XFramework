@@ -53,8 +53,7 @@ namespace TZM.XFramework.Data
             _primitiveTypes.Add(typeof(DateTimeOffset));
             _primitiveTypes.Add(typeof(Nullable<DateTimeOffset>));
             _primitiveTypes.Add(typeof(byte[]));
-            _primitiveTypes.Add(typeof(object));
-
+            // object 类型不能加进来，不然会与dynamic类型产生冲突
 
             _numericTypes.Add(typeof(byte));
             _numericTypes.Add(typeof(Nullable<byte>));
@@ -115,79 +114,6 @@ namespace TZM.XFramework.Data
             else if (type == typeof(List<>)) return true;
             else if (type == typeof(IList<>)) return true;
             else return typeof(IList<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(IList<>).FullName) != null;
-        }
-
-        /// <summary>
-        /// CRL类型 转 DbType
-        /// </summary>
-        public static DbType ConvertCLRTypeToDbType(Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Empty:
-                    throw new ArgumentException(TypeCode.Empty.ToString());
-
-                case TypeCode.Object:
-                    if (type == typeof(Byte[]))
-                    {
-                        return DbType.Binary;
-                    }
-                    if (type == typeof(Char[]))
-                    {
-                        // Always treat char and char[] as string
-                        return DbType.String;
-                    }
-                    else if (type == typeof(Guid))
-                    {
-                        return DbType.Guid;
-                    }
-                    else if (type == typeof(TimeSpan))
-                    {
-                        return DbType.Time;
-                    }
-                    else if (type == typeof(DateTimeOffset))
-                    {
-                        return DbType.DateTimeOffset;
-                    }
-
-                    return DbType.Object;
-
-                case TypeCode.DBNull:
-                    return DbType.Object;
-                case TypeCode.Boolean:
-                    return DbType.Boolean;
-                case TypeCode.SByte:
-                    return DbType.SByte;
-                case TypeCode.Byte:
-                    return DbType.Byte;
-                case TypeCode.Char:
-                    // Always treat char and char[] as string
-                    return DbType.String;
-                case TypeCode.Int16:
-                    return DbType.Int16;
-                case TypeCode.UInt16:
-                    return DbType.UInt16;
-                case TypeCode.Int32:
-                    return DbType.Int32;
-                case TypeCode.UInt32:
-                    return DbType.UInt32;
-                case TypeCode.Int64:
-                    return DbType.Int64;
-                case TypeCode.UInt64:
-                    return DbType.UInt64;
-                case TypeCode.Single:
-                    return DbType.Single;
-                case TypeCode.Double:
-                    return DbType.Double;
-                case TypeCode.Decimal:
-                    return DbType.Decimal;
-                case TypeCode.DateTime:
-                    return DbType.DateTime;
-                case TypeCode.String:
-                    return DbType.String;
-                default:
-                    throw new XFrameworkException("Unkown type ", type.FullName);
-            }
         }
 
         /// <summary>

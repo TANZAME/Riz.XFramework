@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace TZM.XFramework.Data
+namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据类型公用方法
@@ -24,6 +24,11 @@ namespace TZM.XFramework.Data
                     parameter.SqlDbType = (SqlDbType)dbType;
                 else
                     DbTypeUtils.ThrowException(dbType);
+            }
+            else if (parameter.Value != null && parameter.Value is DateTime && dbType == null)
+            {
+                // 如果 DateTime 没有指定 DbType，则需要转为 DateTime2才能保持原有的精度
+                parameter.DbType = System.Data.DbType.DateTime2;
             }
         }
 

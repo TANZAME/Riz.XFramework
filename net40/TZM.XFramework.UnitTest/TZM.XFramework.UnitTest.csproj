@@ -27,7 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1701;1702;0472</NoWarn>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -76,8 +76,8 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DbType.cs">
-      <Link>DbType.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DatabaseType.cs">
+      <Link>DatabaseType.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Model.cs">
       <Link>Model.cs</Link>
@@ -105,6 +105,12 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteModel.cs">
+      <Link>SQLite\SQLiteModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteTest.cs">
+      <Link>SQLite\SQLiteTest.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerModel.cs">
       <Link>SqlServer\SqlServerModel.cs</Link>
@@ -135,12 +141,15 @@
       <Project>{b21281be-bd14-46ab-921c-e46564507f20}</Project>
       <Name>TZM.XFramework.Postgre</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TZM.XFramework.SQLite\TZM.XFramework.SQLite.csproj">
+      <Project>{37d944e7-b96f-434d-b535-e612ab72df4c}</Project>
+      <Name>TZM.XFramework.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TZM.XFramework\TZM.XFramework.csproj">
       <Project>{2e5450df-ed7f-4926-88ee-36f4923ae1f8}</Project>
       <Name>TZM.XFramework</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

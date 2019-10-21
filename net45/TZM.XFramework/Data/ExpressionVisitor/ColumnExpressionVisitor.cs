@@ -18,8 +18,7 @@ namespace TZM.XFramework.Data
         private DbExpression _groupBy = null;
         private List<DbExpression> _include = null;
 
-        private IDictionary<string, Column> _columns = null;
-        private IDictionary<string, string> _visitedNavigations = null;
+        private ColumnCollection _columns = null;
         private NavigationCollection _navigations = null;
         private List<string> _navChainHopper = null;
 
@@ -27,7 +26,7 @@ namespace TZM.XFramework.Data
         /// SELECT 字段
         /// Column 对应实体的原始属性
         /// </summary>
-        public IDictionary<string, Column> Columns
+        public ColumnCollection Columns
         {
             get { return _columns; }
         }
@@ -67,21 +66,20 @@ namespace TZM.XFramework.Data
             _groupBy = qQuery.GroupByExpression;
             _include = qQuery.Includes;
 
-            if (_columns == null) _columns = new Dictionary<string, Column>();
+            if (_columns == null) _columns = new ColumnCollection();
             _navigations = new NavigationCollection();
             _navChainHopper = new List<string>(10);
-            _visitedNavigations = new Dictionary<string, string>(8);
         }
 
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ITextBuilder builder)
+        public override void Write(ISqlBuilder builder)
         {
             if (base.Expression != null)
             {
                 base._builder = builder;
-                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
+                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
                 _builder.AppendNewLine();
 
                 // SELECT 表达式解析
@@ -119,7 +117,7 @@ namespace TZM.XFramework.Data
                 base.Visit(lambda.Body.Evaluate());
 
                 // 选择字段
-                string newName = AddColumn(_columns, "__Constant__", null);
+                string newName = _columns.Add("__Constant__", null);
                 // 添加字段别名
                 _builder.AppendAs(newName);
                 return node;
@@ -134,7 +132,7 @@ namespace TZM.XFramework.Data
                 {
                     var newNode = base.VisitLambda(node);
                     string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
-                    string newName = AddColumn(_columns, (lambda.Body as MemberExpression).Member.Name, alias);
+                    string newName = _columns.Add((lambda.Body as MemberExpression).Member.Name, alias);
                     return newNode;
                 }
             }
@@ -180,7 +178,7 @@ namespace TZM.XFramework.Data
 
                     // 选择字段
                     string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
-                    string newName = AddColumn(_columns, binding.Member.Name, alias);
+                    string newName = _columns.Add(binding.Member.Name, alias);
                     // 添加字段别名
                     _builder.AppendAs(newName);
                     _builder.Append(',');
@@ -313,7 +311,7 @@ namespace TZM.XFramework.Data
                 {
                     //例： DateTime.Now
                     _builder.Append(argument.Evaluate().Value, node.Members[i], node.Type);
-                    string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, null);
+                    string newName = _columns.Add(node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, null);
                     _builder.AppendAs(newName);
                     _builder.Append(',');
                     _builder.AppendNewLine();
@@ -325,7 +323,7 @@ namespace TZM.XFramework.Data
                         // new Client(a.ClientId)
                         this.Visit(argument);
                         string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
-                        string newName = AddColumn(_columns, node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, alias);
+                        string newName = _columns.Add(node.Members != null ? node.Members[i].Name : (argument as MemberExpression).Member.Name, alias);
                         _builder.AppendAs(newName);
                         _builder.Append(',');
                         _builder.AppendNewLine();
@@ -388,11 +386,10 @@ namespace TZM.XFramework.Data
             else
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                Dictionary<string, MemberInvokerBase> invokers = typeRuntime.Invokers;
+                MemberInvokerCollection invokers = typeRuntime.Invokers;
 
-                foreach (var m in invokers)
+                foreach (var invoker in invokers)
                 {
-                    var invoker = m.Value;
                     if (invoker != null && invoker.Column != null && invoker.Column.NoMapped) continue;
                     if (invoker != null && invoker.ForeignKey != null) continue; // 不加载导航属性
                     if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
@@ -400,7 +397,7 @@ namespace TZM.XFramework.Data
                     _builder.AppendMember(alias, invoker.Member.Name);
 
                     // 选择字段
-                    string newName = AddColumn(_columns, invoker.Member.Name, alias);
+                    string newName = _columns.Add(invoker.Member.Name, alias);
                     _builder.AppendAs(newName);
                     _builder.Append(",");
                     _builder.AppendNewLine();
@@ -507,33 +504,11 @@ namespace TZM.XFramework.Data
             _builder.Append(" END");
 
             // 选择字段
-            string newName = AddColumn(_columns, Constant.NAVIGATIONSPLITONNAME, null);
+            string newName = _columns.Add(Constant.NAVIGATIONSPLITONNAME, null);
             //_builder.Append(caseWhen);
             _builder.AppendAs(newName);
             _builder.Append(',');
             _builder.AppendNewLine();
-        }
-
-        // 选择字段
-        private static string AddColumn(IDictionary<string, Column> columns, string name, string alias)
-        {
-            // ATTENTION：此方法不能在 VisitMember 方法里调用
-            // 因为 VisitMember 方法不一定是最后SELECT的字段
-            // 返回最终确定的唯一的列名
-
-            string newName = name;
-            int dup = 0;
-            while (columns.ContainsKey(newName))
-            {
-                var column = columns[newName];
-                column.DupCount += 1;
-
-                newName = newName + column.DupCount.ToString();
-                dup = column.DupCount;
-            }
-
-            columns.Add(newName, new Column { Name = name, DupCount = dup, TableAlias = alias });
-            return newName;
         }
 
         // 计算数据库字段数量

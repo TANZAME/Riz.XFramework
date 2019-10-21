@@ -286,7 +286,7 @@ namespace TZM.XFramework.Data
 
                 string methodName = string.Empty;
                 if (sql.Length > 6) methodName = sql.Substring(0, 6).Trim().ToUpper();
-                if (cmd is NavigationCommand || methodName == "SELECT")
+                if (cmd is MappingCommand || methodName == "SELECT")
                 {
                     // 查询单独执行
                     if (myList.Count > 0 && (i - 1) >= 0 && myList[myList.Count - 1] != null) myList.Add(null);

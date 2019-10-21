@@ -58,6 +58,17 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 成员名称
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return _member.Name;
+            }
+        }
+
+        /// <summary>
         /// 成员长名称
         /// </summary>
         public string FullName

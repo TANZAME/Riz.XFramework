@@ -6,9 +6,9 @@
     <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
-    <FileVersion>1.0.5.0</FileVersion>
-    <Version>1.0.6</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
@@ -30,11 +30,11 @@
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs" Link="Data\SqlClient\MySqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbValue.cs" Link="Data\SqlClient\MySqlDbValue.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlValueGenerator.cs" Link="Data\SqlClient\MySqlValueGenerator.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlSqlBuilder.cs" Link="Data\SqlClient\MySqlSqlBuilder.cs" />
   </ItemGroup>
 
   <ItemGroup>

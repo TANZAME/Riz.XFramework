@@ -43,7 +43,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL字段值生成器
         /// </summary>
-        ValueGenerator Generator { get; }
+        DbValue DbValue { get; }
 
         /// <summary>
         /// 解析 SQL 命令
@@ -73,12 +73,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
         /// <returns></returns>
-        ITextBuilder CreateSqlBuilder(ResolveToken token);
+        ISqlBuilder CreateSqlBuilder(ResolveToken token);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        IMethodCallExressionVisitor CreateMethodCallVisitor(ExpressionVisitorBase visitor);
+        IMethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
     }
 }

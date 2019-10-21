@@ -21,6 +21,11 @@ namespace TZM.XFramework.Data
         IDatabase Database { get; }
 
         /// <summary>
+        /// 调试模式，模式模式下生成的SQL会有换行
+        /// </summary>
+        bool IsDebug { get; set; }
+
+        /// <summary>
         /// 新增记录
         /// </summary>
         void Insert<T>(T TEntity);

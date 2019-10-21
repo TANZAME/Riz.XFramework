@@ -14,26 +14,12 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            var g1 = new { Name = 22 };
-            Type t1 = typeof(Guid);
-            Type t2 = typeof(Guid?);
-            var c1 = Type.GetTypeCode(t1);
-            var c2 = Type.GetTypeCode(t2);
-
-            int m = 1;
-            bool testAll = false;
-            string fileName = string.Empty;
-            string line = args.Length > 0 ? args[0] : string.Empty;
-
-            if (!string.IsNullOrEmpty(line))
-            {
-                args = line.Split(';');
-                if (args.Length > 0) m = Convert.ToInt32(args[0]);
-                if (args.Length > 1) testAll = args[1] == "1" ? true : false;
-            }
-
+            bool isDebug = true;
             ITest test = null;
+            string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;
+            string s = args != null && args.Length > 0 ? args[0] : null;
+            if (!string.IsNullOrEmpty(s)) databaseType = (DatabaseType)Convert.ToByte(s);
 
             // 命令拦截
             var interceptor = new DbCommandInterceptor
@@ -50,7 +36,7 @@ namespace TZM.XFramework.UnitTest
                             writer.Write("-- ");
                             writer.Write(p.ParameterName);
                             writer.Write(" = ");
-                            writer.Write((p.Value ?? string.Empty));
+                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[] ? XfwCommon.BytesToHex((byte[])p.Value, true, true) : p.Value));
                             writer.Write(", DbType = {0}, ", p.DbType);
                             if (p.Size != default(int)) writer.Write("Size = {0}, ", p.Size);
                             if (p.Precision != default(byte)) writer.Write("Precision = {0}, ", p.Precision);
@@ -67,68 +53,33 @@ namespace TZM.XFramework.UnitTest
             };
             DbInterception.Add(interceptor);
 
-            for (int i = 1; i <= 4; i++)
+            foreach (DatabaseType item in Enum.GetValues(typeof(DatabaseType)))
             {
-                if (testAll) m = i;
+                if (item == DatabaseType.None) continue;
 
-                if (m == 1)
-                {
-                    test = new SqlServer.SqlServerTest();
-                    databaseType = DatabaseType.SqlServer;
-                }
-                else if (m == 2)
-                {
-                    test = new MySql.MySqlTest();
-                    databaseType = DatabaseType.MySql;
-                }
-                else if (m == 3)
-                {
-                    test = new Oracle.OracleTest();
-                    databaseType = DatabaseType.Oracle;
-                }
-                else if (m == 4)
-                {
-                    test = new Postgre.PostgreTest();
-                    databaseType = DatabaseType.Postgre;
-                }
-                //else if (m == 5)
-                //{
-                //    test = new SQLite.SQLiteTest();
-                //    databaseType = DatabaseType.SQLite;
-                //}
+                DatabaseType myDatabaseType = item;
+                if (!string.IsNullOrEmpty(s)) myDatabaseType = databaseType;
+
+                var obj = Activator.CreateInstance(null, string.Format("TZM.XFramework.UnitTest.{0}.{0}Test", myDatabaseType));
+                test = (ITest)(obj.Unwrap());
+                test.IsDebug = isDebug;
 
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                fileName = baseDirectory + @"\Log_" + databaseType + ".sql";
+                fileName = baseDirectory + @"\Log_" + myDatabaseType + ".sql";
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
                 if (test != null)
                 {
-                    Console.WriteLine(databaseType + " BEGIN");
-                    test.Run(databaseType);
-                    Console.WriteLine(databaseType + " END");
+                    Console.WriteLine(myDatabaseType + " BEGIN");
+                    test.Run(myDatabaseType);
+                    Console.WriteLine(myDatabaseType + " END");
                 }
 
-                if (!testAll) break;
+                if (!string.IsNullOrEmpty(s)) break;
             }
 
             Console.WriteLine("回车退出~");
             Console.ReadLine();
-        }
-
-        public class A
-        {
-            public void Write()
-            {
-                Console.WriteLine("A");
-            }
-        }
-
-        public class B : A 
-        {
-            public new void Write()
-            {
-                Console.WriteLine("B");
-            }
         }
     }
 }

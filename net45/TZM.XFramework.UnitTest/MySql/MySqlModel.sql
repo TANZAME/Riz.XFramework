@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS Sys_Demo(
 	DemoTime_Nullable time(5) NULL,
 	DemoDatetimeOffset_Nullable datetime NULL,
 	DemoBinary_Nullable blob NULL,			# 64K?
-	DemVarBinary_Nullable longblob NULL,	# 4G?
+	DemoVarBinary_Nullable longblob NULL,	# 4G?
 	DemoTimestamp_Nullable  timestamp(6) NULL
 );
 

@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public class NpgMethodCallExressionVisitor : MethodCallExressionVisitor
     {
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
@@ -199,7 +199,7 @@ namespace TZM.XFramework.Data.SqlClient
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _provider.Generator.GetSqlValue(index, _builder.Token);
+                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -220,6 +220,22 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             return m;
+        }
+
+        /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected override Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" || ");
+                _visitor.Visit(b.Right);
+                _visitedMark.Clear();
+            }
+
+            return b;
         }
 
         /// <summary>

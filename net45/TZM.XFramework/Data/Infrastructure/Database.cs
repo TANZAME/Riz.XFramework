@@ -70,8 +70,8 @@ namespace TZM.XFramework.Data
             set
             {
                 // 使用外部事务
-                if (value == null) throw new ArgumentNullException("value");
-                if (_transaction != null && _transaction != value) throw new XFrameworkException("There are currently uncommitted transactions");
+                if (value == null) throw new ArgumentNullException("Transaction");
+                if (_transaction != null && _transaction != value) throw new XFrameworkException("There have currently uncommitted transactions");
                 if (_transaction != value)
                 {
                     _transaction = value;
@@ -337,7 +337,7 @@ namespace TZM.XFramework.Data
         {
             Command command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as NavigationCommand);
+            return this.Execute<T>(cmd, command as MappingCommand);
         }
 
         /// <summary>
@@ -499,7 +499,7 @@ namespace TZM.XFramework.Data
 
                             break;
 
-                            #endregion
+                        #endregion
                     }
                 }
                 while (reader.NextResult());
@@ -694,8 +694,16 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Dispose()
         {
+            this.Dispose(true);
+        }
+
+        /// <summary>
+        /// 强制释放所有资源
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
             if (_transaction != null) _transaction.Dispose();
-            if (_connection != null)
+            if (_connection != null && disposing)
             {
                 _connection.Close();
                 _connection.Dispose();
@@ -926,6 +934,7 @@ namespace TZM.XFramework.Data
                 {
                     reader.Close();
                 }
+                adapter.Dispose();
             }
         }
 

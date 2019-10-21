@@ -12,8 +12,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="WhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        public WhereExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression exp)
-            : base(provider, aliases, exp != null && exp.Expressions != null ? exp.Expressions[0] : null)
+        public WhereExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression dbExpression)
+            : base(provider, aliases, dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null)
         {
             _expression = base.Expression;
         }
@@ -21,7 +21,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ITextBuilder builder)
+        public override void Write(ISqlBuilder builder)
         {
             if (base.Expression != null)
             {
@@ -64,7 +64,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL字符
         /// </summary>
-        protected virtual void WriteImpl(ITextBuilder builder)
+        protected virtual void WriteImpl(ISqlBuilder builder)
         {
             base.Write(builder);
         }

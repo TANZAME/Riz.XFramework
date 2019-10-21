@@ -27,9 +27,9 @@ namespace TZM.XFramework.Data
 
         private int _dataFieldCount = 0;
         private TableAttribute _attribute = null;
-        private Dictionary<string, MemberInvokerBase> _invokers = null;
-        private IDictionary<string, MemberInvokerBase> _navInvokers = null;
-        private Dictionary<string, MemberInvokerBase> _keyInvokers = null;
+        private MemberInvokerCollection _invokers = null;
+        private MemberInvokerCollection _navInvokers = null;
+        private MemberInvokerCollection _keyInvokers = null;
 
         /// <summary>
         /// 类型对应的数据表
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 数据字段（即对应数据库字段的属性）的个数
+        /// 数据字段（即对应数据库字段的属性）数量
         /// </summary>
         public int DataFieldCount
         {
@@ -80,11 +80,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员反射器集合
         /// </summary>
-        public Dictionary<string, MemberInvokerBase> Invokers
+        public MemberInvokerCollection Invokers
         {
             get
             {
-                if (_invokers == null) _invokers = this.InitializeInvoker(_type);
+                if (_invokers == null) _invokers = this.InitializeInvokers(_type);
                 return _invokers;
             }
         }
@@ -92,17 +92,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性成员
         /// </summary>
-        public IDictionary<string, MemberInvokerBase> NavInvokers
+        public MemberInvokerCollection NavInvokers
         {
             get
             {
                 if (_navInvokers == null)
                 {
-                    Dictionary<string, MemberInvokerBase> navInvokers = new Dictionary<string, MemberInvokerBase>();
-                    foreach (var kvp in this.Invokers)
+                    var navInvokers = new MemberInvokerCollection();
+                    foreach (var invoker in this.Invokers)
                     {
-                        MemberInvokerBase invoker = kvp.Value;
-                        if (invoker.ForeignKey != null) navInvokers.Add(kvp.Key, invoker);
+                        if (invoker.ForeignKey != null) navInvokers.Add(invoker);
                     }
 
                     _navInvokers = navInvokers;
@@ -115,17 +114,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 主键属性成员
         /// </summary>
-        public IDictionary<string, MemberInvokerBase> KeyInvokers
+        public MemberInvokerCollection KeyInvokers
         {
             get
             {
                 if (_keyInvokers == null)
                 {
-                    Dictionary<string, MemberInvokerBase> keyInvokers = new Dictionary<string, MemberInvokerBase>();
-                    foreach (var kvp in this.Invokers)
+                    var keyInvokers = new MemberInvokerCollection();
+                    foreach (var invoker in this.Invokers)
                     {
-                        MemberInvokerBase invoker = kvp.Value;
-                        if (invoker.Column != null && invoker.Column.IsKey) keyInvokers.Add(kvp.Key, invoker);
+                        if (invoker.Column != null && invoker.Column.IsKey) keyInvokers.Add(invoker);
                     }
                     _keyInvokers = keyInvokers;
                 }
@@ -312,7 +310,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected virtual Dictionary<string, MemberInvokerBase> InitializeInvoker(Type type)
+        protected virtual MemberInvokerCollection InitializeInvokers(Type type)
         {
             // fix issue#多线程下导致 FieldCount 不正确
             // 单个实例只初始化一次
@@ -326,13 +324,13 @@ namespace TZM.XFramework.Data
                 {
                     if (!_isInitialize)
                     {
-                        Dictionary<string, MemberInvokerBase> invokers = new Dictionary<string, MemberInvokerBase>();
+                        var invokers = new MemberInvokerCollection();
                         var collection = this.GetMembers(type, _private).Select(x => MemberInvokerBase.Create(x));
 
                         foreach (MemberInvokerBase invoker in collection)
                         {
                             if (invoker.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>() != null) continue;
-                            if (!invokers.ContainsKey(invoker.Member.Name)) invokers.Add(invoker.Member.Name, invoker);
+                            if (!invokers.Contains(invoker.Name)) invokers.Add(invoker);
                             if (!(invoker.Column != null && invoker.Column.NoMapped || invoker.ForeignKey != null || invoker.Member.MemberType == MemberTypes.Method)) _dataFieldCount += 1;
                         }
 

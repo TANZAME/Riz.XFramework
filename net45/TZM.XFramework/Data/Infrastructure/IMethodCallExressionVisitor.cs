@@ -16,6 +16,13 @@ namespace TZM.XFramework.Data
         Expression VisitMethodCall(MethodCallExpression node);
 
         /// <summary>
+        /// 访问表示方法调用的节点
+        /// </summary>
+        /// <param name="node">方法调用节点</param>
+        /// <returns></returns>
+        Expression VisitMethodCall(BinaryExpression node);
+
+        /// <summary>
         /// 访问表示 null 判断运算的节点 a.Name == null
         /// </summary>
         /// <param name="b">二元表达式节点</param>

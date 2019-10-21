@@ -49,10 +49,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public override void Write(ITextBuilder builder)
+        public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
-            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
+            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
             if (_statis != null)
             {

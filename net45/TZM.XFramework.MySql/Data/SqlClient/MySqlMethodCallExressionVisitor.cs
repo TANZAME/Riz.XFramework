@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -15,7 +16,7 @@ namespace TZM.XFramework.Data.SqlClient
         //SELECT n'some text';
         //SELECT _utf8'some text';
 
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
@@ -23,7 +24,7 @@ namespace TZM.XFramework.Data.SqlClient
         #region 构造函数
 
         /// <summary>
-        /// 实例化 <see cref="SqlMethodCallExressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
         public MySqlMethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
             : base(provider, visitor)
@@ -204,7 +205,7 @@ namespace TZM.XFramework.Data.SqlClient
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _provider.Generator.GetSqlValue(index, _builder.Token);
+                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -228,6 +229,24 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected override Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("CONCAT(");
+                _visitor.Visit(b.Left);
+                _builder.Append(',');
+                _visitor.Visit(b.Right);
+                _builder.Append(')');
+                _visitedMark.Clear();
+            }
+
+            return b;
+        }
+
+        /// <summary>
         /// 访问 Length 属性
         /// </summary>
         protected override Expression VisitLength(MemberExpression m)
@@ -245,6 +264,54 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitNewGuid(MethodCallExpression m)
         {
             _builder.Append("UUID()");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IDbQueryable.Contains 方法
+        /// </summary>
+        protected override Expression VisitQueryableContains(MethodCallExpression m)
+        {
+            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+            ResolveToken token = _builder.Token;
+            bool isDelete = token != null && token.Extendsions != null && token.Extendsions.ContainsKey("MySqlDelete");
+
+            var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
+            {
+                Parameters = token.Parameters,
+                TableAliasName = "s",
+                IsDebug = token.IsDebug
+            } : null);
+            Column column = ((MappingCommand)cmd).Columns.First();
+            _builder.Append("EXISTS(");
+
+            if (isDelete)
+            {
+                _builder.Append("SELECT 1 FROM(");
+                _builder.Append(cmd.CommandText);
+                _builder.Append(") ");
+                _builder.Append(column.TableAlias);
+                _builder.Append(" WHERE ");
+
+                _builder.AppendMember(column.TableAlias, column.Name);
+                _builder.Append(" = ");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
+            else
+            {
+                _builder.Append(cmd.CommandText);
+                if (((MappingCommand)cmd).WhereFragment.Length > 0)
+                    _builder.Append(" AND ");
+                else
+                    _builder.Append("WHERE ");
+
+                _builder.AppendMember(column.TableAlias, column.Name);
+                _builder.Append(" = ");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
+
             return m;
         }
 

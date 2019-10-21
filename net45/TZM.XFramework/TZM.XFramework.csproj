@@ -85,14 +85,16 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
+    <Compile Include="Data\Emit\MemberInvokerCollection.cs" />
     <Compile Include="Data\Genaration\RawSql.cs" />
     <Compile Include="Data\Genaration\ResolveToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
-    <Compile Include="Data\Genaration\ValueGenerator.cs" />
+    <Compile Include="Data\Genaration\DbValue.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
+    <Compile Include="Data\Infrastructure\Enumerator.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
-    <Compile Include="Data\Genaration\TextBuilder.cs" />
+    <Compile Include="Data\Genaration\SqlBuilder.cs" />
     <Compile Include="Data\DbContextBase.cs" />
     <Compile Include="Data\Infrastructure\Constant.cs" />
     <Compile Include="Data\Infrastructure\IDbContext45.cs" />
@@ -103,7 +105,7 @@
     <Compile Include="Data\Genaration\IDbQueryProvider.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\Genaration\ITextBuilder.cs" />
+    <Compile Include="Data\Genaration\ISqlBuilder.cs" />
     <Compile Include="Data\Infrastructure\DbCommandException.cs" />
     <Compile Include="Data\Infrastructure\DbCommandInterceptor.cs" />
     <Compile Include="Data\DbExpression.cs" />
@@ -144,22 +146,23 @@
     <Compile Include="Data\Annotation\TableAttribute.cs" />
     <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
-    <Compile Include="Data\SqlClient\SqlBuilder.cs" />
-    <Compile Include="Data\SqlClient\SqlDbContext.cs" />
-    <Compile Include="Data\SqlClient\SqlValueGenerator.cs" />
+    <Compile Include="Data\SqlClient\SqlServerSqlBuilder.cs" />
+    <Compile Include="Data\SqlClient\SqlServerDbContext.cs" />
+    <Compile Include="Data\SqlClient\SqlServerDbValue.cs" />
     <Compile Include="Data\TypeDeserialize\Column.cs" />
+    <Compile Include="Data\TypeDeserialize\ColumnCollection.cs" />
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="Data\TypeDeserialize\NavigationCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\MappingCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
-    <Compile Include="Data\SqlClient\SqlDbQueryProvider.cs" />
-    <Compile Include="Data\SqlClient\SqlMethodCallExressionVisitor.cs" />
+    <Compile Include="Data\SqlClient\SqlServerDbQueryProvider.cs" />
+    <Compile Include="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
     <Compile Include="Data\Genaration\TableAliasCache.cs" />
     <Compile Include="Data\Infrastructure\Database45.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

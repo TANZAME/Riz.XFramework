@@ -53,20 +53,20 @@
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\DbTypeUtils.cs">
       <Link>Data\SqlClient\DbTypeUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlBuilder.cs">
-      <Link>Data\SqlClient\MySqlBuilder.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs">
       <Link>Data\SqlClient\MySqlDbContext.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs">
       <Link>Data\SqlClient\MySqlDbQueryProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlDbValue.cs">
+      <Link>Data\SqlClient\MySqlDbValue.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\MySqlMethodCallExressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlValueGenerator.cs">
-      <Link>Data\SqlClient\MySqlValueGenerator.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.MySql\Data\SqlClient\MySqlSqlBuilder.cs">
+      <Link>Data\SqlClient\MySqlSqlBuilder.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.MySql\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

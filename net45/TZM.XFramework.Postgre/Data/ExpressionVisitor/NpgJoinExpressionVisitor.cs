@@ -38,11 +38,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Write(NpgNavigationCommand cmd)
         {
-            ITextBuilder jf = cmd.JoinFragment;
-            ITextBuilder on = cmd.OnPhrase;
+            ISqlBuilder jf = cmd.JoinFragment;
+            ISqlBuilder on = cmd.OnPhrase;
 
             base._builder = on;
-            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodCallVisitor(this);
+            if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
             if (_qJoin != null && _qJoin.Count > 0)
             {
@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ITextBuilder jf, ITextBuilder on, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression, TableAliasCache aliases)
         {
             IDbQueryable sQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (!usedKeyword)
@@ -137,7 +137,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ITextBuilder jf, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendCrossJoin(ISqlBuilder jf, DbExpression dbExpression, TableAliasCache aliases)
         {
             if (!usedKeyword)
             {

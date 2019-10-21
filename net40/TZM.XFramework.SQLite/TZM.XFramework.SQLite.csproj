@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{37D944E7-B96F-434D-B535-E612AB72DF4C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TZM.XFramework.SQLite</RootNamespace>
+    <AssemblyName>TZM.XFramework.SQLite</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
+      <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs">
+      <Link>Data\SqlClient\SQLiteDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs">
+      <Link>Data\SqlClient\SQLiteDbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbValue.cs">
+      <Link>Data\SqlClient\SQLiteDbValue.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs">
+      <Link>Data\SqlClient\SQLiteMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs">
+      <Link>Data\SqlClient\SQLiteSqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs">
+      <Link>Data\TypeDeserialize\SQLiteDeserializerImpl.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TZM.XFramework\TZM.XFramework.csproj">
+      <Project>{2e5450df-ed7f-4926-88ee-36f4923ae1f8}</Project>
+      <Name>TZM.XFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

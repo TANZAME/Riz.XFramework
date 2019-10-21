@@ -3,8 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>1.0.5</Version>
-    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -31,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DbType.cs" Link="DbType.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DatabaseType.cs" Link="DatabaseType.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Model.cs" Link="Model.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlModel.cs" Link="MySql\MySqlModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\MySql\MySqlTest.cs" Link="MySql\MySqlTest.cs" />
@@ -40,6 +41,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreModel.cs" Link="Postgre\PostgreModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Postgre\PostgreTest.cs" Link="Postgre\PostgreTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\Program.cs" Link="Program.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteModel.cs" Link="SQLite\SQLiteModel.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SQLite\SQLiteTest.cs" Link="SQLite\SQLiteTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerModel.cs" Link="SqlServer\SqlServerModel.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\SqlServer\SqlServerTest.cs" Link="SqlServer\SqlServerTest.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\TestBase.cs" Link="TestBase.cs" />
@@ -54,12 +57,14 @@
     <Folder Include="MySql\" />
     <Folder Include="Oracle\" />
     <Folder Include="Postgre\" />
+    <Folder Include="SQLite\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj" />
+    <ProjectReference Include="..\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj" />
     <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
   </ItemGroup>
 

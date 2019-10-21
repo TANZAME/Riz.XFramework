@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleSqlBuilder : TextBuilder
+    public class OracleSqlBuilder : SqlBuilder
     {
         /// <summary>
         /// 是否最外层查询
@@ -35,7 +35,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="name">成员名称</param>
         /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public override ITextBuilder AppendMember(string name, bool quote)
+        public override ISqlBuilder AppendMember(string name, bool quote)
         {
             _innerBuilder.Append(name);
             return this;
@@ -44,7 +44,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 在此实例的结尾追加 AS
         /// </summary>
-        public override ITextBuilder AppendAs(string name)
+        public override ISqlBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             if (this.IsOuter) _innerBuilder.Append(_escCharLeft);

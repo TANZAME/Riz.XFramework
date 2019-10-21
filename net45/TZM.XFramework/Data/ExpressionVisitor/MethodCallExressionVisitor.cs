@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public abstract class MethodCallExressionVisitor : IMethodCallExressionVisitor
     {
-        private ITextBuilder _builder = null;
+        private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
@@ -82,7 +82,26 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+            if (_typeRuntime == null) 
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            else
+            {
+                object exp = invoker.Invoke(this, new object[] { node });
+                return exp as Expression;
+            }
+        }
+
+        /// <summary>
+        /// 访问表示方法调用的节点
+        /// </summary>
+        /// <param name="node">方法调用节点</param>
+        /// <returns></returns>
+        public virtual Expression VisitMethodCall(BinaryExpression node)
+        {
+            if (_typeRuntime == null) 
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
@@ -140,8 +159,8 @@ namespace TZM.XFramework.Data
 
             string name = "NVARCHAR";
             var member = _visitedMark.Current;
-            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
             name = unicode ? "NVARCHAR" : "VARCHAR";
 
             if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
@@ -309,7 +328,7 @@ namespace TZM.XFramework.Data
                     ConstantExpression c = args[1].Evaluate();
                     int index = Convert.ToInt32(c.Value);
                     index += 1;
-                    string value = _provider.Generator.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
+                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
                     _builder.Append(value);
                     _builder.Append(',');
                 }
@@ -333,6 +352,22 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected virtual Expression VisitConcat(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" + ");
+                _visitor.Visit(b.Right);
+                _visitedMark.Clear();
+            }
+
+            return b;
+        }
+
+        /// <summary>
         /// 访问 Length 属性
         /// </summary>
         protected virtual Expression VisitLength(MemberExpression m)
@@ -350,20 +385,20 @@ namespace TZM.XFramework.Data
         protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             var member = _visitedMark.Current;
-            var column = _provider.Generator.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
 
             if (_builder.Parameterized)
             {
                 unicode = false;
-                string value = _provider.Generator.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+                string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
                 return value;
             }
             else
             {
                 string value = c.Value != null ? c.Value.ToString() : string.Empty;
-                value = _provider.Generator.EscapeQuote(value, false, true, false);
-                unicode = _provider.Generator.IsUnicode(column != null ? column.DbType : null);
+                value = _provider.DbValue.EscapeQuote(value, false, true, false);
+                unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
 
                 return value;
             }
@@ -533,31 +568,29 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
-            if (m.Arguments[0].CanEvaluate())
+            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+
+            var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
             {
-                IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
+                Parameters = _builder.Token.Parameters,
+                TableAliasName = "s",
+                IsDebug = _builder.Token.IsDebug
+            } : null);
+            _builder.Append("EXISTS(");
+            _builder.Append(cmd.CommandText);
 
-                var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
-                {
-                    Parameters = _builder.Token.Parameters,
-                    TableAliasName = "u"
-                } : null);
-                _builder.Append("EXISTS(");
-                _builder.Append(cmd.CommandText);
+            if (((MappingCommand)cmd).WhereFragment.Length > 0)
+                _builder.Append(" AND ");
+            else
+                _builder.Append("WHERE ");
 
-                if (((NavigationCommand)cmd).WhereFragment.Length > 0)
-                    _builder.Append(" AND ");
-                else
-                    _builder.Append("WHERE ");
+            var column = ((MappingCommand)cmd).Columns.First();
+            _builder.AppendMember(column.TableAlias, column.Name);
 
-                var kv = ((NavigationCommand)cmd).Columns.FirstOrDefault();
-                _builder.AppendMember(kv.Value.TableAlias, kv.Value.Name);
+            _builder.Append(" = ");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(")");
 
-                _builder.Append(" = ");
-                _visitor.Visit(m.Arguments[1]);
-                _builder.Append(")");
-            }
-            else throw new XFrameworkException("IDbQueryable must declare as a local variable.");
             return m;
         }
 

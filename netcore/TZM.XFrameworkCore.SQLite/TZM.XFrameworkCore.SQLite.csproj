@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Version>2.0.0</Version>
+    <Authors>TANZAME</Authors>
+    <Company>TANZAME</Company>
+    <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs" Link="Data\Infrastructure\SQLiteDatabase.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs" Link="Data\SqlClient\SQLiteDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbValue.cs" Link="Data\SqlClient\SQLiteDbValue.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" Link="Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteSqlBuilder.cs" Link="Data\SqlClient\SQLiteSqlBuilder.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs" Link="TypeDeserialize\SQLiteDeserializerImpl.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\ExpressionVisitor\" />
+    <Folder Include="Data\SqlClient\" />
+    <Folder Include="TypeDeserialize\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>

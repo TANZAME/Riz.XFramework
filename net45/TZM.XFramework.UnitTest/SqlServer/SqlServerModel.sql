@@ -1,5 +1,6 @@
+-- 必须先创建数据库 TZM_XFramework
 
- USE [Inte_XFramework]
+ USE [TZM_XFramework]
  GO
 
 If Not Exists (Select Top 1 1  From sys.objects Where [object_id] = OBJECT_ID('Bas_Client','U'))
@@ -84,9 +85,9 @@ CREATE TABLE [dbo].[Sys_Demo](
 	[DemoTime_Nullable] [time](6) NULL,						-- 不指定精度时默认为7
 	[DemoDatetimeOffset_Nullable] [datetimeoffset](6) NULL,	-- 不指定精度时默认为7
 	[DemoBinary_Nullable] binary(128) NULL,					-- 固定长
-	[DemVarBinary_Nullable] VarBinary(128) NULL,			-- 变长
+	[DemoVarBinary_Nullable] VarBinary(128) NULL,			-- 变长
 	[DemoTimestamp_Nullable]  [timestamp] NULL,				-- 行版本号
-	--[DemoXml_Nullable]  [xml] NULL,							-- XML
+	--[DemoXml_Nullable]  [xml] NULL,						-- XML
 )
 GO
 
@@ -133,7 +134,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.types t join sys.schemas s on t.schema_id=s.sch
 	)
 GO
 
-Delete Sys_CloudServer 
+TRUNCATE TABLE Sys_CloudServer 
 Go
 Insert Into [Sys_CloudServer] ([CloudServerId],[CloudServerCode],[CloudServerName]) Values (1,N'0181',N'181服务器')
 Insert Into [Sys_CloudServer] ([CloudServerId],[CloudServerCode],[CloudServerName]) Values (2,N'0182',N'182服务器')
@@ -188,7 +189,7 @@ BEGIN
            ,[DemoLong_Nullable]
 		 )
 		 VALUES
-			   ('D' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
+			   ('C' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
 			   ,'N' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS NVARCHAR))) + CAST(@rowIndex AS NVARCHAR)
 			   ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 0 END
 			   ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE NULL END
@@ -251,7 +252,7 @@ BEGIN
            ,[DemoLong]
            ,[DemoLong_Nullable])
      VALUES
-           ('D' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
+           ('C' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
            ,'N' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
            ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 0 END
            ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE NULL END
@@ -287,7 +288,7 @@ END
 
 -- 如果转换时没有指定数据类型的长度，则SQServer自动提供长度为30
 SET @rowIndex = 1
-WHILE @rowIndex<=2000
+WHILE @rowIndex<=100
 BEGIN
 	INSERT INTO [dbo].[Bas_Client]
            ([ClientId]
@@ -299,12 +300,12 @@ BEGIN
            ,[Remark])
      VALUES
            (@rowIndex
-           ,'XFramework' + cast(@rowIndex as nvarchar)
-           ,'XFramework' + cast(@rowIndex as nvarchar)
-           ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 3 END
+           ,'XFramework' + CAST(@rowIndex as nvarchar)
+           ,'XFramework' + CAST(@rowIndex as nvarchar)
+           ,CASE WHEN @rowIndex > 100 THEN 1 ELSE 3 END
            ,getdate()
            ,1
-           ,'XFramework' + cast(@rowIndex as nvarchar))
+           ,'XFramework' + CAST(@rowIndex as nvarchar))
 	
 	INSERT INTO [dbo].[Bas_ClientAccount]
            ([ClientId]
@@ -315,8 +316,8 @@ BEGIN
      VALUES
            (@rowIndex
            ,1
-           ,'XFrameworkAccount' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccount' + cast(@rowIndex as nvarchar)
+           ,'XFrameworkAccount' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccount' + CAST(@rowIndex as nvarchar)
 		   ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 2 END)
 
 	INSERT INTO [dbo].[Bas_ClientAccount]
@@ -328,8 +329,8 @@ BEGIN
      VALUES
            (@rowIndex
            ,2
-           ,'XFrameworkAccount' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccount' + cast(@rowIndex as nvarchar)
+           ,'XFrameworkAccount' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccount' + CAST(@rowIndex as nvarchar)
 		   ,CASE WHEN @rowIndex % 2 = 0 THEN 1 ELSE 2 END)
 		   		   
 	INSERT INTO [dbo].[Bas_ClientAccountMarket]
@@ -342,8 +343,8 @@ BEGIN
            (@rowIndex
            ,1
            ,1
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar))
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar))
 		   		   
 	INSERT INTO [dbo].[Bas_ClientAccountMarket]
            ([ClientId]
@@ -355,8 +356,8 @@ BEGIN
            (@rowIndex
            ,1
            ,2
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar))
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar))
 
 	INSERT INTO [dbo].[Bas_ClientAccountMarket]
            ([ClientId]
@@ -368,8 +369,8 @@ BEGIN
            (@rowIndex
            ,2
            ,1
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar))
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar))
 		   		   
 	INSERT INTO [dbo].[Bas_ClientAccountMarket]
            ([ClientId]
@@ -381,8 +382,8 @@ BEGIN
            (@rowIndex
            ,2
            ,2
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar)
-           ,'XFrameworkAccountMarket' + cast(@rowIndex as nvarchar))
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar)
+           ,'XFrameworkAccountMarket' + CAST(@rowIndex as nvarchar))
 		  
 	SET @rowIndex=@rowIndex+1
 END

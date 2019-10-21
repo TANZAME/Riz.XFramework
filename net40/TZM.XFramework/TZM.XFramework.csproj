@@ -169,6 +169,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs">
       <Link>Data\Emit\MemberInvokerBase.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerCollection.cs">
+      <Link>Data\Emit\MemberInvokerCollection.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodInvoker.cs">
       <Link>Data\Emit\MethodInvoker.cs</Link>
     </Compile>
@@ -229,11 +232,14 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbQueryProvider.cs">
       <Link>Data\Genaration\DbQueryProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\DbValue.cs">
+      <Link>Data\Genaration\DbValue.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\IDbQueryProvider.cs">
       <Link>Data\Genaration\IDbQueryProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ITextBuilder.cs">
-      <Link>Data\Genaration\ITextBuilder.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ISqlBuilder.cs">
+      <Link>Data\Genaration\ISqlBuilder.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\RawSql.cs">
       <Link>Data\Genaration\RawSql.cs</Link>
@@ -241,14 +247,11 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ResolveToken.cs">
       <Link>Data\Genaration\ResolveToken.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilder.cs">
+      <Link>Data\Genaration\SqlBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs">
       <Link>Data\Genaration\TableAliasCache.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TextBuilder.cs">
-      <Link>Data\Genaration\TextBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\ValueGenerator.cs">
-      <Link>Data\Genaration\ValueGenerator.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
       <Link>Data\Infrastructure\Constant.cs</Link>
@@ -267,6 +270,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbInterception.cs">
       <Link>Data\Infrastructure\DbInterception.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Enumerator.cs">
+      <Link>Data\Infrastructure\Enumerator.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
       <Link>Data\Infrastructure\IDatabase.cs</Link>
@@ -325,23 +331,26 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\DbTypeUtils.cs">
       <Link>Data\SqlClient\DbTypeUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlBuilder.cs">
-      <Link>Data\SqlClient\SqlBuilder.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerDbContext.cs">
+      <Link>Data\SqlClient\SqlServerDbContext.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbContext.cs">
-      <Link>Data\SqlClient\SqlDbContext.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerDbQueryProvider.cs">
+      <Link>Data\SqlClient\SqlServerDbQueryProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlDbQueryProvider.cs">
-      <Link>Data\SqlClient\SqlDbQueryProvider.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerDbValue.cs">
+      <Link>Data\SqlClient\SqlServerDbValue.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlMethodCallExressionVisitor.cs">
-      <Link>Data\SqlClient\SqlMethodCallExressionVisitor.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMethodCallExressionVisitor.cs">
+      <Link>Data\SqlClient\SqlServerMethodCallExressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlValueGenerator.cs">
-      <Link>Data\SqlClient\SqlValueGenerator.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerSqlBuilder.cs">
+      <Link>Data\SqlClient\SqlServerSqlBuilder.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
       <Link>Data\TypeDeserialize\Column.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ColumnCollection.cs">
+      <Link>Data\TypeDeserialize\ColumnCollection.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>
@@ -349,14 +358,14 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
       <Link>Data\TypeDeserialize\IMapping.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs">
+      <Link>Data\TypeDeserialize\MappingCommand.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs">
       <Link>Data\TypeDeserialize\NavigationCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCommand.cs">
-      <Link>Data\TypeDeserialize\NavigationCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>

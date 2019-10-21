@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL 构造器
         /// </summary>
-        protected ITextBuilder _builder = null;
+        protected ISqlBuilder _builder = null;
 
         /// <summary>
         /// 方法解析器
@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 即将解析的表达式
         /// </summary>
-        public ITextBuilder SqlBuilder
+        public ISqlBuilder SqlBuilder
         {
             get { return _builder; }
         }
@@ -102,10 +102,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
-        public virtual void Write(ITextBuilder builder)
+        public virtual void Write(ISqlBuilder builder)
         {
             _builder = builder;
-            if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodCallVisitor(this);
+            if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodVisitor(this);
             this.Visit(_expression);
         }
 
@@ -237,7 +237,9 @@ namespace TZM.XFramework.Data
             // 例： a.Name == a.FullName 
             // or like a.Name == "TAN"
 
-            if (b != null)
+            if (b == null) return b;
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.VisitMethodCall(b);
+            else
             {
                 string oper = this.GetOperator(b);
                 Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
@@ -256,9 +258,8 @@ namespace TZM.XFramework.Data
                 if (use2) _builder.Append(')');
 
                 _visitedMark.Clear();
+                return b;
             }
-
-            return b;
         }
 
         // 访问导航属性

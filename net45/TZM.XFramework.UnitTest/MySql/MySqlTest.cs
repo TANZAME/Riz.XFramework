@@ -13,33 +13,21 @@ namespace TZM.XFramework.UnitTest.MySql
 {
     public class MySqlTest : TestBase<MySqlModel.MySqlDemo>
     {
-        const string connString = "Host=localhost;Database=Inte_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
+        const string connString = "Host=localhost;Database=TZM_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
 
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new MySqlDbContext();
-            var context = new MySqlDbContext(connString);
-
-            //var demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == 37950);
-            //using (System.IO.FileStream stream = new System.IO.FileStream(@"C:\Users\it0160\Desktop\贝索斯.jpg", System.IO.FileMode.Open, System.IO.FileAccess.Read))
-
-            //{
-            //    byte[] buffer = new byte[stream.Length];
-            //    stream.Read(buffer, 0, (int)stream.Length);
-            //    stream.Close();
-
-            //    context.Update<MySqlModel.MySqlDemo>(x=>new MySqlModel.MySqlDemo
-            //    {
-            //        DemVarBinary_Nullable = buffer
-            //    }, x => x.DemoId == 37950);
-            //    context.SubmitChanges();
-            //}
+            var context = new MySqlDbContext(connString)
+            {
+                IsDebug = base.IsDebug
+            };
 
             return context;
         }
 
-        protected override void QueryWithParameterizedConstructor()
+        protected override void Parameterized()
         {
             var context = _newContext();
             // 构造函数
@@ -95,7 +83,7 @@ namespace TZM.XFramework.UnitTest.MySql
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG") : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -131,7 +119,7 @@ namespace TZM.XFramework.UnitTest.MySql
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG"),
             };
             context.Insert(demo);
             context.SubmitChanges();
