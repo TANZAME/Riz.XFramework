@@ -934,6 +934,7 @@ namespace TZM.XFramework.Data
                 {
                     reader.Close();
                 }
+                adapter.Dispose();
             }
         }
 
