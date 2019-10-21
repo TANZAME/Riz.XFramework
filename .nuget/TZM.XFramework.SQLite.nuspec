@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>TZM.XFramework.MySql</id>
+    <id>TZM.XFramework.SQLite</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -11,10 +11,10 @@
     <iconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</iconUrl>
     <description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</description>
     <copyright>Copyright 2019</copyright>
-    <tags>.NET45 MYSQL ORM</tags>
+    <tags>.NET45 SQLite ORM</tags>
 	<dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="MySqlConnector" version="0.44.1" exclude="Build,Analyzers" />
+        <dependency id="System.Data.SQLite" version="1.0.111" exclude="Build,Analyzers" />
         <dependency id="TZM.XFramework" version="2.0.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>

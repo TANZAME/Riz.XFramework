@@ -27,6 +27,11 @@ echo pack TZM.XFramework.Postgre
 nuget pack %startup_dir%\net45\TZM.XFramework.Postgre\TZM.XFramework.Postgre.csproj
 echo=
 
+:: 打包 TZM.XFramework.SQLite
+echo pack TZM.XFramework.SQLite
+nuget pack %startup_dir%\net45\TZM.XFramework.SQLite\TZM.XFramework.SQLite.csproj
+echo=
+
 :: 打包 TZM.XFrameworkCore
 echo pack TZM.XFrameworkCore
 dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj
@@ -43,12 +48,15 @@ dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.
 echo pack TZM.XFrameworkCore.Postgre
 dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj
 
+:: 打包 TZM.XFrameworkCore.SQLite
+echo pack TZM.XFrameworkCore.SQLite
+dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj
+
 :: 批量推送包
 
 for /R %cd% %%f in (*.nupkg) do ( 
 echo=
-::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
-pause
+dotnet nuget push %%f -k %api_key% -s %source_api_uri%
 )
 
 echo=
