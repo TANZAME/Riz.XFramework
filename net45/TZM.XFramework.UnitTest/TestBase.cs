@@ -61,7 +61,7 @@ namespace TZM.XFramework.UnitTest
                     DemoName = a.DemoName,
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                     DemoDate = sDate,
-                    DemoDateTime = sDate,
+                    DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = guid,
                     DemoEnum = Model.State.Complete,
@@ -93,7 +93,7 @@ namespace TZM.XFramework.UnitTest
                     DemoName = a.DemoName,
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,
                     DemoDate = sDate,
-                    DemoDateTime = sDate,
+                    DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = Guid.NewGuid(),
                     DemoEnum = Model.State.Complete,
@@ -1376,7 +1376,8 @@ namespace TZM.XFramework.UnitTest
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 3,
-                    State = 2
+                    State = 2,
+                    ActiveDate = DateTime.Now
                 };
             context.Insert(query);
             context.SubmitChanges();
