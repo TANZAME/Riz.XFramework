@@ -25,6 +25,11 @@ namespace TZM.XFramework.Data.SqlClient
                 else
                     DbTypeUtils.ThrowException(dbType);
             }
+            else if (parameter.Value != null && parameter.Value is DateTime && dbType == null)
+            {
+                // 如果 DateTime 没有指定 DbType，则需要转为 DateTime2才能保持原有的精度
+                parameter.DbType = System.Data.DbType.DateTime2;
+            }
         }
 
         /// <summary>

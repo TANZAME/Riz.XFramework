@@ -127,7 +127,7 @@ BEGIN
 	TRUNCATE TABLE Sys_Rabbit RESTART IDENTITY;
     
 	WHILE(rowIndex <= rowCount) LOOP
-		IF rowIndex <= 1200 THEN
+		IF rowIndex <= 100 THEN
 			INSERT INTO Sys_Demo
 			   (DemoCode
 			   ,DemoName
@@ -256,7 +256,7 @@ BEGIN
 	End Loop; 
     
     rowIndex := 1;
-	WHILE (rowIndex <= 1200) LOOP
+	WHILE (rowIndex <= 100) LOOP
 		INSERT INTO Bas_Client
 			   (ClientId
 			   ,ClientCode

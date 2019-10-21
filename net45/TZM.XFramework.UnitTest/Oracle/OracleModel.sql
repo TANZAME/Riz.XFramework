@@ -147,7 +147,7 @@ BEGIN
    
   
     WHILE(rowIndex <= rowCount2) LOOP
-      IF rowIndex <= 1200 THEN
+      IF rowIndex <= 100 THEN
       INSERT INTO Sys_Demo
           (DemoId
           ,DemoCode
@@ -280,7 +280,7 @@ BEGIN
   
    
   rowIndex := 1;
-  WHILE (rowIndex <= 1200) LOOP
+  WHILE (rowIndex <= 100) LOOP
     INSERT INTO Bas_Client
         (ClientId
         ,ClientCode
@@ -293,7 +293,7 @@ BEGIN
         (rowIndex
         ,'XFramework' || TO_CHAR(rowIndex)
         ,'XFramework' || TO_CHAR(rowIndex)
-        ,CASE WHEN rowIndex > 700 THEN 3 ELSE 1 END
+        ,CASE WHEN rowIndex > 100 THEN 1 ELSE 3 END
         ,SYSDATE
         ,1
         ,'XFramework' || TO_CHAR(rowIndex));
