@@ -15,7 +15,7 @@ namespace TZM.XFramework.UnitTest.SQLite
 
         static string connString =
             "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
+            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName +
             @"\net45\TZM.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
 
 #endif
@@ -25,7 +25,7 @@ namespace TZM.XFramework.UnitTest.SQLite
 
         static string connString =
             "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
+            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName +
             @"\net45\TZM.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
 
 #endif
@@ -34,7 +34,7 @@ namespace TZM.XFramework.UnitTest.SQLite
 
         static string connString =
             "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
+            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName +
             @"\net45\TZM.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
 
 #endif
