@@ -11,6 +11,8 @@ namespace TZM.XFramework.UnitTest.SQLite
 {
     public class SQLiteTest : TestBase<SQLiteModel.SQLiteDemo>
     {
+        // SQLite 需要将包里的 SQLite.Interop.dll 文件拷到运行目录下
+
 #if net40
 
         static string connString =

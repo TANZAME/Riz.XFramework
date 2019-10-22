@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package >
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>TZM.XFramework.Postgre</id>
     <version>$version$</version>
@@ -8,14 +8,15 @@
     <owners>$author$</owners>
 	<license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/TANZAME/TZM.XFramework</projectUrl>
-    <iconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</iconUrl>
-    <description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</description>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
+    <description>PostgreSQL/Npgsql provider for TZM.XFramework.</description>
     <copyright>Copyright 2019</copyright>
-    <tags>.NET45 POSTGRESQL ORM</tags>
+    <tags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</tags>
+    <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
 	<dependencies>
-      <group targetFramework=".NETFramework4.5">
+        <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
         <dependency id="Npgsql" version="2.2.3" exclude="Build,Analyzers" />
-        <dependency id="TZM.XFramework" version="2.0.0" exclude="Build,Analyzers" />
+        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
