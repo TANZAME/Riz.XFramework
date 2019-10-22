@@ -33,14 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MySql\" />
-    <Folder Include="Oracle\" />
-    <Folder Include="Postgre\" />
-    <Folder Include="SQLite\" />
-    <Folder Include="SqlServer\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="TZM.XFrameworkCore" Version="2.0.3" />
     <PackageReference Include="TZM.XFrameworkCore.MySql" Version="2.0.3" />
     <PackageReference Include="TZM.XFrameworkCore.Oracle" Version="2.0.3" />
