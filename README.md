@@ -84,13 +84,15 @@ public partial class Client
 string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;connect timeout=10;";
 -- 实例化数据上下文
 -- SqlServer
-var context = new SqlDbContext(connString);
+var context = new SqlServerDbContext(connString);
 -- MySql 需引用 TZM.XFramework.MySql
 var context = new MySqlDbContext(connString);
 -- Oracle 需引用 TZM.XFramework.Oracle
 var context = new OracleDbContext(connString);
 -- Postgre 需引用 TZM.XFramework.Postgre
 var context = new NpgDbContext(connString);
+-- SQLite 需引用 TZM.XFramework.SQLite
+var context = new SQLiteDbContext(connString);
 ```
 - ###### 查询
 
