@@ -4,14 +4,17 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>TANZAME</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</Description>
+    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.3.0</AssemblyVersion>
+    <Version>2.0.3</Version>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <FileVersion>1.0.0.0</FileVersion>
+    <FileVersion>2.0.3.0</FileVersion>
+    <PackageTags>.NET ORACLE Database Data O/RM ADO.NET</PackageTags>
+    <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

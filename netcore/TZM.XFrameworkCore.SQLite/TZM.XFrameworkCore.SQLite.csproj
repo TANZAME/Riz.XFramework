@@ -2,11 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.0</Version>
+    <Version>2.0.3</Version>
     <Authors>TANZAME</Authors>
     <Company>TANZAME</Company>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <RepositoryType>https://github.com/TANZAME/TZM.XFramework</RepositoryType>
+    <PackageTags>.NET SQLITE Database Data O/RM ADO.NET</PackageTags>
+    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.</Description>
+    <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

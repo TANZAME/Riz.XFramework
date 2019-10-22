@@ -1,16 +1,24 @@
-<?xml version="1.0"?>
-<package >
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>TZM.XFramework</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
 	<license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/TANZAME/TZM.XFramework</projectUrl>
-    <iconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</iconUrl>
-    <description>a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.</description>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
+    <description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</description>
     <copyright>Copyright 2019</copyright>
-    <tags>.NET45 SQLSERVER ORM</tags>
+    <tags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</tags>
+    <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
+	<dependencies />
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data"/>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations"/>
+      <frameworkAssembly assemblyName="System.Net.Http"/>
+    </frameworkAssemblies>
   </metadata>
 </package>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("TZM.XFramework.SQLite")]
-[assembly: AssemblyDescription("a lightweight and high performance ORM framework based on .net,keeping the original Microsoft API.")]
+[assembly: AssemblyDescription("TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TANZAME")]
 [assembly: AssemblyProduct("TZM.XFramework.SQLite")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.3.0")]
+[assembly: AssemblyFileVersion("2.0.3.0")]
