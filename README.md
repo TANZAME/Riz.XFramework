@@ -2,7 +2,7 @@
 
 #### 介绍
 一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。
-支持版本：.Net4.0 .Net4.5+ .Net Core2.2+。
+支持版本：.Net4.0 .Net4.5+ .Net Core3.0。
 
 #### 亮点
 - 原生.NET语法，零学习成本
@@ -30,6 +30,7 @@ SqlServer => TZM.XFramework
 MySql     => TZM.XFramework.MySql
 Oracle    => TZM.XFramework.Oracle
 Postgre   => TZM.XFramework.Postgre
+SQLite    => TZM.XFramework.SQLite
 ```
 
 ```
@@ -37,7 +38,7 @@ Postgre   => TZM.XFramework.Postgre
 SqlServer => TZM.XFrameworkCore
 MySql     => TZM.XFrameworkCore.MySql
 Oracle    => TZM.XFrameworkCore.Oracle
-Postgre   => TZM.XFrameworkCore.Postgre
+SQLite    => TZM.XFrameworkCore.SQLite
 ```
 - ###### 实体定义
 
