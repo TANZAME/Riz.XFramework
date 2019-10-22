@@ -3,33 +3,17 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.3</Version>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;0472;0618</NoWarn>
     <DefineConstants>TRACE;netcore</DefineConstants>
+    <NoWarn>1701;1702;0472</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
     <NoWarn>1701;1702;0472</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Model\**" />
-    <EmbeddedResource Remove="Model\**" />
-    <None Remove="Model\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="MySql\.gitkeep" />
-    <None Remove="Oracle\.gitkeep" />
-    <None Remove="Postgre\.gitkeep" />
-    <None Remove="SqlServer\.gitkeep" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.UnitTest\DatabaseType.cs" Link="DatabaseType.cs" />
@@ -49,23 +33,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\net45\TZM.XFramework.UnitTest\App.config" Link="App.config" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="SqlServer\" />
     <Folder Include="MySql\" />
     <Folder Include="Oracle\" />
     <Folder Include="Postgre\" />
     <Folder Include="SQLite\" />
+    <Folder Include="SqlServer\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj" />
-    <ProjectReference Include="..\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj" />
-    <ProjectReference Include="..\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj" />
-    <ProjectReference Include="..\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj" />
-    <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
+    <PackageReference Include="TZM.XFrameworkCore" Version="2.0.3" />
+    <PackageReference Include="TZM.XFrameworkCore.MySql" Version="2.0.3" />
+    <PackageReference Include="TZM.XFrameworkCore.Oracle" Version="2.0.3" />
+    <PackageReference Include="TZM.XFrameworkCore.Postgre" Version="2.0.3" />
+    <PackageReference Include="TZM.XFrameworkCore.SQLite" Version="2.0.3" />
   </ItemGroup>
 
 </Project>

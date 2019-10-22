@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TZM.XFrameworkCore.SQLite",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TZM.XFramework.UnitTest.Nuget", "net45\TZM.XFramework.UnitTest.Nuget\TZM.XFramework.UnitTest.Nuget.csproj", "{279CB6F9-FBE9-4BE6-BB4A-99642195CAE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TZM.XFrameworkCore.UnitTest.Nuget", "netcore\TZM.XFrameworkCore.UnitTest.Nuget\TZM.XFrameworkCore.UnitTest.Nuget.csproj", "{DABA28C6-28A9-4773-AC26-F3265C1674C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,10 @@ Global
 		{279CB6F9-FBE9-4BE6-BB4A-99642195CAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{279CB6F9-FBE9-4BE6-BB4A-99642195CAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{279CB6F9-FBE9-4BE6-BB4A-99642195CAE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DABA28C6-28A9-4773-AC26-F3265C1674C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DABA28C6-28A9-4773-AC26-F3265C1674C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DABA28C6-28A9-4773-AC26-F3265C1674C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DABA28C6-28A9-4773-AC26-F3265C1674C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +159,7 @@ Global
 		{37D944E7-B96F-434D-B535-E612AB72DF4C} = {580F5807-89A3-4B85-80BF-4F154C9FAE30}
 		{1DEB9E5D-01E0-4101-8794-496A6E0FBC23} = {64C1CD12-A5ED-4372-A018-4B6114B5AFDD}
 		{279CB6F9-FBE9-4BE6-BB4A-99642195CAE6} = {383F35FA-3A1A-45B6-BC0A-DA57043B106A}
+		{DABA28C6-28A9-4773-AC26-F3265C1674C4} = {64C1CD12-A5ED-4372-A018-4B6114B5AFDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3DB1C9FE-3743-4973-BC61-0BFD7F063824}

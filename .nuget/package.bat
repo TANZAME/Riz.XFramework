@@ -43,23 +43,26 @@ copy TZM.XFramework.SQLite.nuspec %startup_dir%\net45\TZM.XFramework.SQLite
 nuget pack %startup_dir%\net45\TZM.XFramework.SQLite\TZM.XFramework.SQLite.csproj -Properties Configuration=Release
 del %startup_dir%\net45\TZM.XFramework.SQLite\TZM.XFramework.SQLite.nuspec
 echo=
-pause
 
 :: 打包 TZM.XFrameworkCore
 echo pack TZM.XFrameworkCore
-dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj
 
 :: 打包 TZM.XFrameworkCore.MySql
 echo pack TZM.XFrameworkCore.MySql
-dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj
 
 :: 打包 TZM.XFrameworkCore
 echo pack TZM.XFrameworkCore.Oracle
-dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj
 
 :: 打包 TZM.XFrameworkCore.Postgre
 echo pack TZM.XFrameworkCore.Postgre
-dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj
+
+:: 打包 TZM.XFrameworkCore.SQLite
+echo pack TZM.XFrameworkCore.SQLite
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj
 
 :: 批量推送包
 

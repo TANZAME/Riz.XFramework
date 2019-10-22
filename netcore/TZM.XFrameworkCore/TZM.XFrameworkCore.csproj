@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>TANZAME</Authors>
     <Company>TANZAME</Company>
-    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.</Description>
+    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <AssemblyVersion>2.0.3.0</AssemblyVersion>
@@ -17,7 +17,7 @@
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
-    <PackageTags>.NET SQLSERVER Database Data O/RM ADO.NET</PackageTags>
+    <PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

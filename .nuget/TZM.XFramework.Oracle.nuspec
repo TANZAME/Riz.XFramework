@@ -6,7 +6,6 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
 	<license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/TANZAME/TZM.XFramework</projectUrl>
     <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>TANZAME</Authors>
-    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.</Description>
+    <Description>PostgreSQL/Npgsql provider for TZM.XFrameworkCore.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Version>2.0.3</Version>
@@ -14,7 +14,7 @@
     <AssemblyVersion>2.0.3.0</AssemblyVersion>
     <FileVersion>2.0.3.0</FileVersion>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>.NET POSTGRE Database Data O/RM ADO.NET</PackageTags>
+    <PackageTags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

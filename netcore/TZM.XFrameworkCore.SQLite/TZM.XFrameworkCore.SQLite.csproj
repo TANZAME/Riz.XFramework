@@ -8,8 +8,8 @@
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <RepositoryType>https://github.com/TANZAME/TZM.XFramework</RepositoryType>
-    <PackageTags>.NET SQLITE Database Data O/RM ADO.NET</PackageTags>
-    <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET with the original EF api.</Description>
+    <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
+    <Description>SQLite provider for TZM.XFrameworkCore.</Description>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
   </PropertyGroup>
 
@@ -28,7 +28,6 @@
   <ItemGroup>
     <Folder Include="Data\ExpressionVisitor\" />
     <Folder Include="Data\SqlClient\" />
-    <Folder Include="TypeDeserialize\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />
