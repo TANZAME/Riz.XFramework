@@ -30,7 +30,7 @@ SqlServer => TZM.XFramework
 MySql     => TZM.XFramework.MySql
 Oracle    => TZM.XFramework.Oracle
 Postgre   => TZM.XFramework.Postgre
-SQLite   => TZM.XFramework.SQLite
+SQLite    => TZM.XFramework.SQLite
 ```
 
 ```
@@ -39,7 +39,7 @@ SqlServer => TZM.XFrameworkCore
 MySql     => TZM.XFrameworkCore.MySql
 Oracle    => TZM.XFrameworkCore.Oracle
 Postgre   => TZM.XFrameworkCore.Postgre
-SQLite   => TZM.XFrameworkCore.SQLite
+SQLite    => TZM.XFrameworkCore.SQLite
 ```
 - ###### 实体定义
 
