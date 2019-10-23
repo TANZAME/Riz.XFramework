@@ -82,9 +82,12 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (_typeRuntime == null) 
+            if (_typeRuntime == null)
                 _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
-            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+            MemberInvokerBase invoker = null;
+            if (node.Method.Name == "Concat") invoker = _typeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
+            else invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
@@ -100,9 +103,13 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual Expression VisitMethodCall(BinaryExpression node)
         {
-            if (_typeRuntime == null) 
+            if (_typeRuntime == null)
                 _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
-            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+            string methodName = string.Empty;
+            if (node.NodeType == ExpressionType.Modulo) methodName = "Modulo";
+            else methodName = node.Method.Name;
+
+            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + methodName);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
@@ -160,8 +167,8 @@ namespace TZM.XFramework.Data
             string name = "NVARCHAR";
             var member = _visitedMark.Current;
             var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
-            name = unicode ? "NVARCHAR" : "VARCHAR";
+            bool isUnicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
+            name = isUnicode ? "NVARCHAR" : "VARCHAR";
 
             if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
             else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
@@ -361,10 +368,57 @@ namespace TZM.XFramework.Data
                 _visitor.Visit(b.Left);
                 _builder.Append(" + ");
                 _visitor.Visit(b.Right);
-                _visitedMark.Clear();
             }
 
+            _visitedMark.Clear();
             return b;
+        }
+
+        /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected virtual Expression VisitConcat(MethodCallExpression m)
+        {
+            if (m != null && m.Arguments != null)
+            {
+                if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+                else
+                {
+                    for (int i = 0; i < m.Arguments.Count; i++)
+                    {
+                        _visitor.Visit(m.Arguments[i]);
+                        if (i < m.Arguments.Count - 1) _builder.Append(" + ");
+                    }
+                }
+            }
+
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IsNullOrEmpty 方法
+        /// </summary>
+        protected virtual Expression VisitIsNullOrEmpty(MethodCallExpression m)
+        {
+            if (m != null)
+            {
+                _builder.Append('(');
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" IS NULL OR ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" = ");
+
+                var member = _visitedMark.Current;
+                var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+                bool isUnicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
+                if (isUnicode) _builder.Append('N');
+
+                _builder.Append("'')");
+            }
+
+            _visitedMark.Clear();
+            return m;
         }
 
         /// <summary>
@@ -376,7 +430,467 @@ namespace TZM.XFramework.Data
             _visitor.Visit(m.Expression);
             _builder.Append(")");
 
+            _visitedMark.Clear();
             return m;
+        }
+
+        /// <summary>
+        /// 访问 % 方法
+        /// </summary>
+        protected virtual Expression VisitModulo(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" % ");
+                _visitor.Visit(b.Right);
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 ToUpper 方法
+        /// </summary>
+        protected virtual Expression VisitToUpper(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("UPPER(");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 ToLower 方法
+        /// </summary>
+        protected virtual Expression VisitToLower(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("LOWER(");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Replace 方法
+        /// </summary>
+        protected virtual Expression VisitReplace(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("REPLACE(");
+                _visitor.Visit(b.Object);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[1]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 PadLeft 方法
+        /// </summary>
+        protected virtual Expression VisitPadLeft(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                //_builder.Append("LPAD(");
+                //_visitor.Visit(b.Object);
+                //_builder.Append(',');
+                //_visitor.Visit(b.Arguments[0]);
+                //_builder.Append(',');
+                //_visitor.Visit(b.Arguments[1]);
+                //_builder.Append(')');
+
+                _builder.Append("REPLICATE(");
+                if (b.Arguments.Count == 1)
+                    _builder.Append(_provider.DbValue.GetSqlValue(' ', _builder.Token));
+                else
+                    _visitor.Visit(b.Arguments[1]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" - LEN(");
+                _visitor.Visit(b.Object);
+                _builder.Append(")) + ");
+                _visitor.Visit(b.Object);
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 PadRight 方法
+        /// </summary>
+        protected virtual Expression VisitPadRight(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                //_builder.Append("RPAD(");
+                //_visitor.Visit(b.Object);
+                //_builder.Append(',');
+                //_visitor.Visit(b.Arguments[0]);
+                //_builder.Append(',');
+                //_visitor.Visit(b.Arguments[1]);
+                //_builder.Append(')');
+
+                _visitor.Visit(b.Object);
+                _builder.Append(" + REPLICATE(");
+                if (b.Arguments.Count == 1)
+                    _builder.Append(_provider.DbValue.GetSqlValue(' ', _builder.Token));
+                else
+                    _visitor.Visit(b.Arguments[1]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" - LEN(");
+                _visitor.Visit(b.Object);
+                _builder.Append("))");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 IndexOf 方法
+        /// </summary>
+        protected virtual Expression VisitIndexOf(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("CHARINDEX(");
+                _visitor.Visit(b.Object);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                if (b.Arguments.Count > 1)
+                {
+                    _builder.Append(',');
+                    if (b.Arguments[1].CanEvaluate())
+                    {
+                        var c = b.Arguments[1].Evaluate();
+                        int index = Convert.ToInt32(c.Value) + 1;
+                        _builder.Append(_provider.DbValue.GetSqlValue(index, _builder.Token));
+                    }
+                    else
+                    {
+                        _visitor.Visit(b.Arguments[1]);
+                        _builder.Append(" + 1");
+                    }
+                }
+                _builder.Append(") - 1");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Abs 方法
+        /// </summary>
+        protected virtual Expression VisitAbs(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ABS(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Acos 方法
+        /// </summary>
+        protected virtual Expression VisitAcos(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ACOS(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Asin 方法
+        /// </summary>
+        protected virtual Expression VisitAsin(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ASIN(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Atan 方法
+        /// </summary>
+        protected virtual Expression VisitAtan(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ATAN(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Atan2 方法
+        /// </summary>
+        protected virtual Expression VisitAtan2(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ATN2(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[1]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Ceiling 方法
+        /// </summary>
+        protected virtual Expression VisitCeiling(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("CEILING(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Cos 方法
+        /// </summary>
+        protected virtual Expression VisitCos(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("COS(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Exp 方法
+        /// </summary>
+        protected virtual Expression VisitExp(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("EXP(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Floor 方法
+        /// </summary>
+        protected virtual Expression VisitFloor(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("FLOOR(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Log 方法
+        /// </summary>
+        protected virtual Expression VisitLog(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("LOG(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Log10 方法
+        /// </summary>
+        protected virtual Expression VisitLog10(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("LOG10(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Pow 方法
+        /// </summary>
+        protected virtual Expression VisitPow(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("POWER(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[1]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Round 方法
+        /// </summary>
+        protected virtual Expression VisitRound(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("ROUND(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[1]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Sign 方法
+        /// </summary>
+        protected virtual Expression VisitSign(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("SIGN(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Sin 方法
+        /// </summary>
+        protected virtual Expression VisitSin(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("Sin(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Sqrt 方法
+        /// </summary>
+        protected virtual Expression VisitSqrt(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("SQRT(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Tan 方法
+        /// </summary>
+        protected virtual Expression VisitTan(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("TAN(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Truncate 方法
+        /// </summary>
+        protected virtual Expression VisitTruncate(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("FLOOR(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
         }
 
         /// <summary>

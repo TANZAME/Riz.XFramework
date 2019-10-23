@@ -209,7 +209,7 @@ namespace TZM.XFramework.Data
                 MethodCallExpression methodExpression = objExpression as MethodCallExpression;
                 bool isGetItem = methodExpression.IsGetListItem();
                 if (isGetItem) objExpression = methodExpression.Object;
-            }            
+            }
             // => b.Client.Address.AddressName
             this.VisitNavMember(objExpression, node.Member.Name);
 
@@ -239,6 +239,7 @@ namespace TZM.XFramework.Data
 
             if (b == null) return b;
             else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.VisitMethodCall(b);
+            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.VisitMethodCall(b);
             else
             {
                 string oper = this.GetOperator(b);

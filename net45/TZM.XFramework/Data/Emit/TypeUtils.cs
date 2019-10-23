@@ -181,26 +181,24 @@ namespace TZM.XFramework.Data
         /// <param name="type"></param>
         /// <param name="includePrivate">包含私有成员</param>
         /// <returns></returns>
-        public static IEnumerable<MemberInfo> GetMembers(Type type,bool includePrivate = false)
+        public static IEnumerable<MemberInfo> GetMembers(Type type, bool includePrivate = false)
         {
             Func<MemberInfo, bool> predicate = x => x.MemberType == MemberTypes.Method || x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property;
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public;
             if (includePrivate) flags = flags | BindingFlags.NonPublic;
-            var collection =
-                type
-                .GetMembers(flags)
-                .Where(predicate);
+            
+            var members = type.GetMembers(flags).Where(predicate);
             if (type.IsInterface)
             {
                 var inheritsTypes = type.GetInterfaces();
                 foreach (var ihType in inheritsTypes)
                 {
                     var second = TypeUtils.GetMembers(ihType);
-                    collection = collection.Union(second);
+                    members = members.Union(second);
                 }
             }
 
-            return collection;
+            return members;
         }
 
         /// <summary>

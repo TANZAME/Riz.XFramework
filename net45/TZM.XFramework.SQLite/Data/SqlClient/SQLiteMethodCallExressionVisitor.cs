@@ -231,6 +231,62 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 Concat 方法
+        /// </summary>
+        protected override Expression VisitConcat(MethodCallExpression m)
+        {
+            if (m != null && m.Arguments != null)
+            {
+                if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+                else
+                {
+                    for (int i = 0; i < m.Arguments.Count; i++)
+                    {
+                        _visitor.Visit(m.Arguments[i]);
+                        if (i < m.Arguments.Count - 1) _builder.Append(" || ");
+                    }
+                }
+            }
+
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IndexOf 方法
+        /// </summary>
+        protected override Expression VisitIndexOf(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("INSTR(");
+                _visitor.Visit(b.Object);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(") - 1");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Truncate 方法
+        /// </summary>
+        protected override Expression VisitTruncate(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("TRUNC(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(",0)");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
         /// 访问 TrimEnd 方法
         /// </summary>
         protected override Expression VisitLength(MemberExpression m)

@@ -18,6 +18,7 @@ namespace TZM.XFramework.Data
         private ColumnAttribute _column = null;
         private ForeignKeyAttribute _foreignKey = null;
         private BindingFlags? _flags = null;
+        private string _memberName = null;
 
         /// <summary>
         /// 列特性
@@ -64,7 +65,12 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                return _member.Name;
+                if (_memberName == null) _memberName = this.Member.Name;
+                return _memberName;
+            }
+            internal set
+            {
+                _memberName = value;
             }
         }
 
@@ -115,7 +121,7 @@ namespace TZM.XFramework.Data
             get
             {
                 if (_flags == null)
-                {                   
+                {
                     Type type = this.Member.GetType();
                     MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
                     if (list != null && list.Length > 0)

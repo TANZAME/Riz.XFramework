@@ -349,7 +349,7 @@ namespace TZM.XFramework.UnitTest
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.EndsWith("004"));
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.PadRight(12,' ') == "");
             result1 = query.ToList();
             //SQL=>
             //SELECT 
@@ -368,8 +368,21 @@ namespace TZM.XFramework.UnitTest
             Model.State state = Model.State.Complete;
             query = from a in context.GetTable<TDemo>()
                     where
+                        a.DemoId % 2 == 10 &&
+                        a.DemoId / 2 == 10 &&
                         a.DemoCode == "002" &&
                         a.DemoName == "002" &&
+                        string.IsNullOrEmpty(a.DemoCode) &&
+                        string.IsNullOrEmpty(a.DemoName) &&
+                        string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == "O" &&
+                        string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == string.Concat("1", "2", "3") &&
+                        a.DemoName.ToUpper() == "FF" &&
+                        a.DemoName.ToLower() == "ff" &&
+                        a.DemoName.Replace('A', 'B') == "ff" &&
+                        a.DemoName.IndexOf('B') == 2 &&
+                        a.DemoName.IndexOf('B', 2) == 2 &&
+                        a.DemoName.PadLeft(5) == "F0" &&
+                        a.DemoName.PadRight(5, 'F') == "F0" &&
                         a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoName.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
@@ -379,6 +392,24 @@ namespace TZM.XFramework.UnitTest
                         a.DemoCode.TrimEnd() == "TF" &&
                         a.DemoCode.TrimEnd() == "TF" &&
                         a.DemoCode.Substring(0) == "TF" &&
+                        Math.Abs(a.DemoDecimal) == 12 &&
+                        Math.Acos((double)a.DemoDecimal) == 12 &&
+                        Math.Asin((double)a.DemoDecimal) == 12 &&
+                        Math.Atan((double)a.DemoDecimal) == 12 &&
+                        Math.Atan2((double)a.DemoDecimal, a.DemoDouble) == 12 &&
+                        Math.Ceiling(a.DemoDecimal) == 12 &&
+                        Math.Cos((double)a.DemoDecimal) == 12 &&
+                        Math.Exp((double)a.DemoDecimal) == 12 &&
+                        Math.Floor((double)a.DemoDecimal) == 12 &&
+                        Math.Log((double)a.DemoDecimal) == 12 &&
+                        Math.Log10((double)a.DemoDecimal) == 12 &&
+                        Math.PI == 12 &&
+                        Math.Pow((double)a.DemoDecimal, a.DemoDouble) == 12 &&
+                        Math.Round((double)a.DemoDecimal, 2) == 12 &&
+                        Math.Sign(a.DemoDecimal) == 12 &&
+                        Math.Sqrt((double)a.DemoDecimal) == 12 &&
+                        Math.Tan((double)a.DemoDecimal) == 12 &&
+                        Math.Truncate(a.DemoDecimal) == 12 &&
                         a.DemoDate == DateTime.Now &&
                         a.DemoDateTime == DateTime.Now &&
                         a.DemoDateTime2 == DateTime.Now &&
@@ -401,35 +432,7 @@ namespace TZM.XFramework.UnitTest
                     select a;
             result1 = query.ToList();
             // 点标记
-            query = context.GetTable<TDemo>().Where(a =>
-                        a.DemoCode == "002" &&
-                        a.DemoName == "002" &&
-                        a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
-                        a.DemoName.Contains("TAN") &&                                   // LIKE '%%'
-                        a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
-                        a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'
-                        a.DemoCode.Length == 12 &&                                      // LENGTH
-                        a.DemoCode.TrimStart() == "TF" &&
-                        a.DemoCode.TrimEnd() == "TF" &&
-                        a.DemoCode.TrimEnd() == "TF" &&
-                        a.DemoCode.Substring(0) == "TF" &&
-                        a.DemoDate == DateTime.Now &&
-                        a.DemoDateTime == DateTime.Now &&
-                        a.DemoDateTime2 == DateTime.Now &&
-                        a.DemoName == (
-                            a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL") &&   // 三元表达式
-                        a.DemoName == (a.DemoName ?? a.DemoCode) &&                     // 二元表达式
-                        new[] { 1, 2, 3 }.Contains(a.DemoId) &&                         // IN(1,2,3)
-                        new List<int> { 1, 2, 3 }.Contains(a.DemoId) &&                 // IN(1,2,3)
-                        a.DemoId == new List<int> { 1, 2, 3 }[0] &&                     // IN(1,2,3)
-                        _demoIdList.Contains(a.DemoId) &&                          // IN(1,2,3)
-                        a.DemoName == _demoName &&
-                        a.DemoByte == (byte)m_byte &&
-                        a.DemoByte == (byte)Model.State.Complete ||
-                        a.DemoInt == (int)Model.State.Complete ||
-                        a.DemoInt == (int)state ||
-                        (a.DemoName == "STATE" && a.DemoName == "REMARK")               // OR 查询
-                );
+            query = context.GetTable<TDemo>().Where(a => a.DemoId % 2 == 10);               // OR 查询
             //SQL=>            
             //SELECT
             //t0.[DemoId] AS[DemoId],

@@ -37,8 +37,8 @@ namespace TZM.XFramework.Data.SqlClient
         // 获取 String 类型的 SQL 片断
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
-            bool unicode = DbTypeUtils.IsUnicode(dbType);
-            string result = this.EscapeQuote(value.ToString(), unicode, true);
+            bool isUnicode = DbTypeUtils.IsUnicode(dbType);
+            string result = this.EscapeQuote(value.ToString(), isUnicode, true);
             return result;
         }
 

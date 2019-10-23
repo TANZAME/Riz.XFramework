@@ -14,6 +14,7 @@ namespace TZM.XFramework.Data
         private Type _type = null;
         private bool _isAnonymousType = false;
         private object[] _attributes;
+        private ConstructorInfo[] _ctors = null;
         private ConstructorInvoker _ctorInvoker = null;
         private Type[] _genericArguments = null;
         private Type _genericTypeDefinition = null;
@@ -268,6 +269,17 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 获取方法反射器，适用于有多个签名的情况
+        /// </summary>
+        /// <param name="memberName">成员名称</param>
+        /// <returns></returns>
+        public MemberInvokerBase GetMethod(string memberName, Type[] parameters)
+        {
+            var invoker = this.Invokers.FirstOrDefault(x => x.Member.Name == memberName && this.CheckParameters((MethodInfo)x.Member, parameters));
+            return invoker;
+        }
+
+        /// <summary>
         /// 获取成员包装器的自定义特性。
         /// </summary>
         /// <typeparam name="TAttribute">自定义特性</typeparam>
@@ -330,8 +342,18 @@ namespace TZM.XFramework.Data
                         foreach (MemberInvokerBase invoker in collection)
                         {
                             if (invoker.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>() != null) continue;
-                            if (!invokers.Contains(invoker.Name)) invokers.Add(invoker);
-                            if (!(invoker.Column != null && invoker.Column.NoMapped || invoker.ForeignKey != null || invoker.Member.MemberType == MemberTypes.Method)) _dataFieldCount += 1;
+
+                            // 添加成员
+                            if (invokers.Contains(invoker.Name))
+                            {
+                                int dup = invokers.Count(x => x.Member.Name == invoker.Name);
+                                invoker.Name = string.Format("{0}{1}", invoker.Name, dup);
+                            }
+                            invokers.Add(invoker);
+
+                            // 累计数据字段，即与数据库一一对应的字段
+                            bool isDataField = !(invoker.Column != null && invoker.Column.NoMapped || invoker.ForeignKey != null || invoker.Member.MemberType == MemberTypes.Method);
+                            if (isDataField) _dataFieldCount += 1;
                         }
 
 
@@ -360,43 +382,57 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual ConstructorInfo GetConstructor()
         {
-            ConstructorInfo[] ctors = _type.GetConstructors();
-            if (_isAnonymousType) return ctors[0];
+            if(_ctors == null) _ctors = _type.GetConstructors();
+            if (_isAnonymousType) return _ctors[0];
 
             for (int i = 0; i < 10; i++)
             {
-                ConstructorInfo ctor = ctors.FirstOrDefault(x => x.GetParameters().Length == i);
+                ConstructorInfo ctor = _ctors.FirstOrDefault(x => x.GetParameters().Length == i);
                 if (ctor != null) return ctor;
             }
 
-            return ctors[0];
+            return _ctors[0];
         }
 
         /// <summary>
         /// 获取构造函数
-        /// 优先顺序与参数数量成反比
         /// </summary>
         /// <returns></returns>
         public ConstructorInfo GetConstructor(Type[] types)
         {
-            ConstructorInfo[] ctors = _type.GetConstructors();
-            if (_isAnonymousType) return ctors[0];
+            if (_ctors == null) _ctors = _type.GetConstructors();
+            if (_isAnonymousType) return _ctors[0];
 
-            if (types != null && types.Length > 0)
+            XFrameworkException.Check.NotNull(types, "types");
+            foreach (var ctor in _ctors)
             {
-                foreach (var ctor in ctors)
+                var parameters = ctor.GetParameters();
+                if (parameters.Length != types.Length) continue;
+
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    var parameters = ctor.GetParameters();
-                    if (parameters != null && parameters.Length == types.Length)
-                    {
-                        bool match = true;
-                        for (int i = 0; i < parameters.Length; i++) match = parameters[i].ParameterType == types[i];
-                        if (match) return ctor;
-                    }
+                    if (parameters[i].ParameterType != types[i]) break;
                 }
             }
 
             throw new XFrameworkException("not such constructor.");
         }
+
+        private bool CheckParameters(MethodInfo method, Type[] types)
+        {
+            XFrameworkException.Check.NotNull(types, "types");
+            ParameterInfo[] parameters = method.GetParameters();
+            if (parameters.Length != types.Length) return false;
+            else
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (parameters[i].ParameterType != types[i]) return false;
+                }
+
+                return true;
+            }
+        }
+
     }
 }
