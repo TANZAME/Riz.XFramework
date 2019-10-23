@@ -1,15 +1,15 @@
 # TZM.XFramework
 
 #### 介绍
-一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。
-支持版本：.Net4.0 .Net4.5+ .Net Core2.2+。
+一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式、聚合查询等等。
+支持版本：.Net4.0 .Net4.5+ .Net Core3.0。
 
 #### 亮点
 - 原生.NET语法，零学习成本
 - 支持LINQ查询、拉姆达表达式
 - 支持批量增删改查和多表关联更新
 - 支持 SqlServer、MySql、Postgre、Oracle
-- 最大亮点，支持无限级一对一、一对多导航属性
+- 支持无限级一对一、一对多导航属性
 - 实体字段类型不必与数据库的类型一致
 - 提供原生Ado.NET操作
 - 支持临时表、表变量操作
@@ -30,6 +30,7 @@ SqlServer => TZM.XFramework
 MySql     => TZM.XFramework.MySql
 Oracle    => TZM.XFramework.Oracle
 Postgre   => TZM.XFramework.Postgre
+SQLite    => TZM.XFramework.SQLite
 ```
 
 ```
@@ -37,7 +38,7 @@ Postgre   => TZM.XFramework.Postgre
 SqlServer => TZM.XFrameworkCore
 MySql     => TZM.XFrameworkCore.MySql
 Oracle    => TZM.XFrameworkCore.Oracle
-Postgre   => TZM.XFrameworkCore.Postgre
+SQLite    => TZM.XFrameworkCore.SQLite
 ```
 - ###### 实体定义
 
@@ -83,13 +84,15 @@ public partial class Client
 string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;connect timeout=10;";
 -- 实例化数据上下文
 -- SqlServer
-var context = new SqlDbContext(connString);
+var context = new SqlServerDbContext(connString);
 -- MySql 需引用 TZM.XFramework.MySql
 var context = new MySqlDbContext(connString);
 -- Oracle 需引用 TZM.XFramework.Oracle
 var context = new OracleDbContext(connString);
 -- Postgre 需引用 TZM.XFramework.Postgre
 var context = new NpgDbContext(connString);
+-- SQLite 需引用 TZM.XFramework.SQLite
+var context = new SQLiteDbContext(connString);
 ```
 - ###### 查询
 
