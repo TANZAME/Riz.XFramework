@@ -178,6 +178,16 @@ namespace TZM.XFramework.Data
         public abstract bool IsUnicode(object dbType);
 
         /// <summary>
+        /// 检查是否Unicode数据类型
+        /// </summary>
+        public bool IsUnicode(MemberExpression member)
+        {
+            var column = this.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool isUnicode =this.IsUnicode(column != null ? column.DbType : null);
+            return isUnicode;
+        }
+
+        /// <summary>
         /// 单引号转义
         /// </summary>
         /// <param name="s">源字符串</param>

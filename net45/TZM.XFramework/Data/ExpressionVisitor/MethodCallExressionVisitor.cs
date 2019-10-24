@@ -123,7 +123,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public virtual Expression VisitMemberMember(MemberExpression node)
         {
-            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType());
+            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Member.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
@@ -170,15 +170,26 @@ namespace TZM.XFramework.Data
             bool isUnicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
             name = isUnicode ? "NVARCHAR" : "VARCHAR";
 
-            if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
-            else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
-            else name = string.Format("{0}(max)", name);
+            if (node != null && node.Type == typeof(DateTime))
+            {
+                _builder.Append("CONVERT(");
+                _builder.Append(name);
+                _builder.Append(", ");
+                _visitor.Visit(node);
+                _builder.Append(", 121)");
+            }
+            else
+            {
+                if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
+                else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
+                else name = string.Format("{0}(max)", name);
 
-            _builder.Append("CAST(");
-            _visitor.Visit(node);
-            _builder.Append(" AS ");
-            _builder.Append(name);
-            _builder.Append(')');
+                _builder.Append("CAST(");
+                _visitor.Visit(node);
+                _builder.Append(" AS ");
+                _builder.Append(name);
+                _builder.Append(')');
+            }
 
             return m;
         }
@@ -365,9 +376,11 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
+                _builder.Append("(");
                 _visitor.Visit(b.Left);
                 _builder.Append(" + ");
                 _visitor.Visit(b.Right);
+                _builder.Append(")");
             }
 
             _visitedMark.Clear();
@@ -384,11 +397,13 @@ namespace TZM.XFramework.Data
                 if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
                 else
                 {
+                    _builder.Append("(");
                     for (int i = 0; i < m.Arguments.Count; i++)
                     {
                         _visitor.Visit(m.Arguments[i]);
                         if (i < m.Arguments.Count - 1) _builder.Append(" + ");
                     }
+                    _builder.Append(")");
                 }
             }
 
@@ -409,9 +424,7 @@ namespace TZM.XFramework.Data
                 _visitor.Visit(m.Arguments[0]);
                 _builder.Append(" = ");
 
-                var member = _visitedMark.Current;
-                var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-                bool isUnicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
+                bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current);
                 if (isUnicode) _builder.Append('N');
 
                 _builder.Append("'')");
@@ -509,25 +522,20 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
-                //_builder.Append("LPAD(");
-                //_visitor.Visit(b.Object);
-                //_builder.Append(',');
-                //_visitor.Visit(b.Arguments[0]);
-                //_builder.Append(',');
-                //_visitor.Visit(b.Arguments[1]);
-                //_builder.Append(')');
+                _builder.Append("(REPLICATE(");
 
-                _builder.Append("REPLICATE(");
                 if (b.Arguments.Count == 1)
-                    _builder.Append(_provider.DbValue.GetSqlValue(' ', _builder.Token));
+                    _builder.Append("N' '");
                 else
                     _visitor.Visit(b.Arguments[1]);
+
                 _builder.Append(',');
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(" - LEN(");
                 _visitor.Visit(b.Object);
                 _builder.Append(")) + ");
                 _visitor.Visit(b.Object);
+                _builder.Append(")");
             }
 
             _visitedMark.Clear();
@@ -541,25 +549,20 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
-                //_builder.Append("RPAD(");
-                //_visitor.Visit(b.Object);
-                //_builder.Append(',');
-                //_visitor.Visit(b.Arguments[0]);
-                //_builder.Append(',');
-                //_visitor.Visit(b.Arguments[1]);
-                //_builder.Append(')');
-
+                _builder.Append("(");
                 _visitor.Visit(b.Object);
                 _builder.Append(" + REPLICATE(");
+
                 if (b.Arguments.Count == 1)
-                    _builder.Append(_provider.DbValue.GetSqlValue(' ', _builder.Token));
+                    _builder.Append("N' '");
                 else
                     _visitor.Visit(b.Arguments[1]);
+
                 _builder.Append(',');
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(" - LEN(");
                 _visitor.Visit(b.Object);
-                _builder.Append("))");
+                _builder.Append(")))");
             }
 
             _visitedMark.Clear();
@@ -573,7 +576,7 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
-                _builder.Append("CHARINDEX(");
+                _builder.Append("(CHARINDEX(");
                 _visitor.Visit(b.Object);
                 _builder.Append(',');
                 _visitor.Visit(b.Arguments[0]);
@@ -592,7 +595,7 @@ namespace TZM.XFramework.Data
                         _builder.Append(" + 1");
                     }
                 }
-                _builder.Append(") - 1");
+                _builder.Append(") - 1)");
             }
 
             _visitedMark.Clear();
@@ -886,6 +889,403 @@ namespace TZM.XFramework.Data
             {
                 _builder.Append("FLOOR(");
                 _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Now 属性
+        /// </summary>
+        protected virtual Expression VisitNow(MemberExpression m)
+        {
+            _builder.Append("GETDATE()");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Now 属性
+        /// </summary>
+        protected virtual Expression VisitUtcNow(MemberExpression m)
+        {
+            _builder.Append("GETUTCDATE()");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Now 属性
+        /// </summary>
+        protected virtual Expression VisitToday(MemberExpression m)
+        {
+            _builder.Append("CONVERT(DATE,CONVERT(CHAR(10),GETDATE(),120))");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Date 属性
+        /// </summary>
+        protected virtual Expression VisitDate(MemberExpression m)
+        {
+            _builder.Append("CONVERT(CHAR(10), ");
+            _visitor.Visit(m.Expression);
+            _builder.Append(", 120)");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Day 属性
+        /// </summary>
+        protected virtual Expression VisitDay(MemberExpression m)
+        {
+            _builder.Append("DATEPART(DAY,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.DayOfWeek 属性
+        /// </summary>
+        protected virtual Expression VisitDayOfWeek(MemberExpression m)
+        {
+            _builder.Append("DATEPART(WEEKDAY,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.DayOfYear 属性
+        /// </summary>
+        protected virtual Expression VisitDayOfYear(MemberExpression m)
+        {
+            _builder.Append("DATEPART(DAYOFYEAR,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Hour 属性
+        /// </summary>
+        protected virtual Expression VisitHour(MemberExpression m)
+        {
+            _builder.Append("DATEPART(HOUR,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Millisecond 属性
+        /// </summary>
+        protected virtual Expression VisitMillisecond(MemberExpression m)
+        {
+            _builder.Append("DATEPART(MILLISECOND,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Minute 属性
+        /// </summary>
+        protected virtual Expression VisitMinute(MemberExpression m)
+        {
+            _builder.Append("DATEPART(MINUTE,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Month 属性
+        /// </summary>
+        protected virtual Expression VisitMonth(MemberExpression m)
+        {
+            _builder.Append("DATEPART(MONTH,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Second 属性
+        /// </summary>
+        protected virtual Expression VisitSecond(MemberExpression m)
+        {
+            _builder.Append("DATEPART(SECOND,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Ticks 属性
+        /// </summary>
+        protected virtual Expression VisitTicks(MemberExpression m)
+        {
+            _builder.Append("(DATEDIFF(MILLISECOND, '1970-1-1', ");
+            _visitor.Visit(m.Expression);
+            _builder.Append(") * 10000 + 621355968000000000)");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.TimeOfDay 属性
+        /// </summary>
+        protected virtual Expression VisitTimeOfDay(MemberExpression m)
+        {
+            _builder.Append("CONVERT(TIME,CONVERT(VARCHAR, ");
+            _visitor.Visit(m.Expression);
+            _builder.Append(", 14))");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.TimeOfDay 属性
+        /// </summary>
+        protected virtual Expression VisitYear(MemberExpression m)
+        {
+            _builder.Append("DATEPART(YEAR,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            _visitedMark.Clear();
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.DaysInMonth 方法
+        /// </summary>
+        protected virtual Expression VisitDaysInMonth(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                // 下个月一号减去一天就是上个月最后一天
+                // DATEPART(DAY, DATEADD(DAY, -1, DATEADD(MONTH, 1, CAST(2019 AS char(4)) + '-' + CAST(10 AS char(2)) + '-1')))
+                _builder.Append("DATEPART(DAY, DATEADD(DAY, -1, DATEADD(MONTH, 1, CAST(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" AS CHAR(4)) + '-' + CAST(");
+                _visitor.Visit(b.Arguments[1]);
+                _builder.Append(" AS char(2)) + '-1')))");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.IsLeapYear 方法
+        /// </summary>
+        protected virtual Expression VisitIsLeapYear(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append('(');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" % 4 = 0 AND ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" % 100 <> 0 OR ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" % 400 = 0)");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        ///// <summary>
+        ///// 访问 DateTime.Add 方法
+        ///// </summary>
+        //protected virtual Expression VisitAdd(MethodCallExpression b)
+        //{
+        //    if (b != null)
+        //    {
+        //        if (!b.Arguments[0].CanEvaluate()) throw new NotSupportedException("DateTime.Add reqiure a local variable as parameter.");
+
+        //        var c = b.Arguments[0].Evaluate();
+        //        _builder.Append("DATEADD(MILLISECOND, ");
+        //        _builder.Append(_provider.DbValue.GetSqlValue(((TimeSpan)c.Value).TotalMilliseconds, _builder.Token));
+        //        _builder.Append(", ");
+        //        _visitor.Visit(b.Object);
+        //        _builder.Append(')');
+        //    }
+
+        //    _visitedMark.Clear();
+        //    return b;
+        //}
+
+        ///// <summary>
+        ///// 访问 DateTime.Add 方法
+        ///// </summary>
+        //protected virtual Expression VisitSubtract(MethodCallExpression b)
+        //{
+        //    if (b != null)
+        //    {
+        //        _builder.Append("DATEADD(MILLISECOND, DATEDIFF(MILLISECOND, ");
+        //        _visitor.Visit(b.Arguments[0]);
+        //        _builder.Append(", ");
+        //        _visitor.Visit(b.Object);
+        //        _builder.Append("),'1970-01-01')");
+        //    }
+
+        //    _visitedMark.Clear();
+        //    return b;
+        //}
+
+        /// <summary>
+        /// 访问 DateTime.AddDays 方法
+        /// </summary>
+        protected virtual Expression VisitAddDays(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(DAY, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddDays 方法
+        /// </summary>
+        protected virtual Expression VisitAddHours(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(HOUR, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddMilliseconds 方法
+        /// </summary>
+        protected virtual Expression VisitAddMilliseconds(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(MILLISECOND, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddMinutes 方法
+        /// </summary>
+        protected virtual Expression VisitAddMinutes(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(MINUTE, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddMonths 方法
+        /// </summary>
+        protected virtual Expression VisitAddMonths(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(MONTH, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddSeconds 方法
+        /// </summary>
+        protected virtual Expression VisitAddSeconds(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(SECOND, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddTicks 方法
+        /// </summary>
+        protected virtual Expression VisitAddTicks(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(MILLISECOND, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(" / 10000, ");
+                _visitor.Visit(b.Object);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddYears 方法
+        /// </summary>
+        protected virtual Expression VisitAddYears(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("DATEADD(YEAR, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", ");
+                _visitor.Visit(b.Object);
                 _builder.Append(')');
             }
 

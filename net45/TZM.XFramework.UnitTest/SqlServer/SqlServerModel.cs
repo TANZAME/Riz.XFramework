@@ -50,7 +50,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             /// demolong_nullable
             /// </summary>
             [Column(DbType = System.Data.SqlDbType.Time, Scale = 7)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable

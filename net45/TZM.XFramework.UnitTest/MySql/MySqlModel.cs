@@ -84,7 +84,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// demolong_nullable
             /// </summary>
             [Column(DbType = MySqlDbType.Time, Scale = 5)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable

@@ -113,6 +113,7 @@ namespace TZM.XFramework.Data
         {
             if (b == null) return b;
 
+            // array[0]
             if (b.NodeType == ExpressionType.ArrayIndex) return this.Visit(b.Evaluate());
 
             Expression left = b.Left.ReduceUnary();
@@ -136,6 +137,26 @@ namespace TZM.XFramework.Data
             // 例： a.Name == null
             ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
             if (constExpression != null && constExpression.Value == null) return _methodVisitor.VisitEqualNull(b);
+
+            //// 时间加减
+            //bool b2 = false;
+            //switch (b.NodeType)
+            //{
+            //    case ExpressionType.Equal:
+            //    case ExpressionType.NotEqual:
+            //    case ExpressionType.GreaterThan:
+            //    case ExpressionType.GreaterThanOrEqual:
+            //    case ExpressionType.LessThan:
+            //    case ExpressionType.LessThanOrEqual:
+            //        b2 = true;
+            //        break;
+            //}
+            //if (b2 && left.Type == typeof(TimeSpan))
+            //{
+            //    bool used = left.NodeType == ExpressionType.Subtract || left.NodeType == ExpressionType.Subtract;
+            //    if (!used) used = right.NodeType == ExpressionType.Subtract || right.NodeType == ExpressionType.Subtract;
+            //    if (used) return _methodVisitor.VisitMethodCall(b);
+            //}
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
             return this.VisitBinary_Condition(b);
@@ -193,6 +214,8 @@ namespace TZM.XFramework.Data
             if (node == null) return node;
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
+            // => DateTime.Now
+            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.VisitMemberMember(node);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable) return this.Visit(node.Expression);
@@ -238,7 +261,9 @@ namespace TZM.XFramework.Data
             // or like a.Name == "TAN"
 
             if (b == null) return b;
+            // 字符相加
             else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.VisitMethodCall(b);
+            // 取模运算
             else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.VisitMethodCall(b);
             else
             {

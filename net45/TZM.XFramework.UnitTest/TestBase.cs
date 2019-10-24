@@ -349,7 +349,7 @@ namespace TZM.XFramework.UnitTest
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.PadRight(12,' ') == "");
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.PadRight(12, ' ') == "");
             result1 = query.ToList();
             //SQL=>
             //SELECT 
@@ -363,19 +363,19 @@ namespace TZM.XFramework.UnitTest
 
             // 支持的查询条件
             // 区分 nvarchar,varchar,date,datetime,datetime2 字段类型
-            // 支持的字符串操作=> Trim | TrimStart | TrimEnd | ToString | Length
-            int m_byte = 9;
+            // 支持的字符串操作=> Trim | TrimStart | TrimEnd | ToString | Length 等
+
+            int m_byte = 16;
             Model.State state = Model.State.Complete;
+            TimeSpan ts = new TimeSpan(1000000000);
+
+            // 字符串操作
             query = from a in context.GetTable<TDemo>()
                     where
-                        a.DemoId % 2 == 10 &&
-                        a.DemoId / 2 == 10 &&
-                        a.DemoCode == "002" &&
-                        a.DemoName == "002" &&
                         string.IsNullOrEmpty(a.DemoCode) &&
                         string.IsNullOrEmpty(a.DemoName) &&
                         string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == "O" &&
-                        string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == string.Concat("1", "2", "3") &&
+                        string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == "1" + "2" + "3" &&
                         a.DemoName.ToUpper() == "FF" &&
                         a.DemoName.ToLower() == "ff" &&
                         a.DemoName.Replace('A', 'B') == "ff" &&
@@ -383,15 +383,27 @@ namespace TZM.XFramework.UnitTest
                         a.DemoName.IndexOf('B', 2) == 2 &&
                         a.DemoName.PadLeft(5) == "F0" &&
                         a.DemoName.PadRight(5, 'F') == "F0" &&
+                        a.DemoCode.TrimStart() == "TF" &&
+                        a.DemoCode.TrimEnd() == "TF" &&
+                        a.DemoCode.Trim() == "TF" &&
+                        a.DemoCode.Substring(0) == "TF" &&
                         a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoName.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
                         a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'
                         a.DemoCode.Length == 12 &&                                      // LENGTH
-                        a.DemoCode.TrimStart() == "TF" &&
-                        a.DemoCode.TrimEnd() == "TF" &&
-                        a.DemoCode.TrimEnd() == "TF" &&
-                        a.DemoCode.Substring(0) == "TF" &&
+                        a.DemoName == (
+                            a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL") &&   // 三元表达式
+                        a.DemoName == (a.DemoName ?? a.DemoCode) &&                     // 二元表达式
+                        a.DemoCode == (a.DemoCode ?? "CODE")
+                    select a;
+            result1 = query.ToList();
+
+            // 数值型操作
+            query = from a in context.GetTable<TDemo>()
+                    where
+                        a.DemoId % 2 == 10 &&
+                        a.DemoId / 2 == 10 &&
                         Math.Abs(a.DemoDecimal) == 12 &&
                         Math.Acos((double)a.DemoDecimal) == 12 &&
                         Math.Asin((double)a.DemoDecimal) == 12 &&
@@ -410,17 +422,64 @@ namespace TZM.XFramework.UnitTest
                         Math.Sqrt((double)a.DemoDecimal) == 12 &&
                         Math.Tan((double)a.DemoDecimal) == 12 &&
                         Math.Truncate(a.DemoDecimal) == 12 &&
+                        a.DemoByte == (byte)m_byte &&
+                        a.DemoByte == (byte)Model.State.Complete ||
+                        a.DemoInt == 409600000 ||
+                        a.DemoInt == (int)state
+                    select a;
+            result1 = query.ToList();
+
+            // 日期类型操作
+            query = from a in context.GetTable<TDemo>()
+                    where
                         a.DemoDate == DateTime.Now &&
-                        a.DemoDateTime == DateTime.Now &&
-                        a.DemoDateTime2 == DateTime.Now &&
-                        a.DemoName == (
-                            a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL") &&   // 三元表达式
-                        a.DemoName == (a.DemoName ?? a.DemoCode) &&                     // 二元表达式
+                        a.DemoDateTime == DateTime.UtcNow &&
+                        a.DemoDateTime2 == DateTime.Today &&
+                        a.DemoDateTime2 == DateTime.MinValue &&
+                        a.DemoDateTime2 == DateTime.MaxValue &&
+                        DateTime.DaysInMonth(2019, 12) == 12 &&
+                        DateTime.IsLeapYear(2019) &&
+                        a.DemoDate_Nullable.Value.AddDays(2) == a.DemoDateTime &&
+                        a.DemoDate_Nullable.Value.AddHours(2) == a.DemoDateTime_Nullable.Value &&
+                        a.DemoDate_Nullable.Value.AddMilliseconds(12) == a.DemoDateTime_Nullable &&
+                        //a.DemoDate.Add(ts) == DateTime.Now &&
+                        //a.DemoDate_Nullable.Value.Subtract(a.DemoDateTime) == ts &&
+                        //a.DemoDate_Nullable.Value - a.DemoDateTime == ts &&
+                        a.DemoDate.AddYears(12) == a.DemoDateTime &&
+                        a.DemoDate.AddMonths(12) == a.DemoDateTime &&
+                        a.DemoDate.AddMinutes(12) == a.DemoDateTime &&
+                        a.DemoDate.AddSeconds(12) == a.DemoDateTime &&
+                        a.DemoDate.AddTicks(12) == a.DemoDateTime &&
+                        a.DemoDate.Date == DateTime.Now.Date && 
+                        a.DemoDate.Day == 12 && 
+                        a.DemoDate.DayOfWeek == DayOfWeek.Monday &&
+                        a.DemoDate.Hour == 12 &&
+                        a.DemoDate.Millisecond == 12 &&
+                        a.DemoDate.Minute == 12 &&
+                        a.DemoDate.Month == 12 &&
+                        a.DemoDate.Second == 12 &&
+                        a.DemoDate.Ticks == 12 &&
+                        a.DemoDate.TimeOfDay == ts &&
+                        a.DemoDate.Year == 12
+                    select a;
+            result1 = query.ToList();
+
+
+            //// 时间类型操作
+            //query = from a in context.GetTable<TDemo>()
+            //        where
+            //           a.DemoTime_Nullable.Value.Days == 12 &&
+            //           a.DemoTime_Nullable.Value.Hours == 12 &&
+            //        select a;
+            //result1 = query.ToList();
+
+            // 点标记
+            query = context.GetTable<TDemo>().Where(a =>
                         new[] { 1, 2, 3 }.Contains(a.DemoId) &&                         // IN(1,2,3)
                         new List<int> { 1, 2, 3 }.Contains(a.DemoId) &&                 // IN(1,2,3)
                         new List<int>(_demoIdList).Contains(a.DemoId) &&                // IN(1,2,3)
                         a.DemoId == new List<int> { 1, 2, 3 }[0] &&                     // IN(1,2,3)
-                        _demoIdList.Contains(a.DemoId) &&                          // IN(1,2,3)
+                        _demoIdList.Contains(a.DemoId) &&                               // IN(1,2,3)
                         a.DemoName == _demoName &&
                         a.DemoCode == (a.DemoCode ?? "CODE") &&
                         new List<string> { "A", "B", "C" }.Contains(a.DemoCode) &&
@@ -428,11 +487,10 @@ namespace TZM.XFramework.UnitTest
                         a.DemoByte == (byte)Model.State.Complete ||
                         a.DemoInt == (int)Model.State.Complete ||
                         a.DemoInt == (int)state ||
-                        (a.DemoName == "STATE" && a.DemoName == "REMARK")// OR 查询
-                    select a;
+                        (a.DemoName == "STATE" && a.DemoName == "REMARK"));               // OR 查询
+
             result1 = query.ToList();
-            // 点标记
-            query = context.GetTable<TDemo>().Where(a => a.DemoId % 2 == 10);               // OR 查询
+
             //SQL=>            
             //SELECT
             //t0.[DemoId] AS[DemoId],

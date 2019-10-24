@@ -107,7 +107,13 @@ namespace TZM.XFramework
 
             var memberExpression = node as MemberExpression;
             if (memberExpression == null) return false;
-            if (memberExpression.Expression == null) return true;
+            if (memberExpression.Expression == null)
+            {
+                // 排除 DateTime 的几个常量
+                bool isDateTime = memberExpression.Type == typeof(DateTime) && 
+                    (memberExpression.Member.Name == "Now" || memberExpression.Member.Name == "UtcNow" || memberExpression.Member.Name == "Today");
+                return !isDateTime;
+            }
             if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
 
             return memberExpression.Expression.CanEvaluate();
