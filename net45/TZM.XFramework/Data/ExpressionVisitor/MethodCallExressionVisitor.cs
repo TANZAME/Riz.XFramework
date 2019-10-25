@@ -222,8 +222,9 @@ namespace TZM.XFramework.Data
 
                     if (_builder.Parameterized)
                     {
+                        _builder.Append("(");
                         _builder.Append(value);
-                        _builder.Append(" + '%'");
+                        _builder.Append(" + '%')");
                     }
                     else
                     {
@@ -260,8 +261,9 @@ namespace TZM.XFramework.Data
 
                     if (_builder.Parameterized)
                     {
-                        _builder.Append("'%' + ");
+                        _builder.Append("('%' + ");
                         _builder.Append(value);
+                        _builder.Append(')');
                     }
                     else
                     {
@@ -275,7 +277,7 @@ namespace TZM.XFramework.Data
                 {
                     _builder.Append("('%' + ");
                     _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(")");
+                    _builder.Append(')');
                 }
             }
 
@@ -448,22 +450,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 % 方法
-        /// </summary>
-        protected virtual Expression VisitModulo(BinaryExpression b)
-        {
-            if (b != null)
-            {
-                _visitor.Visit(b.Left);
-                _builder.Append(" % ");
-                _visitor.Visit(b.Right);
-            }
-
-            _visitedMark.Clear();
-            return b;
-        }
-
-        /// <summary>
         /// 访问 ToUpper 方法
         /// </summary>
         protected virtual Expression VisitToUpper(MethodCallExpression b)
@@ -522,20 +508,18 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
-                _builder.Append("(REPLICATE(");
+                _builder.Append("LPAD(");
+                _visitor.Visit(b.Object);
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
 
                 if (b.Arguments.Count == 1)
-                    _builder.Append("N' '");
+                    _builder.Append("' '");
                 else
                     _visitor.Visit(b.Arguments[1]);
 
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" - LEN(");
-                _visitor.Visit(b.Object);
-                _builder.Append(")) + ");
-                _visitor.Visit(b.Object);
-                _builder.Append(")");
+                _builder.Append(')');
             }
 
             _visitedMark.Clear();
@@ -549,20 +533,18 @@ namespace TZM.XFramework.Data
         {
             if (b != null)
             {
-                _builder.Append("(");
+                _builder.Append("RPAD(");
                 _visitor.Visit(b.Object);
-                _builder.Append(" + REPLICATE(");
+                _builder.Append(',');
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(',');
 
                 if (b.Arguments.Count == 1)
-                    _builder.Append("N' '");
+                    _builder.Append("' '");
                 else
                     _visitor.Visit(b.Arguments[1]);
 
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" - LEN(");
-                _visitor.Visit(b.Object);
-                _builder.Append(")))");
+                _builder.Append(')');
             }
 
             _visitedMark.Clear();
@@ -596,6 +578,22 @@ namespace TZM.XFramework.Data
                     }
                 }
                 _builder.Append(") - 1)");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 % 方法
+        /// </summary>
+        protected virtual Expression VisitModulo(BinaryExpression b)
+        {
+            if (b != null)
+            {
+                _visitor.Visit(b.Left);
+                _builder.Append(" % ");
+                _visitor.Visit(b.Right);
             }
 
             _visitedMark.Clear();
@@ -1394,9 +1392,11 @@ namespace TZM.XFramework.Data
 
                     if (_builder.Parameterized)
                     {
+                        _builder.Append("(");
                         _builder.Append("'%' + ");
                         _builder.Append(value);
                         _builder.Append(" + '%'");
+                        _builder.Append(")");
                     }
                     else
                     {

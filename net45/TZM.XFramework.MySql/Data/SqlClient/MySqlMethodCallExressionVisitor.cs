@@ -92,7 +92,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (m != null)
             {
                 _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
+                _builder.Append(" LIKE (");
                 if (m.Arguments[0].CanEvaluate())
                 {
                     bool unicode = true;
@@ -118,6 +118,7 @@ namespace TZM.XFramework.Data.SqlClient
                     _visitor.Visit(m.Arguments[0]);
                     _builder.Append(",'%')");
                 }
+                _builder.Append(')');
             }
 
             return m;
@@ -287,22 +288,6 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 访问 Math.Truncate 方法
-        /// </summary>
-        protected override Expression VisitTruncate(MethodCallExpression b)
-        {
-            if (b != null)
-            {
-                _builder.Append("TRUNCATE(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(",0)");
-            }
-
-            _visitedMark.Clear();
-            return b;
-        }
-
-        /// <summary>
         /// 访问 Length 属性
         /// </summary>
         protected override Expression VisitLength(MemberExpression m)
@@ -312,56 +297,6 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append(')');
 
             return m;
-        }
-
-        /// <summary>
-        /// 访问 PadLeft 方法
-        /// </summary>
-        protected override Expression VisitPadLeft(MethodCallExpression b)
-        {
-            if (b != null)
-            {
-                _builder.Append("LPAD(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-                
-                if (b.Arguments.Count == 1)
-                    _builder.Append("' '");
-                else
-                    _visitor.Visit(b.Arguments[1]);
-                
-                _builder.Append(')');
-            }
-
-            _visitedMark.Clear();
-            return b;
-        }
-
-        /// <summary>
-        /// 访问 PadRight 方法
-        /// </summary>
-        protected override Expression VisitPadRight(MethodCallExpression b)
-        {
-            if (b != null)
-            {
-                _builder.Append("RPAD(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-
-                if (b.Arguments.Count == 1)
-                    _builder.Append("' '");
-                else
-                    _visitor.Visit(b.Arguments[1]);
-
-                _builder.Append(')');
-            }
-
-            _visitedMark.Clear();
-            return b;
         }
 
         /// <summary>
@@ -391,6 +326,22 @@ namespace TZM.XFramework.Data.SqlClient
                     }
                 }
                 _builder.Append(") - 1)");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Truncate 方法
+        /// </summary>
+        protected override Expression VisitTruncate(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("TRUNCATE(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(",0)");
             }
 
             _visitedMark.Clear();

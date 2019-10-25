@@ -24,6 +24,9 @@ namespace TZM.XFramework.UnitTest
         public TestBase()
         {
             _newContext = this.CreateDbContext;
+
+            DateTime dateTime = DateTime.Parse("2019-01-01 23:59:59.123456");
+            long result = dateTime.Ticks;
         }
 
         public abstract IDbContext CreateDbContext();
@@ -349,7 +352,11 @@ namespace TZM.XFramework.UnitTest
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.PadRight(12, ' ') == "");
+            query = context.GetTable<TDemo>().Where(a => a.DemoCode.EndsWith("C0000009") && 
+                a.DemoCode.Contains(a.DemoName) && a.DemoCode.StartsWith(a.DemoName) && a.DemoCode.EndsWith(a.DemoName));
+            result1 = query.ToList();
+
+            query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + 2 * 12 == 12);
             result1 = query.ToList();
             //SQL=>
             //SELECT 
@@ -450,8 +457,8 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDate.AddMinutes(12) == a.DemoDateTime &&
                         a.DemoDate.AddSeconds(12) == a.DemoDateTime &&
                         a.DemoDate.AddTicks(12) == a.DemoDateTime &&
-                        a.DemoDate.Date == DateTime.Now.Date && 
-                        a.DemoDate.Day == 12 && 
+                        a.DemoDate.Date == DateTime.Now.Date &&
+                        a.DemoDate.Day == 12 &&
                         a.DemoDate.DayOfWeek == DayOfWeek.Monday &&
                         a.DemoDate.Hour == 12 &&
                         a.DemoDate.Millisecond == 12 &&
@@ -459,6 +466,8 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDate.Month == 12 &&
                         a.DemoDate.Second == 12 &&
                         a.DemoDate.Ticks == 12 &&
+                        DateTime.Now.Ticks == 12 &&
+                        ts.Ticks == 12 &&
                         a.DemoDate.TimeOfDay == ts &&
                         a.DemoDate.Year == 12
                     select a;
