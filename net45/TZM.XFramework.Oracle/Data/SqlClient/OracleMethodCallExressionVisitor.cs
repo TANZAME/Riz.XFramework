@@ -127,9 +127,9 @@ namespace TZM.XFramework.Data.SqlClient
 
                     if (_builder.Parameterized)
                     {
-                        _builder.Append("'%' || ");
+                        _builder.Append("('%' || ");
                         _builder.Append(value);
-                        _builder.Append(" || '%'");
+                        _builder.Append(" || '%')");
                     }
                     else
                     {
@@ -166,8 +166,9 @@ namespace TZM.XFramework.Data.SqlClient
 
                     if (_builder.Parameterized)
                     {
-                        _builder.Append(value);
-                        _builder.Append(" || '%'");
+                        _builder.Append("(");
+                           _builder.Append(value);
+                        _builder.Append(" || '%')");
                     }
                     else
                     {
@@ -204,8 +205,9 @@ namespace TZM.XFramework.Data.SqlClient
 
                     if (_builder.Parameterized)
                     {
-                        _builder.Append("'%' || ");
+                        _builder.Append("('%' || ");
                         _builder.Append(value);
+                        _builder.Append(")");
                     }
                     else
                     {
@@ -275,9 +277,11 @@ namespace TZM.XFramework.Data.SqlClient
         {
             if (b != null)
             {
+                _builder.Append("(");
                 _visitor.Visit(b.Left);
                 _builder.Append(" || ");
                 _visitor.Visit(b.Right);
+                _builder.Append(")");
                 _visitedMark.Clear();
             }
 
@@ -294,11 +298,13 @@ namespace TZM.XFramework.Data.SqlClient
                 if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
                 else
                 {
+                    _builder.Append("(");
                     for (int i = 0; i < m.Arguments.Count; i++)
                     {
                         _visitor.Visit(m.Arguments[i]);
                         if (i < m.Arguments.Count - 1) _builder.Append(" || ");
                     }
+                    _builder.Append(")");
                 }
             }
 
@@ -325,11 +331,11 @@ namespace TZM.XFramework.Data.SqlClient
         {
             if (b != null)
             {
-                _builder.Append("INSTR(");
+                _builder.Append("(INSTR(");
                 _visitor.Visit(b.Object);
                 _builder.Append(',');
                 _visitor.Visit(b.Arguments[0]);
-                _builder.Append(",1,1) - 1");
+                _builder.Append(",1,1) - 1)");
             }
 
             _visitedMark.Clear();
@@ -351,6 +357,55 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitedMark.Clear();
             }
 
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Ceiling 方法
+        /// </summary>
+        protected override Expression VisitCeiling(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("CEIL(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Log 方法
+        /// </summary>
+        protected override Expression VisitLog(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                // SELECT LOG(10,100)
+                _builder.Append("LOG(2.7182818284590451, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 Math.Log10 方法
+        /// </summary>
+        protected override Expression VisitLog10(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("LOG(10, ");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            _visitedMark.Clear();
             return b;
         }
 
@@ -388,8 +443,6 @@ namespace TZM.XFramework.Data.SqlClient
             return b;
         }
 
-
-
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
@@ -425,9 +478,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDay(MemberExpression m)
         {
-            _builder.Append("EXTRACT(DAY FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'DD'))");
             _visitedMark.Clear();
             return m;
         }
@@ -437,9 +490,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDayOfWeek(MemberExpression m)
         {
-            _builder.Append("EXTRACT(DOW FROM ");
+            // select to_char(sysdate,'D') from dual;
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'D'))");
             _visitedMark.Clear();
             return m;
         }
@@ -449,9 +503,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDayOfYear(MemberExpression m)
         {
-            _builder.Append("EXTRACT(DOY FROM ");
+            // https://www.techonthenet.com/oracle/functions/to_char.php
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'DDD'))");
             _visitedMark.Clear();
             return m;
         }
@@ -461,9 +516,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitHour(MemberExpression m)
         {
-            _builder.Append("EXTRACT(HOUR FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'HH24'))");
             _visitedMark.Clear();
             return m;
         }
@@ -473,9 +528,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitMillisecond(MemberExpression m)
         {
-            _builder.Append("CAST(TO_CHAR(");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(", 'FF3') AS NUMBER)");
+            _builder.Append(",'FF3'))");
             _visitedMark.Clear();
             return m;
         }
@@ -485,9 +540,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitMinute(MemberExpression m)
         {
-            _builder.Append("EXTRACT(MINUTE FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'MI'))");
             _visitedMark.Clear();
             return m;
         }
@@ -497,9 +552,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitMonth(MemberExpression m)
         {
-            _builder.Append("EXTRACT(MONTH  FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'MM'))");
             _visitedMark.Clear();
             return m;
         }
@@ -509,9 +564,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitSecond(MemberExpression m)
         {
-            _builder.Append("EXTRACT(SECOND FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'SS'))");
             _visitedMark.Clear();
             return m;
         }
@@ -537,17 +592,21 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor.Visit(m.Expression);
             _builder.Append(") - TO_DATE('1900-01-01', 'YYYY-MM-DD') + 693595) * 24 * 3600 * 1000 + ");
             // 时
-            _builder.Append("EXTRACT(HOUR FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 3600000 + ");
+            _builder.Append(",'HH24')) * 3600000 + ");
             // 分
-            _builder.Append("EXTRACT(MINUTE FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 60000 + ");
+            _builder.Append(",'MM')) * 60000 + ");
             // 秒
-            _builder.Append("EXTRACT(SECOND FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 1000) * 10000)");
+            _builder.Append(",'SS')) * 1000 + ");
+            // ms
+            _builder.Append("TO_NUMBER(TO_CHAR(CAST(");
+            _visitor.Visit(m.Expression);
+            _builder.Append(" AS TIMESTAMP),'FF7'))) * 10000) ");
 
             _visitedMark.Clear();
             return m;
@@ -558,11 +617,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTimeOfDay(MemberExpression m)
         {
-            _builder.Append("(");
+            _builder.Append("NUMTODSINTERVAL(");
             _visitor.Visit(m.Expression);
             _builder.Append(" - TRUNC(");
             _visitor.Visit(m.Expression);
-            _builder.Append("))");
+            _builder.Append("),'SECOND')");
             _visitedMark.Clear();
             return m;
         }
@@ -572,9 +631,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitYear(MemberExpression m)
         {
-            _builder.Append("EXTRACT(YEAR FROM ");
+            _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(",'YYYY'))");
             _visitedMark.Clear();
             return m;
         }
@@ -587,11 +646,31 @@ namespace TZM.XFramework.Data.SqlClient
             if (b != null)
             {
                 // SELECT EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(2019) || '-' || TO_CHAR(10) || '-1','YYYY-MM-DD')))  FROM DUAL;
-                _builder.Append("EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR");
+                _builder.Append("EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(");
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(") || '-' || TO_CHAR(");
-                _visitor.Visit(b.Arguments[0]);
+                _visitor.Visit(b.Arguments[1]);
                 _builder.Append(") || '-1','YYYY-MM-DD')))");
+            }
+
+            _visitedMark.Clear();
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.IsLeapYear 方法
+        /// </summary>
+        protected override Expression VisitIsLeapYear(MethodCallExpression b)
+        {
+            if (b != null)
+            {
+                _builder.Append("(MOD(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", 4) = 0 AND MOD(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", 100) <> 0 OR MOD(");
+                _visitor.Visit(b.Arguments[0]);
+                _builder.Append(", 400) = 0)");
             }
 
             _visitedMark.Clear();
@@ -644,10 +723,11 @@ namespace TZM.XFramework.Data.SqlClient
         {
             if (b != null)
             {
+                _builder.Append('(');
                 _visitor.Visit(b.Object);
                 _builder.Append(" + NUMTODSINTERVAL(");
                 _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'DAY')");
+                _builder.Append(", 'DAY'))");
             }
 
             _visitedMark.Clear();

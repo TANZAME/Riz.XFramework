@@ -25,8 +25,9 @@ namespace TZM.XFramework.UnitTest
         {
             _newContext = this.CreateDbContext;
 
-            DateTime dateTime = DateTime.Parse("2019-01-01 23:59:59.123456");
+            DateTime dateTime = DateTime.Parse("2019-01-01 23:59:59.1234567");
             long result = dateTime.Ticks;
+            var r2 = Math.Log(100);
         }
 
         public abstract IDbContext CreateDbContext();
@@ -460,16 +461,17 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDate.Date == DateTime.Now.Date &&
                         a.DemoDate.Day == 12 &&
                         a.DemoDate.DayOfWeek == DayOfWeek.Monday &&
+                        a.DemoDate.DayOfYear == 12 &&
                         a.DemoDate.Hour == 12 &&
                         a.DemoDate.Millisecond == 12 &&
                         a.DemoDate.Minute == 12 &&
                         a.DemoDate.Month == 12 &&
                         a.DemoDate.Second == 12 &&
                         a.DemoDate.Ticks == 12 &&
-                        DateTime.Now.Ticks == 12 &&
                         ts.Ticks == 12 &&
                         a.DemoDate.TimeOfDay == ts &&
-                        a.DemoDate.Year == 12
+                        a.DemoDate.Year == 12 &&
+                        DateTime.Now.Ticks == 12
                     select a;
             result1 = query.ToList();
 

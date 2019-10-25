@@ -92,7 +92,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (m != null)
             {
                 _visitor.Visit(m.Object);
-                _builder.Append(" LIKE (");
+                _builder.Append(" LIKE ");
                 if (m.Arguments[0].CanEvaluate())
                 {
                     bool unicode = true;
@@ -118,7 +118,6 @@ namespace TZM.XFramework.Data.SqlClient
                     _visitor.Visit(m.Arguments[0]);
                     _builder.Append(",'%')");
                 }
-                _builder.Append(')');
             }
 
             return m;

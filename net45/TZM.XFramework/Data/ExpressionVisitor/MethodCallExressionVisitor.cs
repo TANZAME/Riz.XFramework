@@ -1037,9 +1037,10 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitTicks(MemberExpression m)
         {
-            _builder.Append("(DATEDIFF(MILLISECOND, '1970-1-1', ");
+            // tick = microsecond * 10 1microsecond = 1000nanosecond
+            _builder.Append("(DATEDIFF_BIG (NANOSECOND, '1970-1-1', ");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 10000 + 621355968000000000)");
+            _builder.Append(") / 100 + 621355968000000000)");
             _visitedMark.Clear();
             return m;
         }
