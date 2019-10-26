@@ -42,6 +42,24 @@ namespace TZM.XFramework.UnitTest.MySql
             public override string DemoName { get; set; }
 
             /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override char DemoChar { get; set; }
+
+            /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override char DemoNChar { get; set; }
+
+            /// <summary>
+            /// demochar_nullable
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override Nullable<char> DemoChar_Nullable { get; set; }
+
+            /// <summary>
             /// demodate
             /// </summary>        
             [Column(DbType = MySqlDbType.Date)]

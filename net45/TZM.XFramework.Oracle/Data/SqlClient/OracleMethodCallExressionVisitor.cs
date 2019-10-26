@@ -36,18 +36,17 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问表示 null 合并运算的节点 a ?? b
         /// </summary>
-        public override Expression VisitCoalesce(BinaryExpression b)
+        protected override Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
-            Expression left = b.Left.NodeType == ExpressionType.Constant ? b.Right : b.Left;
-            Expression right = b.Left.NodeType == ExpressionType.Constant ? b.Left : b.Right;
+            Expression left = b.Left.NodeType == System.Linq.Expressions.ExpressionType.Constant ? b.Right : b.Left;
+            Expression right = b.Left.NodeType == System.Linq.Expressions.ExpressionType.Constant ? b.Left : b.Right;
 
             _builder.Append("NVL(");
             _visitor.Visit(left);
             _builder.Append(',');
             _visitor.Visit(right);
             _builder.Append(')');
-
 
             return b;
         }
@@ -57,7 +56,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="node">一元运算符表达式</param>
         /// <returns></returns>
-        public override Expression VisitUnary(UnaryExpression node)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
             // ORACLE的AVG函数，DataReader.GetValue()会抛异常
             // Number having precision p and scale s.The precision p can range from 1 to 38.The scale s can range from - 84 to 127.
@@ -281,8 +280,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Left);
                 _builder.Append(" || ");
                 _visitor.Visit(b.Right);
-                _builder.Append(")");
-                _visitedMark.Clear();
+                _builder.Append(")");                
             }
 
             return b;
@@ -307,8 +305,7 @@ namespace TZM.XFramework.Data.SqlClient
                     _builder.Append(")");
                 }
             }
-
-            _visitedMark.Clear();
+            
             return m;
         }
 
@@ -337,8 +334,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(",1,1) - 1)");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -353,8 +349,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Left);
                 _builder.Append(',');
                 _visitor.Visit(b.Right);
-                _builder.Append(')');
-                _visitedMark.Clear();
+                _builder.Append(')');                
             }
 
             return b;
@@ -371,8 +366,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(')');
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -388,8 +382,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(')');
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -404,8 +397,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(')');
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -422,8 +414,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[1]);
                 _builder.Append(')');
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -438,8 +429,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(",0)");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -448,8 +438,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitNow(MemberExpression m)
         {
-            _builder.Append("SYSDATE");
-            _visitedMark.Clear();
+            _builder.Append("SYSDATE");            
             return m;
         }
 
@@ -458,8 +447,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitUtcNow(MemberExpression m)
         {
-            _builder.Append("SYS_EXTRACT_UTC(SYSTIMESTAMP)");
-            _visitedMark.Clear();
+            _builder.Append("SYS_EXTRACT_UTC(SYSTIMESTAMP)");            
             return m;
         }
 
@@ -468,8 +456,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDate(MemberExpression m)
         {
-            _builder.Append("TRUNC(SYSDATE)");
-            _visitedMark.Clear();
+            _builder.Append("TRUNC(SYSDATE)");            
             return m;
         }
 
@@ -480,8 +467,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'DD'))");
-            _visitedMark.Clear();
+            _builder.Append(",'DD'))");            
             return m;
         }
 
@@ -493,8 +479,7 @@ namespace TZM.XFramework.Data.SqlClient
             // select to_char(sysdate,'D') from dual;
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'D'))");
-            _visitedMark.Clear();
+            _builder.Append(",'D'))");            
             return m;
         }
 
@@ -506,8 +491,7 @@ namespace TZM.XFramework.Data.SqlClient
             // https://www.techonthenet.com/oracle/functions/to_char.php
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'DDD'))");
-            _visitedMark.Clear();
+            _builder.Append(",'DDD'))");            
             return m;
         }
 
@@ -518,8 +502,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'HH24'))");
-            _visitedMark.Clear();
+            _builder.Append(",'HH24'))");            
             return m;
         }
 
@@ -530,8 +513,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'FF3'))");
-            _visitedMark.Clear();
+            _builder.Append(",'FF3'))");            
             return m;
         }
 
@@ -542,8 +524,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'MI'))");
-            _visitedMark.Clear();
+            _builder.Append(",'MI'))");            
             return m;
         }
 
@@ -554,8 +535,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'MM'))");
-            _visitedMark.Clear();
+            _builder.Append(",'MM'))");            
             return m;
         }
 
@@ -566,8 +546,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'SS'))");
-            _visitedMark.Clear();
+            _builder.Append(",'SS'))");            
             return m;
         }
 
@@ -607,8 +586,7 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append("TO_NUMBER(TO_CHAR(CAST(");
             _visitor.Visit(m.Expression);
             _builder.Append(" AS TIMESTAMP),'FF7'))) * 10000) ");
-
-            _visitedMark.Clear();
+            
             return m;
         }
 
@@ -621,8 +599,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor.Visit(m.Expression);
             _builder.Append(" - TRUNC(");
             _visitor.Visit(m.Expression);
-            _builder.Append("),'SECOND')");
-            _visitedMark.Clear();
+            _builder.Append("),'SECOND')");            
             return m;
         }
 
@@ -633,8 +610,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'YYYY'))");
-            _visitedMark.Clear();
+            _builder.Append(",'YYYY'))");            
             return m;
         }
 
@@ -652,8 +628,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[1]);
                 _builder.Append(") || '-1','YYYY-MM-DD')))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -672,8 +647,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 400) = 0)");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -694,7 +668,7 @@ namespace TZM.XFramework.Data.SqlClient
         //        _builder.Append(')');
         //    }
 
-        //    _visitedMark.Clear();
+        //    
         //    return b;
         //}
 
@@ -712,7 +686,7 @@ namespace TZM.XFramework.Data.SqlClient
         //        _builder.Append("),'1970-01-01')");
         //    }
 
-        //    _visitedMark.Clear();
+        //    
         //    return b;
         //}
 
@@ -729,8 +703,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 'DAY'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -747,8 +720,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 'HOUR'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -765,8 +737,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(" / 1000, 'SECOND'))");
             }
-
-            _visitedMark.Clear();
+                        
             return b;
         }
 
@@ -783,8 +754,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 'MINUTE'))");
             }
-
-            _visitedMark.Clear();
+                        
             return b;
         }
 
@@ -797,12 +767,11 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 _builder.Append('(');
                 _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
+                _builder.Append(" + NUMTOYMINTERVAL(");
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 'MONTH'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -819,8 +788,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(", 'SECOND'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -837,8 +805,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(" / 10000000, 'SECOND'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -851,12 +818,11 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 _builder.Append('(');
                 _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
+                _builder.Append(" + NUMTOYMINTERVAL(");
                 _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" * 12, 'MONTH'))");
+                _builder.Append(", 'YEAR'))");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -865,8 +831,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitToday(MemberExpression m)
         {
-            _builder.Append("TRUNC(SYSDATE)");
-            _visitedMark.Clear();
+            _builder.Append("TRUNC(SYSDATE)");            
             return m;
         }
 

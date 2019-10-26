@@ -225,8 +225,6 @@ namespace TZM.XFramework.Data
                 }
 
                 #endregion 导航属性
-
-                base._visitedMark.Clear();
             }
 
             return node;
@@ -330,9 +328,10 @@ namespace TZM.XFramework.Data
                     }
                     else this.VisitNavigation(argument as MemberExpression, false);
                 }
-                else throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", argument.NodeType);
-
-                base._visitedMark.Clear();
+                else
+                {
+                    throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", argument.NodeType);
+                }
             }
 
             return node;

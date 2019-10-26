@@ -233,9 +233,11 @@ namespace TZM.XFramework
 
             if (node.NodeType == ExpressionType.Parameter) return false;
 
-            if (node.NodeType == ExpressionType.MemberAccess)
+            var m = node as MemberExpression;
+            if (m != null)
             {
-                MemberExpression m = node as MemberExpression;
+                if (m.Expression == null) return false;
+
                 if (m.Expression.NodeType == ExpressionType.Parameter)
                 {
                     string name = (m.Expression as ParameterExpression).Name;

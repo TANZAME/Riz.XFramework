@@ -73,7 +73,7 @@ namespace TZM.XFramework.UnitTest.Postgre
             /// <para>如果映射到TimeSpan类型会报错</para>
             /// </summary>
             [Column(DbType = NpgsqlDbType.Time, Precision = 2)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demotext_nullable

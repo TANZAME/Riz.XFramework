@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 方法解析器
         /// </summary>
-        protected IMethodCallExressionVisitor _methodVisitor = null;
+        protected MethodCallExressionVisitor _methodVisitor = null;
 
         /// <summary>
         /// 成员访问痕迹
@@ -109,7 +109,15 @@ namespace TZM.XFramework.Data
             this.Visit(_expression);
         }
 
-        protected override Expression VisitBinary(BinaryExpression b)
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            int visitedQty = _visitedMark.Count;
+            Expression newNode = this.VisitBinaryImpl(node);
+            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            return newNode;
+        }
+
+        Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
 
@@ -132,11 +140,11 @@ namespace TZM.XFramework.Data
             }
 
             // 例： a.Name ?? "TAN"
-            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.VisitCoalesce(b);
+            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodRouter.Coalesce);
 
             // 例： a.Name == null
             ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) return _methodVisitor.VisitEqualNull(b);
+            if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodRouter.EqualNull);
 
             //// 时间加减
             //bool b2 = false;
@@ -170,7 +178,6 @@ namespace TZM.XFramework.Data
             Expression ifTrueExpression = this.TryMakeBinary(node.IfTrue, true);
             Expression ifFalseExpression = this.TryMakeBinary(node.IfFalse, true);
 
-            _visitedMark.ClearImmediately = false;
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
             _builder.Append(" THEN ");
@@ -178,7 +185,6 @@ namespace TZM.XFramework.Data
             _builder.Append(" ELSE ");
             this.Visit(ifFalseExpression);
             _builder.Append(" END)");
-            _visitedMark.ClearImmediately = true;
 
             return node;
         }
@@ -186,15 +192,18 @@ namespace TZM.XFramework.Data
         protected override Expression VisitConstant(ConstantExpression c)
         {
             //fix# char ~~
-            Func<Type, bool> isChar = t => t == typeof(char) || t == typeof(char?);
-            if (_visitedMark.Current != null && c != null && c.Value != null && isChar(_visitedMark.Current.Type) && !isChar(c.Type))
+            if (c != null && c.Value != null)
             {
-                char @char = Convert.ToChar(c.Value);
-                c = Expression.Constant(@char, typeof(char));
+                MemberExpression visited = _visitedMark.Current;
+                bool isChar = visited != null && (visited.Type == typeof(char) || visited.Type == typeof(char?)) && c.Type == typeof(int);
+                if (isChar)
+                {
+                    char @char = Convert.ToChar(c.Value);
+                    c = Expression.Constant(@char, typeof(char));
+                }
             }
 
             _builder.Append(c.Value, _visitedMark.Current);
-            _visitedMark.Clear();
             return c;
         }
 
@@ -215,12 +224,12 @@ namespace TZM.XFramework.Data
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
             // => DateTime.Now
-            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.VisitMemberMember(node);
+            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodRouter.MemberMember);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable) return this.Visit(node.Expression);
             // => a.Name.Length
-            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.VisitMemberMember(node);
+            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodRouter.MemberMember);
             // => <>h__3.b.ClientName
             if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
             // => a.Accounts[0].Markets[0].MarketId
@@ -243,12 +252,12 @@ namespace TZM.XFramework.Data
         {
             // => List<int>[]
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
-            return _methodVisitor.VisitMethodCall(node);
+            return _methodVisitor.Visit(node, MethodRouter.MethodCall);
         }
 
         protected override Expression VisitUnary(UnaryExpression u)
         {
-            return _methodVisitor.VisitUnary(u);
+            return _methodVisitor.Visit(u, MethodRouter.Unary);
         }
 
         #endregion
@@ -262,11 +271,12 @@ namespace TZM.XFramework.Data
 
             if (b == null) return b;
             // 字符相加
-            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.VisitMethodCall(b);
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodRouter.BinaryCall);
             // 取模运算
-            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.VisitMethodCall(b);
+            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodRouter.BinaryCall);
             else
             {
+                // 常量表达式放在右边，以充分利用 MemberVisitedMark
                 string oper = this.GetOperator(b);
                 Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
                 Expression right = b.Left.CanEvaluate() ? b.Left : b.Right;
@@ -283,7 +293,6 @@ namespace TZM.XFramework.Data
                 this.Visit(right);
                 if (use2) _builder.Append(')');
 
-                _visitedMark.Clear();
                 return b;
             }
         }

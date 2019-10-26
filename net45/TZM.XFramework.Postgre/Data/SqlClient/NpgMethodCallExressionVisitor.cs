@@ -39,7 +39,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问表示 null 合并运算的节点 a ?? b
         /// </summary>
-        public override Expression VisitCoalesce(BinaryExpression b)
+        protected override Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
 
@@ -231,8 +231,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 _visitor.Visit(b.Left);
                 _builder.Append(" || ");
-                _visitor.Visit(b.Right);
-                _visitedMark.Clear();
+                _visitor.Visit(b.Right);                
             }
 
             return b;
@@ -256,7 +255,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
             }
 
-            _visitedMark.Clear();
+            
             return m;
         }
 
@@ -273,8 +272,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(") - 1");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 
@@ -289,8 +287,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Arguments[0]);
                 _builder.Append(",0)");
             }
-
-            _visitedMark.Clear();
+            
             return b;
         }
 

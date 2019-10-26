@@ -90,7 +90,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// Time 类型
             /// </summary>
             [Column(DbType = OracleDbType.IntervalDS, Scale = 6)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demotext_nullable

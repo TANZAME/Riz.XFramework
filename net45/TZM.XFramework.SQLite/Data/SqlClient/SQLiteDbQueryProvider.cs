@@ -108,7 +108,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override IMethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor)
+        public override MethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor)
         {
             return new SQLiteMethodCallExressionVisitor(this, visitor);
         }

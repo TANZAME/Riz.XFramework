@@ -114,5 +114,6 @@ namespace TZM.XFramework.Data.SqlClient
 
         // 如果用SQL的日期函数进行赋值，DateTime字段类型要用GETDATE()，DateTime2字段类型要用SYSDATETIME()。
         // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
+        // 数据类型转换优先级： https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/data-type-precedence-transact-sql?redirectedfrom=MSDN&view=sql-server-ver15
     }
 }

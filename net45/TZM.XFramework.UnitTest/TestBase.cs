@@ -12,6 +12,7 @@ namespace TZM.XFramework.UnitTest
     {
         private string _demoName = "002F";
         private int[] _demoIdList = new int[] { 2, 3 };
+        private string[] _demoNameList = new string[] { "A", "B", "C" };
         private DatabaseType _databaseType = DatabaseType.None;
         // 参数化查询语句数量@@
         protected Func<IDbContext> _newContext = null;
@@ -165,7 +166,7 @@ namespace TZM.XFramework.UnitTest
             // 点标记
             query = context
                 .GetTable<TDemo>()
-                .Where(a => a.DemoCode != a.DemoId.ToString() && a.DemoName != a.DemoId.ToString() && a.DemoChar == 'A' && a.DemoNChar == 'B')
+                .Where(a => a.DemoCode != a.DemoId.ToString() && a.DemoName != a.DemoId.ToString() && a.DemoChar == (a.DemoId == 0 ? 'A' : 'A') && a.DemoNChar == 'B')
                 .Select(a => new TDemo
                 {
                     DemoId = a.DemoId,
@@ -359,6 +360,9 @@ namespace TZM.XFramework.UnitTest
 
             query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + 2 * 12 == 12);
             result1 = query.ToList();
+            query = context.GetTable<TDemo>().Where(a => 
+                a.DemoCode.StartsWith(a.DemoCode ?? "C0000009") || a.DemoName.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
+            result1 = query.ToList();
             //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -384,6 +388,15 @@ namespace TZM.XFramework.UnitTest
                         string.IsNullOrEmpty(a.DemoName) &&
                         string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == "O" &&
                         string.Concat(a.DemoCode, a.DemoName, a.DemoChar) == "1" + "2" + "3" &&
+                        a.DemoCode.TrimStart() == "TF" &&
+                        a.DemoCode.TrimEnd() == "TF" &&
+                        a.DemoCode.Trim() == "TF" &&
+                        a.DemoCode.Substring(0) == "TF" &&
+                        a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
+                        a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
+                        a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'
+                        a.DemoCode.Length == 12 &&                                      // LENGTH
+                        a.DemoCode == (a.DemoCode ?? "C0000009") &&
                         a.DemoName.ToUpper() == "FF" &&
                         a.DemoName.ToLower() == "ff" &&
                         a.DemoName.Replace('A', 'B') == "ff" &&
@@ -391,19 +404,10 @@ namespace TZM.XFramework.UnitTest
                         a.DemoName.IndexOf('B', 2) == 2 &&
                         a.DemoName.PadLeft(5) == "F0" &&
                         a.DemoName.PadRight(5, 'F') == "F0" &&
-                        a.DemoCode.TrimStart() == "TF" &&
-                        a.DemoCode.TrimEnd() == "TF" &&
-                        a.DemoCode.Trim() == "TF" &&
-                        a.DemoCode.Substring(0) == "TF" &&
-                        a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoName.Contains("TAN") &&                                   // LIKE '%%'
-                        a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
-                        a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'
-                        a.DemoCode.Length == 12 &&                                      // LENGTH
-                        a.DemoName == (
-                            a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL") &&   // 三元表达式
                         a.DemoName == (a.DemoName ?? a.DemoCode) &&                     // 二元表达式
-                        a.DemoCode == (a.DemoCode ?? "CODE")
+                        a.DemoName == (
+                            a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL")      // 三元表达式
                     select a;
             result1 = query.ToList();
 
@@ -494,6 +498,9 @@ namespace TZM.XFramework.UnitTest
                         a.DemoName == _demoName &&
                         a.DemoCode == (a.DemoCode ?? "CODE") &&
                         new List<string> { "A", "B", "C" }.Contains(a.DemoCode) &&
+                        new List<string> { "A", "B", "C" }.Contains(a.DemoName) &&
+                        _demoNameList.Contains(a.DemoCode) &&
+                        _demoNameList.Contains(a.DemoName) &&
                         a.DemoByte == (byte)m_byte &&
                         a.DemoByte == (byte)Model.State.Complete ||
                         a.DemoInt == (int)Model.State.Complete ||

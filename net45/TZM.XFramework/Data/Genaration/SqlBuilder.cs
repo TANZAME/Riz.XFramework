@@ -215,9 +215,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
+        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type objType)
         {
-            var sql = _provider.DbValue.GetSqlValue(value, _token, m, declareType);
+            var sql = _provider.DbValue.GetSqlValue(value, _token, m, objType);
             return this.Append(sql);
         }
 

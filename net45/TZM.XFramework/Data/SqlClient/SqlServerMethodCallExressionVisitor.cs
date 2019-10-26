@@ -49,7 +49,6 @@ namespace TZM.XFramework.Data.SqlClient
                 _builder.Append(")");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -76,7 +75,6 @@ namespace TZM.XFramework.Data.SqlClient
                 _builder.Append(")))");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 

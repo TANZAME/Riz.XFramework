@@ -12,13 +12,14 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// <see cref="MethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public abstract class MethodCallExressionVisitor : IMethodCallExressionVisitor
+    public abstract class MethodCallExressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
+        private static List<string> _removeVisitedMethods = new List<string> { "Contains", "StartsWith", "EndsWith" };
 
         #region 构造函数
 
@@ -35,12 +36,51 @@ namespace TZM.XFramework.Data
 
         #endregion
 
-        #region 接口方法
+        #region 分口方法
+
+        /// <summary>
+        ///  将调度到此类中更专用的访问方法之一的表达式。
+        /// </summary>
+        /// <param name="node">方法节点</param>
+        /// <param name="router">方法路由</param>
+        /// <returns></returns>
+        public Expression Visit(Expression node, MethodRouter router)
+        {
+            int visitedQty = _visitedMark.Count;
+            Expression newNode = null;
+
+            if (router == MethodRouter.Coalesce)
+                newNode = this.VisitCoalesce((BinaryExpression)node);
+            else if (router == MethodRouter.EqualNull)
+                newNode = this.VisitEqualNull((BinaryExpression)node);
+            else if (router == MethodRouter.MethodCall)
+                newNode = this.VisitMethodCall((MethodCallExpression)node);
+            else if (router == MethodRouter.BinaryCall)
+                newNode = this.VisitMethodCall((BinaryExpression)node);
+            else if (router == MethodRouter.MemberMember)
+                newNode = this.VisitMemberMember((MemberExpression)node);
+            else if (router == MethodRouter.Unary)
+                newNode = this.VisitUnary((UnaryExpression)node);
+
+            // 自身已构成布尔表达式的则需要删除它本身所产生的访问链
+            if (_visitedMark.Count != visitedQty)
+            {
+                bool b = router != MethodRouter.Unary;
+                if (b && router == MethodRouter.BinaryCall)
+                {
+                    var m = (MethodCallExpression)node;
+                    b = _removeVisitedMethods.Contains(m.Method.Name);
+                }
+
+                if (b) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            }
+            return newNode;
+        }
 
         /// <summary>
         /// 访问表示 null 判断运算的节点 a.Name == null
         /// </summary>
-        public virtual Expression VisitEqualNull(BinaryExpression b)
+        protected virtual Expression VisitEqualNull(BinaryExpression b)
         {
             // a.Name == null => a.Name Is Null
             Expression left = b.Left.NodeType == ExpressionType.Constant ? b.Right : b.Left;
@@ -59,7 +99,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="b">二元表达式节点</param>
         /// <returns></returns>
-        public virtual Expression VisitCoalesce(BinaryExpression b)
+        protected virtual Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
             Expression left = b.Left.NodeType == ExpressionType.Constant ? b.Right : b.Left;
@@ -71,7 +111,6 @@ namespace TZM.XFramework.Data
             _visitor.Visit(right);
             _builder.Append(')');
 
-
             return b;
         }
 
@@ -80,7 +119,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="node">方法调用节点</param>
         /// <returns></returns>
-        public virtual Expression VisitMethodCall(MethodCallExpression node)
+        protected Expression VisitMethodCall(MethodCallExpression node)
         {
             if (_typeRuntime == null)
                 _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
@@ -101,7 +140,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="node">方法调用节点</param>
         /// <returns></returns>
-        public virtual Expression VisitMethodCall(BinaryExpression node)
+        protected Expression VisitMethodCall(BinaryExpression node)
         {
             if (_typeRuntime == null)
                 _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
@@ -121,7 +160,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问表示字段或者属性的属性的节点 a.Name.Length
         /// </summary>
-        public virtual Expression VisitMemberMember(MemberExpression node)
+        protected Expression VisitMemberMember(MemberExpression node)
         {
             if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Member.Name);
@@ -138,7 +177,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="node">一元运算符表达式</param>
         /// <returns></returns>
-        public virtual Expression VisitUnary(UnaryExpression node)
+        protected virtual Expression VisitUnary(UnaryExpression node)
         {
             //if (node.NodeType == ExpressionType.Convert && node.Type != node.Operand.Type && node.Operand.Type != typeof(char))
             //{
@@ -165,9 +204,8 @@ namespace TZM.XFramework.Data
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
             string name = "NVARCHAR";
-            var member = _visitedMark.Current;
-            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool isUnicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
+            ColumnAttribute column = null;
+            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
             name = isUnicode ? "NVARCHAR" : "VARCHAR";
 
             if (node != null && node.Type == typeof(DateTime))
@@ -385,7 +423,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(")");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -409,7 +446,6 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            _visitedMark.Clear();
             return m;
         }
 
@@ -432,7 +468,6 @@ namespace TZM.XFramework.Data
                 _builder.Append("'')");
             }
 
-            _visitedMark.Clear();
             return m;
         }
 
@@ -445,7 +480,6 @@ namespace TZM.XFramework.Data
             _visitor.Visit(m.Expression);
             _builder.Append(")");
 
-            _visitedMark.Clear();
             return m;
         }
 
@@ -461,7 +495,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -477,7 +510,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -497,7 +529,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -522,7 +553,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -547,7 +577,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -580,7 +609,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(") - 1)");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -596,7 +624,6 @@ namespace TZM.XFramework.Data
                 _visitor.Visit(b.Right);
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -612,7 +639,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -628,7 +654,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -644,7 +669,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -660,7 +684,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -678,7 +701,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -694,7 +716,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -710,7 +731,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -726,7 +746,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -742,7 +761,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -758,7 +776,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -774,7 +791,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -792,7 +808,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -810,7 +825,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -826,7 +840,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -842,7 +855,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -858,7 +870,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -874,7 +885,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -890,7 +900,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -900,7 +909,6 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitNow(MemberExpression m)
         {
             _builder.Append("GETDATE()");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -910,7 +918,6 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitUtcNow(MemberExpression m)
         {
             _builder.Append("GETUTCDATE()");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -920,7 +927,6 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitToday(MemberExpression m)
         {
             _builder.Append("CONVERT(DATE,CONVERT(CHAR(10),GETDATE(),120))");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -932,7 +938,6 @@ namespace TZM.XFramework.Data
             _builder.Append("CONVERT(CHAR(10), ");
             _visitor.Visit(m.Expression);
             _builder.Append(", 120)");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -944,7 +949,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(DAY,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -956,7 +960,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(WEEKDAY,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -968,7 +971,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(DAYOFYEAR,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -980,7 +982,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(HOUR,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -992,7 +993,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(MILLISECOND,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1004,7 +1004,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(MINUTE,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1016,7 +1015,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(MONTH,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1028,7 +1026,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(SECOND,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1041,7 +1038,6 @@ namespace TZM.XFramework.Data
             _builder.Append("(DATEDIFF_BIG (NANOSECOND, '1970-1-1', ");
             _visitor.Visit(m.Expression);
             _builder.Append(") / 100 + 621355968000000000)");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1053,7 +1049,6 @@ namespace TZM.XFramework.Data
             _builder.Append("CONVERT(TIME,CONVERT(VARCHAR, ");
             _visitor.Visit(m.Expression);
             _builder.Append(", 14))");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1065,7 +1060,6 @@ namespace TZM.XFramework.Data
             _builder.Append("DATEPART(YEAR,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-            _visitedMark.Clear();
             return m;
         }
 
@@ -1085,7 +1079,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(" AS char(2)) + '-1')))");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1105,7 +1098,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(" % 400 = 0)");
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1162,7 +1154,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1180,7 +1171,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1198,7 +1188,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1216,7 +1205,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1234,7 +1222,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1252,7 +1239,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1270,7 +1256,6 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
         }
 
@@ -1288,33 +1273,7 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            _visitedMark.Clear();
             return b;
-        }
-
-        /// <summary>
-        /// 生成SQL片断
-        /// </summary>
-        protected string GetSqlValue(ConstantExpression c, ref bool unicode)
-        {
-            var member = _visitedMark.Current;
-            var column = _provider.DbValue.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
-
-            if (_builder.Parameterized)
-            {
-                unicode = false;
-                string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-                return value;
-            }
-            else
-            {
-                string value = c.Value != null ? c.Value.ToString() : string.Empty;
-                value = _provider.DbValue.EscapeQuote(value, false, true, false);
-                unicode = _provider.DbValue.IsUnicode(column != null ? column.DbType : null);
-
-                return value;
-            }
         }
 
         /// <summary>
@@ -1425,7 +1384,6 @@ namespace TZM.XFramework.Data
         {
             if (m == null) return m;
 
-            _visitedMark.ClearImmediately = false;
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
             _builder.Append(" IN(");
 
@@ -1446,7 +1404,6 @@ namespace TZM.XFramework.Data
                 {
                     _visitor.Visit(expressions[i]);
                     if (i < expressions.Count - 1) _builder.Append(",");
-                    else if (i == expressions.Count - 1) _visitedMark.ClearImmediately = true;
                 }
             }
             else if (exp.NodeType == ExpressionType.ListInit)
@@ -1456,23 +1413,15 @@ namespace TZM.XFramework.Data
                 for (int i = 0; i < initializers.Count; i++)
                 {
                     foreach (var args in initializers[i].Arguments) _visitor.Visit(args);
-
                     if (i < initializers.Count - 1) _builder.Append(",");
-                    else if (i == initializers.Count - 1) _visitedMark.ClearImmediately = true;
                 }
             }
             else if (exp.NodeType == ExpressionType.New)
             {
                 // => new List<int>(_demoIdList).Contains(a.DemoId)
                 var arguments = (exp as NewExpression).Arguments;
-                for (int i = 0; i < arguments.Count; i++)
-                {
-                    if (i == arguments.Count - 1) _visitedMark.ClearImmediately = true;
-                    _visitor.Visit(arguments[i]);
-                }
+                for (int i = 0; i < arguments.Count; i++) _visitor.Visit(arguments[i]);
             }
-
-            _visitedMark.ClearImmediately = true;
             _builder.Append(")");
 
             return m;
@@ -1509,6 +1458,59 @@ namespace TZM.XFramework.Data
             return m;
         }
 
+        // 生成字符串片断
+        protected string GetSqlValue(ConstantExpression c, ref bool unicode)
+        {
+            unicode = false;
+            var visited = _visitedMark.Current;
+            MemberInfo member = visited != null ? visited.Member : null;
+            Type objType = visited != null && visited.Expression != null ? visited.Expression.Type : null;
+            string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member, objType);
+            if (!_builder.Parameterized)
+            {
+                unicode = _provider.DbValue.IsUnicode(visited);
+                if (value != null) value = value.TrimStart('N').Trim('\'');
+            }
+
+            return value;
+        }
+
         #endregion
+    }
+
+    /// <summary>
+    /// 遍历路由枚举
+    /// </summary>
+    public enum MethodRouter
+    {
+        /// <summary>
+        /// 一个表示空合并操作，如节点 (a ?? b)
+        /// </summary>
+        Coalesce = 1,
+
+        /// <summary>
+        /// 表示一个空判断操作，如节点(a.Name == null)
+        /// </summary>
+        EqualNull = 2,
+
+        /// <summary>
+        /// 表示某个方法调用
+        /// </summary>
+        MethodCall = 3,
+
+        /// <summary>
+        /// 表示一个二元运算操作
+        /// </summary>
+        BinaryCall = 4,
+
+        /// <summary>
+        /// 表示访问成员的成员，如 (a.Name.Length)
+        /// </summary>
+        MemberMember = 5,
+
+        /// <summary>
+        /// 表示一个一元运算操作
+        /// </summary>
+        Unary = 6
     }
 }

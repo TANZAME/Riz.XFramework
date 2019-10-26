@@ -47,12 +47,33 @@ namespace TZM.XFramework.Data
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
         /// <param name="member">成员</param>
-        /// <param name="runtimeType">成员所在类型</param>
+        /// <param name="objType">成员所在类型</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type runtimeType)
+        public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type objType)
         {
-            ColumnAttribute attribute = this.GetColumnAttribute(member, runtimeType);
-            return this.GetSqlValue(value, token, attribute);
+            //// 如果成员类型与value类型不一致，则忽略
+            //if (value != null && member != null)
+            //{
+            //    Type dataType = null;
+            //    if (member is FieldInfo) dataType = ((FieldInfo)member).FieldType;
+            //    else if (member is PropertyInfo) dataType = ((PropertyInfo)member).PropertyType;
+
+            //    Type valueType = value.GetType();
+            //    var underlyType = Nullable.GetUnderlyingType(valueType);
+            //    if (underlyType != null) valueType = underlyType;
+
+            //    underlyType = Nullable.GetUnderlyingType(dataType);
+            //    if (underlyType != null) dataType = underlyType;
+
+            //    if (valueType != dataType)
+            //    {
+            //        member = null;
+            //        objType = null;
+            //    }
+            //}
+
+            ColumnAttribute column = this.GetColumnAttribute(member, objType);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -63,24 +84,24 @@ namespace TZM.XFramework.Data
         /// <param name="token">解析SQL命令时的参数上下文</param>
         /// <param name="attribute">数据列特性</param>
         /// <returns></returns>
-        public string GetSqlValueWidthDefault(object value, ResolveToken token, ColumnAttribute attribute)
+        public string GetSqlValueWidthDefault(object value, ResolveToken token, ColumnAttribute column)
         {
-            if (value == null && attribute != null && attribute.Default != null)
+            if (value == null && column != null && column.Default != null)
             {
                 // 插入值为空时使用默认值
-                return attribute.Default.ToString();
+                return column.Default.ToString();
             }
-            if (value != null && attribute != null && attribute.Default != null)
+            if (value != null && column != null && column.Default != null)
             {
                 // 值不为空，但只有.net默认值时也使用数据库默认值
                 Type t = value.GetType();
                 bool useDefault = false;
                 if (t == typeof(DateTime) && (((DateTime)value) == DateTime.MinValue || ((DateTime)value).ToString("yyyy-MM-dd") == "0001-01-01")) useDefault = true;
                 // 插入值为空时使用默认值
-                if (useDefault) return attribute.Default.ToString();
+                if (useDefault) return column.Default.ToString();
             }
 
-            return this.GetSqlValue(value, token, attribute);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -88,15 +109,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
-        /// <param name="attribute">数据列特性</param>
+        /// <param name="column">数据列特性</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, ColumnAttribute attribute)
+        public string GetSqlValue(object value, ResolveToken token, ColumnAttribute column)
         {
-            return attribute == null
+            return column == null
                 ? this.GetSqlValue(value, token, null, null, null, null, null)
-                : this.GetSqlValue(value, token, attribute.HasSetDbType ? attribute.DbType : null, attribute.HasSetSize ? new Nullable<int>(attribute.Size) : null,
-                        attribute.HasSetPrecision ? new Nullable<int>(attribute.Precision) : null, attribute.HasSetScale ? new Nullable<int>(attribute.Scale) : null,
-                        attribute.HasSetDirection ? new Nullable<ParameterDirection>(attribute.Direction) : null);
+                : this.GetSqlValue(value, token, column.HasSetDbType ? column.DbType : null, column.HasSetSize ? new Nullable<int>(column.Size) : null,
+                        column.HasSetPrecision ? new Nullable<int>(column.Precision) : null, column.HasSetScale ? new Nullable<int>(column.Scale) : null,
+                        column.HasSetDirection ? new Nullable<ParameterDirection>(column.Direction) : null);
         }
 
         /// <summary>
@@ -182,8 +203,17 @@ namespace TZM.XFramework.Data
         /// </summary>
         public bool IsUnicode(MemberExpression member)
         {
-            var column = this.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool isUnicode =this.IsUnicode(column != null ? column.DbType : null);
+            ColumnAttribute column = null;
+            return this.IsUnicode(member, out column);
+        }
+
+        /// <summary>
+        /// 检查是否Unicode数据类型
+        /// </summary>
+        public bool IsUnicode(MemberExpression member, out ColumnAttribute column)
+        {
+            column = this.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool isUnicode = this.IsUnicode(column != null ? column.DbType : null);
             return isUnicode;
         }
 
@@ -205,14 +235,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 获取指定成员的 <see cref="ColumnAttribute"/>
         /// </summary>
-        public virtual ColumnAttribute GetColumnAttribute(MemberInfo member, Type runtimeType)
+        /// <param name="member">成员</param>
+        /// <param name="objType">成员所在类型</param>
+        /// <returns></returns>
+        public virtual ColumnAttribute GetColumnAttribute(MemberInfo member, Type objType)
         {
             Type dataType = TypeUtils.GetDataType(member);
             if (dataType == null) return null;
 
             ColumnAttribute column = null;
-            Type type = runtimeType != null ? runtimeType : (member.ReflectedType != null ? member.ReflectedType : member.DeclaringType);
-            if (type != null && !TypeUtils.IsAnonymousType(type))
+            Type type = objType != null ? objType : (member.ReflectedType != null ? member.ReflectedType : member.DeclaringType);
+            if (type != null && !TypeUtils.IsAnonymousType(type) && !TypeUtils.IsPrimitiveType(type))
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                 var invoker = typeRuntime.GetInvoker(member.Name);
