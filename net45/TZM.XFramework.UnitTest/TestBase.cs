@@ -392,6 +392,7 @@ namespace TZM.XFramework.UnitTest
                         a.DemoCode.TrimEnd() == "TF" &&
                         a.DemoCode.Trim() == "TF" &&
                         a.DemoCode.Substring(0) == "TF" &&
+                        a.DemoCode.Substring(0, 4) == "TF" &&
                         a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
                         a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
                         a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'

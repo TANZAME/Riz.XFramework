@@ -39,8 +39,8 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
-            Expression left = b.Left.NodeType == System.Linq.Expressions.ExpressionType.Constant ? b.Right : b.Left;
-            Expression right = b.Left.NodeType == System.Linq.Expressions.ExpressionType.Constant ? b.Left : b.Right;
+            Expression left = b.Left.NodeType == ExpressionType.Constant ? b.Right : b.Left;
+            Expression right = b.Left.NodeType == ExpressionType.Constant ? b.Left : b.Right;
 
             _builder.Append("NVL(");
             _visitor.Visit(left);
@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _visitor.Visit(b.Object);
                 _builder.Append(',');
                 _visitor.Visit(b.Arguments[0]);
-                _builder.Append(",1,1) - 1)");
+                _builder.Append(", 1, 1) - 1)");
             }
             
             return b;

@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
-        private static List<string> _removeVisitedMethods = new List<string> { "Contains", "StartsWith", "EndsWith" };
+        private static List<string> _removeVisitedMethods = new List<string> { "Contains", "StartsWith", "EndsWith", "IsNullOrEmpty" };
 
         #region 构造函数
 
@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
 
         #endregion
 
-        #region 分口方法
+        #region 入口方法
 
         /// <summary>
         ///  将调度到此类中更专用的访问方法之一的表达式。
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
             if (_visitedMark.Count != visitedQty)
             {
                 bool b = router != MethodRouter.Unary;
-                if (b && router == MethodRouter.BinaryCall)
+                if (b && router == MethodRouter.MethodCall)
                 {
                     var m = (MethodCallExpression)node;
                     b = _removeVisitedMethods.Contains(m.Method.Name);
@@ -249,35 +249,32 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitStartsWith(MethodCallExpression m)
         {
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("(");
-                        _builder.Append(value);
-                        _builder.Append(" + '%')");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'");
-                        _builder.Append(value);
-                        _builder.Append("%'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(value);
+                    _builder.Append(" + '%')");
                 }
                 else
                 {
-                    _builder.Append("(");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" + '%')");
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'");
+                    _builder.Append(value);
+                    _builder.Append("%'");
                 }
+            }
+            else
+            {
+                _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" + '%')");
             }
 
             return m;
@@ -288,35 +285,32 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitEndsWith(MethodCallExpression m)
         {
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("('%' + ");
-                        _builder.Append(value);
-                        _builder.Append(')');
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("('%' + ");
+                    _builder.Append(value);
+                    _builder.Append(')');
                 }
                 else
                 {
-                    _builder.Append("('%' + ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(')');
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("'");
                 }
+            }
+            else
+            {
+                _builder.Append("('%' + ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(')');
             }
 
             return m;
@@ -327,13 +321,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitTrimStart(MethodCallExpression m)
         {
-            if (m != null)
-            {
-                _builder.Append("LTRIM(");
-                _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-                _builder.Append(")");
-            }
-
+            _builder.Append("LTRIM(");
+            _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
+            _builder.Append(")");
             return m;
         }
 
@@ -342,13 +332,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitTrimEnd(MethodCallExpression m)
         {
-            if (m != null)
-            {
-                _builder.Append("RTRIM(");
-                _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-                _builder.Append(")");
-            }
-
+            _builder.Append("RTRIM(");
+            _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
+            _builder.Append(")");
             return m;
         }
 
@@ -357,13 +343,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitTrim(MethodCallExpression m)
         {
-            if (m != null)
-            {
-                _builder.Append("RTRIM(LTRIM(");
-                _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-                _builder.Append("))");
-            }
-
+            _builder.Append("RTRIM(LTRIM(");
+            _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
+            _builder.Append("))");
             return m;
         }
 
@@ -372,58 +354,58 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitSubstring(MethodCallExpression m)
         {
-            if (m != null)
+            var expressions = new List<Expression>(m.Arguments);
+            if (m.Object != null) expressions.Insert(0, m.Object);
+
+            _builder.Append("SUBSTRING(");
+            _visitor.Visit(expressions[0]);
+            _builder.Append(", ");
+
+            if (expressions[1].CanEvaluate())
             {
-                List<Expression> args = new List<Expression>(m.Arguments);
-                if (m.Object != null) args.Insert(0, m.Object);
+                var c = expressions[1].Evaluate();
+                int index = Convert.ToInt32(c.Value);
+                index += 1;
+                _visitor.VisitConstant(index, null);
+                _builder.Append(", ");
+            }
+            else
+            {
+                _visitor.Visit(expressions[1]);
+                _builder.Append(" + 1, ");
+            }
 
-                _builder.Append("SUBSTRING(");
-                _visitor.Visit(args[0]);
-                _builder.Append(",");
-
-                if (args[1].CanEvaluate())
-                {
-                    ConstantExpression c = args[1].Evaluate();
-                    int index = Convert.ToInt32(c.Value);
-                    index += 1;
-                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token, System.Data.DbType.Int32);
-                    _builder.Append(value);
-                    _builder.Append(',');
-                }
+            if (expressions.Count == 3)
+            {
+                // 带2个参数，Substring(n,n)
+                if (expressions[2].CanEvaluate())
+                    _visitor.VisitConstant(expressions[2].Evaluate(), null);
                 else
-                {
-                    _visitor.Visit(args[1]);
-                    _builder.Append(" + 1,");
-                }
-
-                if (args.Count == 3) _visitor.Visit(args[2]);
-                else
-                {
-                    _builder.Append("LEN(");
-                    _visitor.Visit(args[0]);
-                    _builder.Append(")");
-                }
+                    _visitor.Visit(expressions[2]);
+            }
+            else
+            {
+                // 带1个参数，Substring(n)
+                _builder.Append("LEN(");
+                _visitor.Visit(expressions[0]);
                 _builder.Append(")");
             }
 
+            _builder.Append(")");
             return m;
         }
 
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
-        protected virtual Expression VisitConcat(BinaryExpression b)
+        protected virtual Expression VisitConcat(BinaryExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("(");
-                _visitor.Visit(b.Left);
-                _builder.Append(" + ");
-                _visitor.Visit(b.Right);
-                _builder.Append(")");
-            }
-
-            return b;
+            _builder.Append("(");
+            _visitor.Visit(m.Left);
+            _builder.Append(" + ");
+            _visitor.Visit(m.Right);
+            _builder.Append(")");
+            return m;
         }
 
         /// <summary>
@@ -431,21 +413,17 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitConcat(MethodCallExpression m)
         {
-            if (m != null && m.Arguments != null)
+            if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+            else
             {
-                if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
-                else
+                _builder.Append("(");
+                for (int i = 0; i < m.Arguments.Count; i++)
                 {
-                    _builder.Append("(");
-                    for (int i = 0; i < m.Arguments.Count; i++)
-                    {
-                        _visitor.Visit(m.Arguments[i]);
-                        if (i < m.Arguments.Count - 1) _builder.Append(" + ");
-                    }
-                    _builder.Append(")");
+                    _visitor.Visit(m.Arguments[i]);
+                    if (i < m.Arguments.Count - 1) _builder.Append(" + ");
                 }
+                _builder.Append(")");
             }
-
             return m;
         }
 
@@ -454,20 +432,16 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitIsNullOrEmpty(MethodCallExpression m)
         {
-            if (m != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" IS NULL OR ");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" = ");
+            _builder.Append('(');
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" IS NULL OR ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" = ");
 
-                bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current);
-                if (isUnicode) _builder.Append('N');
+            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current);
+            if (isUnicode) _builder.Append('N');
 
-                _builder.Append("'')");
-            }
-
+            _builder.Append("'')");
             return m;
         }
 
@@ -479,428 +453,339 @@ namespace TZM.XFramework.Data
             _builder.Append("LEN(");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-
             return m;
         }
 
         /// <summary>
         /// 访问 ToUpper 方法
         /// </summary>
-        protected virtual Expression VisitToUpper(MethodCallExpression b)
+        protected virtual Expression VisitToUpper(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("UPPER(");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("UPPER(");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 ToLower 方法
         /// </summary>
-        protected virtual Expression VisitToLower(MethodCallExpression b)
+        protected virtual Expression VisitToLower(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("LOWER(");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("LOWER(");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Replace 方法
         /// </summary>
-        protected virtual Expression VisitReplace(MethodCallExpression b)
+        protected virtual Expression VisitReplace(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("REPLACE(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[1]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("REPLACE(");
+            _visitor.Visit(m.Object);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 PadLeft 方法
         /// </summary>
-        protected virtual Expression VisitPadLeft(MethodCallExpression b)
+        protected virtual Expression VisitPadLeft(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("LPAD(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
+            _builder.Append("LPAD(");
+            _visitor.Visit(m.Object);
+            _builder.Append(", ");
 
-                if (b.Arguments.Count == 1)
-                    _builder.Append("' '");
-                else
-                    _visitor.Visit(b.Arguments[1]);
+            if (m.Arguments[0].CanEvaluate())
+                _visitor.VisitConstant(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
 
-                _builder.Append(')');
-            }
+            _builder.Append(", ");
 
-            return b;
+            if (m.Arguments.Count == 1)
+                _builder.Append("' '");
+            else
+                _visitor.Visit(m.Arguments[1]);
+
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 PadRight 方法
         /// </summary>
-        protected virtual Expression VisitPadRight(MethodCallExpression b)
+        protected virtual Expression VisitPadRight(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("RPAD(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
+            _builder.Append("RPAD(");
+            _visitor.Visit(m.Object);
+            _builder.Append(", ");
 
-                if (b.Arguments.Count == 1)
-                    _builder.Append("' '");
-                else
-                    _visitor.Visit(b.Arguments[1]);
+            if (m.Arguments[0].CanEvaluate())
+                _visitor.VisitConstant(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
 
-                _builder.Append(')');
-            }
+            _builder.Append(", ");
 
-            return b;
+            if (m.Arguments.Count == 1)
+                _builder.Append("' '");
+            else
+                _visitor.Visit(m.Arguments[1]);
+
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 IndexOf 方法
         /// </summary>
-        protected virtual Expression VisitIndexOf(MethodCallExpression b)
+        protected virtual Expression VisitIndexOf(MethodCallExpression m)
         {
-            if (b != null)
+            _builder.Append("(CHARINDEX(");
+            _visitor.Visit(m.Object);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[0]);
+            
+            if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
-                _builder.Append("(CHARINDEX(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                if (b.Arguments.Count > 1)
+                _builder.Append(", ");
+                if (m.Arguments[1].CanEvaluate())
                 {
-                    _builder.Append(',');
-                    if (b.Arguments[1].CanEvaluate())
-                    {
-                        var c = b.Arguments[1].Evaluate();
-                        int index = Convert.ToInt32(c.Value) + 1;
-                        _builder.Append(_provider.DbValue.GetSqlValue(index, _builder.Token));
-                    }
-                    else
-                    {
-                        _visitor.Visit(b.Arguments[1]);
-                        _builder.Append(" + 1");
-                    }
+                    var c = m.Arguments[1].Evaluate();
+                    int index = Convert.ToInt32(c.Value) + 1;
+                    _visitor.VisitConstant(index, null);
                 }
-                _builder.Append(") - 1)");
+                else
+                {
+                    _visitor.Visit(m.Arguments[1]);
+                    _builder.Append(" + 1");
+                }
             }
 
-            return b;
+            _builder.Append(") - 1)");
+            return m;
         }
 
         /// <summary>
         /// 访问 % 方法
         /// </summary>
-        protected virtual Expression VisitModulo(BinaryExpression b)
+        protected virtual Expression VisitModulo(BinaryExpression m)
         {
-            if (b != null)
-            {
-                _visitor.Visit(b.Left);
-                _builder.Append(" % ");
-                _visitor.Visit(b.Right);
-            }
-
-            return b;
+            _visitor.Visit(m.Left);
+            _builder.Append(" % ");
+            _visitor.Visit(m.Right);
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Abs 方法
         /// </summary>
-        protected virtual Expression VisitAbs(MethodCallExpression b)
+        protected virtual Expression VisitAbs(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ABS(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ABS(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Acos 方法
         /// </summary>
-        protected virtual Expression VisitAcos(MethodCallExpression b)
+        protected virtual Expression VisitAcos(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ACOS(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ACOS(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Asin 方法
         /// </summary>
-        protected virtual Expression VisitAsin(MethodCallExpression b)
+        protected virtual Expression VisitAsin(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ASIN(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ASIN(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Atan 方法
         /// </summary>
-        protected virtual Expression VisitAtan(MethodCallExpression b)
+        protected virtual Expression VisitAtan(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ATAN(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ATAN(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
-        protected virtual Expression VisitAtan2(MethodCallExpression b)
+        protected virtual Expression VisitAtan2(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ATN2(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[1]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ATN2(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(',');
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Ceiling 方法
         /// </summary>
-        protected virtual Expression VisitCeiling(MethodCallExpression b)
+        protected virtual Expression VisitCeiling(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("CEILING(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("CEILING(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Cos 方法
         /// </summary>
-        protected virtual Expression VisitCos(MethodCallExpression b)
+        protected virtual Expression VisitCos(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("COS(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("COS(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Exp 方法
         /// </summary>
-        protected virtual Expression VisitExp(MethodCallExpression b)
+        protected virtual Expression VisitExp(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("EXP(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("EXP(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Floor 方法
         /// </summary>
-        protected virtual Expression VisitFloor(MethodCallExpression b)
+        protected virtual Expression VisitFloor(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("FLOOR(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("FLOOR(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Log 方法
         /// </summary>
-        protected virtual Expression VisitLog(MethodCallExpression b)
+        protected virtual Expression VisitLog(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("LOG(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("LOG(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Log10 方法
         /// </summary>
-        protected virtual Expression VisitLog10(MethodCallExpression b)
+        protected virtual Expression VisitLog10(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("LOG10(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("LOG10(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Pow 方法
         /// </summary>
-        protected virtual Expression VisitPow(MethodCallExpression b)
+        protected virtual Expression VisitPow(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("POWER(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[1]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("POWER(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Round 方法
         /// </summary>
-        protected virtual Expression VisitRound(MethodCallExpression b)
+        protected virtual Expression VisitRound(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("ROUND(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[1]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("ROUND(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Sign 方法
         /// </summary>
-        protected virtual Expression VisitSign(MethodCallExpression b)
+        protected virtual Expression VisitSign(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("SIGN(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("SIGN(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Sin 方法
         /// </summary>
-        protected virtual Expression VisitSin(MethodCallExpression b)
+        protected virtual Expression VisitSin(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("Sin(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("Sin(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Sqrt 方法
         /// </summary>
-        protected virtual Expression VisitSqrt(MethodCallExpression b)
+        protected virtual Expression VisitSqrt(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("SQRT(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("SQRT(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Tan 方法
         /// </summary>
-        protected virtual Expression VisitTan(MethodCallExpression b)
+        protected virtual Expression VisitTan(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("TAN(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("TAN(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 Math.Truncate 方法
         /// </summary>
-        protected virtual Expression VisitTruncate(MethodCallExpression b)
+        protected virtual Expression VisitTruncate(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("FLOOR(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("FLOOR(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
@@ -1066,39 +951,34 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.DaysInMonth 方法
         /// </summary>
-        protected virtual Expression VisitDaysInMonth(MethodCallExpression b)
+        protected virtual Expression VisitDaysInMonth(MethodCallExpression m)
         {
-            if (b != null)
+            if (m != null)
             {
                 // 下个月一号减去一天就是上个月最后一天
                 // DATEPART(DAY, DATEADD(DAY, -1, DATEADD(MONTH, 1, CAST(2019 AS char(4)) + '-' + CAST(10 AS char(2)) + '-1')))
                 _builder.Append("DATEPART(DAY, DATEADD(DAY, -1, DATEADD(MONTH, 1, CAST(");
-                _visitor.Visit(b.Arguments[0]);
+                _visitor.Visit(m.Arguments[0]);
                 _builder.Append(" AS CHAR(4)) + '-' + CAST(");
-                _visitor.Visit(b.Arguments[1]);
+                _visitor.Visit(m.Arguments[1]);
                 _builder.Append(" AS char(2)) + '-1')))");
             }
 
-            return b;
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.IsLeapYear 方法
         /// </summary>
-        protected virtual Expression VisitIsLeapYear(MethodCallExpression b)
+        protected virtual Expression VisitIsLeapYear(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" % 4 = 0 AND ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" % 100 <> 0 OR ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" % 400 = 0)");
-            }
-
-            return b;
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" % 4 = 0 AND ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" % 100 <> 0 OR ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" % 400 = 0)");
+            return m;
         }
 
         ///// <summary>
@@ -1143,137 +1023,105 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
-        protected virtual Expression VisitAddDays(MethodCallExpression b)
+        protected virtual Expression VisitAddDays(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(DAY, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(DAY, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
-        protected virtual Expression VisitAddHours(MethodCallExpression b)
+        protected virtual Expression VisitAddHours(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(HOUR, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(HOUR, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMilliseconds 方法
         /// </summary>
-        protected virtual Expression VisitAddMilliseconds(MethodCallExpression b)
+        protected virtual Expression VisitAddMilliseconds(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(MILLISECOND, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(MILLISECOND, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
-        protected virtual Expression VisitAddMinutes(MethodCallExpression b)
+        protected virtual Expression VisitAddMinutes(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(MINUTE, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(MINUTE, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMonths 方法
         /// </summary>
-        protected virtual Expression VisitAddMonths(MethodCallExpression b)
+        protected virtual Expression VisitAddMonths(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(MONTH, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(MONTH, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddSeconds 方法
         /// </summary>
-        protected virtual Expression VisitAddSeconds(MethodCallExpression b)
+        protected virtual Expression VisitAddSeconds(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(SECOND, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(SECOND, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
-        protected virtual Expression VisitAddTicks(MethodCallExpression b)
+        protected virtual Expression VisitAddTicks(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(MILLISECOND, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" / 10000, ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(MILLISECOND, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" / 10000, ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddYears 方法
         /// </summary>
-        protected virtual Expression VisitAddYears(MethodCallExpression b)
+        protected virtual Expression VisitAddYears(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("DATEADD(YEAR, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", ");
-                _visitor.Visit(b.Object);
-                _builder.Append(')');
-            }
-
-            return b;
+            _builder.Append("DATEADD(YEAR, ");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
         }
 
         /// <summary>
@@ -1281,8 +1129,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitRowNumber(MethodCallExpression m)
         {
-            if (m == null) return m;
-
             _builder.Append("ROW_NUMBER() Over(Order By ");
             _visitor.Visit(m.Arguments[0]);
             if (m.Arguments.Count > 1)
@@ -1292,7 +1138,6 @@ namespace TZM.XFramework.Data
             }
 
             _builder.Append(')');
-
             return m;
         }
 
@@ -1301,8 +1146,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitPartitionRowNumber(MethodCallExpression m)
         {
-            if (m == null) return m;
-
             _builder.Append("ROW_NUMBER() Over(");
 
             // PARTITION BY
@@ -1319,7 +1162,6 @@ namespace TZM.XFramework.Data
             }
 
             _builder.Append(')');
-
             return m;
         }
 
@@ -1341,39 +1183,35 @@ namespace TZM.XFramework.Data
             // 对于其他的特殊字符：'^'， '-'， ']' 因为它们本身在包含在 '[]' 中使用，所以需要用另外的方式来转义，于是就引入了 like 中的 escape 子句，另外值得注意的是：escape 可以转义所有的特殊字符。
             // EF 的 Like 不用参数化...
 
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("(");
-                        _builder.Append("'%' + ");
-                        _builder.Append(value);
-                        _builder.Append(" + '%'");
-                        _builder.Append(")");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("%'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append("'%' + ");
+                    _builder.Append(value);
+                    _builder.Append(" + '%'");
+                    _builder.Append(")");
                 }
                 else
                 {
-                    _builder.Append("('%' + ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" + '%')");
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("%'");
                 }
             }
-
+            else
+            {
+                _builder.Append("('%' + ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" + '%')");
+            }
             return m;
         }
 

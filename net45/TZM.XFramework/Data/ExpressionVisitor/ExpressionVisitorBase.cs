@@ -106,7 +106,7 @@ namespace TZM.XFramework.Data
         {
             _builder = builder;
             if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodVisitor(this);
-            this.Visit(_expression);
+            if (_expression != null) this.Visit(_expression);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -205,6 +205,16 @@ namespace TZM.XFramework.Data
 
             _builder.Append(c.Value, _visitedMark.Current);
             return c;
+        }
+
+        /// <summary>
+        /// 访问常量，适用于不需要带 DbType 的情况，由 ADO 自主赋值
+        /// </summary>
+        public void VisitConstant(object value, MemberExpression m)
+        {
+            //fix# char ~~
+            if (value != null && value.GetType() == typeof(char) || value.GetType() == typeof(char?)) value = value.ToString();
+            _builder.Append(value, m);
         }
 
         protected override Expression VisitMember(MemberExpression node)
