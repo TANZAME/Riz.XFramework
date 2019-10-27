@@ -603,7 +603,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(" || '-' || ");
             _visitor.Visit(m.Arguments[1]);
-            _builder.Append(" || '-1','YYYY-MM-DD')))");
+            _builder.Append(" || '-1', 'YYYY-MM-DD')))");
             return m;
         }
 

@@ -664,7 +664,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor.Visit(m.Object);
             _builder.Append(", INTERVAL ");
             if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+                _builder.Append(Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 10, null);
             else
                 _visitor.Visit(m.Arguments[0]);
             _builder.Append(" / 10 MICROSECOND)");

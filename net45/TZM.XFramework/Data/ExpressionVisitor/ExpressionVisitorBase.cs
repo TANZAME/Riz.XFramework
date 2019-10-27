@@ -140,11 +140,11 @@ namespace TZM.XFramework.Data
             }
 
             // 例： a.Name ?? "TAN"
-            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodRouter.Coalesce);
+            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodCall.Coalesce);
 
             // 例： a.Name == null
             ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodRouter.EqualNull);
+            if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodCall.EqualNull);
 
             //// 时间加减
             //bool b2 = false;
@@ -224,12 +224,12 @@ namespace TZM.XFramework.Data
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
             // => DateTime.Now
-            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodRouter.MemberMember);
+            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable) return this.Visit(node.Expression);
             // => a.Name.Length
-            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodRouter.MemberMember);
+            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => <>h__3.b.ClientName
             if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
             // => a.Accounts[0].Markets[0].MarketId
@@ -252,12 +252,12 @@ namespace TZM.XFramework.Data
         {
             // => List<int>[]
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
-            return _methodVisitor.Visit(node, MethodRouter.MethodCall);
+            return _methodVisitor.Visit(node, MethodCall.MethodCall);
         }
 
         protected override Expression VisitUnary(UnaryExpression u)
         {
-            return _methodVisitor.Visit(u, MethodRouter.Unary);
+            return _methodVisitor.Visit(u, MethodCall.Unary);
         }
 
         #endregion
@@ -271,9 +271,9 @@ namespace TZM.XFramework.Data
 
             if (b == null) return b;
             // 字符相加
-            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodRouter.BinaryCall);
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             // 取模运算
-            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodRouter.BinaryCall);
+            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             else
             {
                 // 常量表达式放在右边，以充分利用 MemberVisitedMark

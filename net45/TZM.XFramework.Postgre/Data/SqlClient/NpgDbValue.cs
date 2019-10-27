@@ -76,7 +76,8 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
             }
 
-            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
+            string date = ((TimeSpan)value).ToString(format);
+            string result = string.Format("(TIME '{0}')", date);
             return result;
         }
 
@@ -93,7 +94,8 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
-            string result = this.EscapeQuote(((DateTime)value).ToString(format), false, false);
+            string date = ((DateTime)value).ToString(format);
+            string result = string.Format("(TIMESTAMP '{0}')", date);
             return result;
         }
 
@@ -105,7 +107,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 7 ? 7 : precision.Value, 'f');
+                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 

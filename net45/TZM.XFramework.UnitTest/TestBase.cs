@@ -463,6 +463,7 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDate.AddMonths(12) == a.DemoDateTime &&
                         a.DemoDate.AddMinutes(12) == a.DemoDateTime &&
                         a.DemoDate.AddSeconds(12) == a.DemoDateTime &&
+                        a.DemoDate.AddMilliseconds(12) == a.DemoDateTime &&
                         a.DemoDate.AddTicks(12) == a.DemoDateTime &&
                         a.DemoDate.Date == DateTime.Now.Date &&
                         a.DemoDate.Day == 12 &&

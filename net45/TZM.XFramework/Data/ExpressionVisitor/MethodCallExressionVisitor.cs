@@ -19,9 +19,23 @@ namespace TZM.XFramework.Data
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
-        private static HashSet<string> _removeVisitedMethods = new HashSet<string> { "Contains", "StartsWith", "EndsWith", "IsNullOrEmpty", "ToString" };
+        private static HashSet<string> _removeVisitedMethods = null;
 
         #region 构造函数
+
+        static MethodCallExressionVisitor()
+        {
+            // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
+            _removeVisitedMethods = new HashSet<string> 
+            {
+                "ToString",
+                "Contains",
+                "StartsWith",
+                "EndsWith",
+                "IsNullOrEmpty",
+                "IndexOf"
+            }; 
+        }
 
         /// <summary>
         /// 实例化 <see cref="MethodCallExressionVisitor"/> 类的新实例
@@ -44,29 +58,29 @@ namespace TZM.XFramework.Data
         /// <param name="node">方法节点</param>
         /// <param name="router">方法路由</param>
         /// <returns></returns>
-        public Expression Visit(Expression node, MethodRouter router)
+        public Expression Visit(Expression node, MethodCall router)
         {
             int visitedQty = _visitedMark.Count;
             Expression newNode = null;
 
-            if (router == MethodRouter.Coalesce)
+            if (router == MethodCall.Coalesce)
                 newNode = this.VisitCoalesce((BinaryExpression)node);
-            else if (router == MethodRouter.EqualNull)
+            else if (router == MethodCall.EqualNull)
                 newNode = this.VisitEqualNull((BinaryExpression)node);
-            else if (router == MethodRouter.MethodCall)
+            else if (router == MethodCall.MethodCall)
                 newNode = this.VisitMethodCall((MethodCallExpression)node);
-            else if (router == MethodRouter.BinaryCall)
+            else if (router == MethodCall.BinaryCall)
                 newNode = this.VisitMethodCall((BinaryExpression)node);
-            else if (router == MethodRouter.MemberMember)
+            else if (router == MethodCall.MemberMember)
                 newNode = this.VisitMemberMember((MemberExpression)node);
-            else if (router == MethodRouter.Unary)
+            else if (router == MethodCall.Unary)
                 newNode = this.VisitUnary((UnaryExpression)node);
 
             // 自身已构成布尔表达式的则需要删除它本身所产生的访问链
             if (_visitedMark.Count != visitedQty)
             {
-                bool b = router != MethodRouter.Unary;
-                if (b && router == MethodRouter.MethodCall)
+                bool b = router != MethodCall.Unary;
+                if (b && router == MethodCall.MethodCall)
                 {
                     var m = (MethodCallExpression)node;
                     b = _removeVisitedMethods.Contains(m.Method.Name);
@@ -1327,9 +1341,9 @@ namespace TZM.XFramework.Data
     }
 
     /// <summary>
-    /// 遍历路由枚举
+    /// 方法动态调用枚举
     /// </summary>
-    public enum MethodRouter
+    public enum MethodCall
     {
         /// <summary>
         /// 一个表示空合并操作，如节点 (a ?? b)
