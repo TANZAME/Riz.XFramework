@@ -191,7 +191,7 @@ namespace TZM.XFramework.Data
 
         protected override Expression VisitConstant(ConstantExpression c)
         {
-            //fix# char ~~
+            //fix# char ~~，because expression tree converted char type 2 int.
             if (c != null && c.Value != null)
             {
                 MemberExpression visited = _visitedMark.Current;
@@ -205,16 +205,6 @@ namespace TZM.XFramework.Data
 
             _builder.Append(c.Value, _visitedMark.Current);
             return c;
-        }
-
-        /// <summary>
-        /// 访问常量，适用于不需要带 DbType 的情况，由 ADO 自主赋值
-        /// </summary>
-        public void VisitConstant(object value, MemberExpression m)
-        {
-            //fix# char ~~
-            if (value != null && value.GetType() == typeof(char) || value.GetType() == typeof(char?)) value = value.ToString();
-            _builder.Append(value, m);
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -291,14 +281,14 @@ namespace TZM.XFramework.Data
                 Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
                 Expression right = b.Left.CanEvaluate() ? b.Left : b.Right;
 
-                bool use = this.TakeParenthese(b, b.Left);
+                bool use = this.UseBracket(b, b.Left);
                 if (use) _builder.Append('(');
                 this.Visit(left);
                 if (use) _builder.Append(')');
 
                 _builder.Append(oper);
 
-                bool use2 = this.TakeParenthese(b, b.Right);
+                bool use2 = this.UseBracket(b, b.Right);
                 if (use2) _builder.Append('(');
                 this.Visit(right);
                 if (use2) _builder.Append(')');
@@ -471,20 +461,20 @@ namespace TZM.XFramework.Data
         }
 
         // 判断是否需要括号
-        protected bool TakeParenthese(Expression expression, Expression subExp = null)
+        protected bool UseBracket(Expression expression, Expression subExpression = null)
         {
-            if (subExp != null)
+            if (subExpression != null)
             {
-                UnaryExpression unaryExpression = subExp as UnaryExpression;
-                if (unaryExpression != null) return TakeParenthese(expression, unaryExpression.Operand);
+                UnaryExpression unaryExpression = subExpression as UnaryExpression;
+                if (unaryExpression != null) return this.UseBracket(expression, unaryExpression.Operand);
 
-                InvocationExpression invokeExpression = subExp as InvocationExpression;
-                if (invokeExpression != null) return TakeParenthese(expression, invokeExpression.Expression);
+                InvocationExpression invokeExpression = subExpression as InvocationExpression;
+                if (invokeExpression != null) return this.UseBracket(expression, invokeExpression.Expression);
 
-                LambdaExpression lambdaExpression = subExp as LambdaExpression;
-                if (lambdaExpression != null) return TakeParenthese(expression, lambdaExpression.Body);
+                LambdaExpression lambdaExpression = subExpression as LambdaExpression;
+                if (lambdaExpression != null) return this.UseBracket(expression, lambdaExpression.Body);
 
-                BinaryExpression b = subExp as BinaryExpression;
+                BinaryExpression b = subExpression as BinaryExpression;
                 if (b != null)
                 {
                     if (expression.NodeType == ExpressionType.OrElse)
@@ -492,7 +482,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            return this.GetPriority(expression) < this.GetPriority(subExp);
+            return this.GetPriority(expression) < this.GetPriority(subExpression);
         }
 
         protected int GetPriority(Expression expression)

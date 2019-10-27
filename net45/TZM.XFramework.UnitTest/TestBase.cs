@@ -1927,6 +1927,7 @@ namespace TZM.XFramework.UnitTest
             min = context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Min(a => a.ClientId);
 
             var avg = context.GetTable<Model.Client>().Average(a => (double)a.Qty);
+            var avg2 = context.GetTable<Model.Client>().Average(a => (decimal)a.Qty);
             avg = (double)context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Average(a => (float)a.ClientId);
 
             var sum = context.GetTable<Model.Client>().Sum(a => (long)a.Qty);

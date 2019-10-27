@@ -51,27 +51,6 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type objType)
         {
-            //// 如果成员类型与value类型不一致，则忽略
-            //if (value != null && member != null)
-            //{
-            //    Type dataType = null;
-            //    if (member is FieldInfo) dataType = ((FieldInfo)member).FieldType;
-            //    else if (member is PropertyInfo) dataType = ((PropertyInfo)member).PropertyType;
-
-            //    Type valueType = value.GetType();
-            //    var underlyType = Nullable.GetUnderlyingType(valueType);
-            //    if (underlyType != null) valueType = underlyType;
-
-            //    underlyType = Nullable.GetUnderlyingType(dataType);
-            //    if (underlyType != null) dataType = underlyType;
-
-            //    if (valueType != dataType)
-            //    {
-            //        member = null;
-            //        objType = null;
-            //    }
-            //}
-
             ColumnAttribute column = this.GetColumnAttribute(member, objType);
             return this.GetSqlValue(value, token, column);
         }

@@ -107,7 +107,7 @@ namespace TZM.XFramework.Data
 
             _builder.Append("ISNULL(");
             _visitor.Visit(left);
-            _builder.Append(',');
+            _builder.Append(", ");
             _visitor.Visit(right);
             _builder.Append(')');
 
@@ -366,7 +366,7 @@ namespace TZM.XFramework.Data
                 var c = expressions[1].Evaluate();
                 int index = Convert.ToInt32(c.Value);
                 index += 1;
-                _visitor.VisitConstant(index, null);
+                _builder.Append(index, null);
                 _builder.Append(", ");
             }
             else
@@ -379,7 +379,7 @@ namespace TZM.XFramework.Data
             {
                 // 带2个参数，Substring(n,n)
                 if (expressions[2].CanEvaluate())
-                    _visitor.VisitConstant(expressions[2].Evaluate(), null);
+                    _builder.Append(expressions[2].Evaluate().Value, null);
                 else
                     _visitor.Visit(expressions[2]);
             }
@@ -503,7 +503,7 @@ namespace TZM.XFramework.Data
             _builder.Append(", ");
 
             if (m.Arguments[0].CanEvaluate())
-                _visitor.VisitConstant(m.Arguments[0].Evaluate().Value, null);
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
 
@@ -528,7 +528,7 @@ namespace TZM.XFramework.Data
             _builder.Append(", ");
 
             if (m.Arguments[0].CanEvaluate())
-                _visitor.VisitConstant(m.Arguments[0].Evaluate().Value, null);
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
 
@@ -560,7 +560,7 @@ namespace TZM.XFramework.Data
                 {
                     var c = m.Arguments[1].Evaluate();
                     int index = Convert.ToInt32(c.Value) + 1;
-                    _visitor.VisitConstant(index, null);
+                    _builder.Append(index, null);
                 }
                 else
                 {
@@ -972,6 +972,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitIsLeapYear(MethodCallExpression m)
         {
+            _builder.Append('(');
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(" % 4 = 0 AND ");
             _visitor.Visit(m.Arguments[0]);

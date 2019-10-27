@@ -44,7 +44,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("NVL(");
             _visitor.Visit(left);
-            _builder.Append(',');
+            _builder.Append(", ");
             _visitor.Visit(right);
             _builder.Append(')');
 
@@ -67,7 +67,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 string name = "";
                 if (node.Type == typeof(float)) name = "BINARY_FLOAT";
-                else if (node.Type == typeof(double)) name = "BINARY_DOUBLE";
+                else if (node.Type == typeof(double)|| node.Type == typeof(decimal)) name = "BINARY_DOUBLE";
                 if (!string.IsNullOrEmpty(name))
                 {
                     _builder.Append("CAST(");
@@ -115,37 +115,33 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("('%' || ");
-                        _builder.Append(value);
-                        _builder.Append(" || '%')");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("%'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("('%' || ");
+                    _builder.Append(value);
+                    _builder.Append(" || '%')");
                 }
                 else
                 {
-                    _builder.Append("('%' || ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" || '%')");
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("%'");
                 }
             }
-
+            else
+            {
+                _builder.Append("('%' || ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" || '%')");
+            }
             return m;
         }
 
@@ -154,37 +150,33 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("(");
-                           _builder.Append(value);
-                        _builder.Append(" || '%')");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'");
-                        _builder.Append(value);
-                        _builder.Append("%'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(value);
+                    _builder.Append(" || '%')");
                 }
                 else
                 {
-                    _builder.Append("(");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(" || '%')");
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'");
+                    _builder.Append(value);
+                    _builder.Append("%'");
                 }
             }
-
+            else
+            {
+                _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" || '%')");
+            }
             return m;
         }
 
@@ -193,37 +185,33 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
-            if (m != null)
+            _visitor.Visit(m.Object);
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
             {
-                _visitor.Visit(m.Object);
-                _builder.Append(" LIKE ");
-                if (m.Arguments[0].CanEvaluate())
-                {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                bool unicode = true;
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
-                    if (_builder.Parameterized)
-                    {
-                        _builder.Append("('%' || ");
-                        _builder.Append(value);
-                        _builder.Append(")");
-                    }
-                    else
-                    {
-                        if (unicode) _builder.Append('N');
-                        _builder.Append("'%");
-                        _builder.Append(value);
-                        _builder.Append("'");
-                    }
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("('%' || ");
+                    _builder.Append(value);
+                    _builder.Append(")");
                 }
                 else
                 {
-                    _builder.Append("('%' || ");
-                    _visitor.Visit(m.Arguments[0]);
-                    _builder.Append(")");
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("'");
                 }
             }
-
+            else
+            {
+                _builder.Append("('%' || ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(")");
+            }
             return m;
         }
 
@@ -232,40 +220,44 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitSubstring(MethodCallExpression m)
         {
-            if (m != null)
+            var expressions = new List<Expression>(m.Arguments);
+            if (m.Object != null) expressions.Insert(0, m.Object);
+
+            _builder.Append("SUBSTR(");
+            _visitor.Visit(expressions[0]);
+            _builder.Append(", ");
+
+            if (expressions[1].CanEvaluate())
             {
-                List<Expression> args = new List<Expression>(m.Arguments);
-                if (m.Object != null) args.Insert(0, m.Object);
-
-                _builder.Append("SUBSTR(");
-                _visitor.Visit(args[0]);
-                _builder.Append(",");
-
-                if (args[1].CanEvaluate())
-                {
-                    ConstantExpression c = args[1].Evaluate();
-                    int index = Convert.ToInt32(c.Value);
-                    index += 1;
-                    string value = _provider.DbValue.GetSqlValue(index, _builder.Token);
-                    _builder.Append(value);
-                    _builder.Append(',');
-                }
-                else
-                {
-                    _visitor.Visit(args[1]);
-                    _builder.Append(" + 1,");
-                }
-
-                if (args.Count == 3) _visitor.Visit(args[2]);
-                else
-                {
-                    _builder.Append("LENGTH(");
-                    _visitor.Visit(args[0]);
-                    _builder.Append(')');
-                }
-                _builder.Append(')');
+                var c = expressions[1].Evaluate();
+                int index = Convert.ToInt32(c.Value);
+                index += 1;
+                _builder.Append(index, null);
+                _builder.Append(", ");
+            }
+            else
+            {
+                _visitor.Visit(expressions[1]);
+                _builder.Append(" + 1, ");
             }
 
+            if (expressions.Count == 3)
+            {
+                // 带2个参数，Substring(n,n)
+                if (expressions[2].CanEvaluate())
+                    _builder.Append(expressions[2].Evaluate().Value, null);
+                else
+                    _visitor.Visit(expressions[2]);
+            }
+            else
+            {
+                // 带1个参数，Substring(n)
+                _builder.Append("LENGTH(");
+                _visitor.Visit(expressions[0]);
+                _builder.Append(")");
+            }
+
+            _builder.Append(')');
             return m;
         }
 
@@ -274,15 +266,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitConcat(BinaryExpression b)
         {
-            if (b != null)
-            {
-                _builder.Append("(");
-                _visitor.Visit(b.Left);
-                _builder.Append(" || ");
-                _visitor.Visit(b.Right);
-                _builder.Append(")");                
-            }
-
+            _builder.Append("(");
+            _visitor.Visit(b.Left);
+            _builder.Append(" || ");
+            _visitor.Visit(b.Right);
+            _builder.Append(")");
             return b;
         }
 
@@ -291,21 +279,17 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitConcat(MethodCallExpression m)
         {
-            if (m != null && m.Arguments != null)
+            if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+            else
             {
-                if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
-                else
+                _builder.Append("(");
+                for (int i = 0; i < m.Arguments.Count; i++)
                 {
-                    _builder.Append("(");
-                    for (int i = 0; i < m.Arguments.Count; i++)
-                    {
-                        _visitor.Visit(m.Arguments[i]);
-                        if (i < m.Arguments.Count - 1) _builder.Append(" || ");
-                    }
-                    _builder.Append(")");
+                    _visitor.Visit(m.Arguments[i]);
+                    if (i < m.Arguments.Count - 1) _builder.Append(" || ");
                 }
+                _builder.Append(")");
             }
-            
             return m;
         }
 
@@ -317,25 +301,37 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append("LENGTH(");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
-
             return m;
         }
 
         /// <summary>
         /// 访问 IndexOf 方法
         /// </summary>
-        protected override Expression VisitIndexOf(MethodCallExpression b)
+        protected override Expression VisitIndexOf(MethodCallExpression m)
         {
-            if (b != null)
+            _builder.Append("(INSTR(");
+            _visitor.Visit(m.Object);
+            _builder.Append(", ");
+            _visitor.Visit(m.Arguments[0]);
+
+            if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
-                _builder.Append("(INSTR(");
-                _visitor.Visit(b.Object);
-                _builder.Append(',');
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 1, 1) - 1)");
+                _builder.Append(", ");
+                if (m.Arguments[1].CanEvaluate())
+                {
+                    var c = m.Arguments[1].Evaluate();
+                    int index = Convert.ToInt32(c.Value) + 1;
+                    _builder.Append(index, null);
+                }
+                else
+                {
+                    _visitor.Visit(m.Arguments[1]);
+                    _builder.Append(" + 1");
+                }
             }
-            
-            return b;
+
+            _builder.Append(", 1) - 1)");
+            return m;
         }
 
         /// <summary>
@@ -343,15 +339,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitModulo(BinaryExpression b)
         {
-            if (b != null)
-            {
-                _builder.Append("MOD(");
-                _visitor.Visit(b.Left);
-                _builder.Append(',');
-                _visitor.Visit(b.Right);
-                _builder.Append(')');                
-            }
-
+            _builder.Append("MOD(");
+            _visitor.Visit(b.Left);
+            _builder.Append(", ");
+            _visitor.Visit(b.Right);
+            _builder.Append(')');
             return b;
         }
 
@@ -360,13 +352,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitCeiling(MethodCallExpression b)
         {
-            if (b != null)
-            {
-                _builder.Append("CEIL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-            
+            _builder.Append("CEIL(");
+            _visitor.Visit(b.Arguments[0]);
+            _builder.Append(')');
             return b;
         }
 
@@ -375,14 +363,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitLog(MethodCallExpression b)
         {
-            if (b != null)
-            {
-                // SELECT LOG(10,100)
-                _builder.Append("LOG(2.7182818284590451, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-            
+            _builder.Append("LOG(");
+            _builder.Append(Math.E, null);
+            _builder.Append(", ");
+            _visitor.Visit(b.Arguments[0]);
+            _builder.Append(')');
             return b;
         }
 
@@ -391,13 +376,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitLog10(MethodCallExpression b)
         {
-            if (b != null)
-            {
-                _builder.Append("LOG(10, ");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(')');
-            }
-            
+            _builder.Append("LOG(10, ");
+            _visitor.Visit(b.Arguments[0]);
+            _builder.Append(')');
             return b;
         }
 
@@ -410,7 +391,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 _builder.Append("ATAN2(");
                 _visitor.Visit(b.Arguments[0]);
-                _builder.Append(',');
+                _builder.Append(", ");
                 _visitor.Visit(b.Arguments[1]);
                 _builder.Append(')');
             }
@@ -423,13 +404,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTruncate(MethodCallExpression b)
         {
-            if (b != null)
-            {
-                _builder.Append("TRUNC(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(",0)");
-            }
-            
+            _builder.Append("TRUNC(");
+            _visitor.Visit(b.Arguments[0]);
+            _builder.Append(", 0)");
             return b;
         }
 
@@ -467,7 +444,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'DD'))");            
+            _builder.Append(", 'DD'))");            
             return m;
         }
 
@@ -479,7 +456,7 @@ namespace TZM.XFramework.Data.SqlClient
             // select to_char(sysdate,'D') from dual;
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'D'))");            
+            _builder.Append(", 'D'))");            
             return m;
         }
 
@@ -491,7 +468,7 @@ namespace TZM.XFramework.Data.SqlClient
             // https://www.techonthenet.com/oracle/functions/to_char.php
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'DDD'))");            
+            _builder.Append(", 'DDD'))");            
             return m;
         }
 
@@ -502,7 +479,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'HH24'))");            
+            _builder.Append(", 'HH24'))");            
             return m;
         }
 
@@ -513,7 +490,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'FF3'))");            
+            _builder.Append(", 'FF3'))");            
             return m;
         }
 
@@ -535,7 +512,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'MM'))");            
+            _builder.Append(", 'MM'))");            
             return m;
         }
 
@@ -573,19 +550,19 @@ namespace TZM.XFramework.Data.SqlClient
             // 时
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'HH24')) * 3600000 + ");
+            _builder.Append(", 'HH24')) * 3600000 + ");
             // 分
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'MM')) * 60000 + ");
+            _builder.Append(", 'MM')) * 60000 + ");
             // 秒
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'SS')) * 1000 + ");
+            _builder.Append(", 'SS')) * 1000 + ");
             // ms
             _builder.Append("TO_NUMBER(TO_CHAR(CAST(");
             _visitor.Visit(m.Expression);
-            _builder.Append(" AS TIMESTAMP),'FF7'))) * 10000) ");
+            _builder.Append(" AS TIMESTAMP), 'FF7'))) * 10000) ");
             
             return m;
         }
@@ -599,7 +576,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor.Visit(m.Expression);
             _builder.Append(" - TRUNC(");
             _visitor.Visit(m.Expression);
-            _builder.Append("),'SECOND')");            
+            _builder.Append("), 'SECOND')");            
             return m;
         }
 
@@ -610,45 +587,37 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'YYYY'))");            
+            _builder.Append(", 'YYYY'))");            
             return m;
         }
 
         /// <summary>
         /// 访问 DateTime.DaysInMonth 方法
         /// </summary>
-        protected override Expression VisitDaysInMonth(MethodCallExpression b)
+        protected override Expression VisitDaysInMonth(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                // SELECT EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(2019) || '-' || TO_CHAR(10) || '-1','YYYY-MM-DD')))  FROM DUAL;
-                _builder.Append("EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(") || '-' || TO_CHAR(");
-                _visitor.Visit(b.Arguments[1]);
-                _builder.Append(") || '-1','YYYY-MM-DD')))");
-            }
-            
-            return b;
+            // SELECT EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(2019) || '-' || TO_CHAR(10) || '-1','YYYY-MM-DD')))  FROM DUAL;
+            _builder.Append("EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(") || '-' || TO_CHAR(");
+            _visitor.Visit(m.Arguments[1]);
+            _builder.Append(") || '-1','YYYY-MM-DD')))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.IsLeapYear 方法
         /// </summary>
-        protected override Expression VisitIsLeapYear(MethodCallExpression b)
+        protected override Expression VisitIsLeapYear(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append("(MOD(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 4) = 0 AND MOD(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 100) <> 0 OR MOD(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 400) = 0)");
-            }
-            
-            return b;
+            _builder.Append("(MOD(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 4) = 0 AND MOD(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 100) <> 0 OR MOD(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 400) = 0)");
+            return m;
         }
 
         ///// <summary>
@@ -693,137 +662,129 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
-        protected override Expression VisitAddDays(MethodCallExpression b)
+        protected override Expression VisitAddDays(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'DAY'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'DAY'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
-        protected override Expression VisitAddHours(MethodCallExpression b)
+        protected override Expression VisitAddHours(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'HOUR'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'HOUR'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMilliseconds 方法
         /// </summary>
-        protected override Expression VisitAddMilliseconds(MethodCallExpression b)
+        protected override Expression VisitAddMilliseconds(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" / 1000, 'SECOND'))");
-            }
-                        
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" / 1000, 'SECOND'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
-        protected override Expression VisitAddMinutes(MethodCallExpression b)
+        protected override Expression VisitAddMinutes(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'MINUTE'))");
-            }
-                        
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'MINUTE'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddMonths 方法
         /// </summary>
-        protected override Expression VisitAddMonths(MethodCallExpression b)
+        protected override Expression VisitAddMonths(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTOYMINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'MONTH'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTOYMINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'MONTH'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddSeconds 方法
         /// </summary>
-        protected override Expression VisitAddSeconds(MethodCallExpression b)
+        protected override Expression VisitAddSeconds(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'SECOND'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'SECOND'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
-        protected override Expression VisitAddTicks(MethodCallExpression b)
+        protected override Expression VisitAddTicks(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTODSINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(" / 10000000, 'SECOND'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTODSINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" / 10000000, 'SECOND'))");
+            return m;
         }
 
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
-        protected override Expression VisitAddYears(MethodCallExpression b)
+        protected override Expression VisitAddYears(MethodCallExpression m)
         {
-            if (b != null)
-            {
-                _builder.Append('(');
-                _visitor.Visit(b.Object);
-                _builder.Append(" + NUMTOYMINTERVAL(");
-                _visitor.Visit(b.Arguments[0]);
-                _builder.Append(", 'YEAR'))");
-            }
-            
-            return b;
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + NUMTOYMINTERVAL(");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", 'YEAR'))");
+            return m;
         }
 
         /// <summary>
