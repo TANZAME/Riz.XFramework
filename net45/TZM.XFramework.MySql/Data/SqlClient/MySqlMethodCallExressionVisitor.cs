@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("IFNULL(");
             _visitor.Visit(b.Left is ConstantExpression ? b.Right : b.Left);
-            _builder.Append(',');
+            _builder.Append(", ");
             _visitor.Visit(b.Left is ConstantExpression ? b.Left : b.Right);
             _builder.Append(')');
             return b;
@@ -70,7 +70,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 _builder.Append("DATE_FORMAT(");
                 _visitor.Visit(node);
-                _builder.Append(", '%Y-%M-%D %H:%I:%S.%F')");
+                _builder.Append(", '%Y-%m-%d %H:%i:%s.%f')");
             }
             else
             {
@@ -200,11 +200,11 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("SUBSTRING(");
             _visitor.Visit(expressions[0]);
-            _builder.Append(',');
+            _builder.Append(", ");
 
             if (expressions[1].CanEvaluate())
             {
-                ConstantExpression c = expressions[1].Evaluate();
+                var c = expressions[1].Evaluate();
                 int index = Convert.ToInt32(c.Value);
                 index += 1;
                 _builder.Append(index, null);
@@ -325,6 +325,25 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 Math.Log 方法
+        /// </summary>
+        protected override Expression VisitLog(MethodCallExpression m)
+        {
+            // LOG(B,X) 
+            _builder.Append("LOG(");
+            if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+            else
+            {
+                // 指定基数
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(", ");
+                _visitor.Visit(m.Arguments[0]);
+            }
+            _builder.Append(')');
+            return m;
+        }
+
+        /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
         protected override Expression VisitAtan2(MethodCallExpression b)
@@ -360,9 +379,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDate(MemberExpression m)
         {
-            _builder.Append("CAST(DATE_FORMAT(");
+            _builder.Append("DATE(");
             _visitor.Visit(m.Expression);
-            _builder.Append(", '%Y-%M-%D') AS DATETIME)");            
+            _builder.Append(")");            
             return m;
         }
 

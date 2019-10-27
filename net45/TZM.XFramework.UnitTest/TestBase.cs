@@ -26,7 +26,7 @@ namespace TZM.XFramework.UnitTest
         {
             _newContext = this.CreateDbContext;
 
-            DateTime dateTime = DateTime.Parse("2019-01-01 23:59:59.1234567");
+            DateTime dateTime = DateTime.Parse("2019-10-27 23:59:59.1234567");
             long result = dateTime.Ticks;
             var r2 = Math.Log(100);
         }
@@ -427,6 +427,7 @@ namespace TZM.XFramework.UnitTest
                         Math.Exp((double)a.DemoDecimal) == 12 &&
                         Math.Floor((double)a.DemoDecimal) == 12 &&
                         Math.Log((double)a.DemoDecimal) == 12 &&
+                        Math.Log((double)a.DemoDecimal, 5) == 12 &&
                         Math.Log10((double)a.DemoDecimal) == 12 &&
                         Math.PI == 12 &&
                         Math.Pow((double)a.DemoDecimal, a.DemoDouble) == 12 &&
@@ -476,7 +477,9 @@ namespace TZM.XFramework.UnitTest
                         ts.Ticks == 12 &&
                         a.DemoDate.TimeOfDay == ts &&
                         a.DemoDate.Year == 12 &&
-                        DateTime.Now.Ticks == 12
+                        DateTime.Now.Ticks == 12 &&
+                        a.DemoDateTime.ToString()  == "" &&
+                        DateTime.Now.ToString() == ""
                     select a;
             result1 = query.ToList();
 

@@ -133,6 +133,7 @@ namespace TZM.XFramework.Data.SqlClient
             return DbTypeUtils.IsUnicode(dbType);
         }
 
+        // https://www.postgresql.org/docs/
         // http://www.npgsql.org/doc/index.html
         // http://shouce.jb51.net/postgresql/ postgre 文档
         // postgresql中没有NCHAR VARCHAR2 NVARCHAR2数据类型。

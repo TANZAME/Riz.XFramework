@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
-        private static List<string> _removeVisitedMethods = new List<string> { "Contains", "StartsWith", "EndsWith", "IsNullOrEmpty" };
+        private static HashSet<string> _removeVisitedMethods = new HashSet<string> { "Contains", "StartsWith", "EndsWith", "IsNullOrEmpty", "ToString" };
 
         #region 构造函数
 
@@ -552,7 +552,7 @@ namespace TZM.XFramework.Data
             _visitor.Visit(m.Object);
             _builder.Append(", ");
             _visitor.Visit(m.Arguments[0]);
-            
+
             if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
                 _builder.Append(", ");
@@ -690,8 +690,17 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitLog(MethodCallExpression m)
         {
-            _builder.Append("LOG(");
+            //--Syntax for SQL Server
+            //--LOG(float_expression[, base])
+
+           _builder.Append("LOG(");
             _visitor.Visit(m.Arguments[0]);
+            if (m.Arguments.Count > 1)
+            {
+                // 指定基数
+                _builder.Append(", ");
+                _visitor.Visit(m.Arguments[1]);
+            }
             _builder.Append(')');
             return m;
         }
