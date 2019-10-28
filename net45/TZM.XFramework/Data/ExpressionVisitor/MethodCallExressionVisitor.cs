@@ -1294,8 +1294,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
-            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-
+            var query = m.Arguments[0].Evaluate().Value as IDbQueryable;
             var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
             {
                 Parameters = _builder.Token.Parameters,
