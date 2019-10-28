@@ -26,7 +26,7 @@ namespace TZM.XFramework.Data
         static MethodCallExressionVisitor()
         {
             // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
-            _removeVisitedMethods = new HashSet<string> 
+            _removeVisitedMethods = new HashSet<string>
             {
                 "ToString",
                 "Contains",
@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
                 "EndsWith",
                 "IsNullOrEmpty",
                 "IndexOf"
-            }; 
+            };
         }
 
         /// <summary>
@@ -427,14 +427,21 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitConcat(MethodCallExpression m)
         {
-            if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
+            IList<Expression> expressions = null;
+            if (m.Arguments.Count > 1) expressions = m.Arguments;
+            else if (m.Arguments.Count == 1 && m.Arguments[0].NodeType == ExpressionType.NewArrayInit)
+            {
+                expressions = (m.Arguments[0] as NewArrayExpression).Expressions;
+            }
+
+            if(expressions == null) _visitor.Visit(m.Arguments[0]);
             else
             {
                 _builder.Append("(");
-                for (int i = 0; i < m.Arguments.Count; i++)
+                for (int i = 0; i < expressions.Count; i++)
                 {
-                    _visitor.Visit(m.Arguments[i]);
-                    if (i < m.Arguments.Count - 1) _builder.Append(" + ");
+                    _visitor.Visit(expressions[i]);
+                    if (i < expressions.Count - 1) _builder.Append(" + ");
                 }
                 _builder.Append(")");
             }
@@ -446,16 +453,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitIsNullOrEmpty(MethodCallExpression m)
         {
-            _builder.Append('(');
+            _builder.Append("ISNULL(");
             _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" IS NULL OR ");
-            _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" = ");
-
+            _builder.Append(", ");
             bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current);
-            if (isUnicode) _builder.Append('N');
-
-            _builder.Append("'')");
+            string empty = isUnicode ? "N''" : "''";
+            _builder.Append(empty);
+            _builder.Append(") = ");
+            _builder.Append(empty);
             return m;
         }
 
@@ -563,19 +568,14 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitIndexOf(MethodCallExpression m)
         {
             _builder.Append("(CHARINDEX(");
-            _visitor.Visit(m.Object);
-            _builder.Append(", ");
             _visitor.Visit(m.Arguments[0]);
+            _builder.Append(", ");
+            _visitor.Visit(m.Object);
 
             if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
                 _builder.Append(", ");
-                if (m.Arguments[1].CanEvaluate())
-                {
-                    var c = m.Arguments[1].Evaluate();
-                    int index = Convert.ToInt32(c.Value) + 1;
-                    _builder.Append(index, null);
-                }
+                if (m.Arguments[1].CanEvaluate()) _builder.Append(Convert.ToInt32(m.Arguments[1].Evaluate().Value) + 1, null);
                 else
                 {
                     _visitor.Visit(m.Arguments[1]);
@@ -707,7 +707,7 @@ namespace TZM.XFramework.Data
             //--Syntax for SQL Server
             //--LOG(float_expression[, base])
 
-           _builder.Append("LOG(");
+            _builder.Append("LOG(");
             _visitor.Visit(m.Arguments[0]);
             if (m.Arguments.Count > 1)
             {
@@ -772,7 +772,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitSin(MethodCallExpression m)
         {
-            _builder.Append("Sin(");
+            _builder.Append("SIN(");
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(')');
             return m;

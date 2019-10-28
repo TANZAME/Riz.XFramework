@@ -59,14 +59,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 表别名域
-        /// </summary>
-        public TableAliasCache TableAlias
-        {
-            get { return _aliases; }
-        }
-
-        /// <summary>
         /// 导航属性表达式列表
         /// </summary>
         public IDictionary<string, MemberExpression> NavMembers

@@ -47,6 +47,24 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 添加已访问成员
+        /// </summary>
+        public void Add(MemberInfo member, ParameterExpression p)
+        {
+            MemberExpression m = Expression.MakeMemberAccess(p, member);
+            this.Add(m);
+        }
+
+        /// <summary>
+        /// 添加已访问成员
+        /// </summary>
+        public void Add(MemberInfo member, string alias)
+        {
+            ParameterExpression p = Expression.Parameter(member.ReflectedType, alias);
+            this.Add(member, p);
+        }
+
+        /// <summary>
         /// 删除指定数量的访问足迹
         /// </summary>
         public void Remove(int count)

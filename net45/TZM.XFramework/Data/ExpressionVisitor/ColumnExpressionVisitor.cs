@@ -149,7 +149,7 @@ namespace TZM.XFramework.Data
         }
 
         // {new App() {Id = p.Id}}
-        private Expression VisitMemberInitImpl(MemberInitExpression node, bool topBinding)
+        private Expression VisitMemberInitImpl(MemberInitExpression node, bool top)
         {
             // 如果有一对多的导航属性会产生嵌套的SQL，这时需要强制主表选择的列里面必须包含导航外键
             // TODO #对 Bindings 进行排序，保证导航属性的赋值一定要最后面#
@@ -171,10 +171,14 @@ namespace TZM.XFramework.Data
                 // 非导航属性
                 if (!isNavigation)
                 {
-                    if (binding.Expression.CanEvaluate())
-                        _builder.Append(binding.Expression.Evaluate().Value, binding.Member, node.Type);
+                    if (binding.Expression.CanEvaluate()) _builder.Append(binding.Expression.Evaluate().Value, binding.Member, node.Type);
                     else
+                    {
+                        //int visitedQty = _visitedMark.Count;
                         base.VisitMemberBinding(binding);
+                        //if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+                    }
+
 
                     // 选择字段
                     string alias = _visitedMark.Current != null ? _aliases.GetTableAlias(_visitedMark.Current) : null;
