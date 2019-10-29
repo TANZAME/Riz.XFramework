@@ -217,6 +217,10 @@ namespace TZM.XFramework.UnitTest
             //t0.[DemoName] AS [DemoName]
             //FROM [Sys_Demo] t0 
 
+            var query6 = context.GetTable<TDemo>().Select(a => a.DemoCode ?? "N");
+            var result6 = query6.ToList();
+            query6 = context.GetTable<TDemo>().Select(a => a.DemoCode + a.DemoName);
+            result6 = query6.ToList();
 
             //分页查询（非微软api）
             query = from a in context.GetTable<TDemo>()
