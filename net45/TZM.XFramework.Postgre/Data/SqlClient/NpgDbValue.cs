@@ -31,6 +31,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override IDbDataParameter AddParameter(object value, ResolveToken token, 
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
+
 #if !netcore
 
             if (value is TimeSpan)

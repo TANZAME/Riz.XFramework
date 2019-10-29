@@ -364,6 +364,15 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 DateTime.Today 属性
+        /// </summary>
+        protected override Expression VisitToday(MemberExpression m)
+        {
+            _builder.Append("DATE_TRUNC('DAY', LOCALTIMESTAMP)");
+            return m;
+        }
+
+        /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
         protected override Expression VisitUtcNow(MemberExpression m)
@@ -483,7 +492,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 年份
             _builder.Append("(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'yyyy-mm-dd')::DATE - '1970-01-01'::DATE + 693595) * CAST(24 AS NUMERIC) * 3600 * 1000 + ");
+            _builder.Append(", 'yyyy-mm-dd')::DATE - '1970-01-01'::DATE + 693595) * CAST(24 AS NUMERIC) * 3600 * 1000 + ");
             // 时
             _builder.Append("DATE_PART('HOUR', ");
             _visitor.Visit(m.Expression);
@@ -505,9 +514,8 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTimeOfDay(MemberExpression m)
         {
-            _builder.Append("CAST(");
             _visitor.Visit(m.Expression);
-            _builder.Append(" AS TIME)");
+            _builder.Append("::TIMESTAMP");
             return m;
         }
 
@@ -537,28 +545,27 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 DateTime.AddTicks 方法
+        /// </summary>
+        protected override Expression VisitAddYears(MethodCallExpression m)
+        {
+            return this.VisitAddDateTime(m, "YEAR");
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddMonths 方法
+        /// </summary>
+        protected override Expression VisitAddMonths(MethodCallExpression m)
+        {
+            return this.VisitAddDateTime(m, "MONTH");
+        }
+
+        /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
         protected override Expression VisitAddDays(MethodCallExpression m)
         {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" DAY'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' DAY')");
-
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
+            return this.VisitAddDateTime(m, "DAY");
         }
 
         /// <summary>
@@ -566,24 +573,23 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitAddHours(MethodCallExpression m)
         {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" HOUR'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' HOUR')");
+            return this.VisitAddDateTime(m, "HOUR");
+        }
 
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
+        /// <summary>
+        /// 访问 DateTime.AddMinutes 方法
+        /// </summary>
+        protected override Expression VisitAddMinutes(MethodCallExpression m)
+        {
+            return this.VisitAddDateTime(m, "MINUTE");
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddSeconds 方法
+        /// </summary>
+        protected override Expression VisitAddSeconds(MethodCallExpression m)
+        {
+            return this.VisitAddDateTime(m, "SECOND");
         }
 
         /// <summary>
@@ -596,90 +602,25 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append(" + ");
             if (m.Arguments[0].CanEvaluate())
             {
-                _builder.Append("'");
-                _builder.Append(Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 1000, null);
-                _builder.Append(" SECOND'");
+                double obj = Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 1000;
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(obj, null);
+                    _builder.Append(" || ' SECOND')");
+                }
+                else
+                {
+                    _builder.Append("'");
+                    _builder.Append(obj, null);
+                    _builder.Append(" SECOND'");
+                }
             }
             else
             {
                 _builder.Append("(");
                 _visitor.Visit(m.Arguments[0]);
                 _builder.Append(" / 1000 || ' SECOND')");
-
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddMinutes 方法
-        /// </summary>
-        protected override Expression VisitAddMinutes(MethodCallExpression m)
-        {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" MINUTE'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' MINUTE')");
-
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddMonths 方法
-        /// </summary>
-        protected override Expression VisitAddMonths(MethodCallExpression m)
-        {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" MONTH'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' MONTH')");
-
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddSeconds 方法
-        /// </summary>
-        protected override Expression VisitAddSeconds(MethodCallExpression m)
-        {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" SECOND'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' SECOND')");
 
             }
             _builder.Append("::INTERVAL)");
@@ -696,9 +637,19 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append(" + ");
             if (m.Arguments[0].CanEvaluate())
             {
-                _builder.Append("'");
-                _builder.Append(Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 10, null);
-                _builder.Append(" MICROSECOND'");
+                double obj = Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 10;
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(obj, null);
+                    _builder.Append(" || ' MICROSECOND')");
+                }
+                else
+                {
+                    _builder.Append("'");
+                    _builder.Append(obj, null);
+                    _builder.Append(" MICROSECOND'");
+                }
             }
             else
             {
@@ -712,46 +663,51 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 访问 DateTime.AddTicks 方法
-        /// </summary>
-        protected override Expression VisitAddYears(MethodCallExpression m)
-        {
-            _builder.Append('(');
-            _visitor.Visit(m.Object);
-            _builder.Append(" + ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                _builder.Append("'");
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-                _builder.Append(" YEAR'");
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" || ' YEAR')");
-
-            }
-            _builder.Append("::INTERVAL)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Today 属性
-        /// </summary>
-        protected override Expression VisitToday(MemberExpression m)
-        {
-            _builder.Append("DATE_TRUNC('DAY', LOCALTIMESTAMP)");
-            return m;
-        }
-
-        /// <summary>
         /// 访问 new Guid 方法
         /// </summary>
         protected override Expression VisitNewGuid(MethodCallExpression m)
         {
             System.Guid guid = System.Guid.NewGuid();
             _builder.Append(guid, null);
+            return m;
+        }
+
+        // 访问时间相加
+        Expression VisitAddDateTime(MethodCallExpression m, string interval)
+        {
+            _builder.Append('(');
+            _visitor.Visit(m.Object);
+            _builder.Append(" + ");
+            if (m.Arguments[0].CanEvaluate())
+            {
+                object obj = m.Arguments[0].Evaluate().Value;
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(obj, null);
+                    _builder.Append(" || ' ");
+                    _builder.Append(interval);
+                    _builder.Append("')");
+                }
+                else
+                {
+                    _builder.Append("'");
+                    _builder.Append(obj, null);
+                    _builder.Append(" ");
+                    _builder.Append(interval);
+                    _builder.Append("'");
+                }
+            }
+            else
+            {
+                _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" || ' ");
+                _builder.Append(interval);
+                _builder.Append("')");
+
+            }
+            _builder.Append("::INTERVAL)");
             return m;
         }
 
