@@ -376,7 +376,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, sQueryInfo);
                     visitor2.Write(sf);
 
-                    cmd.Columns = visitor2.Columns;
+                    cmd.PickColumns = visitor2.PickColumns;
                     cmd.Navigations = visitor2.Navigations;
                     cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -386,12 +386,12 @@ namespace TZM.XFramework.Data.SqlClient
                         // 第一层嵌套
                         int index = 0;
                         jf.AppendNewLine();
-                        foreach (var column in cmd.Columns)
+                        foreach (var column in cmd.PickColumns)
                         {
                             jf.AppendMember(alias0, column.Name);
                             jf.AppendAs(column.NewName);
                             index += 1;
-                            if (index < cmd.Columns.Count)
+                            if (index < cmd.PickColumns.Count)
                             {
                                 jf.Append(',');
                                 jf.AppendNewLine();
@@ -411,7 +411,7 @@ namespace TZM.XFramework.Data.SqlClient
                         jf.Append("SELECT");
                         jf.AppendNewLine();
 
-                        foreach (var column in cmd.Columns)
+                        foreach (var column in cmd.PickColumns)
                         {
                             jf.AppendMember(alias0, column.NewName);
                             jf.AppendAs(column.NewName);
@@ -745,10 +745,10 @@ namespace TZM.XFramework.Data.SqlClient
 
                 int i = 0;
                 MappingCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, false, token) as MappingCommand;
-                foreach (var column in cmd2.Columns)
+                foreach (var column in cmd2.PickColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (i < cmd2.Columns.Count - 1) builder.Append(',');
+                    if (i < cmd2.PickColumns.Count - 1) builder.Append(',');
                     i++;
                 }
 

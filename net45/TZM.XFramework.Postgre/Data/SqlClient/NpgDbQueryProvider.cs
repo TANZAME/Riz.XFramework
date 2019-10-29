@@ -212,7 +212,7 @@ namespace TZM.XFramework.Data.SqlClient
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, sQueryInfo);
                     visitor2.Write(jf);
 
-                    cmd.Columns = visitor2.Columns;
+                    cmd.PickColumns = visitor2.PickColumns;
                     cmd.Navigations = visitor2.Navigations;
                     cmd.AddNavMembers(visitor2.NavMembers);
                 }
@@ -447,10 +447,10 @@ namespace TZM.XFramework.Data.SqlClient
                 int i = 0;
                 MappingCommand cmd2 = this.ParseSelectCommandImpl(nQueryInfo.SelectInfo, 0, false, token) as MappingCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
-                foreach (var column in cmd2.Columns)
+                foreach (var column in cmd2.PickColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (i < cmd2.Columns.Count - 1) builder.Append(',');
+                    if (i < cmd2.PickColumns.Count - 1) builder.Append(',');
                     i++;
                 }
 

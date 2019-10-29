@@ -326,18 +326,18 @@ namespace TZM.XFramework.Data.SqlClient
             else
                 _builder.Append("WHERE ");
 
-            Column column = ((MappingCommand)cmd).Columns.First();
-            _builder.AppendMember(column.TableAlias, column.Name);
+            //Column column = ((MappingCommand)cmd).Columns.First();
+            //_builder.AppendMember(column.TableAlias, column.Name);
 
-            _builder.Append(" = ");
+            //_builder.Append(" = ");
 
-            // exists 不能用别名
-            if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
-            {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
-                _builder.AppendMember(typeRuntime.TableName);
-                _builder.Append('.');
-            }
+            //// exists 不能用别名
+            //if (token != null && token.Extendsions != null && token.Extendsions.ContainsKey("SQLiteDelete"))
+            //{
+            //    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
+            //    _builder.AppendMember(typeRuntime.TableName);
+            //    _builder.Append('.');
+            //}
 
             _visitor.Visit(m.Arguments[1]);
             _builder.Append(")");

@@ -2,8 +2,7 @@
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 列。
-    /// 记录实体属性原始名称以及出现的次数
+    /// 数据库字段与实体字段的列映射
     /// </summary>
     public class Column
     {
@@ -21,10 +20,5 @@ namespace TZM.XFramework.Data
         /// 出现次数
         /// </summary>
         public int DupCount { get; set; }
-
-        /// <summary>
-        /// 表别名
-        /// </summary>
-        public string TableAlias { get; set; }
     }
 }

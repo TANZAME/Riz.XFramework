@@ -720,35 +720,35 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
             } : null);
-            Column column = ((MappingCommand)cmd).Columns.First();
+            Column column = ((MappingCommand)cmd).PickColumns.First();
             _builder.Append("EXISTS(");
 
-            if (isDelete)
-            {
-                _builder.Append("SELECT 1 FROM(");
-                _builder.Append(cmd.CommandText);
-                _builder.Append(") ");
-                _builder.Append(column.TableAlias);
-                _builder.Append(" WHERE ");
+            //if (isDelete)
+            //{
+            //    _builder.Append("SELECT 1 FROM(");
+            //    _builder.Append(cmd.CommandText);
+            //    _builder.Append(") ");
+            //    _builder.Append(column.TableAlias);
+            //    _builder.Append(" WHERE ");
 
-                _builder.AppendMember(column.TableAlias, column.Name);
-                _builder.Append(" = ");
-                _visitor.Visit(m.Arguments[1]);
-                _builder.Append(")");
-            }
-            else
-            {
-                _builder.Append(cmd.CommandText);
-                if (((MappingCommand)cmd).WhereFragment.Length > 0)
-                    _builder.Append(" AND ");
-                else
-                    _builder.Append("WHERE ");
+            //    _builder.AppendMember(column.TableAlias, column.Name);
+            //    _builder.Append(" = ");
+            //    _visitor.Visit(m.Arguments[1]);
+            //    _builder.Append(")");
+            //}
+            //else
+            //{
+            //    _builder.Append(cmd.CommandText);
+            //    if (((MappingCommand)cmd).WhereFragment.Length > 0)
+            //        _builder.Append(" AND ");
+            //    else
+            //        _builder.Append("WHERE ");
 
-                _builder.AppendMember(column.TableAlias, column.Name);
-                _builder.Append(" = ");
-                _visitor.Visit(m.Arguments[1]);
-                _builder.Append(")");
-            }
+            //    _builder.AppendMember(column.TableAlias, column.Name);
+            //    _builder.Append(" = ");
+            //    _visitor.Visit(m.Arguments[1]);
+            //    _builder.Append(")");
+            //}
 
             return m;
         }

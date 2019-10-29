@@ -141,8 +141,8 @@ namespace TZM.XFramework.Data
                 else if (value is Guid)
                     return this.GetSqlValueByGuid(value);
                 // 数据类型
-                else if (TypeUtils.IsNumericType(type))
-                    return this.GetSqlValueByNumeric(value);
+                else if (TypeUtils.IsNumberType(type))
+                    return this.GetSqlValueByNumber(value);
                 // byte[] 类型
                 else if (value is byte[])
                     return this.GetSqlValueByBytes(value);
@@ -165,9 +165,7 @@ namespace TZM.XFramework.Data
                 else if (value is IEnumerable)
                     return this.GetSqlValue(value as IEnumerable, token, dbType, size, precision, scale);
                 else
-                {
                     throw new NotSupportedException(string.Format("type {0} not supported serialize to string", type.FullName));
-                }
 
             }
         }
@@ -259,9 +257,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">值</param>
         /// <returns></returns>
-        protected virtual string GetSqlValueByNumeric(object value)
+        protected virtual string GetSqlValueByNumber(object value)
         {
-            return value.ToString();
+            var result = value.ToString();
+            // 补足小数位
+            if (TypeUtils.IsNumericType(value.GetType()) && result[result.Length - 1] != '.')
+            {
+                result = string.Format("{0}.00", result);
+            }
+            return result;
         }
 
         /// <summary>

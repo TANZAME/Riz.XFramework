@@ -15,5 +15,15 @@ namespace TZM.XFramework.Data
         /// 自增长列名
         /// </summary>
         public const string AUTOINCREMENTNAME = "XfwAutoIncrement__";
+
+        /// <summary>
+        /// 常量列名
+        /// </summary>
+        public const string CONSTANTNAME = "__Constant__";
+
+        /// <summary>
+        /// 常量列名
+        /// </summary>
+        public const string CONTAINSCOLUMNNAME = "__ContainsColumn__";
     }
 }

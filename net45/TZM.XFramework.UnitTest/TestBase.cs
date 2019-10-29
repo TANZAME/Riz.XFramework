@@ -363,7 +363,7 @@ namespace TZM.XFramework.UnitTest
                 a.DemoCode.Contains(a.DemoName) && a.DemoCode.StartsWith(a.DemoName) && a.DemoCode.EndsWith(a.DemoName));
             result1 = query.ToList();
 
-            query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + 2 * 12 == 12);
+            query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + a.DemoByte * 12 == 12);
             result1 = query.ToList();
             query = context.GetTable<TDemo>().Where(a =>
                 a.DemoCode.StartsWith(a.DemoCode ?? "C0000009") || a.DemoName.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
@@ -480,6 +480,8 @@ namespace TZM.XFramework.UnitTest
             Model.State state = Model.State.Complete;
             TimeSpan ts = new TimeSpan(1000000000);
 
+            #region 字符类型
+
             // 字符串操作
             var query = from a in context.GetTable<TDemo>()
                         where
@@ -509,24 +511,36 @@ namespace TZM.XFramework.UnitTest
                             a.DemoName == (
                                 a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL")      // 三元表达式
                         select a;
-            var result1 = query.ToList();
-            var obj = context.GetTable<TDemo>().Select(a => new
-            {
-                DemoId = a.DemoId,
-                DemoCode = a.DemoCode.PadLeft(20),
-                DemoName = a.DemoCode.PadLeft(20, 'N'),
-                LowerName = a.DemoName.ToLower(),
-                Index1 = a.DemoCode.IndexOf('0'),
-                Index2 = a.DemoCode.IndexOf('1', 5),
-                Concat1 = string.Concat(a.DemoCode),
-                Concat2 = string.Concat(a.DemoCode, a.DemoName, a.DemoChar),
-                Concat3 = string.Concat("C"),
-                Concat4 = string.Concat("C", "00000", 0, 2),
-            }).FirstOrDefault(a => a.DemoId == 1);
-            //Debug.Assert(obj.DemoCode.Length == 20 && obj.LowerName == "c0000001" && obj.Index1 > 0 && obj.Concat4 == "C0000002");
+            var result = query.ToList();
+            var query1 =
+                context
+                .GetTable<TDemo>()
+                .Select(a => new
+                {
+                    DemoId = a.DemoId,
+                    DemoCode = a.DemoCode.PadLeft(20),
+                    DemoName = a.DemoCode.PadLeft(20, 'N'),
+                    LowerName = a.DemoName.ToLower(),
+                    Index1 = a.DemoCode.IndexOf('0'),
+                    Index2 = a.DemoCode.IndexOf('1', 5),
+                    Concat1 = string.Concat(a.DemoCode),
+                    Concat2 = string.Concat(a.DemoCode, a.DemoName, a.DemoChar),
+                    Concat3 = string.Concat("C"),
+                    Concat4 = string.Concat("C", "00000", 0, 2),
+                });
+            string rawSql1 = query1.ToString();
+            var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
+            Debug.Assert(obj1.DemoCode.Length == 20);
+            Debug.Assert(obj1.LowerName == "n0000001");
+            Debug.Assert(obj1.Index1 > 0);
+            Debug.Assert(obj1.Concat4 == "C0000002");
 
+            #endregion
+
+            #region 数字类型
 
             // 数值型操作
+            var myDemo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == 1);
             query = from a in context.GetTable<TDemo>()
                     where
                         a.DemoId % 2 == 10 &&
@@ -555,9 +569,64 @@ namespace TZM.XFramework.UnitTest
                         a.DemoInt == 409600000 ||
                         a.DemoInt == (int)state
                     select a;
-            result1 = query.ToList();
+            result = query.ToList();
+            var query2 =
+                context
+                .GetTable<TDemo>()
+                .Select(a => new
+                {
+                    DemoId = a.DemoId,
+                    Mod = a.DemoId % 2,
+                    Divide = DbFunction.Cast<decimal, int>(a.DemoId, "decimal") / 2,
+                    Abs = Math.Abs(a.DemoDecimal),
+                    Acos = Math.Acos(a.DemoId / 2.00),
+                    Asin = Math.Asin(a.DemoId / 2.00),
+                    Atan = Math.Atan((double)a.DemoDecimal),
+                    Atan2 = Math.Atan2((double)a.DemoByte, (double)a.DemoDecimal),
+                    Ceiling = Math.Ceiling(a.DemoDecimal),
+                    Cos = Math.Cos((double)a.DemoDecimal),
+                    Exp = Math.Exp((double)a.DemoDecimal),
+                    Floor = Math.Floor(a.DemoDecimal),
+                    Log = Math.Log((double)a.DemoDecimal),
+                    Log5 = Math.Log((double)a.DemoDecimal, 5),
+                    Log10 = Math.Log10((double)a.DemoDecimal),
+                    Pow = Math.Pow((double)a.DemoByte, 3),
+                    Round = Math.Round(a.DemoDecimal),
+                    Round1 = Math.Round(a.DemoDecimal, 1),
+                    Sign = Math.Sign(a.DemoDecimal),
+                    Sqrt = Math.Sqrt((double)a.DemoDecimal),
+                    Tan = Math.Tan((double)a.DemoDecimal),
+                    Truncate = Math.Truncate(a.DemoDecimal)
+                });
+            var rawSql2 = query2.ToString();
+            var obj2 = query2.FirstOrDefault(a => a.DemoId == 1);
+            Debug.Assert(myDemo.DemoId % 2 == obj2.Mod);
+            Debug.Assert(Math.Acos(myDemo.DemoId / 2.00) == obj2.Acos);
+            Debug.Assert(Math.Asin(myDemo.DemoId / 2.00) == obj2.Asin);
+            Debug.Assert(Math.Atan((double)myDemo.DemoDecimal) == obj2.Atan);
+            Debug.Assert(Math.Atan2((double)myDemo.DemoByte, (double)myDemo.DemoDecimal) == obj2.Atan2);
+            Debug.Assert(Math.Ceiling(myDemo.DemoDecimal) == obj2.Ceiling);
+            Debug.Assert(Math.Cos((double)myDemo.DemoDecimal) == obj2.Cos);
+            Debug.Assert(Math.Exp((double)myDemo.DemoDecimal) == obj2.Exp);
+            Debug.Assert(Math.Floor(myDemo.DemoDecimal) == obj2.Floor);
+            Debug.Assert(Math.Log((double)myDemo.DemoDecimal) == obj2.Log);
+            Debug.Assert(Math.Log((double)myDemo.DemoDecimal, 5) == obj2.Log5);
+            Debug.Assert(Math.Log10((double)myDemo.DemoDecimal) == obj2.Log10);
+            Debug.Assert(Math.Pow((double)myDemo.DemoByte, 3) == obj2.Pow);
+            Debug.Assert(Math.Round(myDemo.DemoDecimal) == obj2.Round);
+            Debug.Assert(Math.Round(myDemo.DemoDecimal, 1) == obj2.Round1);
+            Debug.Assert(Math.Sign(myDemo.DemoDecimal) == obj2.Sign);
+            Debug.Assert(Math.Sqrt((double)myDemo.DemoDecimal) == obj2.Sqrt);
+            Debug.Assert(Math.Tan((double)myDemo.DemoDecimal) == obj2.Tan);
+            Debug.Assert(Math.Truncate(myDemo.DemoDecimal) == obj2.Truncate);
+
+            #endregion
+
+            #region 日期类型
 
             // 日期类型操作
+            #region 条件
+
             query = from a in context.GetTable<TDemo>()
                     where
                         a.DemoDate == DateTime.Now &&
@@ -568,27 +637,61 @@ namespace TZM.XFramework.UnitTest
                         DateTime.DaysInMonth(2019, 12) == 12 &&
                         DateTime.IsLeapYear(2019) &&
                         a.DemoDate_Nullable.Value.AddDays(2) == a.DemoDateTime &&
+                        a.DemoDateTime.AddDays(2) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddDays(2) == a.DemoDateTime &&
                         a.DemoDate_Nullable.Value.AddHours(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDate_Nullable.Value.AddMilliseconds(12) == a.DemoDateTime_Nullable &&
                         //a.DemoDate.Add(ts) == DateTime.Now &&
                         //a.DemoDate_Nullable.Value.Subtract(a.DemoDateTime) == ts &&
                         //a.DemoDate_Nullable.Value - a.DemoDateTime == ts &&
                         a.DemoDate.AddYears(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddYears(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddYears(12) == a.DemoDateTime &&
                         a.DemoDate.AddMonths(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddMonths(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddMonths(12) == a.DemoDateTime &&
                         a.DemoDate.AddMinutes(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddMinutes(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddMinutes(12) == a.DemoDateTime &&
                         a.DemoDate.AddSeconds(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddSeconds(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddSeconds(12) == a.DemoDateTime &&
                         a.DemoDate.AddMilliseconds(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddMilliseconds(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddMilliseconds(12) == a.DemoDateTime &&
                         a.DemoDate.AddTicks(12) == a.DemoDateTime &&
+                        a.DemoDateTime.AddTicks(12) == a.DemoDateTime &&
+                        a.DemoDateTime2.AddTicks(12) == a.DemoDateTime &&
                         a.DemoDate.Date == DateTime.Now.Date &&
+                        a.DemoDateTime.Date == DateTime.Now.Date &&
+                        a.DemoDateTime2.Date == DateTime.Now.Date &&
                         a.DemoDate.Day == 12 &&
+                        a.DemoDateTime.Day == 12 &&
+                        a.DemoDateTime2.Day == 12 &&
                         a.DemoDate.DayOfWeek == DayOfWeek.Monday &&
+                        a.DemoDateTime.DayOfWeek == DayOfWeek.Monday &&
+                        a.DemoDateTime2.DayOfWeek == DayOfWeek.Monday &&
                         a.DemoDate.DayOfYear == 12 &&
+                        a.DemoDateTime.DayOfYear == 12 &&
+                        a.DemoDateTime2.DayOfYear == 12 &&
                         a.DemoDate.Hour == 12 &&
+                        a.DemoDateTime.Hour == 12 &&
+                        a.DemoDateTime2.Hour == 12 &&
                         a.DemoDate.Millisecond == 12 &&
+                        a.DemoDateTime.Millisecond == 12 &&
+                        a.DemoDateTime2.Millisecond == 12 &&
                         a.DemoDate.Minute == 12 &&
+                        a.DemoDateTime.Minute == 12 &&
+                        a.DemoDateTime2.Minute == 12 &&
                         a.DemoDate.Month == 12 &&
+                        a.DemoDateTime.Month == 12 &&
+                        a.DemoDateTime2.Month == 12 &&
                         a.DemoDate.Second == 12 &&
+                        a.DemoDateTime.Second == 12 &&
+                        a.DemoDateTime2.Second == 12 &&
                         a.DemoDate.Ticks == 12 &&
+                        a.DemoDateTime.Ticks == 12 &&
+                        a.DemoDateTime2.Ticks == 12 &&
                         ts.Ticks == 12 &&
                         a.DemoDate.TimeOfDay == ts &&
                         a.DemoDate.Year == 12 &&
@@ -596,16 +699,104 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDateTime.ToString() == "" &&
                         DateTime.Now.ToString() == ""
                     select a;
-            result1 = query.ToList();
+            result = query.ToList();
 
+            #endregion
 
-            //// 时间类型操作
-            //query = from a in context.GetTable<TDemo>()
-            //        where
-            //           a.DemoTime_Nullable.Value.Days == 12 &&
-            //           a.DemoTime_Nullable.Value.Hours == 12 &&
-            //        select a;
-            //result1 = query.ToList();
+            var query3 =
+                context
+                .GetTable<TDemo>()
+                .Select(a => new
+                {
+                    DemoId = a.DemoId,
+                    Now = DateTime.Now,
+                    UtcNow = DateTime.UtcNow,
+                    Today = DateTime.Today,
+                    MinValue = DateTime.MinValue,
+                    MaxValue = DateTime.MaxValue,
+                    DaysInMonth = DateTime.DaysInMonth(2019, 12),
+                    IsLeapYear = DateTime.IsLeapYear(2019),
+                    AddYears = a.DemoDate.AddYears(12),
+                    AddYears2 = a.DemoDateTime.AddYears(12),
+                    AddYears3 = a.DemoDateTime2.AddYears(12),
+                    AddMonths = a.DemoDate.AddMonths(12),
+                    AddMonths2 = a.DemoDateTime.AddMonths(12),
+                    AddMonths3 = a.DemoDateTime2.AddMonths(12),
+                    AddDays = a.DemoDate.AddDays(2),
+                    AddDays2 = a.DemoDateTime.AddDays(2),
+                    AddDays3 = a.DemoDateTime2.AddDays(2),
+                    AddHours = a.DemoDate.AddHours(2),
+                    AddHours2 = a.DemoDateTime.AddHours(2),
+                    AddHours3 = a.DemoDateTime2.AddHours(2),
+                    AddMinutes = a.DemoDate.AddMinutes(12),
+                    AddMinutes2 = a.DemoDateTime.AddMinutes(12),
+                    AddMinutes3 = a.DemoDateTime2.AddMinutes(12),
+                    AddSeconds = a.DemoDate.AddSeconds(12),
+                    AddSeconds2 = a.DemoDateTime.AddSeconds(12),
+                    AddSeconds3 = a.DemoDateTime2.AddSeconds(12),
+                    AddTicks = a.DemoDate.AddTicks(12),
+                    AddTicks2 = a.DemoDateTime.AddTicks(12),
+                    AddTicks3 = a.DemoDateTime2.AddTicks(12),
+                    AddMilliseconds = a.DemoDate.AddMilliseconds(12),
+                    AddMilliseconds2 = a.DemoDateTime.AddMilliseconds(12),
+                    AddMilliseconds3 = a.DemoDateTime2.AddMilliseconds(12),
+                    Year = a.DemoDate.Year,
+                    Year2 = a.DemoDateTime.Year,
+                    Year3 = a.DemoDateTime2.Year,
+                    Date = a.DemoDate.Date,
+                    Date2 = a.DemoDateTime.Date,
+                    Date3 = a.DemoDateTime2.Date,
+                    Day = a.DemoDate.Day,
+                    Day2 = a.DemoDateTime.Day,
+                    Day3 = a.DemoDateTime2.Day,
+                    DayOfWeek = a.DemoDate.DayOfWeek,
+                    DayOfWeek2 = a.DemoDateTime.DayOfWeek,
+                    DayOfWeek3 = a.DemoDateTime2.DayOfWeek,
+                    DayOfYear = a.DemoDate.DayOfYear,
+                    DayOfYear2 = a.DemoDateTime.DayOfYear,
+                    DayOfYear3 = a.DemoDateTime2.DayOfYear,
+                    Hour = a.DemoDate.Hour,
+                    Hour2 = a.DemoDateTime.Hour,
+                    Hour3 = a.DemoDateTime2.Hour,
+                    Millisecond = a.DemoDate.Millisecond,
+                    Millisecond2 = a.DemoDateTime.Millisecond,
+                    Millisecond3 = a.DemoDateTime2.Millisecond,
+                    Minute = a.DemoDate.Minute,
+                    Minute2 = a.DemoDateTime.Minute,
+                    Minute3 = a.DemoDateTime2.Minute,
+                    Month = a.DemoDate.Month,
+                    Month2 = a.DemoDateTime.Month,
+                    Month3 = a.DemoDateTime2.Month,
+                    Second = a.DemoDate.Second,
+                    Second2 = a.DemoDateTime.Second,
+                    Second3 = a.DemoDateTime2.Second,
+                    Ticks = a.DemoDate.Ticks,
+                    Ticks2 = a.DemoDateTime.Ticks,
+                    Ticks3 = a.DemoDateTime.Ticks,
+                    Ticks4 = ts.Ticks,
+                    Ticks5 = DateTime.Now.Ticks,
+                    TimeOfDay = a.DemoDate.TimeOfDay,
+                    ToString = a.DemoDateTime.ToString(),
+                    ToString2 = DateTime.Now.ToString(),
+                });
+            string rawSql3 = query3.ToString();
+            var obj3 = query3.FirstOrDefault(a => a.DemoId == 1);
+            Debug.Assert(obj3.Today == DateTime.Today);
+            Debug.Assert(obj3.MinValue == DateTime.MinValue);
+            Debug.Assert(obj3.MaxValue == DateTime.MaxValue);
+            Debug.Assert(obj3.DaysInMonth == DateTime.DaysInMonth(2019, 12));
+            Debug.Assert(obj3.IsLeapYear == DateTime.IsLeapYear(2019));
+            Debug.Assert(obj3.AddYears == myDemo.DemoDate.AddYears(12));
+            Debug.Assert(obj3.AddMonths == myDemo.DemoDate.AddMonths(12));
+            Debug.Assert(obj3.AddDays == myDemo.DemoDate.AddDays(12));
+            Debug.Assert(obj3.AddHours == myDemo.DemoDateTime2.AddHours(12));
+            Debug.Assert(obj3.AddMinutes == myDemo.DemoDateTime2.AddMinutes(12));
+            Debug.Assert(obj3.AddSeconds == myDemo.DemoDateTime2.AddSeconds(12));
+            Debug.Assert(obj3.AddTicks == myDemo.DemoDateTime2.AddTicks(12));
+            Debug.Assert(obj3.AddMilliseconds == myDemo.DemoDateTime2.AddMilliseconds(12));
+            Debug.Assert(obj3.Date == myDemo.DemoDateTime2.AddTicks(12));
+
+            #endregion
         }
 
         // 多表查询

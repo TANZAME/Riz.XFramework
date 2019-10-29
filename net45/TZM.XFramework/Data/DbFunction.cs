@@ -57,5 +57,18 @@ namespace TZM.XFramework.Data
         {
             return default(T);
         }
+
+        /// <summary>
+        /// 解析成转换函数 cast( a as dbtype)
+        /// </summary>
+        /// <typeparam name="TField">转换的字段</typeparam>
+        /// <typeparam name="TResult">转换后的类型</typeparam>
+        /// <param name="value">字段表达式</param>
+        /// <param name="dataType">数据库类型</param>
+        /// <returns></returns>
+        public static TResult Cast<TField, TResult>(TField value, string dataType)
+        {
+            return default(TResult);
+        }
     }
 }

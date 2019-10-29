@@ -103,10 +103,7 @@ namespace TZM.XFramework.Data
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            int visitedQty = _visitedMark.Count;
-            Expression newNode = this.VisitBinaryImpl(node);
-            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
-            return newNode;
+            return this.VisitWithoutRemark(x=> this.VisitBinaryImpl(node));
         }
 
         Expression VisitBinaryImpl(BinaryExpression b)
@@ -250,6 +247,27 @@ namespace TZM.XFramework.Data
         protected override Expression VisitUnary(UnaryExpression u)
         {
             return _methodVisitor.Visit(u, MethodCall.Unary);
+        }
+
+        // 访问表达式树后自动删掉访问的成员痕迹
+        protected void VisitWithoutRemark(Action<object> visit)
+        {
+            int visitedQty = _visitedMark.Count;
+            visit(null);
+            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+        }
+
+        /// <summary>
+        /// 访问表达式树后自动删掉访问的成员痕迹
+        /// </summary>
+        /// <param name="visit">访问实现</param>
+        /// <returns></returns>
+        public Expression VisitWithoutRemark(Func<object, Expression> visit)
+        {
+            int visitedQty = _visitedMark.Count;
+            var newNode = visit(null);
+            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            return newNode;
         }
 
         #endregion

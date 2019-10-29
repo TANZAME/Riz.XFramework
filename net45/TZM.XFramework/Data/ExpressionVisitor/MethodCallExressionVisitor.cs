@@ -208,12 +208,37 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        protected virtual Expression VisitCast(MethodCallExpression m)
+        {
+            // => a.ID.ToString()
+            _builder.Append("CAST(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" AS ");
+            _builder.Append(m.Arguments[1].Evaluate().Value);
+            _builder.Append(')');
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 ToString 方法
+        /// </summary>
         protected virtual Expression VisitToString(MethodCallExpression m)
         {
             // => a.ID.ToString()
             Expression node = null;
             if (m.Object != null) node = m.Object;
             else if (m.Arguments != null && m.Arguments.Count > 0) node = m.Arguments[0];
+
+            this.VisitToStringImpl(node);
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 ToString 方法
+        /// </summary>
+        protected virtual Expression VisitToStringImpl(Expression node)
+        {
+            // => a.ID.ToString()
             // 字符串不进行转换
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
@@ -232,9 +257,14 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
-                else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
-                else name = string.Format("{0}(max)", name);
+                // 特殊处理guid
+                if (node.Type == typeof(Guid)) name = string.Format("{0}(64)", name);
+                else
+                {
+                    if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
+                    else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
+                    else name = string.Format("{0}(max)", name);
+                }
 
                 _builder.Append("CAST(");
                 _visitor.Visit(node);
@@ -243,7 +273,7 @@ namespace TZM.XFramework.Data
                 _builder.Append(')');
             }
 
-            return m;
+            return node;
         }
 
         /// <summary>
@@ -434,13 +464,13 @@ namespace TZM.XFramework.Data
                 expressions = (m.Arguments[0] as NewArrayExpression).Expressions;
             }
 
-            if(expressions == null) _visitor.Visit(m.Arguments[0]);
+            if (expressions == null) _visitor.Visit(m.Arguments[0]);
             else
             {
                 _builder.Append("(");
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    _visitor.Visit(expressions[i]);
+                    _visitor.VisitWithoutRemark(x => this.VisitToStringImpl(expressions[i]));
                     if (i < expressions.Count - 1) _builder.Append(" + ");
                 }
                 _builder.Append(")");
@@ -610,7 +640,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 Math.Acos 方法
+        /// 访问 Math.Acos 方法， 仅介于 -1.00 到 1.00 之间的值有效
         /// </summary>
         protected virtual Expression VisitAcos(MethodCallExpression m)
         {
@@ -621,7 +651,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 Math.Asin 方法
+        /// 访问 Math.Asin 方法， 仅介于 -1.00 到 1.00 之间的值有效
         /// </summary>
         protected virtual Expression VisitAsin(MethodCallExpression m)
         {
@@ -751,7 +781,10 @@ namespace TZM.XFramework.Data
             _builder.Append("ROUND(");
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(", ");
-            _visitor.Visit(m.Arguments[1]);
+            if (m.Arguments.Count == 1)
+                _builder.Append(0, null);
+            else
+                _visitor.Visit(m.Arguments[1]);
             _builder.Append(')');
             return m;
         }
@@ -1300,18 +1333,16 @@ namespace TZM.XFramework.Data
                 Parameters = _builder.Token.Parameters,
                 TableAliasName = "s",
                 IsDebug = _builder.Token.IsDebug
-            } : null);
+            } : null) as MappingCommand;
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
-            if (((MappingCommand)cmd).WhereFragment.Length > 0)
+            if (cmd.WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");
 
-            var column = ((MappingCommand)cmd).Columns.First();
-            _builder.AppendMember(column.TableAlias, column.Name);
-
+            _builder.Append(cmd.PickColumnText);
             _builder.Append(" = ");
             _visitor.Visit(m.Arguments[1]);
             _builder.Append(")");

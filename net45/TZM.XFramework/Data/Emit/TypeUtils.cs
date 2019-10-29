@@ -12,6 +12,7 @@ namespace TZM.XFramework.Data
     public class TypeUtils
     {
         static HashSet<Type> _primitiveTypes = new HashSet<Type>();
+        static HashSet<Type> _numberTypes = new HashSet<Type>();
         static HashSet<Type> _numericTypes = new HashSet<Type>();
 
         static TypeUtils()
@@ -55,28 +56,35 @@ namespace TZM.XFramework.Data
             _primitiveTypes.Add(typeof(byte[]));
             // object 类型不能加进来，不然会与dynamic类型产生冲突
 
-            _numericTypes.Add(typeof(byte));
-            _numericTypes.Add(typeof(Nullable<byte>));
+            _numberTypes.Add(typeof(byte));
+            _numberTypes.Add(typeof(Nullable<byte>));
+            _numberTypes.Add(typeof(decimal));
+            _numberTypes.Add(typeof(Nullable<decimal>));
+            _numberTypes.Add(typeof(double));
+            _numberTypes.Add(typeof(Nullable<double>));
+            _numberTypes.Add(typeof(short));
+            _numberTypes.Add(typeof(Nullable<short>));
+            _numberTypes.Add(typeof(int));
+            _numberTypes.Add(typeof(Nullable<int>));
+            _numberTypes.Add(typeof(long));
+            _numberTypes.Add(typeof(Nullable<long>));
+            _numberTypes.Add(typeof(sbyte));
+            _numberTypes.Add(typeof(Nullable<sbyte>));
+            _numberTypes.Add(typeof(float));
+            _numberTypes.Add(typeof(Nullable<float>));
+            _numberTypes.Add(typeof(ushort));
+            _numberTypes.Add(typeof(Nullable<ushort>));
+            _numberTypes.Add(typeof(uint));
+            _numberTypes.Add(typeof(Nullable<uint>));
+            _numberTypes.Add(typeof(ulong));
+            _numberTypes.Add(typeof(Nullable<ulong>));
+
             _numericTypes.Add(typeof(decimal));
             _numericTypes.Add(typeof(Nullable<decimal>));
             _numericTypes.Add(typeof(double));
             _numericTypes.Add(typeof(Nullable<double>));
-            _numericTypes.Add(typeof(short));
-            _numericTypes.Add(typeof(Nullable<short>));
-            _numericTypes.Add(typeof(int));
-            _numericTypes.Add(typeof(Nullable<int>));
-            _numericTypes.Add(typeof(long));
-            _numericTypes.Add(typeof(Nullable<long>));
-            _numericTypes.Add(typeof(sbyte));
-            _numericTypes.Add(typeof(Nullable<sbyte>));
             _numericTypes.Add(typeof(float));
             _numericTypes.Add(typeof(Nullable<float>));
-            _numericTypes.Add(typeof(ushort));
-            _numericTypes.Add(typeof(Nullable<ushort>));
-            _numericTypes.Add(typeof(uint));
-            _numericTypes.Add(typeof(Nullable<uint>));
-            _numericTypes.Add(typeof(ulong));
-            _numericTypes.Add(typeof(Nullable<ulong>));
         }
 
         /// <summary>
@@ -88,7 +96,15 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 判断给定类型是否是数值类型
+        /// 判断给定类型是否是数字类型
+        /// </summary>
+        public static bool IsNumberType(Type type)
+        {
+            return _numberTypes.Contains(type);
+        }
+
+        /// <summary>
+        /// 判断给定类型是否是数值类型，即有小数位的数值
         /// </summary>
         public static bool IsNumericType(Type type)
         {

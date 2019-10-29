@@ -12,7 +12,7 @@ namespace TZM.XFramework.Data
         /// 选择字段范围
         /// </summary>
         /// <remarks>INSERT 表达式可能用这些字段</remarks>
-        ColumnCollection Columns { get; set; }
+        ColumnCollection PickColumns { get; set; }
 
         /// <summary>
         /// 导航属性描述集合
