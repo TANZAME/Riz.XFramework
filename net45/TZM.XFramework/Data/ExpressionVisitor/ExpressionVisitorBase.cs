@@ -101,12 +101,18 @@ namespace TZM.XFramework.Data
             if (_expression != null) this.Visit(_expression);
         }
 
+        /// <summary>
+        /// 访问二元表达式
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            return this.VisitWithoutRemark(x=> this.VisitBinaryImpl(node));
+            return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
         }
 
-        Expression VisitBinaryImpl(BinaryExpression b)
+        /// <summary>
+        /// 访问二元表达式
+        /// </summary>
+        protected virtual Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
 
@@ -135,26 +141,6 @@ namespace TZM.XFramework.Data
             ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
             if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodCall.EqualNull);
 
-            //// 时间加减
-            //bool b2 = false;
-            //switch (b.NodeType)
-            //{
-            //    case ExpressionType.Equal:
-            //    case ExpressionType.NotEqual:
-            //    case ExpressionType.GreaterThan:
-            //    case ExpressionType.GreaterThanOrEqual:
-            //    case ExpressionType.LessThan:
-            //    case ExpressionType.LessThanOrEqual:
-            //        b2 = true;
-            //        break;
-            //}
-            //if (b2 && left.Type == typeof(TimeSpan))
-            //{
-            //    bool used = left.NodeType == ExpressionType.Subtract || left.NodeType == ExpressionType.Subtract;
-            //    if (!used) used = right.NodeType == ExpressionType.Subtract || right.NodeType == ExpressionType.Subtract;
-            //    if (used) return _methodVisitor.VisitMethodCall(b);
-            //}
-
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
             return this.VisitBinary_Condition(b);
         }
@@ -163,7 +149,7 @@ namespace TZM.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.TryMakeBinary(node.Test, true);
+            Expression testExpression = this.TryMakeBinary(node.Test, false);
             Expression ifTrueExpression = this.TryMakeBinary(node.IfTrue, true);
             Expression ifFalseExpression = this.TryMakeBinary(node.IfFalse, true);
 
@@ -366,49 +352,40 @@ namespace TZM.XFramework.Data
             return alias;
         }
 
-        protected Expression TryMakeBinary(Expression exp, bool skipConstant = false)
+        protected virtual Expression TryMakeBinary(Expression expression, bool skipConstant = false)
         {
-            if (exp.Type != typeof(bool)) return exp;
+            if (expression.Type != typeof(bool)) return expression;
+            else if (expression.NodeType == ExpressionType.Constant && skipConstant) return expression;
 
             Expression left = null;
             Expression right = null;
 
-            switch (exp.NodeType)
+            if (expression.NodeType == ExpressionType.Constant)
             {
-                //True should be translate to 1==1 and Flase should be 1==2
-                case ExpressionType.Constant:
-                    if (!skipConstant)
-                    {
-                        ConstantExpression constExp = exp as ConstantExpression;
-                        bool value = Convert.ToBoolean(constExp.Value);
-                        left = Expression.Constant(1);
-                        right = Expression.Constant(value ? 1 : 2);
-                    }
-
-                    break;
-
-                //x.MemberName(Boolean)
-                case ExpressionType.MemberAccess:
-                    left = exp;
-                    right = Expression.Constant(true);
-
-                    break;
-
-                //!x.MemberName(Boolean)
-                case ExpressionType.Not:
-                    UnaryExpression unaryExp = exp as UnaryExpression;
-                    if (unaryExp.Operand.NodeType == ExpressionType.MemberAccess)
-                    {
-                        left = unaryExp.Operand;
-                        right = Expression.Constant(false);
-                    }
-
-                    break;
+                // true => 1=2
+                left = Expression.Constant(1);
+                right = Expression.Constant(Convert.ToBoolean(((ConstantExpression)expression).Value) ? 1 : 2);
+            }
+            else if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                // a.FieldName => a.FieldName = 1
+                left = expression;
+                right = Expression.Constant(true);
+            }
+            else if (expression.NodeType == ExpressionType.Not)
+            {
+                var unaryExpression = expression as UnaryExpression;
+                if (unaryExpression.Operand.NodeType == ExpressionType.MemberAccess)
+                {
+                    // !a.FieldName => a.FieldName = 0
+                    left = ((UnaryExpression)expression).Operand;
+                    right = Expression.Constant(false);
+                }
             }
 
-            if (left != null) exp = Expression.MakeBinary(ExpressionType.Equal, left, right);
-
-            return exp;
+            if (left != null)
+                expression = Expression.MakeBinary(ExpressionType.Equal, left, right);
+            return expression;
         }
 
         protected virtual string GetOperator(BinaryExpression b)

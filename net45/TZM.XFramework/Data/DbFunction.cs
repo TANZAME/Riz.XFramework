@@ -59,7 +59,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 解析成转换函数 cast( a as dbtype)
+        /// 解析成转换函数辅助类 cast( a as dbtype)
         /// </summary>
         /// <typeparam name="TField">转换的字段</typeparam>
         /// <typeparam name="TResult">转换后的类型</typeparam>

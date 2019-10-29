@@ -72,7 +72,7 @@ namespace TZM.XFramework
         /// <returns></returns>
         public static Expression ReduceUnary(this Expression exp)
         {
-            UnaryExpression unaryExpression = exp as UnaryExpression;
+            var unaryExpression = exp as UnaryExpression;
             return unaryExpression != null
                 ? unaryExpression.Operand.ReduceUnary()
                 : exp;

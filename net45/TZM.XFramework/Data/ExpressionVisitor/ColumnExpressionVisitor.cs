@@ -330,7 +330,8 @@ namespace TZM.XFramework.Data
                 }
                 else if (expression.NodeType == ExpressionType.MemberAccess || expression.NodeType == ExpressionType.Call)
                 {
-                    if (!TypeUtils.IsPrimitiveType(type)) this.VisitNavigation(expression as MemberExpression, false);
+                    bool isNavigation = !type.IsEnum && !TypeUtils.IsPrimitiveType(type);
+                    if (isNavigation) this.VisitNavigation(expression as MemberExpression, false);
                     else
                     {
                         // new Client(a.ClientId)
