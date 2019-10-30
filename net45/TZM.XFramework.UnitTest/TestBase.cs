@@ -74,6 +74,7 @@ namespace TZM.XFramework.UnitTest
                     DemoEnum2 = Model.State.Executing,
                 };
             var result0 = dynamicQuery.ToList();
+            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
             //SQL=>
             //SELECT 
             //12 AS [DemoId],
@@ -106,6 +107,7 @@ namespace TZM.XFramework.UnitTest
                     DemoEnum2 = Model.State.Executing
                 });
             result0 = dynamicQuery.ToList();
+            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
 #if !net40
             result0 = dynamicQuery.ToListAsync().Result;
 #endif
@@ -133,6 +135,7 @@ namespace TZM.XFramework.UnitTest
                 where a.DemoId <= 10 && a.DemoDate > sDate && a.DemoDateTime >= sDate && a.DemoDateTime2 > sDate
                 select a;
             var result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -164,6 +167,7 @@ namespace TZM.XFramework.UnitTest
                         DemoDateTime2 = sDate
                     };
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -181,6 +185,7 @@ namespace TZM.XFramework.UnitTest
                     DemoDateTime2 = sDate
                 });
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=> 
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -195,10 +200,12 @@ namespace TZM.XFramework.UnitTest
 
             query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && context.GetTable<TDemo>().Select(e => e.DemoName).Contains(a.DemoName));
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
 
             var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
             query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && !queryFilters.Contains(a.DemoName));
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
 
             // 带参数构造函数
             Parameterized();
@@ -220,12 +227,14 @@ namespace TZM.XFramework.UnitTest
 
             var query6 = context.GetTable<TDemo>().Select(a => a.DemoCode ?? "N");
             var result6 = query6.ToList();
+            context.Database.ExecuteNonQuery(query6.ToString());
+
             query6 = context.GetTable<TDemo>().Select(a => a.DemoCode + a.DemoName);
             result6 = query6.ToList();
+            context.Database.ExecuteNonQuery(query6.ToString());
 
             //分页查询（非微软api）
-            query = from a in context.GetTable<TDemo>()
-                    select a;
+            query = from a in context.GetTable<TDemo>() select a;
             var result2 = query.ToPagedList(1, 20);
 #if !net40
             result2 = query.ToPagedListAsync(1, 20).Result;
@@ -260,6 +269,7 @@ namespace TZM.XFramework.UnitTest
                     select a;
             query = query.Skip(1).Take(18);
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -321,6 +331,7 @@ namespace TZM.XFramework.UnitTest
             query = query.Where(a => a.DemoId <= 10);
             query = query.OrderBy(a => a.DemoCode).Skip(1).Take(1);
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -368,6 +379,7 @@ namespace TZM.XFramework.UnitTest
             query = context.GetTable<TDemo>().Where(a =>
                 a.DemoCode.StartsWith(a.DemoCode ?? "C0000009") || a.DemoName.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -405,6 +417,7 @@ namespace TZM.XFramework.UnitTest
                         (a.DemoName == "STATE" && a.DemoName == "REMARK"));               // OR 查询
 
             result1 = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
 
             //SQL=>            
             //SELECT
@@ -429,7 +442,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = DbFunction.RowNumber<long>(x => a.DemoCode, false)
+                    RowNumber = DbFunction.RowNumber<string, long>(a.DemoCode, false)
                 });
             var reuslt1 = query1.ToList();
             Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
@@ -443,9 +456,10 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = DbFunction.PartitionRowNumber<long>(x => a.ClientId, x => a.AccountId, true)
+                RowNumber = DbFunction.PartitionRowNumber<int, string, long>(a.ClientId, a.AccountId, true)
             });
             reuslt1 = query1.ToList();
+            context.Database.ExecuteNonQuery(query1.ToString());
 
             // DataTable
             query = from a in context.GetTable<TDemo>()
@@ -497,6 +511,7 @@ namespace TZM.XFramework.UnitTest
                             a.DemoCode.Contains("TAN") &&                                   // LIKE '%%'
                             a.DemoCode.StartsWith("TAN") &&                                 // LIKE 'K%'
                             a.DemoCode.EndsWith("TAN") &&                                   // LIKE '%K'
+                            !a.DemoCode.EndsWith("TAN") &&                                  // NOT LIKE '%K'
                             a.DemoCode.Length == 12 &&                                      // LENGTH
                             a.DemoCode == (a.DemoCode ?? "C0000009") &&
                             a.DemoName.ToUpper() == "FF" &&
@@ -512,6 +527,7 @@ namespace TZM.XFramework.UnitTest
                                 a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL")      // 三元表达式
                         select a;
             var result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             var query1 =
                 context
                 .GetTable<TDemo>()
@@ -528,8 +544,8 @@ namespace TZM.XFramework.UnitTest
                     Concat3 = string.Concat("C"),
                     Concat4 = string.Concat("C", "00000", 0, 2),
                 });
-            string rawSql1 = query1.ToString();
             var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
+            context.Database.ExecuteNonQuery(query1.ToString());
             Debug.Assert(obj1.DemoCode.Length == 20);
             Debug.Assert(obj1.LowerName == "n0000001");
             Debug.Assert(obj1.Index1 > 0);
@@ -570,6 +586,7 @@ namespace TZM.XFramework.UnitTest
                         a.DemoInt == (int)state
                     select a;
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             var query2 =
                 context
                 .GetTable<TDemo>()
@@ -598,8 +615,8 @@ namespace TZM.XFramework.UnitTest
                     Tan = Math.Tan((double)a.DemoDecimal),
                     Truncate = Math.Truncate(a.DemoDecimal)
                 });
-            var rawSql2 = query2.ToString();
             var obj2 = query2.FirstOrDefault(a => a.DemoId == 1);
+            context.Database.ExecuteNonQuery(query2.Where(a => a.DemoId == 1).ToString());
             Debug.Assert(myDemo.DemoId % 2 == obj2.Mod);
             Debug.Assert(Math.Acos(myDemo.DemoId / 2.00) == obj2.Acos);
             Debug.Assert(Math.Asin(myDemo.DemoId / 2.00) == obj2.Asin);
@@ -646,26 +663,24 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDateTime.AddMonths(12) == a.DemoDateTime &&
                         a.DemoDateTime2.AddMonths(12) == a.DemoDateTime &&
                         a.DemoDate_Nullable.Value.AddDays(2) == a.DemoDateTime &&
-                        a.DemoDateTime.AddDays(2) == a.DemoDateTime &&
+                        a.DemoDate.AddDays(2) == a.DemoDateTime &&
                         a.DemoDateTime2.AddDays(2) == a.DemoDateTime &&
-                        a.DemoDate.AddHours(2) == a.DemoDateTime_Nullable.Value &&
+                        //a.DemoDate.AddHours(2) == a.DemoDateTime_Nullable.Value &&
+                        //DbFunction.Cast<DateTime, DateTime>(a.DemoDate, "DATETIME2").AddHours(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime.AddHours(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime2.AddHours(2) == a.DemoDateTime_Nullable.Value &&
-                        a.DemoDate.AddMinutes(12) == a.DemoDateTime &&
+                        //a.DemoDate.AddMinutes(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime.AddMinutes(12) == a.DemoDateTime &&
                         a.DemoDateTime2.AddMinutes(12) == a.DemoDateTime &&
-                        a.DemoDate.AddSeconds(12) == a.DemoDateTime &&
+                        //a.DemoDate.AddSeconds(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime.AddSeconds(12) == a.DemoDateTime &&
                         a.DemoDateTime2.AddSeconds(12) == a.DemoDateTime &&
-                        a.DemoDate.AddMilliseconds(12) == a.DemoDateTime &&
+                        //a.DemoDate.AddMilliseconds(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime.AddMilliseconds(12) == a.DemoDateTime &&
                         a.DemoDateTime2.AddMilliseconds(12) == a.DemoDateTime &&
-                        a.DemoDate.AddTicks(12) == a.DemoDateTime &&
+                        //a.DemoDate.AddTicks(2) == a.DemoDateTime_Nullable.Value &&
                         a.DemoDateTime.AddTicks(12) == a.DemoDateTime &&
                         a.DemoDateTime2.AddTicks(12) == a.DemoDateTime &&
-                        a.DemoDate.Date == DateTime.Now.Date &&
-                        a.DemoDateTime.Date == DateTime.Now.Date &&
-                        a.DemoDateTime2.Date == DateTime.Now.Date &&
                         a.DemoDate.Day == 12 &&
                         a.DemoDateTime.Day == 12 &&
                         a.DemoDateTime2.Day == 12 &&
@@ -675,32 +690,36 @@ namespace TZM.XFramework.UnitTest
                         a.DemoDate.DayOfYear == 12 &&
                         a.DemoDateTime.DayOfYear == 12 &&
                         a.DemoDateTime2.DayOfYear == 12 &&
-                        a.DemoDate.Hour == 12 &&
-                        a.DemoDateTime.Hour == 12 &&
-                        a.DemoDateTime2.Hour == 12 &&
-                        a.DemoDate.Millisecond == 12 &&
-                        a.DemoDateTime.Millisecond == 12 &&
-                        a.DemoDateTime2.Millisecond == 12 &&
-                        a.DemoDate.Minute == 12 &&
-                        a.DemoDateTime.Minute == 12 &&
-                        a.DemoDateTime2.Minute == 12 &&
+                        a.DemoDate.Year == 12 &&
                         a.DemoDate.Month == 12 &&
                         a.DemoDateTime.Month == 12 &&
                         a.DemoDateTime2.Month == 12 &&
-                        a.DemoDate.Second == 12 &&
+                        a.DemoDate.Date == DateTime.Now.Date &&
+                        a.DemoDateTime.Date == DateTime.Now.Date &&
+                        a.DemoDateTime2.Date == DateTime.Now.Date &&
+                        //a.DemoDate.Hour == 12 &&
+                        a.DemoDateTime.Hour == 12 &&
+                        a.DemoDateTime2.Hour == 12 &&
+                        //a.DemoDate.Minute == 12 &&
+                        a.DemoDateTime.Minute == 12 &&
+                        a.DemoDateTime2.Minute == 12 &&
+                        //a.DemoDate.Second == 12 &&
                         a.DemoDateTime.Second == 12 &&
                         a.DemoDateTime2.Second == 12 &&
-                        a.DemoDate.Ticks == 12 &&
+                        //a.DemoDate.Millisecond == 12 &&
+                        a.DemoDateTime.Millisecond == 12 &&
+                        a.DemoDateTime2.Millisecond == 12 &&
+                        //a.DemoDate.Ticks == 12 &&
                         a.DemoDateTime.Ticks == 12 &&
                         a.DemoDateTime2.Ticks == 12 &&
                         ts.Ticks == 12 &&
                         a.DemoDate.TimeOfDay == ts &&
-                        a.DemoDate.Year == 12 &&
                         DateTime.Now.Ticks == 12 &&
                         a.DemoDateTime.ToString() == "" &&
                         DateTime.Now.ToString() == ""
                     select a;
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
 
             #endregion
 
@@ -723,24 +742,30 @@ namespace TZM.XFramework.UnitTest
                     AddMonths = a.DemoDate.AddMonths(12),
                     AddMonths2 = a.DemoDateTime.AddMonths(12),
                     AddMonths3 = a.DemoDateTime2.AddMonths(12),
-                    AddDays = a.DemoDate.AddDays(2),
-                    AddDays2 = a.DemoDateTime.AddDays(2),
-                    AddDays3 = a.DemoDateTime2.AddDays(2),
-                    AddHours2 = a.DemoDateTime.AddHours(2),
-                    AddHours3 = a.DemoDateTime2.AddHours(2),
+                    AddDays = a.DemoDate.AddDays(12),
+                    AddDays2 = a.DemoDateTime.AddDays(12),
+                    AddDays3 = a.DemoDateTime2.AddDays(12),
+                    //AddHours = a.DemoDate.AddHours(12),
+                    AddHours2 = a.DemoDateTime.AddHours(12),
+                    AddHours3 = a.DemoDateTime2.AddHours(12),
+                    //AddMinutes = a.DemoDate.AddMinutes(12),
                     AddMinutes2 = a.DemoDateTime.AddMinutes(12),
                     AddMinutes3 = a.DemoDateTime2.AddMinutes(12),
+                    //AddSeconds = a.DemoDate.AddSeconds(12),
                     AddSeconds2 = a.DemoDateTime.AddSeconds(12),
                     AddSeconds3 = a.DemoDateTime2.AddSeconds(12),
-                    AddTicks = a.DemoDate.AddTicks(12),
-                    AddTicks2 = a.DemoDateTime.AddTicks(12),
-                    AddTicks3 = a.DemoDateTime2.AddTicks(12),
-                    AddMilliseconds = a.DemoDate.AddMilliseconds(12),
-                    AddMilliseconds2 = a.DemoDateTime.AddMilliseconds(12),
+                    //AddMilliseconds = a.DemoDate.AddMilliseconds(12),
+                    //AddMilliseconds2 = a.DemoDateTime.AddMilliseconds(12),
                     AddMilliseconds3 = a.DemoDateTime2.AddMilliseconds(12),
+                    //AddTicks = a.DemoDate.AddTicks(12),
+                    //AddTicks2 = a.DemoDate.AddTicks(12),
+                    AddTicks3 = a.DemoDateTime2.AddTicks(12),
                     Year = a.DemoDate.Year,
                     Year2 = a.DemoDateTime.Year,
                     Year3 = a.DemoDateTime2.Year,
+                    Month = a.DemoDate.Month,
+                    Month2 = a.DemoDateTime.Month,
+                    Month3 = a.DemoDateTime2.Month,
                     Date = a.DemoDate.Date,
                     Date2 = a.DemoDateTime.Date,
                     Date3 = a.DemoDateTime2.Date,
@@ -753,35 +778,88 @@ namespace TZM.XFramework.UnitTest
                     DayOfYear = a.DemoDate.DayOfYear,
                     DayOfYear2 = a.DemoDateTime.DayOfYear,
                     DayOfYear3 = a.DemoDateTime2.DayOfYear,
-                    Hour = a.DemoDate.Hour,
+                    //Hour = a.DemoDate.Hour,
                     Hour2 = a.DemoDateTime.Hour,
                     Hour3 = a.DemoDateTime2.Hour,
-                    Millisecond = a.DemoDate.Millisecond,
-                    Millisecond2 = a.DemoDateTime.Millisecond,
-                    Millisecond3 = a.DemoDateTime2.Millisecond,
-                    Minute = a.DemoDate.Minute,
+                    //Minute = a.DemoDate.Minute,
                     Minute2 = a.DemoDateTime.Minute,
                     Minute3 = a.DemoDateTime2.Minute,
-                    Month = a.DemoDate.Month,
-                    Month2 = a.DemoDateTime.Month,
-                    Month3 = a.DemoDateTime2.Month,
-                    Second = a.DemoDate.Second,
+                    //Second = a.DemoDate.Second,
                     Second2 = a.DemoDateTime.Second,
                     Second3 = a.DemoDateTime2.Second,
-                    Ticks = a.DemoDate.Ticks,
+                    //Millisecond = a.DemoDate.Millisecond,
+                    Millisecond2 = a.DemoDateTime.Millisecond,
+                    Millisecond3 = a.DemoDateTime2.Millisecond,
+                    //Ticks = a.DemoDate.Ticks,
                     Ticks2 = a.DemoDateTime.Ticks,
-                    Ticks3 = a.DemoDateTime.Ticks,
+                    Ticks3 = a.DemoDateTime2.Ticks,
                     Ticks4 = ts.Ticks,
                     Ticks5 = DateTime.Now.Ticks,
-                    TimeOfDay = a.DemoDate.TimeOfDay,
-                    ToString = a.DemoDateTime.ToString(),
-                    ToString2 = DateTime.Now.ToString(),
+                    TimeOfDay = a.DemoDateTime.TimeOfDay,
+                    ToString2 = a.DemoDateTime.ToString(),
+                    ToString3 = DateTime.Now.ToString(),
                 });
-            string rawSql3 = query3.ToString();
             var obj3 = query3.FirstOrDefault(a => a.DemoId == 1);
-            //Debug.Assert(obj3.Today == DateTime.Today);
-            //Debug.Assert(obj3.MinValue == DateTime.MinValue);
-            //Debug.Assert(obj3.MaxValue == DateTime.MaxValue);
+            context.Database.ExecuteNonQuery(query3.Where(a => a.DemoId == 1).ToString());
+            Debug.Assert(obj3.AddYears == myDemo.DemoDate.AddYears(12));
+            Debug.Assert(obj3.AddYears2 == myDemo.DemoDateTime.AddYears(12));
+            Debug.Assert(obj3.AddYears3 == myDemo.DemoDateTime2.AddYears(12));
+            Debug.Assert(obj3.AddMonths == myDemo.DemoDate.AddMonths(12));
+            Debug.Assert(obj3.AddMonths2 == myDemo.DemoDateTime.AddMonths(12));
+            Debug.Assert(obj3.AddMonths3 == myDemo.DemoDateTime2.AddMonths(12));
+            Debug.Assert(obj3.AddDays == myDemo.DemoDate.AddDays(12));
+            Debug.Assert(obj3.AddDays2 == myDemo.DemoDateTime.AddDays(12));
+            Debug.Assert(obj3.AddDays3 == myDemo.DemoDateTime2.AddDays(12));
+            //Debug.Assert(obj3.AddHours == myDemo.DemoDate.AddHours(12));
+            Debug.Assert(obj3.AddHours2 == myDemo.DemoDateTime.AddHours(12));
+            Debug.Assert(obj3.AddHours3 == myDemo.DemoDateTime2.AddHours(12));
+            //Debug.Assert(obj3.AddMinutes == myDemo.DemoDate.AddMinutes(12));
+            Debug.Assert(obj3.AddMinutes2 == myDemo.DemoDateTime.AddMinutes(12));
+            Debug.Assert(obj3.AddMinutes3 == myDemo.DemoDateTime2.AddMinutes(12));
+            //Debug.Assert(obj3.AddSeconds == myDemo.DemoDate.AddSeconds(12));
+            Debug.Assert(obj3.AddSeconds2 == myDemo.DemoDateTime.AddSeconds(12));
+            Debug.Assert(obj3.AddSeconds3 == myDemo.DemoDateTime2.AddSeconds(12));
+            //Debug.Assert(obj3.AddMilliseconds == myDemo.DemoDate.AddMilliseconds(12));
+            //Debug.Assert(obj3.AddMilliseconds2 == myDemo.DemoDateTime.AddMilliseconds(12));
+            Debug.Assert(obj3.AddMilliseconds3 == myDemo.DemoDateTime2.AddMilliseconds(12));
+            //Debug.Assert(obj3.AddTicks == myDemo.DemoDate.AddTicks(12));
+            //Debug.Assert(obj3.AddTicks2 == myDemo.DemoDate.AddTicks(12));
+            Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
+            Debug.Assert(obj3.Year == myDemo.DemoDate.Year);
+            Debug.Assert(obj3.Year2 == myDemo.DemoDateTime.Year);
+            Debug.Assert(obj3.Year3 == myDemo.DemoDateTime2.Year);
+            Debug.Assert(obj3.Month == myDemo.DemoDate.Month);
+            Debug.Assert(obj3.Month2 == myDemo.DemoDateTime.Month);
+            Debug.Assert(obj3.Month3 == myDemo.DemoDateTime2.Month);
+            Debug.Assert(obj3.Date == myDemo.DemoDate.Date);
+            Debug.Assert(obj3.Date2 == myDemo.DemoDateTime.Date);
+            Debug.Assert(obj3.Date3 == myDemo.DemoDateTime2.Date);
+            Debug.Assert(obj3.Day == myDemo.DemoDate.Day);
+            Debug.Assert(obj3.Day2 == myDemo.DemoDateTime.Day);
+            Debug.Assert(obj3.Day3 == myDemo.DemoDateTime2.Day);
+            Debug.Assert(obj3.DayOfWeek == myDemo.DemoDate.DayOfWeek);
+            Debug.Assert(obj3.DayOfWeek2 == myDemo.DemoDateTime.DayOfWeek);
+            Debug.Assert(obj3.DayOfWeek3 == myDemo.DemoDateTime2.DayOfWeek);
+            Debug.Assert(obj3.DayOfYear == myDemo.DemoDate.DayOfYear);
+            Debug.Assert(obj3.DayOfYear2 == myDemo.DemoDateTime.DayOfYear);
+            Debug.Assert(obj3.DayOfYear3 == myDemo.DemoDateTime2.DayOfYear);
+            //Debug.Assert(obj3.Hour == myDemo.DemoDate.Hour);
+            Debug.Assert(obj3.Hour2 == myDemo.DemoDateTime.Hour);
+            Debug.Assert(obj3.Hour3 == myDemo.DemoDateTime2.Hour);
+            //Debug.Assert(obj3.Minute == myDemo.DemoDate.Minute);
+            Debug.Assert(obj3.Minute2 == myDemo.DemoDateTime.Minute);
+            Debug.Assert(obj3.Minute3 == myDemo.DemoDateTime2.Minute);
+            //Debug.Assert(obj3.Second == myDemo.DemoDate.Second);
+            Debug.Assert(obj3.Second2 == myDemo.DemoDateTime.Second);
+            Debug.Assert(obj3.Second3 == myDemo.DemoDateTime2.Second);
+            //Debug.Assert(obj3.Millisecond == myDemo.DemoDate.Millisecond);
+            Debug.Assert(obj3.Millisecond2 == myDemo.DemoDateTime.Millisecond);
+            Debug.Assert(obj3.Millisecond3 == myDemo.DemoDateTime2.Millisecond);
+            //Debug.Assert(obj3.Ticks == myDemo.DemoDate.Ticks);
+            //Debug.Assert(obj3.Ticks2 == myDemo.DemoDateTime.Ticks);
+            Debug.Assert(obj3.Ticks3 == myDemo.DemoDateTime2.Ticks);
+            Debug.Assert(obj3.Ticks4 == ts.Ticks);
+            Debug.Assert(obj3.TimeOfDay == myDemo.DemoDateTime.TimeOfDay);
             //Debug.Assert(obj3.DaysInMonth == DateTime.DaysInMonth(2019, 12));
             //Debug.Assert(obj3.IsLeapYear == DateTime.IsLeapYear(2019));
             //Debug.Assert(obj3.AddYears == myDemo.DemoDate.AddYears(12));
@@ -795,6 +873,24 @@ namespace TZM.XFramework.UnitTest
             //Debug.Assert(obj3.Date == myDemo.DemoDateTime2.AddTicks(12));
 
             #endregion
+
+
+            var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
+            var newQuery =
+                from a in context.GetTable<TDemo>()
+                where
+                    a.DemoName.StartsWith("5") && !a.DemoName.StartsWith("5") &&
+                    queryFilters.Contains(a.DemoName) && !queryFilters.Contains(a.DemoName) &&
+                    DateTime.IsLeapYear(a.DemoByte) && !DateTime.IsLeapYear(a.DemoByte)
+                select new
+                {
+                    StartsWith = a.DemoName.StartsWith("5"),
+                    StartsWith2 = !a.DemoName.StartsWith("5"),
+                    Contains = queryFilters.Contains(a.DemoName),
+                    Contains2 = !queryFilters.Contains(a.DemoName),
+                    IsLeapYear = DateTime.IsLeapYear(a.DemoByte),
+                    IsLeapYear2 = !DateTime.IsLeapYear(a.DemoByte),
+                };
         }
 
         // 多表查询
@@ -946,6 +1042,7 @@ namespace TZM.XFramework.UnitTest
                 orderby a.ClientId, a.Accounts[0].Markets[0].MarketId
                 select a;
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -1009,6 +1106,7 @@ namespace TZM.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=>
             //SELECT 
             //t0.[ClientId] AS [ClientId],
@@ -1084,6 +1182,7 @@ namespace TZM.XFramework.UnitTest
                 .Take(20)
                 ;
             var result1 = query1.ToList();
+            context.Database.ExecuteNonQuery(query1.ToString());
             //SQL=>
             //SELECT 
             //t0.[ClientId] AS [ClientId],
@@ -1245,6 +1344,7 @@ namespace TZM.XFramework.UnitTest
                     CloudServerCode = c.CloudServerCode
                 });
             var result5 = query5.ToList();
+            context.Database.ExecuteNonQuery(query5.ToString());
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -1394,6 +1494,7 @@ namespace TZM.XFramework.UnitTest
                  };
             query8 = query8.Skip(2).Take(3);
             var result8 = query8.ToList();
+            context.Database.ExecuteNonQuery(query8.ToString());
             //SQL=> 
             //SELECT
             //t0.[ClientId] AS[Id],
@@ -1438,6 +1539,7 @@ namespace TZM.XFramework.UnitTest
                     join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
                     select a;
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //SQL=> 
             //SELECT 
             //t0.[ClientId] AS [ClientId],
@@ -1479,6 +1581,7 @@ namespace TZM.XFramework.UnitTest
             query = query.AsSubQuery();
             query = query.Select(a => new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
             result = query.ToList();
+            context.Database.ExecuteNonQuery(query.ToString());
             //var result10 = query.ToPagedList(1, 20);
         }
 
@@ -1673,7 +1776,7 @@ namespace TZM.XFramework.UnitTest
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + (maxClientId + 2),
+                    ClientId = DbFunction.RowNumber<int, int>(a.ClientId) + (maxClientId + 2),
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 3,
@@ -1703,7 +1806,7 @@ namespace TZM.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(x => a.ClientId) + (maxClientId + 1),
+                    ClientId = DbFunction.RowNumber<int, int>(a.ClientId) + (maxClientId + 1),
                     ClientCode = "XFramework100+",
                     ClientName = "XFramework100+",
                     CloudServerId = 3,
@@ -1711,6 +1814,7 @@ namespace TZM.XFramework.UnitTest
                     Qty = a.Qty,
                 };
             context.Insert(nQuery);
+            context.Database.ExecuteNonQuery(nQuery.ToString());
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值

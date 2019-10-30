@@ -40,7 +40,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="MethodCallExressionVisitor"/> 类的新实例
         /// </summary>
-        public MethodCallExressionVisitor(IDbQueryProvider provider,ExpressionVisitorBase visitor)
+        public MethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
             _visitor = visitor;
@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         /// <param name="node">方法节点</param>
         /// <param name="router">方法路由</param>
         /// <returns></returns>
-        public Expression Visit(Expression node,MethodCall router)
+        public Expression Visit(Expression node, MethodCall router)
         {
             int visitedQty = _visitedMark.Count;
             Expression newNode = null;
@@ -136,15 +136,15 @@ namespace TZM.XFramework.Data
         protected Expression VisitMethodCall(MethodCallExpression node)
         {
             if (_typeRuntime == null)
-                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(),true);
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = null;
-            if (node.Method.Name == "Concat") invoker = _typeRuntime.GetMethod("Visit" + node.Method.Name,new[] { typeof(MethodCallExpression) });
+            if (node.Method.Name == "Concat") invoker = _typeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
             else invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
 
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.",node.Method.DeclaringType,node.Method.Name);
+            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this,new object[] { node });
+                object exp = invoker.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -157,16 +157,16 @@ namespace TZM.XFramework.Data
         protected Expression VisitMethodCall(BinaryExpression node)
         {
             if (_typeRuntime == null)
-                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(),true);
+                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             string methodName = string.Empty;
             if (node.NodeType == ExpressionType.Modulo) methodName = "Modulo";
             else methodName = node.Method.Name;
 
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + methodName);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.",node.Method.DeclaringType,node.Method.Name);
+            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this,new object[] { node });
+                object exp = invoker.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -176,12 +176,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected Expression VisitMemberMember(MemberExpression node)
         {
-            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(),true);
+            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Member.Name);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.",node.Member.DeclaringType,node.Member.Name);
+            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
             {
-                object exp = invoker.Invoke(this,new object[] { node });
+                object exp = invoker.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -193,8 +193,12 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Not) _builder.Append("NOT ");
-            _visitor.Visit(node.Operand);
+            if (node.NodeType != ExpressionType.Not) _visitor.Visit(node.Operand);
+            else
+            {
+                var unaryExpression = node as UnaryExpression;
+                //if()
+            }
             return node;
         }
 
@@ -241,7 +245,7 @@ namespace TZM.XFramework.Data
 
             string name = "NVARCHAR";
             ColumnAttribute column = null;
-            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current,out column);
+            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
             name = isUnicode ? "NVARCHAR" : "VARCHAR";
 
             if (node != null && node.Type == typeof(DateTime))
@@ -255,12 +259,12 @@ namespace TZM.XFramework.Data
             else
             {
                 // 特殊处理guid
-                if (node.Type == typeof(Guid)) name = string.Format("{0}(64)",name);
+                if (node.Type == typeof(Guid)) name = string.Format("{0}(64)", name);
                 else
                 {
-                    if (column != null && column.Size > 0) name = string.Format("{0}({1})",name,column.Size);
-                    else if (column != null && column.Size == -1) name = string.Format("{0}(max)",name);
-                    else name = string.Format("{0}(max)",name);
+                    if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
+                    else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
+                    else name = string.Format("{0}(max)", name);
                 }
 
                 _builder.Append("CAST(");
@@ -282,7 +286,7 @@ namespace TZM.XFramework.Data
             if (type == typeof(string)) return this.VisitStringContains(node);
             else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(node);
             else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(node);
-            else throw new XFrameworkException("{0}.{1} is not supported.",node.Method.DeclaringType,node.Method.Name);
+            else throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
         }
 
         /// <summary>
@@ -295,7 +299,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(),ref unicode);
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
                 if (_builder.Parameterized)
                 {
@@ -331,7 +335,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(),ref unicode);
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
                 if (_builder.Parameterized)
                 {
@@ -396,7 +400,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitSubstring(MethodCallExpression m)
         {
             var expressions = new List<Expression>(m.Arguments);
-            if (m.Object != null) expressions.Insert(0,m.Object);
+            if (m.Object != null) expressions.Insert(0, m.Object);
 
             _builder.Append("SUBSTRING(");
             _visitor.Visit(expressions[0]);
@@ -407,7 +411,7 @@ namespace TZM.XFramework.Data
                 var c = expressions[1].Evaluate();
                 int index = Convert.ToInt32(c.Value);
                 index += 1;
-                _builder.Append(index,null);
+                _builder.Append(index, null);
                 _builder.Append(",");
             }
             else
@@ -420,7 +424,7 @@ namespace TZM.XFramework.Data
             {
                 // 带2个参数，Substring(n,n)
                 if (expressions[2].CanEvaluate())
-                    _builder.Append(expressions[2].Evaluate().Value,null);
+                    _builder.Append(expressions[2].Evaluate().Value, null);
                 else
                     _visitor.Visit(expressions[2]);
             }
@@ -549,7 +553,7 @@ namespace TZM.XFramework.Data
             _builder.Append(",");
 
             if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value,null);
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
 
@@ -574,7 +578,7 @@ namespace TZM.XFramework.Data
             _builder.Append(",");
 
             if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value,null);
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
 
@@ -602,7 +606,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
                 _builder.Append(",");
-                if (m.Arguments[1].CanEvaluate()) _builder.Append(Convert.ToInt32(m.Arguments[1].Evaluate().Value) + 1,null);
+                if (m.Arguments[1].CanEvaluate()) _builder.Append(Convert.ToInt32(m.Arguments[1].Evaluate().Value) + 1, null);
                 else
                 {
                     _visitor.Visit(m.Arguments[1]);
@@ -779,7 +783,7 @@ namespace TZM.XFramework.Data
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(",");
             if (m.Arguments.Count == 1)
-                _builder.Append(0,null);
+                _builder.Append(0, null);
             else
                 _visitor.Visit(m.Arguments[1]);
             _builder.Append(')');
@@ -880,24 +884,20 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 DateTime.Day 属性
-        /// </summary>
-        protected virtual Expression VisitDay(MemberExpression m)
-        {
-            _builder.Append("DATEPART(DAY,");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");
-            return m;
-        }
-
-        /// <summary>
         /// 访问 DateTime.DayOfWeek 属性
         /// </summary>
         protected virtual Expression VisitDayOfWeek(MemberExpression m)
         {
-            _builder.Append("DATEPART(WEEKDAY,");
+            //Sunday = 0,
+            //Monday = 1,
+            //Tuesday = 2,
+            //Wednesday = 3,
+            //Thursday = 4,
+            //Friday = 5,
+            //Saturday = 6
+            _builder.Append("(DATEPART(WEEKDAY,");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");
+            _builder.Append(") - 1)");
             return m;
         }
 
@@ -913,33 +913,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 DateTime.Hour 属性
+        /// 访问 DateTime.TimeOfDay 属性
         /// </summary>
-        protected virtual Expression VisitHour(MemberExpression m)
+        protected virtual Expression VisitYear(MemberExpression m)
         {
-            _builder.Append("DATEPART(HOUR,");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Millisecond 属性
-        /// </summary>
-        protected virtual Expression VisitMillisecond(MemberExpression m)
-        {
-            _builder.Append("DATEPART(MILLISECOND,");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Minute 属性
-        /// </summary>
-        protected virtual Expression VisitMinute(MemberExpression m)
-        {
-            _builder.Append("DATEPART(MINUTE,");
+            _builder.Append("DATEPART(YEAR,");
             _visitor.Visit(m.Expression);
             _builder.Append(")");
             return m;
@@ -957,6 +935,39 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 访问 DateTime.Day 属性
+        /// </summary>
+        protected virtual Expression VisitDay(MemberExpression m)
+        {
+            _builder.Append("DATEPART(DAY,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Hour 属性
+        /// </summary>
+        protected virtual Expression VisitHour(MemberExpression m)
+        {
+            _builder.Append("DATEPART(HOUR,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Minute 属性
+        /// </summary>
+        protected virtual Expression VisitMinute(MemberExpression m)
+        {
+            _builder.Append("DATEPART(MINUTE,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
         /// 访问 DateTime.Second 属性
         /// </summary>
         protected virtual Expression VisitSecond(MemberExpression m)
@@ -968,11 +979,29 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 访问 DateTime.Millisecond 属性
+        /// </summary>
+        protected virtual Expression VisitMillisecond(MemberExpression m)
+        {
+            _builder.Append("DATEPART(MILLISECOND,");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
         /// 访问 DateTime.Ticks 属性
         /// </summary>
         protected virtual Expression VisitTicks(MemberExpression m)
         {
+            //1秒 = 1000毫秒
+            //1毫秒 = 1000微妙
+            //1微秒 = 1000纳秒
+            //1tick=100纳秒
+            //1微秒=10tick
+
             // tick = microsecond * 10 1microsecond = 1000nanosecond
+            // => tick = 10000nanosecond
             _builder.Append("(DATEDIFF_BIG (NANOSECOND,'1970-1-1',");
             _visitor.Visit(m.Expression);
             _builder.Append(") / 100 + 621355968000000000)");
@@ -987,17 +1016,6 @@ namespace TZM.XFramework.Data
             _builder.Append("CONVERT(TIME,CONVERT(VARCHAR,");
             _visitor.Visit(m.Expression);
             _builder.Append(",14))");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.TimeOfDay 属性
-        /// </summary>
-        protected virtual Expression VisitYear(MemberExpression m)
-        {
-            _builder.Append("DATEPART(YEAR,");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");
             return m;
         }
 
@@ -1041,44 +1059,31 @@ namespace TZM.XFramework.Data
             return m;
         }
 
-        ///// <summary>
-        ///// 访问 DateTime.Add 方法
-        ///// </summary>
-        //protected virtual Expression VisitAdd(MethodCallExpression b)
-        //{
-        //    if (b != null)
-        //    {
-        //        if (!b.Arguments[0].CanEvaluate()) throw new NotSupportedException("DateTime.Add reqiure a local variable as parameter.");
+        /// <summary>
+        /// 访问 DateTime.AddYears 方法
+        /// </summary>
+        protected virtual Expression VisitAddYears(MethodCallExpression m)
+        {
+            _builder.Append("DATEADD(YEAR,");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(",");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
+        }
 
-        //        var c = b.Arguments[0].Evaluate();
-        //        _builder.Append("DATEADD(MILLISECOND,");
-        //        _builder.Append(_provider.DbValue.GetSqlValue(((TimeSpan)c.Value).TotalMilliseconds,_builder.Token));
-        //        _builder.Append(",");
-        //        _visitor.Visit(b.Object);
-        //        _builder.Append(')');
-        //    }
-
-        //    _visitedMark.Clear();
-        //    return b;
-        //}
-
-        ///// <summary>
-        ///// 访问 DateTime.Add 方法
-        ///// </summary>
-        //protected virtual Expression VisitSubtract(MethodCallExpression b)
-        //{
-        //    if (b != null)
-        //    {
-        //        _builder.Append("DATEADD(MILLISECOND,DATEDIFF(MILLISECOND,");
-        //        _visitor.Visit(b.Arguments[0]);
-        //        _builder.Append(",");
-        //        _visitor.Visit(b.Object);
-        //        _builder.Append("),'1970-01-01')");
-        //    }
-
-        //    _visitedMark.Clear();
-        //    return b;
-        //}
+        /// <summary>
+        /// 访问 DateTime.AddMonths 方法
+        /// </summary>
+        protected virtual Expression VisitAddMonths(MethodCallExpression m)
+        {
+            _builder.Append("DATEADD(MONTH,");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(",");
+            _visitor.Visit(m.Object);
+            _builder.Append(')');
+            return m;
+        }
 
         /// <summary>
         /// 访问 DateTime.AddDays 方法
@@ -1107,37 +1112,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 DateTime.AddMilliseconds 方法
-        /// </summary>
-        protected virtual Expression VisitAddMilliseconds(MethodCallExpression m)
-        {
-            _builder.Append("DATEADD(MILLISECOND,");
-            _visitor.Visit(m.Arguments[0]);
-            _builder.Append(",");
-            _visitor.Visit(m.Object);
-            _builder.Append(')');
-            return m;
-        }
-
-        /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
         protected virtual Expression VisitAddMinutes(MethodCallExpression m)
         {
             _builder.Append("DATEADD(MINUTE,");
-            _visitor.Visit(m.Arguments[0]);
-            _builder.Append(",");
-            _visitor.Visit(m.Object);
-            _builder.Append(')');
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddMonths 方法
-        /// </summary>
-        protected virtual Expression VisitAddMonths(MethodCallExpression m)
-        {
-            _builder.Append("DATEADD(MONTH,");
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(",");
             _visitor.Visit(m.Object);
@@ -1159,26 +1138,37 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问 DateTime.AddTicks 方法
+        /// 访问 DateTime.AddMilliseconds 方法
         /// </summary>
-        protected virtual Expression VisitAddTicks(MethodCallExpression m)
+        protected virtual Expression VisitAddMilliseconds(MethodCallExpression m)
         {
+            // 如果不转到DATETIME2，精度会有丢失
             _builder.Append("DATEADD(MILLISECOND,");
             _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" / 10000,");
+            //_builder.Append(",CAST(");
+            //_visitor.Visit(m.Object);
+            //_builder.Append(" AS DATETIME2))");
+            _builder.Append(",");
             _visitor.Visit(m.Object);
-            _builder.Append(')');
+            _builder.Append(")");
             return m;
         }
 
         /// <summary>
-        /// 访问 DateTime.AddYears 方法
+        /// 访问 DateTime.AddTicks 方法
         /// </summary>
-        protected virtual Expression VisitAddYears(MethodCallExpression m)
+        protected virtual Expression VisitAddTicks(MethodCallExpression m)
         {
-            _builder.Append("DATEADD(YEAR,");
-            _visitor.Visit(m.Arguments[0]);
-            _builder.Append(",");
+            // 1tick = 100纳秒
+            _builder.Append("DATEADD(NANOSECOND,");
+            if (m.Arguments[0].CanEvaluate()) _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+            {
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append(")");
+            }
+            _builder.Append(" * 100,");
             _visitor.Visit(m.Object);
             _builder.Append(')');
             return m;
@@ -1189,7 +1179,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitRowNumber(MethodCallExpression m)
         {
-            _builder.Append("ROW_NUMBER() Over(Order By ");
+            _builder.Append("ROW_NUMBER() OVER(ORDER BY ");
             _visitor.Visit(m.Arguments[0]);
             if (m.Arguments.Count > 1)
             {
@@ -1206,7 +1196,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitPartitionRowNumber(MethodCallExpression m)
         {
-            _builder.Append("ROW_NUMBER() Over(");
+            _builder.Append("ROW_NUMBER() OVER(");
 
             // PARTITION BY
             _builder.Append("PARTITION BY ");
@@ -1248,7 +1238,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments[0].CanEvaluate())
             {
                 bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(),ref unicode);
+                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
 
                 if (_builder.Parameterized)
                 {
@@ -1331,7 +1321,8 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
             var query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-            var cmd = query.Resolve(_builder.Indent + 1,false,_builder.Token != null ? new ResolveToken
+            query.Parameterized = _builder.Parameterized;
+            var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
             {
                 Parameters = _builder.Token.Parameters,
                 TableAliasName = "s",
@@ -1354,13 +1345,13 @@ namespace TZM.XFramework.Data
         }
 
         // 生成字符串片断
-        protected string GetSqlValue(ConstantExpression c,ref bool unicode)
+        protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             unicode = false;
             var visited = _visitedMark.Current;
             MemberInfo member = visited != null ? visited.Member : null;
             Type objType = visited != null && visited.Expression != null ? visited.Expression.Type : null;
-            string value = _provider.DbValue.GetSqlValue(c.Value,_builder.Token,member,objType);
+            string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member, objType);
             if (!_builder.Parameterized)
             {
                 unicode = _provider.DbValue.IsUnicode(visited);

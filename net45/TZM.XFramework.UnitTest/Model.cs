@@ -133,7 +133,7 @@ namespace TZM.XFramework.UnitTest
             /// <summary>
             /// demodatetime2
             /// </summary>   
-            [Column(DbType = System.Data.DbType.DateTime2, Scale = 6)]
+            [Column(DbType = System.Data.DbType.DateTime2, Scale = 7)]
             public virtual DateTime DemoDateTime2 { get; set; }
 
             /// <summary>

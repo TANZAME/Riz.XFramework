@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -323,10 +322,7 @@ namespace TZM.XFramework.Data
                 {
                     //例： DateTime.Now
                     _builder.Append(expression.Evaluate().Value, node.Members[i], node.Type);
-                    string newName = _pickColumns.Add(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
-                    _builder.AppendAs(newName);
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
+                    this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                 }
                 else if (expression.NodeType == ExpressionType.MemberAccess || expression.NodeType == ExpressionType.Call)
                 {
@@ -336,20 +332,13 @@ namespace TZM.XFramework.Data
                     {
                         // new Client(a.ClientId)
                         this.Visit(expression);
-                        string newName = _pickColumns.Add(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
-                        _builder.AppendAs(newName);
-                        _builder.Append(',');
-                        _builder.AppendNewLine();
+                        this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                     }
                 }
                 else
                 {
                     base.Visit(expression);
-                    string newName = _pickColumns.Add(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
-                    _builder.AppendAs(newName);
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
-                    //throw new XFrameworkException("VisitNewImpl: NodeType '{0}' not supported.", argument.NodeType);
+                    this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                 }
 
                 // 删除本次访问的成员痕迹
@@ -357,6 +346,14 @@ namespace TZM.XFramework.Data
             }
 
             return node;
+        }
+
+        private void VisitNewImpl_AddNewName(string memberName)
+        {
+            string newName = _pickColumns.Add(memberName);
+            _builder.AppendAs(newName);
+            _builder.Append(',');
+            _builder.AppendNewLine();
         }
 
         // g.Key.CompanyName & g.Max(a)

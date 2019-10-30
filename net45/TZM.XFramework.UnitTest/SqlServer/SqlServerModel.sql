@@ -62,8 +62,8 @@ CREATE TABLE [dbo].[Sys_Demo](
 	[DemoDate_Nullable] [date] NULL,
 	[DemoDateTime] [datetime] NOT NULL,
 	[DemoDateTime_Nullable] [datetime] NULL,
-	[DemoDateTime2] [datetime2](6) NOT NULL,				-- 不指定精度时默认为7
-	[DemoDateTime2_Nullable] [datetime2](6) NULL,			-- 不指定精度时默认为7
+	[DemoDateTime2] [datetime2](7) NOT NULL,				-- 不指定精度时默认为7
+	[DemoDateTime2_Nullable] [datetime2](7) NULL,			-- 不指定精度时默认为7
 	[DemoDecimal] [decimal](18, 2) NOT NULL,
 	[DemoDecimal_Nullable] [decimal](18, 2) NULL,
 	[DemoDouble] [float] NOT NULL,
