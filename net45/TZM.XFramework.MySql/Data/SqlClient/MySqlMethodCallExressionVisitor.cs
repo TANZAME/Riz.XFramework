@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// <see cref="MySqlMethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public class MySqlMethodCallExressionVisitor : MethodCallExressionVisitor
+    public class MySqlMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         // https://dev.mysql.com/doc/refman/8.0/en/charset-national.html
         //SELECT N'some text';

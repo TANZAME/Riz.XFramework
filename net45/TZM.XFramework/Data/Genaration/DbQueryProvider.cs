@@ -187,7 +187,7 @@ namespace TZM.XFramework.Data
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public abstract MethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
+        public abstract MethodCallExpressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
 
         #endregion
 

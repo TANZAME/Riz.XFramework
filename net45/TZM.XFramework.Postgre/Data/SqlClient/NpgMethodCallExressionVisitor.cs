@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// <see cref="NpgMethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public class NpgMethodCallExressionVisitor : MethodCallExressionVisitor
+    public class NpgMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;

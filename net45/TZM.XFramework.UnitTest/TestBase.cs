@@ -735,7 +735,7 @@ namespace TZM.XFramework.UnitTest
                     MinValue = DateTime.MinValue,
                     MaxValue = DateTime.MaxValue,
                     DaysInMonth = DateTime.DaysInMonth(2019, 12),
-                    IsLeapYear = DateTime.IsLeapYear(2019),
+                    //IsLeapYear = DateTime.IsLeapYear(2019),
                     AddYears = a.DemoDate.AddYears(12),
                     AddYears2 = a.DemoDateTime.AddYears(12),
                     AddYears3 = a.DemoDateTime2.AddYears(12),
@@ -824,7 +824,7 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.AddMilliseconds3 == myDemo.DemoDateTime2.AddMilliseconds(12));
             //Debug.Assert(obj3.AddTicks == myDemo.DemoDate.AddTicks(12));
             //Debug.Assert(obj3.AddTicks2 == myDemo.DemoDate.AddTicks(12));
-            Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
+            //Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
             Debug.Assert(obj3.Year == myDemo.DemoDate.Year);
             Debug.Assert(obj3.Year2 == myDemo.DemoDateTime.Year);
             Debug.Assert(obj3.Year3 == myDemo.DemoDateTime2.Year);
@@ -884,12 +884,12 @@ namespace TZM.XFramework.UnitTest
                     DateTime.IsLeapYear(a.DemoByte) && !DateTime.IsLeapYear(a.DemoByte)
                 select new
                 {
-                    StartsWith = a.DemoName.StartsWith("5"),
-                    StartsWith2 = !a.DemoName.StartsWith("5"),
-                    Contains = queryFilters.Contains(a.DemoName),
-                    Contains2 = !queryFilters.Contains(a.DemoName),
-                    IsLeapYear = DateTime.IsLeapYear(a.DemoByte),
-                    IsLeapYear2 = !DateTime.IsLeapYear(a.DemoByte),
+                    StartsWith = a.DemoName.StartsWith("5") ? true : false,
+                    StartsWith2 = a.DemoName.StartsWith("5") ? true : false,
+                    Contains = queryFilters.Contains(a.DemoName) ? true : false,
+                    Contains2 = queryFilters.Contains(a.DemoName) ? true : false,
+                    IsLeapYear = DateTime.IsLeapYear(a.DemoByte) ? true : false,
+                    IsLeapYear2 = DateTime.IsLeapYear(a.DemoByte) ? true : false,
                 };
         }
 

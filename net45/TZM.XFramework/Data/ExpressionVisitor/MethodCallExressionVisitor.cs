@@ -10,21 +10,21 @@ using System.Reflection;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// <see cref="MethodCallExressionVisitor"/> 表达式访问器
+    /// <see cref="MethodCallExpressionVisitor"/> 表达式访问器
     /// </summary>
-    public abstract class MethodCallExressionVisitor
+    public abstract class MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
-        private HashSet<MethodCallExpression> _notCalls = null;
+        private HashSet<MethodCallExpression> _notMethods = null;
         private static TypeRuntimeInfo _typeRuntime = null;
         private static HashSet<string> _removeVisitedMethods = null;
 
         #region 构造函数
 
-        static MethodCallExressionVisitor()
+        static MethodCallExpressionVisitor()
         {
             // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
             _removeVisitedMethods = new HashSet<string>
@@ -39,14 +39,15 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="MethodCallExressionVisitor"/> 类的新实例
+        /// 实例化 <see cref="MethodCallExpressionVisitor"/> 类的新实例
         /// </summary>
-        public MethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
+        public MethodCallExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
+            _notMethods = new HashSet<MethodCallExpression>();
         }
 
         #endregion
@@ -196,10 +197,10 @@ namespace TZM.XFramework.Data
         {
             if (node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call)
             {
-                _notCalls.Add((MethodCallExpression)node.Operand);
+                _notMethods.Add((MethodCallExpression)node.Operand);
             }
             _visitor.Visit(node.Operand);
-            if (_notCalls.Count > 0) _notCalls.Clear();
+            if (_notMethods.Count > 0) _notMethods.Clear();
             return node;
         }
 
@@ -296,7 +297,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notCalls.Contains(m)) _builder.Append(" NOT");
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -333,7 +334,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notCalls.Contains(m)) _builder.Append(" NOT");
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1046,9 +1047,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitIsLeapYear(MethodCallExpression m)
         {
-            bool isWhere = _visitor.GetType() == typeof(WhereExpressionVisitor);
-            if (!isWhere) _builder.Append("CASE WHEN ");
-
             _builder.Append('(');
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(" % 4 = 0 AND ");
@@ -1056,8 +1054,6 @@ namespace TZM.XFramework.Data
             _builder.Append(" % 100 <> 0 OR ");
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(" % 400 = 0)");
-
-            if (!isWhere) _builder.Append(" THEN 1 ELSE 0 END");
 
             return m;
         }
@@ -1237,7 +1233,7 @@ namespace TZM.XFramework.Data
             // EF 的 Like 不用参数化...
 
             _visitor.Visit(m.Object);
-            if (_notCalls.Contains(m)) _builder.Append(" NOT");
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1277,7 +1273,7 @@ namespace TZM.XFramework.Data
             if (m == null) return m;
 
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
-            if (_notCalls.Contains(m)) _builder.Append(" NOT");
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" IN(");
 
             Expression exp = m.Object != null ? m.Object : m.Arguments[0];
@@ -1334,7 +1330,7 @@ namespace TZM.XFramework.Data
                 IsDebug = _builder.Token.IsDebug
             } : null) as MappingCommand;
             
-            if (_notCalls.Contains(m)) _builder.Append("NOT ");
+            if (_notMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 

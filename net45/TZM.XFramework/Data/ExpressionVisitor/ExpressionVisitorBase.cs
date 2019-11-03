@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 方法解析器
         /// </summary>
-        protected MethodCallExressionVisitor _methodVisitor = null;
+        protected MethodCallExpressionVisitor _methodVisitor = null;
 
         /// <summary>
         /// 成员访问痕迹
