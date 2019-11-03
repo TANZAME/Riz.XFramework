@@ -18,6 +18,7 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
+        private HashSet<MethodCallExpression> _notCalls = null;
         private static TypeRuntimeInfo _typeRuntime = null;
         private static HashSet<string> _removeVisitedMethods = null;
 
@@ -193,12 +194,12 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType != ExpressionType.Not) _visitor.Visit(node.Operand);
-            else
+            if (node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call)
             {
-                var unaryExpression = node as UnaryExpression;
-                //if()
+                _notCalls.Add((MethodCallExpression)node.Operand);
             }
+            _visitor.Visit(node.Operand);
+            if (_notCalls.Count > 0) _notCalls.Clear();
             return node;
         }
 
@@ -295,6 +296,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notCalls.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -331,6 +333,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notCalls.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1234,6 +1237,7 @@ namespace TZM.XFramework.Data
             // EF 的 Like 不用参数化...
 
             _visitor.Visit(m.Object);
+            if (_notCalls.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1273,6 +1277,7 @@ namespace TZM.XFramework.Data
             if (m == null) return m;
 
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
+            if (_notCalls.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" IN(");
 
             Expression exp = m.Object != null ? m.Object : m.Arguments[0];
@@ -1328,6 +1333,8 @@ namespace TZM.XFramework.Data
                 TableAliasName = "s",
                 IsDebug = _builder.Token.IsDebug
             } : null) as MappingCommand;
+            
+            if (_notCalls.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
