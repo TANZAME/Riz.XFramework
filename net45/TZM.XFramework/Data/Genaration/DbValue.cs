@@ -38,7 +38,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public string GetSqlValue(object value, ResolveToken token, MemberExpression node = null)
         {
-            return this.GetSqlValue(value, token, node != null ? node.Member : null, node != null && node.Expression != null ? node.Expression.Type : null);
+            ColumnAttribute column = this.GetColumnAttribute(node);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -207,6 +208,19 @@ namespace TZM.XFramework.Data
             string escCharQuoteDouble = string.Format("{0}{0}", _escCharQuote);
             if (isReplace) s = s.Replace(_escCharQuote, escCharQuoteDouble);
             return string.Format("{0}{1}{2}{1}", isUnicode ? "N" : string.Empty, useQuote ? _escCharQuote : string.Empty, s);
+        }
+
+        /// <summary>
+        /// 获取指定成员的 <see cref="ColumnAttribute"/>
+        /// </summary>
+        /// <param name="member">成员</param>
+        /// <param name="objType">成员所在类型</param>
+        /// <returns></returns>
+        public virtual ColumnAttribute GetColumnAttribute(MemberExpression node)
+        {
+            MemberInfo member = node != null ? node.Member : null;
+            Type objType = node != null && node.Expression != null ? node.Expression.Type : null;
+            return this.GetColumnAttribute(member, objType);
         }
 
         /// <summary>
