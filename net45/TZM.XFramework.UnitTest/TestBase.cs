@@ -824,7 +824,7 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.AddMilliseconds3 == myDemo.DemoDateTime2.AddMilliseconds(12));
             //Debug.Assert(obj3.AddTicks == myDemo.DemoDate.AddTicks(12));
             //Debug.Assert(obj3.AddTicks2 == myDemo.DemoDate.AddTicks(12));
-            //Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
+            Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
             Debug.Assert(obj3.Year == myDemo.DemoDate.Year);
             Debug.Assert(obj3.Year2 == myDemo.DemoDateTime.Year);
             Debug.Assert(obj3.Year3 == myDemo.DemoDateTime2.Year);
