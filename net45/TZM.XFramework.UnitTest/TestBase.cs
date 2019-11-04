@@ -442,7 +442,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = DbFunction.RowNumber<string, long>(a.DemoCode, false)
+                    RowNumber = DbFunction.RowNumber<long>(a.DemoCode, false)
                 });
             var reuslt1 = query1.ToList();
             Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
@@ -456,7 +456,7 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = DbFunction.PartitionRowNumber<int, string, long>(a.ClientId, a.AccountId, true)
+                RowNumber = DbFunction.PartitionRowNumber<long>(a.ClientId, a.AccountId, true)
             });
             reuslt1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.ToString());
@@ -594,7 +594,7 @@ namespace TZM.XFramework.UnitTest
                 {
                     DemoId = a.DemoId,
                     Mod = a.DemoId % 2,
-                    Divide = DbFunction.Cast<decimal, int>(a.DemoId, "decimal") / 2,
+                    Divide = DbFunction.Cast<int>(a.DemoId, "decimal") / 2,
                     Abs = Math.Abs(a.DemoDecimal),
                     Acos = Math.Acos(a.DemoId / 2.00),
                     Asin = Math.Asin(a.DemoId / 2.00),
@@ -1776,7 +1776,7 @@ namespace TZM.XFramework.UnitTest
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int, int>(a.ClientId) + (maxClientId + 2),
+                    ClientId = DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 2),
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 3,
@@ -1806,7 +1806,7 @@ namespace TZM.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int, int>(a.ClientId) + (maxClientId + 1),
+                    ClientId = DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 1),
                     ClientCode = "XFramework100+",
                     ClientName = "XFramework100+",
                     CloudServerId = 3,
