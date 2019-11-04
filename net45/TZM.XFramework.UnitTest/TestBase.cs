@@ -547,7 +547,7 @@ namespace TZM.XFramework.UnitTest
                     Guid = a.DemoGuid.ToString(),
                     Time = a.DemoTime_Nullable.ToString(),
                     DemoDateTime2 = a.DemoDateTime2.ToString(),
-                    DateTimeOffset = a.DemoDatetimeOffset_Nullable.ToString(),
+                    DateTimeOffset = a.DemoDatetimeOffset_Nullable.ToString()
                 });
             var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
             context.Database.ExecuteNonQuery(query1.ToString());
