@@ -94,80 +94,61 @@ namespace TZM.XFramework.Data.SqlClient
             ColumnAttribute column = null;
             bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
             string native = isUnicode ? "NVARCHAR" : "VARCHAR";
+            if (isUnicode)
+                _builder.Append("TO_NCHAR(");
+            else
+                _builder.Append("TO_CHAR(");
+            _visitor.Visit(node);
+            _builder.Append(")");
 
             // 其它类型转字符串
-            bool isDate = node.Type == typeof(DateTime) ||
-                node.Type == typeof(DateTime?) ||
-                node.Type == typeof(TimeSpan) ||
-                node.Type == typeof(TimeSpan?) ||
-                node.Type == typeof(DateTimeOffset) ||
-                node.Type == typeof(DateTimeOffset?);
-            if (isDate)
-            {
-                _builder.Append("CONVERT(");
-                _builder.Append(native);
-                _builder.Append(",");
-                _visitor.Visit(node);
-                _builder.Append(",121)");
-            }
-            else if (node.Type == typeof(byte[]))
-            {
-                native = string.Format("{0}(max)", native);
-                _builder.Append("CONVERT(");
-                _builder.Append(native);
-                _builder.Append(",");
-                _visitor.Visit(node);
-                _builder.Append(",1)");
-            }
-            else if (node.Type == typeof(Guid))
-            {
-                native = string.Format("{0}(64)", native);
-                _builder.Append("CAST(");
-                _visitor.Visit(node);
-                _builder.Append(" AS ");
-                _builder.Append(native);
-                _builder.Append(')');
-            }
-            else
-            {
-                if (column != null && column.Size > 0) native = string.Format("{0}({1})", native, column.Size);
-                else if (column != null && column.Size == -1) native = string.Format("{0}(max)", native);
-                else native = string.Format("{0}(max)", native);
-
-                _builder.Append("CAST(");
-                _visitor.Visit(node);
-                _builder.Append(" AS ");
-                _builder.Append(native);
-                _builder.Append(')');
-            }
-
-            return node;
-        }
-
-        /// <summary>
-        /// 访问 ToString 方法
-        /// </summary>
-        protected override Expression VisitToString(MethodCallExpression m)
-        {
-            //// => a.ID.ToString()
-            //Expression node = null;
-            //if (m.Object != null) node = m.Object;
-            //else if (m.Arguments != null && m.Arguments.Count > 0) node = m.Arguments[0];
-            //// 字符串不进行转换
-            //if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
-
-            //_builder.Append("TO_CHAR(");
-            //if (node.Type != typeof(DateTime)) _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-            //else
+            //bool isDate = node.Type == typeof(DateTime) ||
+            //    node.Type == typeof(DateTime?) ||
+            //    node.Type == typeof(TimeSpan) ||
+            //    node.Type == typeof(TimeSpan?) ||
+            //    node.Type == typeof(DateTimeOffset) ||
+            //    node.Type == typeof(DateTimeOffset?);
+            //if (isDate)
             //{
+            //    if (isUnicode) 
+            //        _builder.Append("TO_NCHAR(");
+            //    else
+            //        _builder.Append("TO_NCHAR(");
+            //    _visitor.Visit(node);
+            //    _builder.Append(",121)");
+            //}
+            //else if (node.Type == typeof(byte[]))
+            //{
+            //    native = string.Format("{0}(max)", native);
+            //    _builder.Append("CONVERT(");
+            //    _builder.Append(native);
+            //    _builder.Append(",");
+            //    _visitor.Visit(node);
+            //    _builder.Append(",1)");
+            //}
+            //else if (node.Type == typeof(Guid))
+            //{
+            //    native = string.Format("{0}(64)", native);
             //    _builder.Append("CAST(");
             //    _visitor.Visit(node);
-            //    _builder.Append(" AS TIMESTAMP)");
-            //    _builder.Append(",'yyyy-mm-dd hh24:mi:ss.ff'");
+            //    _builder.Append(" AS ");
+            //    _builder.Append(native);
+            //    _builder.Append(')');
             //}
-            //_builder.Append(")");
+            //else
+            //{
+            //    if (column != null && column.Size > 0) native = string.Format("{0}({1})", native, column.Size);
+            //    else if (column != null && column.Size == -1) native = string.Format("{0}(max)", native);
+            //    else native = string.Format("{0}(max)", native);
 
-            return m;
+            //    _builder.Append("CAST(");
+            //    _visitor.Visit(node);
+            //    _builder.Append(" AS ");
+            //    _builder.Append(native);
+            //    _builder.Append(')');
+            //}
+
+            return node;
         }
 
         /// <summary>
@@ -176,6 +157,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -211,6 +193,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -246,6 +229,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {

@@ -48,6 +48,7 @@ namespace TZM.XFramework.Data.SqlClient
                 node.Type == typeof(DateTimeOffset?);
             if (isDate)
             {
+                native = string.Format("{0}(64)", native);
                 _builder.Append("CONVERT(");
                 _builder.Append(native);
                 _builder.Append(",");
