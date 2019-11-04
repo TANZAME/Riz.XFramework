@@ -193,7 +193,6 @@ namespace TZM.XFramework.Data
             // <>h__TransparentIdentifier2.<>h__TransparentIdentifier3.b.Client.Address.AddressName
             // 5.b.ClientName
 
-            _visitedMark.Add(node);
 
             if (node == null) return node;
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
@@ -203,6 +202,8 @@ namespace TZM.XFramework.Data
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable) return this.Visit(node.Expression);
+
+            _visitedMark.Add(node);
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => <>h__3.b.ClientName

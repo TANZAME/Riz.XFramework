@@ -110,7 +110,7 @@ namespace TZM.XFramework
             if (memberExpression.Expression == null)
             {
                 // 排除 DateTime 的几个常量
-                bool isDateTime = memberExpression.Type == typeof(DateTime) && 
+                bool isDateTime = memberExpression.Type == typeof(DateTime) &&
                     (memberExpression.Member.Name == "Now" || memberExpression.Member.Name == "UtcNow" || memberExpression.Member.Name == "Today");
                 return !isDateTime;
             }

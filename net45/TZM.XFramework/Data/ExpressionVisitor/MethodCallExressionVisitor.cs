@@ -18,9 +18,10 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
-        private HashSet<MethodCallExpression> _notMethods = null;
         private static TypeRuntimeInfo _typeRuntime = null;
         private static HashSet<string> _removeVisitedMethods = null;
+
+        protected HashSet<MethodCallExpression> _notMethods = null;
 
         #region 构造函数
 
@@ -195,10 +196,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call)
-            {
-                _notMethods.Add((MethodCallExpression)node.Operand);
-            }
+            bool isCall = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
+            if (isCall) _notMethods.Add((MethodCallExpression)node.Operand);
             _visitor.Visit(node.Operand);
             if (_notMethods.Count > 0) _notMethods.Clear();
             return node;
@@ -241,41 +240,6 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitToStringImpl(Expression node)
         {
-            // => a.ID.ToString()
-            // 字符串不进行转换
-            if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
-
-            string name = "NVARCHAR";
-            ColumnAttribute column = null;
-            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
-            name = isUnicode ? "NVARCHAR" : "VARCHAR";
-
-            if (node != null && node.Type == typeof(DateTime))
-            {
-                _builder.Append("CONVERT(");
-                _builder.Append(name);
-                _builder.Append(",");
-                _visitor.Visit(node);
-                _builder.Append(",121)");
-            }
-            else
-            {
-                // 特殊处理guid
-                if (node.Type == typeof(Guid)) name = string.Format("{0}(64)", name);
-                else
-                {
-                    if (column != null && column.Size > 0) name = string.Format("{0}({1})", name, column.Size);
-                    else if (column != null && column.Size == -1) name = string.Format("{0}(max)", name);
-                    else name = string.Format("{0}(max)", name);
-                }
-
-                _builder.Append("CAST(");
-                _visitor.Visit(node);
-                _builder.Append(" AS ");
-                _builder.Append(name);
-                _builder.Append(')');
-            }
-
             return node;
         }
 
@@ -1006,7 +970,7 @@ namespace TZM.XFramework.Data
 
             // tick = microsecond * 10 1microsecond = 1000nanosecond
             // => tick = 10000nanosecond
-            _builder.Append("(DATEDIFF_BIG (NANOSECOND,'1970-1-1',");
+            _builder.Append("(DATEDIFF_BIG(NANOSECOND,'1970-1-1',");
             _visitor.Visit(m.Expression);
             _builder.Append(") / 100 + 621355968000000000)");
             return m;
@@ -1160,14 +1124,15 @@ namespace TZM.XFramework.Data
         {
             // 1tick = 100纳秒
             _builder.Append("DATEADD(NANOSECOND,");
-            if (m.Arguments[0].CanEvaluate()) _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            if (m.Arguments[0].CanEvaluate()) _builder.Append(Convert.ToInt64(m.Arguments[0].Evaluate().Value) * 100, null);
             else
             {
                 if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append("(");
                 _visitor.Visit(m.Arguments[0]);
                 if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append(")");
+                _builder.Append(" * 100");
             }
-            _builder.Append(" * 100,");
+            _builder.Append(',');
             _visitor.Visit(m.Object);
             _builder.Append(')');
             return m;
@@ -1321,15 +1286,17 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
-            var query = m.Arguments[0].Evaluate().Value as IDbQueryable;
-            query.Parameterized = _builder.Parameterized;
-            var cmd = query.Resolve(_builder.Indent + 1, false, _builder.Token != null ? new ResolveToken
+            ResolveToken token = _builder.Token;
+            IDbQueryable subQuery = m.Arguments[0].Evaluate().Value as IDbQueryable;
+            // 设置子查询的参数化
+            subQuery.Parameterized = _builder.Parameterized;
+            var cmd = subQuery.Resolve(_builder.Indent + 1, false, new ResolveToken
             {
-                Parameters = _builder.Token.Parameters,
+                Parameters = token.Parameters,
                 TableAliasName = "s",
-                IsDebug = _builder.Token.IsDebug
-            } : null) as MappingCommand;
-            
+                IsDebug = token.IsDebug
+            }) as MappingCommand;
+
             if (_notMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);

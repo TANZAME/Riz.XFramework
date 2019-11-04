@@ -275,7 +275,7 @@ namespace TZM.XFramework.Data
         {
             var result = value.ToString();
             // 补足小数位
-            if (TypeUtils.IsNumericType(value.GetType()) && result[result.Length - 1] != '.')
+            if (TypeUtils.IsNumericType(value.GetType()) && !result.Contains("."))
             {
                 result = string.Format("{0}.00", result);
             }

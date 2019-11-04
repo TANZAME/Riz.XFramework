@@ -59,7 +59,9 @@ begin
 			   ,DemoInt
 			   ,DemoInt_Nullable
 			   ,DemoLong
-			   ,DemoLong_Nullable)
+			   ,DemoLong_Nullable
+			   ,DemoTime_Nullable
+			   ,DemoDatetimeOffset_Nullable)
 			 VALUES
 				   (CONCAT('C',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
 				   ,CONCAT('N',REPEAT('0',CHAR_LENGTH(CAST(rowCount AS CHAR)) - CHAR_LENGTH(CAST(rowIndex AS CHAR))),CAST(rowIndex AS CHAR))
@@ -90,6 +92,8 @@ begin
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 819200000 ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 8192000000000 ELSE 4096000000000 END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 8192000000000 ELSE NULL END
+                   ,'-838:59:59.00000'
+                   ,'2019-11-04 15:07:56'
 			);
 		END IF;
 		

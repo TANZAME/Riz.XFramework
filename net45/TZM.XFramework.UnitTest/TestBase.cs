@@ -493,6 +493,7 @@ namespace TZM.XFramework.UnitTest
             int m_byte = 16;
             Model.State state = Model.State.Complete;
             TimeSpan ts = new TimeSpan(1000000000);
+            var myDemo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == 1);
 
             #region 字符类型
 
@@ -543,20 +544,27 @@ namespace TZM.XFramework.UnitTest
                     Concat2 = string.Concat(a.DemoCode, a.DemoName, a.DemoChar),
                     Concat3 = string.Concat("C"),
                     Concat4 = string.Concat("C", "00000", 0, 2),
+                    Guid = a.DemoGuid.ToString(),
+                    Time = a.DemoTime_Nullable.ToString(),
+                    DemoDateTime2 = a.DemoDateTime2.ToString(),
+                    DateTimeOffset = a.DemoDatetimeOffset_Nullable.ToString(),
                 });
             var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
             context.Database.ExecuteNonQuery(query1.ToString());
             Debug.Assert(obj1.DemoCode.Length == 20);
-            Debug.Assert(obj1.LowerName == "n0000001");
+            Debug.Assert(obj1.LowerName == myDemo.DemoName.ToLower());
             Debug.Assert(obj1.Index1 > 0);
             Debug.Assert(obj1.Concat4 == "C0000002");
+            Debug.Assert(obj1.Guid.ToLower() == myDemo.DemoGuid.ToString());
+            //Debug.Assert(obj1.Time == myDemo.DemoTime_Nullable.Value.ToString(@"hh\:mm\:ss\.fffffff"));
+            //Debug.Assert(obj1.DemoDateTime2 == myDemo.DemoDateTime2.ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
+            //Debug.Assert(obj1.DateTimeOffset == myDemo.DemoDatetimeOffset_Nullable.Value.ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
 
             #endregion
 
             #region 数字类型
 
             // 数值型操作
-            var myDemo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == 1);
             query = from a in context.GetTable<TDemo>()
                     where
                         a.DemoId % 2 == 10 &&
@@ -602,7 +610,7 @@ namespace TZM.XFramework.UnitTest
                     Atan2 = Math.Atan2((double)a.DemoByte, (double)a.DemoDecimal),
                     Ceiling = Math.Ceiling(a.DemoDecimal),
                     Cos = Math.Cos((double)a.DemoDecimal),
-                    Exp = Math.Exp((double)a.DemoDecimal),
+                    Exp = Math.Exp((double)a.DemoByte),
                     Floor = Math.Floor(a.DemoDecimal),
                     Log = Math.Log((double)a.DemoDecimal),
                     Log5 = Math.Log((double)a.DemoDecimal, 5),
@@ -624,7 +632,7 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(Math.Atan2((double)myDemo.DemoByte, (double)myDemo.DemoDecimal) == obj2.Atan2);
             Debug.Assert(Math.Ceiling(myDemo.DemoDecimal) == obj2.Ceiling);
             Debug.Assert(Math.Cos((double)myDemo.DemoDecimal) == obj2.Cos);
-            Debug.Assert(Math.Exp((double)myDemo.DemoDecimal) == obj2.Exp);
+            Debug.Assert(Math.Exp((double)myDemo.DemoByte) == obj2.Exp);
             Debug.Assert(Math.Floor(myDemo.DemoDecimal) == obj2.Floor);
             Debug.Assert(Math.Log((double)myDemo.DemoDecimal) == obj2.Log);
             Debug.Assert(Math.Log((double)myDemo.DemoDecimal, 5) == obj2.Log5);
@@ -759,7 +767,8 @@ namespace TZM.XFramework.UnitTest
                     AddMilliseconds3 = a.DemoDateTime2.AddMilliseconds(12),
                     //AddTicks = a.DemoDate.AddTicks(12),
                     //AddTicks2 = a.DemoDate.AddTicks(12),
-                    AddTicks3 = a.DemoDateTime2.AddTicks(12),
+                    // MYSQL，POSTGRE 仅支持到 6 位精度
+                    AddTicks3 = a.DemoDateTime2.AddTicks(10),
                     Year = a.DemoDate.Year,
                     Year2 = a.DemoDateTime.Year,
                     Year3 = a.DemoDateTime2.Year,
@@ -824,7 +833,7 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.AddMilliseconds3 == myDemo.DemoDateTime2.AddMilliseconds(12));
             //Debug.Assert(obj3.AddTicks == myDemo.DemoDate.AddTicks(12));
             //Debug.Assert(obj3.AddTicks2 == myDemo.DemoDate.AddTicks(12));
-            Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(12));
+            Debug.Assert(obj3.AddTicks3 == myDemo.DemoDateTime2.AddTicks(10));
             Debug.Assert(obj3.Year == myDemo.DemoDate.Year);
             Debug.Assert(obj3.Year2 == myDemo.DemoDateTime.Year);
             Debug.Assert(obj3.Year3 == myDemo.DemoDateTime2.Year);

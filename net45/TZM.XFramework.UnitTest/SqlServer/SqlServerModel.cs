@@ -49,14 +49,14 @@ namespace TZM.XFramework.UnitTest.SqlServer
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.SqlDbType.Time, Scale = 7)]
+            [Column(DbType = System.Data.SqlDbType.Time, Scale = 6)]
             public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = System.Data.SqlDbType.DateTimeOffset, Scale = 7)]
-            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
+            [Column(DbType = System.Data.SqlDbType.DateTimeOffset, Scale = 6)]
+            public override Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable
@@ -67,7 +67,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             /// <summary>
             /// demvarbinary_nullable
             /// </summary>
-            [Column(DbType = System.Data.SqlDbType.VarBinary, Size = 128)]
+            [Column(DbType = System.Data.SqlDbType.VarBinary, Size = -1)]
             public virtual byte[] DemoVarBinary_Nullable { get; set; }
 
             /// <summary>

@@ -48,7 +48,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("IFNULL(");
             _visitor.Visit(b.Left is ConstantExpression ? b.Right : b.Left);
-            _builder.Append(", ");
+            _builder.Append(",");
             _visitor.Visit(b.Left is ConstantExpression ? b.Left : b.Right);
             _builder.Append(')');
             return b;
@@ -57,29 +57,37 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
-        protected override Expression VisitToString(MethodCallExpression m)
+        protected override Expression VisitToStringImpl(Expression node)
         {
             // => a.ID.ToString()
-            Expression node = null;
-            if (m.Object != null) node = m.Object;
-            else if (m.Arguments != null && m.Arguments.Count > 0) node = m.Arguments[0];
             // 字符串不进行转换
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
-            if (node != null && node.Type == typeof(DateTime))
+            // 其它类型转字符串
+            bool isDate = node.Type == typeof(DateTime) ||
+                node.Type == typeof(DateTime?) ||
+                node.Type == typeof(TimeSpan) ||
+                node.Type == typeof(TimeSpan?);
+            if (isDate)
             {
                 _builder.Append("DATE_FORMAT(");
                 _visitor.Visit(node);
-                _builder.Append(", '%Y-%m-%d %H:%i:%s.%f')");
+                _builder.Append(",'%Y-%m-%d %H:%i:%s.%f')");
+            }
+            else if (node.Type == typeof(byte[]))
+            {
+                _builder.Append("HEX(");
+                _visitor.Visit(node);
+                _builder.Append(")");
             }
             else
             {
                 _builder.Append("CAST(");
-                _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
+                _visitor.Visit(node);
                 _builder.Append(" AS CHAR)");
             }
 
-            return m;
+            return node;
         }
 
         /// <summary>
@@ -88,6 +96,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -123,6 +132,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -159,6 +169,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
+            if (_notMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -200,7 +211,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             _builder.Append("SUBSTRING(");
             _visitor.Visit(expressions[0]);
-            _builder.Append(", ");
+            _builder.Append(",");
 
             if (expressions[1].CanEvaluate())
             {
@@ -208,12 +219,12 @@ namespace TZM.XFramework.Data.SqlClient
                 int index = Convert.ToInt32(c.Value);
                 index += 1;
                 _builder.Append(index, null);
-                _builder.Append(", ");
+                _builder.Append(",");
             }
             else
             {
                 _visitor.Visit(expressions[1]);
-                _builder.Append(" + 1, ");
+                _builder.Append(" + 1,");
             }
 
             if (expressions.Count == 3)
@@ -243,7 +254,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("CONCAT(");
             _visitor.Visit(b.Left);
-            _builder.Append(", ");
+            _builder.Append(",");
             _visitor.Visit(b.Right);
             _builder.Append(')');
             return b;
@@ -254,21 +265,35 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitConcat(MethodCallExpression m)
         {
-            if (m != null && m.Arguments != null && m.Arguments.Count > 0)
+            IList<Expression> expressions = null;
+            if (m.Arguments.Count > 1) expressions = m.Arguments;
+            else if (m.Arguments.Count == 1 && m.Arguments[0].NodeType == ExpressionType.NewArrayInit)
             {
-                if (m.Arguments.Count == 1) _visitor.Visit(m.Arguments[0]);
-                else
-                {
-                    _builder.Append("CONCAT(");
-                    for (int i = 0; i < m.Arguments.Count; i++)
-                    {
-                        _visitor.Visit(m.Arguments[i]);
-                        if (i < m.Arguments.Count - 1) _builder.Append(", ");
-                    }
-                    _builder.Append(')');
-                }
+                expressions = (m.Arguments[0] as NewArrayExpression).Expressions;
             }
-            
+
+            if (expressions == null) _visitor.Visit(m.Arguments[0]);
+            else
+            {
+                _builder.Append("CONCAT(");
+                for (int i = 0; i < expressions.Count; i++)
+                {
+                    _visitor.VisitWithoutRemark(x => this.VisitToStringImpl(expressions[i]));
+                    if (i < expressions.Count - 1) _builder.Append(",");
+                }
+                _builder.Append(")");
+            }
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IsNullOrEmpty 方法
+        /// </summary>
+        protected override Expression VisitIsNullOrEmpty(MethodCallExpression m)
+        {
+            _builder.Append("IFNULL(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(",'') = ''");
             return m;
         }
 
@@ -289,19 +314,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitIndexOf(MethodCallExpression m)
         {
             _builder.Append("(LOCATE(");
-            _visitor.Visit(m.Object);
-            _builder.Append(',');
             _visitor.Visit(m.Arguments[0]);
+            _builder.Append(',');
+            _visitor.Visit(m.Object);
 
             if (m.Arguments.Count > 1 && m.Arguments[1].Type != typeof(StringComparison))
             {
-                _builder.Append(", ");
-                if (m.Arguments[1].CanEvaluate())
-                {
-                    var c = m.Arguments[1].Evaluate();
-                    int index = Convert.ToInt32(c.Value) + 1;
-                    _builder.Append(index, null);
-                }
+                _builder.Append(",");
+                if (m.Arguments[1].CanEvaluate()) _builder.Append(Convert.ToInt32(m.Arguments[1].Evaluate().Value) + 1, null);
                 else
                 {
                     _visitor.Visit(m.Arguments[1]);
@@ -336,7 +356,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 指定基数
                 _visitor.Visit(m.Arguments[1]);
-                _builder.Append(", ");
+                _builder.Append(",");
                 _visitor.Visit(m.Arguments[0]);
             }
             _builder.Append(')');
@@ -361,7 +381,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitNow(MemberExpression m)
         {
-            _builder.Append("NOW()");            
+            _builder.Append("NOW()");
             return m;
         }
 
@@ -370,7 +390,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitUtcNow(MemberExpression m)
         {
-            _builder.Append("UTC_TIMESTAMP()");            
+            _builder.Append("UTC_TIMESTAMP()");
             return m;
         }
 
@@ -381,18 +401,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DATE(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Day 属性
-        /// </summary>
-        protected override Expression VisitDay(MemberExpression m)
-        {
-            _builder.Append("DAYOFMONTH(");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(")");
             return m;
         }
 
@@ -401,9 +410,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDayOfWeek(MemberExpression m)
         {
-            _builder.Append("DAYOFWEEK(");
+            _builder.Append("(DAYOFWEEK(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(") - 1)");
             return m;
         }
 
@@ -414,40 +423,18 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DAYOFYEAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(")");
             return m;
         }
 
         /// <summary>
-        /// 访问 DateTime.Hour 属性
+        /// 访问 DateTime.TimeOfDay 属性
         /// </summary>
-        protected override Expression VisitHour(MemberExpression m)
+        protected override Expression VisitYear(MemberExpression m)
         {
-            _builder.Append("HOUR(");
+            _builder.Append("YEAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Millisecond 属性
-        /// </summary>
-        protected override Expression VisitMillisecond(MemberExpression m)
-        {
-            _builder.Append("FLOOR(MICROSECOND(");
-            _visitor.Visit(m.Expression);
-            _builder.Append(") / 1000)");            
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.Minute 属性
-        /// </summary>
-        protected override Expression VisitMinute(MemberExpression m)
-        {
-            _builder.Append("MINUTE(");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(")");
             return m;
         }
 
@@ -458,7 +445,40 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("MONTH(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Day 属性
+        /// </summary>
+        protected override Expression VisitDay(MemberExpression m)
+        {
+            _builder.Append("DAYOFMONTH(");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Hour 属性
+        /// </summary>
+        protected override Expression VisitHour(MemberExpression m)
+        {
+            _builder.Append("HOUR(");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.Minute 属性
+        /// </summary>
+        protected override Expression VisitMinute(MemberExpression m)
+        {
+            _builder.Append("MINUTE(");
+            _visitor.Visit(m.Expression);
+            _builder.Append(")");
             return m;
         }
 
@@ -474,13 +494,24 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
+        /// 访问 DateTime.Millisecond 属性
+        /// </summary>
+        protected override Expression VisitMillisecond(MemberExpression m)
+        {
+            _builder.Append("FLOOR(MICROSECOND(");
+            _visitor.Visit(m.Expression);
+            _builder.Append(") / 1000)");
+            return m;
+        }
+
+        /// <summary>
         /// 访问 DateTime.Ticks 属性
         /// </summary>
         protected override Expression VisitTicks(MemberExpression m)
         {
-            _builder.Append("(TIMESTAMPDIFF(MICROSECOND, '0001-1-1', ");
+            _builder.Append("(TIMESTAMPDIFF(MICROSECOND,'0001-1-1',");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 10)");            
+            _builder.Append(") * 10)");
             return m;
         }
 
@@ -491,18 +522,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("TIME(");
             _visitor.Visit(m.Expression);
-            _builder.Append(")");            
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.TimeOfDay 属性
-        /// </summary>
-        protected override Expression VisitYear(MemberExpression m)
-        {
-            _builder.Append("YEAR(");
-            _visitor.Visit(m.Expression);
-            _builder.Append(")");            
+            _builder.Append(")");
             return m;
         }
 
@@ -513,50 +533,43 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DAYOFMONTH(LAST_DAY(CONCAT(");
             _visitor.Visit(m.Arguments[0]);
-            _builder.Append(", '-', ");
+            _builder.Append(",'-',");
             _visitor.Visit(m.Arguments[1]);
-            _builder.Append(", '-1')))");
+            _builder.Append(",'-1')))");
             return m;
         }
 
-        ///// <summary>
-        ///// 访问 DateTime.Add 方法
-        ///// </summary>
-        //protected override Expression VisitAdd(MethodCallExpression b)
-        //{
-        //    if (b != null)
-        //    {
-        //        if (!b.Arguments[0].CanEvaluate()) throw new NotSupportedException("DateTime.Add reqiure a local variable as parameter.");
+        /// <summary>
+        /// 访问 DateTime.AddTicks 方法
+        /// </summary>
+        protected override Expression VisitAddYears(MethodCallExpression m)
+        {
+            _builder.Append("DATE_ADD(");
+            _visitor.Visit(m.Object);
+            _builder.Append(",INTERVAL ");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" YEAR)");
+            return m;
+        }
 
-        //        var c = b.Arguments[0].Evaluate();
-        //        _builder.Append("DATEADD(MILLISECOND, ");
-        //        _builder.Append(_provider.DbValue.GetSqlValue(((TimeSpan)c.Value).TotalMilliseconds, _builder.Token));
-        //        _builder.Append(", ");
-        //        _visitor.Visit(b.Object);
-        //        _builder.Append(')');
-        //    }
-
-        //    
-        //    return b;
-        //}
-
-        ///// <summary>
-        ///// 访问 DateTime.Add 方法
-        ///// </summary>
-        //protected override Expression VisitSubtract(MethodCallExpression b)
-        //{
-        //    if (b != null)
-        //    {
-        //        _builder.Append("DATEADD(MILLISECOND, DATEDIFF(MILLISECOND, ");
-        //        _visitor.Visit(b.Arguments[0]);
-        //        _builder.Append(", ");
-        //        _visitor.Visit(b.Object);
-        //        _builder.Append("),'1970-01-01')");
-        //    }
-
-        //    
-        //    return b;
-        //}
+        /// <summary>
+        /// 访问 DateTime.AddMonths 方法
+        /// </summary>
+        protected override Expression VisitAddMonths(MethodCallExpression m)
+        {
+            _builder.Append("DATE_ADD(");
+            _visitor.Visit(m.Object);
+            _builder.Append(",INTERVAL ");
+            if (m.Arguments[0].CanEvaluate())
+                _builder.Append(m.Arguments[0].Evaluate().Value, null);
+            else
+                _visitor.Visit(m.Arguments[0]);
+            _builder.Append(" MONTH)");
+            return m;
+        }
 
         /// <summary>
         /// 访问 DateTime.AddDays 方法
@@ -565,7 +578,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
+            _builder.Append(",INTERVAL ");
             if (m.Arguments[0].CanEvaluate())
                 _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
@@ -581,7 +594,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
+            _builder.Append(",INTERVAL ");
             if (m.Arguments[0].CanEvaluate())
                 _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
@@ -592,50 +605,18 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 访问 DateTime.AddMilliseconds 方法
-        /// </summary>
-        protected override Expression VisitAddMilliseconds(MethodCallExpression m)
-        {
-            _builder.Append("DATE_ADD(");
-            _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
-            if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-            else
-                _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" * 1000 MICROSECOND)");
-            return m;
-        }
-
-        /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
         protected override Expression VisitAddMinutes(MethodCallExpression m)
         {
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
+            _builder.Append(",INTERVAL ");
             if (m.Arguments[0].CanEvaluate())
                 _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
             _builder.Append(" MINUTE)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddMonths 方法
-        /// </summary>
-        protected override Expression VisitAddMonths(MethodCallExpression m)
-        {
-            _builder.Append("DATE_ADD(");
-            _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
-            if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-            else
-                _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" MONTH)");
             return m;
         }
 
@@ -646,12 +627,32 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
+            _builder.Append(",INTERVAL ");
             if (m.Arguments[0].CanEvaluate())
                 _builder.Append(m.Arguments[0].Evaluate().Value, null);
             else
                 _visitor.Visit(m.Arguments[0]);
             _builder.Append(" SECOND)");
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 DateTime.AddMilliseconds 方法
+        /// </summary>
+        protected override Expression VisitAddMilliseconds(MethodCallExpression m)
+        {
+            _builder.Append("DATE_ADD(");
+            _visitor.Visit(m.Object);
+            _builder.Append(",INTERVAL ");
+            if (m.Arguments[0].CanEvaluate()) _builder.Append(Convert.ToDouble(m.Arguments[0].Evaluate().Value) * 1000, null);
+            else
+            {
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append(")");
+                _builder.Append(" * 1000");
+            }
+            _builder.Append(" MICROSECOND)");
             return m;
         }
 
@@ -662,28 +663,16 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
-            if (m.Arguments[0].CanEvaluate())
-                _builder.Append(Convert.ToDouble(m.Arguments[0].Evaluate().Value) / 10, null);
+            _builder.Append(",INTERVAL ");
+            if (m.Arguments[0].CanEvaluate()) _builder.Append(Convert.ToInt64(m.Arguments[0].Evaluate().Value) / 10, null);
             else
+            {
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append("(");
                 _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" / 10 MICROSECOND)");
-            return m;
-        }
-
-        /// <summary>
-        /// 访问 DateTime.AddTicks 方法
-        /// </summary>
-        protected override Expression VisitAddYears(MethodCallExpression m)
-        {
-            _builder.Append("DATE_ADD(");
-            _visitor.Visit(m.Object);
-            _builder.Append(", INTERVAL ");
-            if (m.Arguments[0].CanEvaluate())
-                _builder.Append(m.Arguments[0].Evaluate().Value, null);
-            else
-                _visitor.Visit(m.Arguments[0]);
-            _builder.Append(" YEAR)");
+                if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append(")");
+                _builder.Append(" / 10");
+            }
+            _builder.Append(" MICROSECOND)");
             return m;
         }
 
@@ -692,7 +681,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitToday(MemberExpression m)
         {
-            _builder.Append("CURDATE()");            
+            _builder.Append("CURDATE()");
             return m;
         }
 
@@ -710,45 +699,45 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitQueryableContains(MethodCallExpression m)
         {
-            IDbQueryable query = m.Arguments[0].Evaluate().Value as IDbQueryable;
             ResolveToken token = _builder.Token;
+            IDbQueryable subQuery = m.Arguments[0].Evaluate().Value as IDbQueryable;
+            subQuery.Parameterized = _builder.Parameterized;
             bool isDelete = token != null && token.Extendsions != null && token.Extendsions.ContainsKey("MySqlDelete");
-
-            var cmd = query.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
+            var cmd = subQuery.Resolve(_builder.Indent + 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
-            } : null);
-            Column column = ((MappingCommand)cmd).PickColumns.First();
+            }) as MappingCommand;
+
+            if (_notMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
 
-            //if (isDelete)
-            //{
-            //    _builder.Append("SELECT 1 FROM(");
-            //    _builder.Append(cmd.CommandText);
-            //    _builder.Append(") ");
-            //    _builder.Append(column.TableAlias);
-            //    _builder.Append(" WHERE ");
+            if (isDelete)
+            {
+                _builder.Append("SELECT 1 FROM(");
+                _builder.Append(cmd.CommandText);
+                _builder.Append(") s0 WHERE ");
 
-            //    _builder.AppendMember(column.TableAlias, column.Name);
-            //    _builder.Append(" = ");
-            //    _visitor.Visit(m.Arguments[1]);
-            //    _builder.Append(")");
-            //}
-            //else
-            //{
-            //    _builder.Append(cmd.CommandText);
-            //    if (((MappingCommand)cmd).WhereFragment.Length > 0)
-            //        _builder.Append(" AND ");
-            //    else
-            //        _builder.Append("WHERE ");
+                _builder.Append(cmd.PickColumnText);
+                _builder.Append(" = ");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
+            else
+            {
+                _builder.Append(cmd.CommandText);
 
-            //    _builder.AppendMember(column.TableAlias, column.Name);
-            //    _builder.Append(" = ");
-            //    _visitor.Visit(m.Arguments[1]);
-            //    _builder.Append(")");
-            //}
+                if (cmd.WhereFragment.Length > 0)
+                    _builder.Append(" AND ");
+                else
+                    _builder.Append("WHERE ");
+
+                _builder.Append(cmd.PickColumnText);
+                _builder.Append(" = ");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append(")");
+            }
 
             return m;
         }

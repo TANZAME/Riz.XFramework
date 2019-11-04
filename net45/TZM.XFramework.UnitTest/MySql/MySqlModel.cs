@@ -108,7 +108,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// demolong_nullable
             /// </summary>
             [Column(DbType = MySqlDbType.DateTime)]
-            public virtual Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }
+            public new Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable
@@ -125,7 +125,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// <summary>
             /// demotimestamp_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Timestamp, Scale = 5)]
+            [Column(DbType = MySqlDbType.Timestamp, Scale = 6)]
             public virtual Nullable<DateTime> DemoTimestamp_Nullable { get; set; }
 
             ///// <summary>

@@ -377,6 +377,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor2.Write(sf);
 
                     cmd.PickColumns = visitor2.PickColumns;
+                    cmd.PickColumnText = visitor2.PickColumnText;
                     cmd.Navigations = visitor2.Navigations;
                     cmd.AddNavMembers(visitor2.NavMembers);
 

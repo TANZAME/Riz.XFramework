@@ -85,7 +85,7 @@ CREATE TABLE [dbo].[Sys_Demo](
 	[DemoTime_Nullable] [time](6) NULL,						-- 不指定精度时默认为7
 	[DemoDatetimeOffset_Nullable] [datetimeoffset](6) NULL,	-- 不指定精度时默认为7
 	[DemoBinary_Nullable] binary(128) NULL,					-- 固定长
-	[DemoVarBinary_Nullable] VarBinary(128) NULL,			-- 变长
+	[DemoVarBinary_Nullable] VarBinary(max) NULL,			-- 变长
 	[DemoTimestamp_Nullable]  [timestamp] NULL,				-- 行版本号
 	--[DemoXml_Nullable]  [xml] NULL,						-- XML
 )
@@ -187,6 +187,8 @@ BEGIN
            ,[DemoInt_Nullable]
            ,[DemoLong]
            ,[DemoLong_Nullable]
+           ,[DemoTime_Nullable]
+           ,[DemoDatetimeOffset_Nullable]
 		 )
 		 VALUES
 			   ('C' +  REPLICATE('0',LEN(CAST(@rowCount AS VARCHAR)) - LEN(CAST(@rowIndex AS VARCHAR))) + CAST(@rowIndex AS VARCHAR)
@@ -218,6 +220,8 @@ BEGIN
 			   ,CASE WHEN @rowIndex % 2 = 0 THEN 819200000 ELSE NULL END
 			   ,CASE WHEN @rowIndex % 2 = 0 THEN 8192000000000 ELSE 4096000000000 END
 			   ,CASE WHEN @rowIndex % 2 = 0 THEN 8192000000000 ELSE NULL END
+			   ,'10:10:10.4567890'
+			   ,TODATETIMEOFFSET('2007-06-10 00:00:00.0000000','-07:00')
 		)
 	END
 

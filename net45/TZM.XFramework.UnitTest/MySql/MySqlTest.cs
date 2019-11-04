@@ -53,6 +53,8 @@ namespace TZM.XFramework.UnitTest.MySql
             base.API();
 
             var context = _newContext();
+            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -83,7 +85,7 @@ namespace TZM.XFramework.UnitTest.MySql
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -93,6 +95,7 @@ namespace TZM.XFramework.UnitTest.MySql
                 .GetTable<MySqlModel.MySqlDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
             var demo = new MySqlModel.MySqlDemo
@@ -119,12 +122,13 @@ namespace TZM.XFramework.UnitTest.MySql
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式 LONG"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            Debug.Assert(demo.DemVarBinary_s == text);
         }
     }
 }

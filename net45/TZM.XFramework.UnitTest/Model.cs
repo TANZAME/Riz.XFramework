@@ -143,10 +143,16 @@ namespace TZM.XFramework.UnitTest
             public virtual Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
             /// <summary>
-            /// demolong_nullable
+            /// demotime_nullable
             /// </summary>
             [Column(DbType = System.Data.DbType.Time, Scale = 7)]
             public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+
+            /// <summary>
+            /// demodatetimeoffset_nullable
+            /// </summary>
+            [Column(DbType = System.Data.DbType.DateTimeOffset, Scale = 7)]
+            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demodecimal

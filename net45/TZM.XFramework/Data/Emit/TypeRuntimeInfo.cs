@@ -343,12 +343,19 @@ namespace TZM.XFramework.Data
                         {
                             if (invoker.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>() != null) continue;
 
-                            // 添加成员
+                            // 判断当前成员是否重复
                             if (invokers.Contains(invoker.Name))
                             {
-                                int dup = invokers.Count(x => x.Member.Name == invoker.Name);
-                                invoker.Name = string.Format("{0}{1}", invoker.Name, dup);
+                                // 属性和字段不允许重复
+                                if (invoker.Member.MemberType != MemberTypes.Method) continue;
+                                else
+                                {
+                                    // 方法成员考虑到有重载的情况，允许重复
+                                    int dup = invokers.Count(x => x.Member.Name == invoker.Name);
+                                    invoker.Name = string.Format("{0}{1}", invoker.Name, dup);
+                                }
                             }
+                            // 添加成员
                             invokers.Add(invoker);
 
                             // 累计数据字段，即与数据库一一对应的字段
