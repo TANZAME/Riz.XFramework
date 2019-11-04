@@ -55,7 +55,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析成转换函数辅助类 cast( a as dbtype)
         /// </summary>
-        /// <typeparam name="TResult">转换后的类型</typeparam>
         /// <param name="source">字段表达式</param>
         /// <param name="expression">数据库类型表达式，如（nvarchar(32)）</param>
         /// <returns></returns>
