@@ -73,7 +73,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (DbTypeUtils.IsTime(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
+                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
             }
 
@@ -91,7 +91,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
+                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 
@@ -108,7 +108,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = "f".PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
+                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
                 if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
             }
 

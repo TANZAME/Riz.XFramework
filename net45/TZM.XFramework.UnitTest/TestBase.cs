@@ -775,7 +775,7 @@ namespace TZM.XFramework.UnitTest
                     Month = a.DemoDate.Month,
                     Month2 = a.DemoDateTime.Month,
                     Month3 = a.DemoDateTime2.Month,
-                    Date = a.DemoDate.Date,
+                    Date0 = a.DemoDate.Date,
                     Date2 = a.DemoDateTime.Date,
                     Date3 = a.DemoDateTime2.Date,
                     Day = a.DemoDate.Day,
@@ -840,7 +840,7 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.Month == myDemo.DemoDate.Month);
             Debug.Assert(obj3.Month2 == myDemo.DemoDateTime.Month);
             Debug.Assert(obj3.Month3 == myDemo.DemoDateTime2.Month);
-            Debug.Assert(obj3.Date == myDemo.DemoDate.Date);
+            Debug.Assert(obj3.Date0 == myDemo.DemoDate.Date);
             Debug.Assert(obj3.Date2 == myDemo.DemoDateTime.Date);
             Debug.Assert(obj3.Date3 == myDemo.DemoDateTime2.Date);
             Debug.Assert(obj3.Day == myDemo.DemoDate.Day);
@@ -869,17 +869,8 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.Ticks3 == myDemo.DemoDateTime2.Ticks);
             Debug.Assert(obj3.Ticks4 == ts.Ticks);
             Debug.Assert(obj3.TimeOfDay == myDemo.DemoDateTime.TimeOfDay);
-            //Debug.Assert(obj3.DaysInMonth == DateTime.DaysInMonth(2019, 12));
-            //Debug.Assert(obj3.IsLeapYear == DateTime.IsLeapYear(2019));
-            //Debug.Assert(obj3.AddYears == myDemo.DemoDate.AddYears(12));
-            //Debug.Assert(obj3.AddMonths == myDemo.DemoDate.AddMonths(12));
-            //Debug.Assert(obj3.AddDays == myDemo.DemoDate.AddDays(12));
-            //Debug.Assert(obj3.AddHours == myDemo.DemoDateTime2.AddHours(12));
-            //Debug.Assert(obj3.AddMinutes == myDemo.DemoDateTime2.AddMinutes(12));
-            //Debug.Assert(obj3.AddSeconds == myDemo.DemoDateTime2.AddSeconds(12));
-            //Debug.Assert(obj3.AddTicks == myDemo.DemoDateTime2.AddTicks(12));
-            //Debug.Assert(obj3.AddMilliseconds == myDemo.DemoDateTime2.AddMilliseconds(12));
-            //Debug.Assert(obj3.Date == myDemo.DemoDateTime2.AddTicks(12));
+
+            var dddd = DateTime.Parse("2019-11-05 09:49:26.0536176");
 
             #endregion
 

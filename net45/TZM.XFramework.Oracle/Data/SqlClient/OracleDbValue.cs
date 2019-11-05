@@ -77,20 +77,20 @@ namespace TZM.XFramework.Data.SqlClient
             // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/nlspg/datetime-data-types-and-time-zone-support.html#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
 
             TimeSpan ts = (TimeSpan)value;
-            // 默认精度为7
-            string format = @"hh\:mm\:ss\.fffffff";
+            // 默认精度为6
+            string format = @"hh\:mm\:ss\.ffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format(@"hh\:mm\:ss\.{0}", s);
             }
 
-            string m = ts.ToString(format);
-            m = string.Format("{0} {1}", ts.Days, m);
-            m = this.EscapeQuote(m, false, false);
-            m = string.Format("TO_DSINTERVAL({0})", m);
-            return m;
+            string result = ts.ToString(format);
+            result = string.Format("{0} {1}", ts.Days, result);
+            result = this.EscapeQuote(result, false, false);
+            result = string.Format("TO_DSINTERVAL({0})", result);
+            return result;
         }
 
         // 获取 DatetTime 类型的 SQL 片断
@@ -99,42 +99,38 @@ namespace TZM.XFramework.Data.SqlClient
             DateTime date = (DateTime)value;
 
             // 默认精度6
-            string format = "yyyy-MM-dd HH:mm:ss";
-            bool isTimestamp = false;
-
-            if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
+            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
+            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
+                string s = string.Empty;
                 format = "yyyy-MM-dd HH:mm:ss.ffffff";
-                isTimestamp = true;
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
             string result = this.EscapeQuote(((DateTime)value).ToString(format), false, false);
-            result = isTimestamp
-                ? string.Format("TO_TIMESTAMP({0},'yyyy-mm-dd hh24:mi:ss.ff')", result)
-                : string.Format("TO_DATE({0},'yyyy-mm-dd hh24:mi:ss')", result);
+            result = string.Format("TO_TIMESTAMP({0},'yyyy-mm-dd hh24:mi:ss.ff')", result);
             return result;
         }
 
         // 获取 DateTimeOffset 类型的 SQL 片断
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
-            // 默认精度为7
-            string format = "yyyy-MM-dd HH:mm:ss.fffffff";
+            // 默认精度为6
+            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = "f".PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
-            string date = ((DateTimeOffset)value).DateTime.ToString(format);
-            string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
+            string myDateTime = ((DateTimeOffset)value).DateTime.ToString(format);
+            string myOffset = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
+            myOffset = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', myOffset);
 
-            string result = string.Format("TO_TIMESTAMP_TZ('{0} {1}','yyyy-mm-dd hh24:mi:ss.ff tzh:tzm')", date, span);
+            string result = string.Format("TO_TIMESTAMP_TZ('{0} {1}','yyyy-mm-dd hh24:mi:ss.ff tzh:tzm')", myDateTime, myOffset);
             return result;
         }
 

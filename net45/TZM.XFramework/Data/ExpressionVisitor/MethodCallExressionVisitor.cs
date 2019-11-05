@@ -970,9 +970,9 @@ namespace TZM.XFramework.Data
 
             // tick = microsecond * 10 1microsecond = 1000nanosecond
             // => tick = 10000nanosecond
-            _builder.Append("(DATEDIFF_BIG(NANOSECOND,'1970-1-1',");
+            _builder.Append("(DATEDIFF_BIG(NANOSECOND,'1970-01-01',");
             _visitor.Visit(m.Expression);
-            _builder.Append(") / 100 + 621355968000000000)");
+            _builder.Append(") / 100.00 + 621355968000000000)");
             return m;
         }
 
@@ -1290,12 +1290,12 @@ namespace TZM.XFramework.Data
             IDbQueryable subQuery = m.Arguments[0].Evaluate().Value as IDbQueryable;
             // 设置子查询的参数化
             subQuery.Parameterized = _builder.Parameterized;
-            var cmd = subQuery.Resolve(_builder.Indent + 1, false, new ResolveToken
+            var cmd = subQuery.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
             {
                 Parameters = token.Parameters,
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
-            }) as MappingCommand;
+            } : null) as MappingCommand;
 
             if (_notMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");

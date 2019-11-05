@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Text;
+using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using TZM.XFramework.Data;
@@ -130,7 +131,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 .GetTable<SqlServerModel.SqlServerDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
-            System.Diagnostics.Debug.Assert(myList[0].DemVarBinary_s == text);
+            Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
             var demo = new SqlServerModel.SqlServerDemo
@@ -162,7 +163,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
             context.SubmitChanges();
 
             demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
-            System.Diagnostics.Debug.Assert(demo.DemVarBinary_s == text);
+            Debug.Assert(demo.DemVarBinary_s == text);
 
             context.Delete<Model.Client>(x => x.ClientId >= 2000);
             context.SubmitChanges();

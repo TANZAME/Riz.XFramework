@@ -500,7 +500,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             _builder.Append("FLOOR(MICROSECOND(");
             _visitor.Visit(m.Expression);
-            _builder.Append(") / 1000)");
+            _builder.Append(") / 1000.00)");
             return m;
         }
 
@@ -509,9 +509,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTicks(MemberExpression m)
         {
-            _builder.Append("(TIMESTAMPDIFF(MICROSECOND,'0001-1-1',");
+            _builder.Append("(TIMESTAMPDIFF(MICROSECOND,'1970-01-01',");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 10)");
+            _builder.Append(") * 10 + 621355968000000000)");
             return m;
         }
 
@@ -664,13 +664,13 @@ namespace TZM.XFramework.Data.SqlClient
             _builder.Append("DATE_ADD(");
             _visitor.Visit(m.Object);
             _builder.Append(",INTERVAL ");
-            if (m.Arguments[0].CanEvaluate()) _builder.Append(Convert.ToInt64(m.Arguments[0].Evaluate().Value) / 10, null);
+            if (m.Arguments[0].CanEvaluate()) _builder.Append(Convert.ToInt64(m.Arguments[0].Evaluate().Value) / 10.00, null);
             else
             {
                 if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append("(");
                 _visitor.Visit(m.Arguments[0]);
                 if (m.Arguments[0].NodeType != ExpressionType.MemberAccess) _builder.Append(")");
-                _builder.Append(" / 10");
+                _builder.Append(" / 10.00");
             }
             _builder.Append(" MICROSECOND)");
             return m;
