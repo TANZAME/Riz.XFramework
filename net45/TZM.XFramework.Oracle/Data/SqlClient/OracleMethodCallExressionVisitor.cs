@@ -407,10 +407,13 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitModulo(BinaryExpression b)
         {
+            Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
+            Expression right = b.Left.CanEvaluate() ? b.Left : b.Right;
+
             _builder.Append("MOD(");
-            _visitor.Visit(b.Left);
+            _visitor.Visit(left);
             _builder.Append(",");
-            _visitor.Visit(b.Right);
+            _visitor.Visit(right);
             _builder.Append(')');
             return b;
         }
@@ -643,7 +646,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 微
             _builder.Append("TO_NUMBER(TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(",'ff7')) + 621355968000000000) ");
+            _builder.Append(",'ff7')) + 621355968000000000)");
 
             return m;
         }

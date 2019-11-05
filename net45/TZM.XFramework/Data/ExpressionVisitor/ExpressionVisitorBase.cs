@@ -271,23 +271,23 @@ namespace TZM.XFramework.Data
             else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             // 取模运算
             else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            // 除法运算
+            else if (b.NodeType == ExpressionType.Divide) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             else
             {
                 // 常量表达式放在右边，以充分利用 MemberVisitedMark
                 string oper = this.GetOperator(b);
-                Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
-                Expression right = b.Left.CanEvaluate() ? b.Left : b.Right;
-
                 bool use = this.UseBracket(b, b.Left);
+
                 if (use) _builder.Append('(');
-                this.Visit(left);
+                this.Visit(b.Left);
                 if (use) _builder.Append(')');
 
                 _builder.Append(oper);
 
                 bool use2 = this.UseBracket(b, b.Right);
                 if (use2) _builder.Append('(');
-                this.Visit(right);
+                this.Visit(b.Right);
                 if (use2) _builder.Append(')');
 
                 return b;

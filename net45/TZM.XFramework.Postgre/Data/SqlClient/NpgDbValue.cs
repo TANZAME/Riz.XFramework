@@ -66,57 +66,57 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 获取 Time 类型的 SQL 片断
-        protected override string GetSqlValueByTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
             // 默认精度6
             string format = @"hh\:mm\:ss\.ffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format(@"hh\:mm\:ss\.{0}", s);
             }
 
             string date = ((TimeSpan)value).ToString(format);
-            string result = string.Format("(TIME '{0}')", date);
+            string result = string.Format("'{0}'::TIME", date);
             return result;
         }
 
         // 获取 DatetTime 类型的 SQL 片断
-        protected override string GetSqlValueByDateTime(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
             else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
             string date = ((DateTime)value).ToString(format);
-            string result = string.Format("(TIMESTAMP '{0}')", date);
+            string result = string.Format("'{0}'::TIMESTAMP", date);
             return result;
         }
 
         // 获取 DateTimeOffset 类型的 SQL 片断
-        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? precision)
+        protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
             // 默认精度6
             string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
-                string pad = string.Empty;
-                if (precision != null && precision.Value > 0) pad = string.Empty.PadLeft(precision.Value > 6 ? 6 : precision.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
-            string date = ((DateTimeOffset)value).DateTime.ToString(format);
-            string span = ((DateTimeOffset)value).Offset.ToString(@"hh");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
+            string myDateTime = ((DateTimeOffset)value).DateTime.ToString(format);
+            string myOffset = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
+            myOffset = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', myOffset);
 
-            string result = string.Format("(TIMESTAMP WITH TIME ZONE '{0}{1}')", date, span);
+            string result = string.Format("'{0}{1}'::TIMESTAMPTZ ", myDateTime, myOffset);
             return result;
 
             // Npgsql 的显示都是以本地时区显示的？###

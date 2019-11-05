@@ -157,7 +157,9 @@ BEGIN
 			   ,DemoInt
 			   ,DemoInt_Nullable
 			   ,DemoLong
-			   ,DemoLong_Nullable)
+			   ,DemoLong_Nullable 
+				 ,demotime_nullable
+			   ,demodatetimeoffset_nullable)
 			 VALUES(
 				    'C' || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
 				   ,'N'  || REPEAT('0',CHAR_LENGTH(CAST(rowCount AS varchar)) - CHAR_LENGTH(CAST(rowIndex AS varchar))) || CAST(rowIndex AS varchar)
@@ -188,6 +190,8 @@ BEGIN
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 819200000 ELSE NULL END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 8192000000000 ELSE 4096000000000 END
 				   ,CASE WHEN rowIndex % 2 = 0 THEN 8192000000000 ELSE NULL END
+					 ,(TIME '10:10:10.456789')
+					 ,(TIMESTAMP WITH TIME ZONE '2019-10-28 16:16:32.444793+08')
 			);
 		END IF;
 		

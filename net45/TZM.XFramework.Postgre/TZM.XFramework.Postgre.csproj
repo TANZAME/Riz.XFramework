@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\NpgDatabase.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />

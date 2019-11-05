@@ -163,6 +163,7 @@ namespace TZM.XFramework.Data
                 _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             string methodName = string.Empty;
             if (node.NodeType == ExpressionType.Modulo) methodName = "Modulo";
+            else if (node.NodeType == ExpressionType.Divide) methodName = "Divide";
             else methodName = node.Method.Name;
 
             MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + methodName);
@@ -589,12 +590,23 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 % 方法
         /// </summary>
-        protected virtual Expression VisitModulo(BinaryExpression m)
+        protected virtual Expression VisitModulo(BinaryExpression b)
         {
-            _visitor.Visit(m.Left);
+            _visitor.Visit(b.Left);
             _builder.Append(" % ");
-            _visitor.Visit(m.Right);
-            return m;
+            _visitor.Visit(b.Right);
+            return b;
+        }
+
+        /// <summary>
+        /// 访问 / 方法
+        /// </summary>
+        protected virtual Expression VisitDivide(BinaryExpression b)
+        {
+            _visitor.Visit(b.Left);
+            _builder.Append(" / ");
+            _visitor.Visit(b.Right);
+            return b;
         }
 
         /// <summary>

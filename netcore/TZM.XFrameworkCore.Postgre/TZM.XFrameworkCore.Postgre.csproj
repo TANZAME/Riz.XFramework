@@ -39,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgExistsExpressionVisitor.cs" Link="ExpressionVisitor\NpgExistsExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs" Link="ExpressionVisitor\NpgJoinExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs" Link="ExpressionVisitor\NpgUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs" Link="ExpressionVisitor\NpgWhereExpressionVisitor.cs" />

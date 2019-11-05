@@ -870,8 +870,6 @@ namespace TZM.XFramework.UnitTest
             Debug.Assert(obj3.Ticks4 == ts.Ticks);
             Debug.Assert(obj3.TimeOfDay == myDemo.DemoDateTime.TimeOfDay);
 
-            var dddd = DateTime.Parse("2019-11-05 09:49:26.0536176");
-
             #endregion
 
 
