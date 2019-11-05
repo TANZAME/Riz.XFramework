@@ -107,9 +107,9 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (node.Type == typeof(byte[]))
             {
-                _builder.Append("TO_HEX(");
+                _builder.Append("ENCODE(");
                 _visitor.Visit(node);
-                _builder.Append(")");
+                _builder.Append(",'hex')");
             }
             else
             {
@@ -359,6 +359,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitDivide(BinaryExpression b)
         {
+            // 注意 PG 的 / 会取整
             _visitor.Visit(b.Left);
             _builder.Append("::NUMERIC / ");
             _visitor.Visit(b.Right);
@@ -487,7 +488,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 访问 DateTime.TimeOfDay 属性
+        /// 访问 DateTime.Year 属性
         /// </summary>
         protected override Expression VisitYear(MemberExpression m)
         {
@@ -557,12 +558,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitMillisecond(MemberExpression m)
         {
-            // microseconds
-            _builder.Append("(DATE_PART('MILLISECONDS', ");
+            //select(date_part('SECOND', '2019-11-15 20:55:04.25758'::TIMESTAMP)::NUMERIC % 1) * 1000
+            _builder.Append("DATE_PART('SECOND', ");
             _visitor.Visit(m.Expression);
-            _builder.Append(") - DATE_PART('SECOND', ");
-            _visitor.Visit(m.Expression);
-            _builder.Append(") * 1000)");
+            _builder.Append(")::NUMERIC % 1 * 1000");
             return m;
         }
 
@@ -571,11 +570,12 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTicks(MemberExpression m)
         {
-            _builder.Append("((");
+            // microseconds
+            _builder.Append("(");
             // 年份
-            _builder.Append("(TO_CHAR(");
+            _builder.Append("(((TO_CHAR(");
             _visitor.Visit(m.Expression);
-            _builder.Append(", 'yyyy-mm-dd')::DATE - '1970-01-01'::DATE) * 86400000.00 + ");
+            _builder.Append(", 'yyyy-mm-dd')::DATE - '1970-01-01'::DATE) * 86400000::BIGINT + ");
             // 时
             _builder.Append("DATE_PART('HOUR', ");
             _visitor.Visit(m.Expression);
@@ -583,11 +583,11 @@ namespace TZM.XFramework.Data.SqlClient
             // 分
             _builder.Append("DATE_PART('MINUTE', ");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 60000 + ");
+            _builder.Append(") * 60000) * 10000 + ");
             // 毫秒
-            _builder.Append("DATE_PART('MILLISECOND', ");
+            _builder.Append("DATE_PART('MICROSECOND', ");
             _visitor.Visit(m.Expression);
-            _builder.Append(")) * 10000 + 621355968000000000)"); 
+            _builder.Append(") * 10)::BIGINT + 621355968000000000::BIGINT)"); 
 
             return m;
         }
@@ -597,9 +597,28 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         protected override Expression VisitTimeOfDay(MemberExpression m)
         {
+            //SELECT time '00:00' + ((EXTRACT(EPOCH FROM('2019-11-15 20:55:04.25758'::TIMESTAMP - '2019-11-15 20:55:04.25758'::DATE)) || ' SECOND')::INTERVAL)
+
+#if !netcore
+
+            // 如果是参数化查询，要转成TIMESTAMP...
+            if (_builder.Parameterized) _builder.Append("('0001-01-01'::TIMESTAMP + ");
+
+#endif
+
+            _builder.Append("('00:00'::TIME + ((EXTRACT(EPOCH FROM(");
             _visitor.Visit(m.Expression);
-            _builder.Append("::TIMESTAMP");
-            if (!_builder.Parameterized) _builder.Append("::TIME");
+            _builder.Append("::TIMESTAMP - ");
+            _visitor.Visit(m.Expression);
+            _builder.Append("::DATE)) || ' SECOND')::INTERVAL))");
+
+#if !netcore
+
+            // 如果是参数化查询，要转成TIMESTAMP...
+            if (_builder.Parameterized) _builder.Append(")");
+
+#endif
+
             return m;
         }
 
@@ -785,7 +804,5 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         #endregion
-
-        // 注意 PG 的 / 会取整
     }
 }
