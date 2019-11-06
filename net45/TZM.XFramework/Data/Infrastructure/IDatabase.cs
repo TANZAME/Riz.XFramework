@@ -27,6 +27,11 @@ namespace TZM.XFramework.Data
         int? CommandTimeout { get; set; }
 
         /// <summary>
+        /// 事务隔离级别
+        /// </summary>
+        IsolationLevel? IsolationLevel { get; set; }
+
+        /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
         TypeDeserializerImpl TypeDeserializerImpl { get; }
@@ -56,7 +61,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 开启新事务
         /// </summary>
-        IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
+        IDbTransaction BeginTransaction();
 
         /// <summary>
         /// 创建 SQL 命令

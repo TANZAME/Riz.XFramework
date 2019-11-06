@@ -1,8 +1,8 @@
 :: 1. 编译release版本
 :: 2. 填充api_key
-:: 3. 修改nuspec文件依赖项（TZM.XFramework）的版本
+
 @echo off
-set api_key=
+set api_key=oy2myh5dmn4vnfdc2i2alpzqqqo55ldepc7maguyeocmee
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
@@ -68,8 +68,7 @@ dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %s
 
 for /R %cd% %%f in (*.nupkg) do ( 
 echo=
-::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
-pause
+dotnet nuget push %%f -k %api_key% -s %source_api_uri%
 )
 
 echo=

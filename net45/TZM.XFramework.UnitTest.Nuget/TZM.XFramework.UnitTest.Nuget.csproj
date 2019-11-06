@@ -91,19 +91,19 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="TZM.XFramework">
-      <Version>2.0.3</Version>
+      <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="TZM.XFramework.MySql">
-      <Version>2.0.3</Version>
+      <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="TZM.XFramework.Oracle">
-      <Version>2.0.3</Version>
+      <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="TZM.XFramework.Postgre">
-      <Version>2.0.3</Version>
+      <Version>2.0.4</Version>
     </PackageReference>
     <PackageReference Include="TZM.XFramework.SQLite">
-      <Version>2.0.3</Version>
+      <Version>2.0.4</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -554,7 +554,7 @@ namespace TZM.XFramework.Data
                 if (_connection == null) await this.CreateConnectionAsync();
                 if (sqlList.Count > 1 && _transaction == null)
                 {
-                    this.BeginTransaction(IsolationLevel.ReadCommitted);
+                    this.BeginTransaction();
                     // 内部维护的事务，在执行完命令后需要自动提交-释放事务
                     _autoComplete = true;
                 }

@@ -27,9 +27,19 @@ namespace TZM.XFramework.Data
         bool IsDebug { get; set; }
 
         /// <summary>
-        /// 事务隔离级别
+        /// 连接字符串
         /// </summary>
-        IsolationLevel IsolationLevel { get; set; }
+        string ConnectionString { get; set; }
+
+        /// <summary>
+        /// 运行事务超时时间
+        /// </summary>
+        int? CommandTimeout { get; set; }
+
+        /// <summary>
+        /// 事务隔离级别，默认 ReadCommitted
+        /// </summary>
+        IsolationLevel? IsolationLevel { get; set; }
 
         /// <summary>
         /// 新增记录
