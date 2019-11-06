@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml;
 using System.Text;
+using System.Diagnostics;
 using System.Data.SqlTypes;
 using System.Collections.Generic;
 
@@ -52,6 +53,14 @@ namespace TZM.XFramework.UnitTest.Postgre
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+#if netcore
+
+            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+#endif
+            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -82,7 +91,7 @@ namespace TZM.XFramework.UnitTest.Postgre
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -92,6 +101,7 @@ namespace TZM.XFramework.UnitTest.Postgre
                 .GetTable<PostgreModel.PostgreDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
             var demo = new PostgreModel.PostgreDemo
@@ -117,12 +127,18 @@ namespace TZM.XFramework.UnitTest.Postgre
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式")
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<PostgreModel.PostgreDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<PostgreModel.PostgreDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
         }
     }
 }

@@ -57,13 +57,13 @@ namespace TZM.XFramework.UnitTest.Postgre
             /// <summary>
             /// demodatetime2
             /// </summary>    
-            [Column(DbType = NpgsqlDbType.Timestamp, Precision = 6)]
+            [Column(DbType = NpgsqlDbType.Timestamp, Scale = 6)]
             public override DateTime DemoDateTime2 { get; set; }
 
             /// <summary>
             /// demodatetime2_nullable
             /// </summary>        
-            [Column(DbType = NpgsqlDbType.Timestamp, Precision = 6)]
+            [Column(DbType = NpgsqlDbType.Timestamp, Scale = 6)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
             // ############################### 美丽的分隔线 ###################################
@@ -72,8 +72,8 @@ namespace TZM.XFramework.UnitTest.Postgre
             /// Time 类型，映射到 .NET DateTime类型
             /// <para>如果映射到TimeSpan类型会报错</para>
             /// </summary>
-            [Column(DbType = NpgsqlDbType.Time, Precision = 2)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            [Column(DbType = NpgsqlDbType.Time, Scale = 2)]
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demotext_nullable
@@ -92,17 +92,17 @@ namespace TZM.XFramework.UnitTest.Postgre
             // <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = NpgsqlDbType.TimestampTz, Precision = 4)]
-            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
+            [Column(DbType = NpgsqlDbType.TimestampTz, Scale = 6)]
+            public override Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
 #endif
 #if !netcore
-            
+
             // <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = NpgsqlDbType.TimestampTZ, Precision = 4)]
-            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
+            [Column(DbType = NpgsqlDbType.TimestampTZ, Scale = 6)]
+            public override Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
 #endif
 

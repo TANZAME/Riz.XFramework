@@ -20,6 +20,8 @@ namespace TZM.XFramework.Data
         private IDatabase _database = null;
         private string _connString = null;
         private int? _commandTimeout = null;
+        private IsolationLevel? _isolationLevel = null;
+        private bool _isDebug = false;
         private readonly object _oLock = new object();
         protected readonly List<object> _dbQueryables = new List<object>();
 
@@ -41,7 +43,8 @@ namespace TZM.XFramework.Data
             {
                 if (_database == null) _database = new Database(this.Provider.DbProviderFactory, _connString)
                 {
-                    CommandTimeout = _commandTimeout
+                    CommandTimeout = _commandTimeout,
+                    IsolationLevel = this.IsolationLevel
                 };
                 return _database;
             }
@@ -50,7 +53,38 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 调试模式，模式模式下生成的SQL会有换行
         /// </summary>
-        public bool IsDebug { get; set; }
+        public bool IsDebug
+        {
+            get { return _isDebug; }
+            set { _isDebug = value; }
+        }
+
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string ConnectionString
+        {
+            get { return _connString; }
+            set { _connString = value; }
+        }
+
+        /// <summary>
+        /// 运行事务超时时间
+        /// </summary>
+        public int? CommandTimeout
+        {
+            get { return _commandTimeout; }
+            set { _commandTimeout = value; }
+        }
+
+        /// <summary>
+        /// 事务隔离级别，默认 ReadCommitted
+        /// </summary>
+        public IsolationLevel? IsolationLevel
+        {
+            get { return _isolationLevel; }
+            set { _isolationLevel = value; }
+        }
 
         #endregion
 
@@ -85,6 +119,8 @@ namespace TZM.XFramework.Data
         {
             _connString = connString;
             _commandTimeout = commandTimeout;
+            _isDebug = false;
+            _isolationLevel = null;
         }
 
         #endregion

@@ -38,7 +38,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public string GetSqlValue(object value, ResolveToken token, MemberExpression node = null)
         {
-            return this.GetSqlValue(value, token, node != null ? node.Member : null, node != null && node.Expression != null ? node.Expression.Type : null);
+            ColumnAttribute column = this.GetColumnAttribute(node);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -47,12 +48,12 @@ namespace TZM.XFramework.Data
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
         /// <param name="member">成员</param>
-        /// <param name="runtimeType">成员所在类型</param>
+        /// <param name="objType">成员所在类型</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type runtimeType)
+        public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type objType)
         {
-            ColumnAttribute attribute = this.GetColumnAttribute(member, runtimeType);
-            return this.GetSqlValue(value, token, attribute);
+            ColumnAttribute column = this.GetColumnAttribute(member, objType);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -63,24 +64,24 @@ namespace TZM.XFramework.Data
         /// <param name="token">解析SQL命令时的参数上下文</param>
         /// <param name="attribute">数据列特性</param>
         /// <returns></returns>
-        public string GetSqlValueWidthDefault(object value, ResolveToken token, ColumnAttribute attribute)
+        public string GetSqlValueWidthDefault(object value, ResolveToken token, ColumnAttribute column)
         {
-            if (value == null && attribute != null && attribute.Default != null)
+            if (value == null && column != null && column.Default != null)
             {
                 // 插入值为空时使用默认值
-                return attribute.Default.ToString();
+                return column.Default.ToString();
             }
-            if (value != null && attribute != null && attribute.Default != null)
+            if (value != null && column != null && column.Default != null)
             {
                 // 值不为空，但只有.net默认值时也使用数据库默认值
                 Type t = value.GetType();
                 bool useDefault = false;
                 if (t == typeof(DateTime) && (((DateTime)value) == DateTime.MinValue || ((DateTime)value).ToString("yyyy-MM-dd") == "0001-01-01")) useDefault = true;
                 // 插入值为空时使用默认值
-                if (useDefault) return attribute.Default.ToString();
+                if (useDefault) return column.Default.ToString();
             }
 
-            return this.GetSqlValue(value, token, attribute);
+            return this.GetSqlValue(value, token, column);
         }
 
         /// <summary>
@@ -88,15 +89,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
-        /// <param name="attribute">数据列特性</param>
+        /// <param name="column">数据列特性</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, ColumnAttribute attribute)
+        public string GetSqlValue(object value, ResolveToken token, ColumnAttribute column)
         {
-            return attribute == null
+            return column == null
                 ? this.GetSqlValue(value, token, null, null, null, null, null)
-                : this.GetSqlValue(value, token, attribute.HasSetDbType ? attribute.DbType : null, attribute.HasSetSize ? new Nullable<int>(attribute.Size) : null,
-                        attribute.HasSetPrecision ? new Nullable<int>(attribute.Precision) : null, attribute.HasSetScale ? new Nullable<int>(attribute.Scale) : null,
-                        attribute.HasSetDirection ? new Nullable<ParameterDirection>(attribute.Direction) : null);
+                : this.GetSqlValue(value, token, column.HasSetDbType ? column.DbType : null, column.HasSetSize ? new Nullable<int>(column.Size) : null,
+                        column.HasSetPrecision ? new Nullable<int>(column.Precision) : null, column.HasSetScale ? new Nullable<int>(column.Scale) : null,
+                        column.HasSetDirection ? new Nullable<ParameterDirection>(column.Direction) : null);
         }
 
         /// <summary>
@@ -141,8 +142,8 @@ namespace TZM.XFramework.Data
                 else if (value is Guid)
                     return this.GetSqlValueByGuid(value);
                 // 数据类型
-                else if (TypeUtils.IsNumericType(type))
-                    return this.GetSqlValueByNumeric(value);
+                else if (TypeUtils.IsNumberType(type))
+                    return this.GetSqlValueByNumber(value);
                 // byte[] 类型
                 else if (value is byte[])
                     return this.GetSqlValueByBytes(value);
@@ -165,9 +166,7 @@ namespace TZM.XFramework.Data
                 else if (value is IEnumerable)
                     return this.GetSqlValue(value as IEnumerable, token, dbType, size, precision, scale);
                 else
-                {
                     throw new NotSupportedException(string.Format("type {0} not supported serialize to string", type.FullName));
-                }
 
             }
         }
@@ -176,6 +175,25 @@ namespace TZM.XFramework.Data
         /// 检查是否Unicode数据类型
         /// </summary>
         public abstract bool IsUnicode(object dbType);
+
+        /// <summary>
+        /// 检查是否Unicode数据类型
+        /// </summary>
+        public bool IsUnicode(MemberExpression member)
+        {
+            ColumnAttribute column = null;
+            return this.IsUnicode(member, out column);
+        }
+
+        /// <summary>
+        /// 检查是否Unicode数据类型
+        /// </summary>
+        public bool IsUnicode(MemberExpression member, out ColumnAttribute column)
+        {
+            column = this.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
+            bool isUnicode = this.IsUnicode(column != null ? column.DbType : null);
+            return isUnicode;
+        }
 
         /// <summary>
         /// 单引号转义
@@ -195,14 +213,30 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 获取指定成员的 <see cref="ColumnAttribute"/>
         /// </summary>
-        public virtual ColumnAttribute GetColumnAttribute(MemberInfo member, Type runtimeType)
+        /// <param name="member">成员</param>
+        /// <param name="objType">成员所在类型</param>
+        /// <returns></returns>
+        public virtual ColumnAttribute GetColumnAttribute(MemberExpression node)
+        {
+            MemberInfo member = node != null ? node.Member : null;
+            Type objType = node != null && node.Expression != null ? node.Expression.Type : null;
+            return this.GetColumnAttribute(member, objType);
+        }
+
+        /// <summary>
+        /// 获取指定成员的 <see cref="ColumnAttribute"/>
+        /// </summary>
+        /// <param name="member">成员</param>
+        /// <param name="objType">成员所在类型</param>
+        /// <returns></returns>
+        public virtual ColumnAttribute GetColumnAttribute(MemberInfo member, Type objType)
         {
             Type dataType = TypeUtils.GetDataType(member);
             if (dataType == null) return null;
 
             ColumnAttribute column = null;
-            Type type = runtimeType != null ? runtimeType : (member.ReflectedType != null ? member.ReflectedType : member.DeclaringType);
-            if (type != null && !TypeUtils.IsAnonymousType(type))
+            Type type = objType != null ? objType : (member.ReflectedType != null ? member.ReflectedType : member.DeclaringType);
+            if (type != null && !TypeUtils.IsAnonymousType(type) && !TypeUtils.IsPrimitiveType(type))
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                 var invoker = typeRuntime.GetInvoker(member.Name);
@@ -237,9 +271,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">值</param>
         /// <returns></returns>
-        protected virtual string GetSqlValueByNumeric(object value)
+        protected virtual string GetSqlValueByNumber(object value)
         {
-            return value.ToString();
+            var result = value.ToString();
+            // 补足小数位
+            if (TypeUtils.IsNumericType(value.GetType()) && !result.Contains("."))
+            {
+                result = string.Format("{0}.00", result);
+            }
+            return result;
         }
 
         /// <summary>

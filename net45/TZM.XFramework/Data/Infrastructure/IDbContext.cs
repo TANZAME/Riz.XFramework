@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Data;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -24,6 +25,21 @@ namespace TZM.XFramework.Data
         /// 调试模式，模式模式下生成的SQL会有换行
         /// </summary>
         bool IsDebug { get; set; }
+
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        string ConnectionString { get; set; }
+
+        /// <summary>
+        /// 运行事务超时时间
+        /// </summary>
+        int? CommandTimeout { get; set; }
+
+        /// <summary>
+        /// 事务隔离级别，默认 ReadCommitted
+        /// </summary>
+        IsolationLevel? IsolationLevel { get; set; }
 
         /// <summary>
         /// 新增记录

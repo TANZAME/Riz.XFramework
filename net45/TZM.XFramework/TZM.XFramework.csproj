@@ -127,7 +127,6 @@
     <Compile Include="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
-    <Compile Include="Data\Infrastructure\IMethodCallExressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />

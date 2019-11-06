@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using TZM.XFramework;
 using TZM.XFramework.Data;
@@ -30,6 +30,7 @@ namespace TZM.XFramework.UnitTest.Oracle
             {
                 IsDebug = base.IsDebug
             };
+
             return context;
         }
 
@@ -63,6 +64,13 @@ namespace TZM.XFramework.UnitTest.Oracle
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+#if netcore
+
+            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+
+#endif
+            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312")).Substring(0, 600); // 大概就600个字符串;
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -93,7 +101,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -103,6 +111,7 @@ namespace TZM.XFramework.UnitTest.Oracle
                 .GetTable<OracleModel.OracleDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
             var demo = new OracleModel.OracleDemo
@@ -129,12 +138,18 @@ namespace TZM.XFramework.UnitTest.Oracle
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<OracleModel.OracleDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
         }
     }
 }

@@ -7,9 +7,9 @@
     <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
-    <Version>2.0.3</Version>
+    <AssemblyVersion>2.0.4.0</AssemblyVersion>
+    <FileVersion>2.0.4.0</FileVersion>
+    <Version>2.0.4</Version>
     <Copyright>TANZAME</Copyright>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -124,7 +124,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbContext45.cs" Link="Data\Infrastructure\IDbContext45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable.cs" Link="Data\Infrastructure\IDbQueryable.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs" Link="Data\Infrastructure\IDbQueryable`1.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IMethodCallExressionVisitor.cs" Link="Data\Infrastructure\IMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo.cs" Link="Data\Queryable\DbQueryableInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Delete.cs" Link="Data\Queryable\DbQueryableInfo_Delete.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo_Insert.cs" Link="Data\Queryable\DbQueryableInfo_Insert.cs" />

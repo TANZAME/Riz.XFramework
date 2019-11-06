@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 方法解析器
         /// </summary>
-        protected IMethodCallExressionVisitor _methodVisitor = null;
+        protected MethodCallExpressionVisitor _methodVisitor = null;
 
         /// <summary>
         /// 成员访问痕迹
@@ -56,14 +56,6 @@ namespace TZM.XFramework.Data
         public ISqlBuilder SqlBuilder
         {
             get { return _builder; }
-        }
-
-        /// <summary>
-        /// 表别名域
-        /// </summary>
-        public TableAliasCache TableAlias
-        {
-            get { return _aliases; }
         }
 
         /// <summary>
@@ -106,13 +98,25 @@ namespace TZM.XFramework.Data
         {
             _builder = builder;
             if (_methodVisitor == null) _methodVisitor = _provider.CreateMethodVisitor(this);
-            this.Visit(_expression);
+            if (_expression != null) this.Visit(_expression);
         }
 
-        protected override Expression VisitBinary(BinaryExpression b)
+        /// <summary>
+        /// 访问二元表达式
+        /// </summary>
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
+        }
+
+        /// <summary>
+        /// 访问二元表达式
+        /// </summary>
+        protected virtual Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
 
+            // array[0]
             if (b.NodeType == ExpressionType.ArrayIndex) return this.Visit(b.Evaluate());
 
             Expression left = b.Left.ReduceUnary();
@@ -131,11 +135,11 @@ namespace TZM.XFramework.Data
             }
 
             // 例： a.Name ?? "TAN"
-            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.VisitCoalesce(b);
+            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodCall.Coalesce);
 
             // 例： a.Name == null
             ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) return _methodVisitor.VisitEqualNull(b);
+            if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodCall.EqualNull);
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
             return this.VisitBinary_Condition(b);
@@ -145,11 +149,10 @@ namespace TZM.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.TryMakeBinary(node.Test, true);
+            Expression testExpression = this.TryMakeBinary(node.Test, false);
             Expression ifTrueExpression = this.TryMakeBinary(node.IfTrue, true);
             Expression ifFalseExpression = this.TryMakeBinary(node.IfFalse, true);
 
-            _visitedMark.ClearImmediately = false;
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
             _builder.Append(" THEN ");
@@ -157,23 +160,25 @@ namespace TZM.XFramework.Data
             _builder.Append(" ELSE ");
             this.Visit(ifFalseExpression);
             _builder.Append(" END)");
-            _visitedMark.ClearImmediately = true;
 
             return node;
         }
 
         protected override Expression VisitConstant(ConstantExpression c)
         {
-            //fix# char ~~
-            Func<Type, bool> isChar = t => t == typeof(char) || t == typeof(char?);
-            if (_visitedMark.Current != null && c != null && c.Value != null && isChar(_visitedMark.Current.Type) && !isChar(c.Type))
+            //fix# char ~~，because expression tree converted char type 2 int.
+            if (c != null && c.Value != null)
             {
-                char @char = Convert.ToChar(c.Value);
-                c = Expression.Constant(@char, typeof(char));
+                MemberExpression visited = _visitedMark.Current;
+                bool isChar = visited != null && (visited.Type == typeof(char) || visited.Type == typeof(char?)) && c.Type == typeof(int);
+                if (isChar)
+                {
+                    char @char = Convert.ToChar(c.Value);
+                    c = Expression.Constant(@char, typeof(char));
+                }
             }
 
             _builder.Append(c.Value, _visitedMark.Current);
-            _visitedMark.Clear();
             return c;
         }
 
@@ -188,16 +193,19 @@ namespace TZM.XFramework.Data
             // <>h__TransparentIdentifier2.<>h__TransparentIdentifier3.b.Client.Address.AddressName
             // 5.b.ClientName
 
-            _visitedMark.Add(node);
 
             if (node == null) return node;
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
+            // => DateTime.Now
+            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable) return this.Visit(node.Expression);
+
+            _visitedMark.Add(node);
             // => a.Name.Length
-            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.VisitMemberMember(node);
+            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => <>h__3.b.ClientName
             if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
             // => a.Accounts[0].Markets[0].MarketId
@@ -209,7 +217,7 @@ namespace TZM.XFramework.Data
                 MethodCallExpression methodExpression = objExpression as MethodCallExpression;
                 bool isGetItem = methodExpression.IsGetListItem();
                 if (isGetItem) objExpression = methodExpression.Object;
-            }            
+            }
             // => b.Client.Address.AddressName
             this.VisitNavMember(objExpression, node.Member.Name);
 
@@ -220,12 +228,33 @@ namespace TZM.XFramework.Data
         {
             // => List<int>[]
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
-            return _methodVisitor.VisitMethodCall(node);
+            return _methodVisitor.Visit(node, MethodCall.MethodCall);
         }
 
         protected override Expression VisitUnary(UnaryExpression u)
         {
-            return _methodVisitor.VisitUnary(u);
+            return _methodVisitor.Visit(u, MethodCall.Unary);
+        }
+
+        // 访问表达式树后自动删掉访问的成员痕迹
+        protected void VisitWithoutRemark(Action<object> visit)
+        {
+            int visitedQty = _visitedMark.Count;
+            visit(null);
+            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+        }
+
+        /// <summary>
+        /// 访问表达式树后自动删掉访问的成员痕迹
+        /// </summary>
+        /// <param name="visit">访问实现</param>
+        /// <returns></returns>
+        public Expression VisitWithoutRemark(Func<object, Expression> visit)
+        {
+            int visitedQty = _visitedMark.Count;
+            var newNode = visit(null);
+            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            return newNode;
         }
 
         #endregion
@@ -238,26 +267,29 @@ namespace TZM.XFramework.Data
             // or like a.Name == "TAN"
 
             if (b == null) return b;
-            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.VisitMethodCall(b);
+            // 字符相加
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            // 取模运算
+            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            // 除法运算
+            else if (b.NodeType == ExpressionType.Divide) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             else
             {
+                // 常量表达式放在右边，以充分利用 MemberVisitedMark
                 string oper = this.GetOperator(b);
-                Expression left = b.Left.CanEvaluate() ? b.Right : b.Left;
-                Expression right = b.Left.CanEvaluate() ? b.Left : b.Right;
+                bool use = this.UseBracket(b, b.Left);
 
-                bool use = this.TakeParenthese(b, b.Left);
                 if (use) _builder.Append('(');
-                this.Visit(left);
+                this.Visit(b.Left);
                 if (use) _builder.Append(')');
 
                 _builder.Append(oper);
 
-                bool use2 = this.TakeParenthese(b, b.Right);
+                bool use2 = this.UseBracket(b, b.Right);
                 if (use2) _builder.Append('(');
-                this.Visit(right);
+                this.Visit(b.Right);
                 if (use2) _builder.Append(')');
 
-                _visitedMark.Clear();
                 return b;
             }
         }
@@ -321,49 +353,40 @@ namespace TZM.XFramework.Data
             return alias;
         }
 
-        protected Expression TryMakeBinary(Expression exp, bool skipConstant = false)
+        protected virtual Expression TryMakeBinary(Expression expression, bool skipConstant = false)
         {
-            if (exp.Type != typeof(bool)) return exp;
+            if (expression.Type != typeof(bool)) return expression;
+            else if (expression.NodeType == ExpressionType.Constant && skipConstant) return expression;
 
             Expression left = null;
             Expression right = null;
 
-            switch (exp.NodeType)
+            if (expression.NodeType == ExpressionType.Constant)
             {
-                //True should be translate to 1==1 and Flase should be 1==2
-                case ExpressionType.Constant:
-                    if (!skipConstant)
-                    {
-                        ConstantExpression constExp = exp as ConstantExpression;
-                        bool value = Convert.ToBoolean(constExp.Value);
-                        left = Expression.Constant(1);
-                        right = Expression.Constant(value ? 1 : 2);
-                    }
-
-                    break;
-
-                //x.MemberName(Boolean)
-                case ExpressionType.MemberAccess:
-                    left = exp;
-                    right = Expression.Constant(true);
-
-                    break;
-
-                //!x.MemberName(Boolean)
-                case ExpressionType.Not:
-                    UnaryExpression unaryExp = exp as UnaryExpression;
-                    if (unaryExp.Operand.NodeType == ExpressionType.MemberAccess)
-                    {
-                        left = unaryExp.Operand;
-                        right = Expression.Constant(false);
-                    }
-
-                    break;
+                // true => 1=2
+                left = Expression.Constant(1);
+                right = Expression.Constant(Convert.ToBoolean(((ConstantExpression)expression).Value) ? 1 : 2);
+            }
+            else if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                // a.FieldName => a.FieldName = 1
+                left = expression;
+                right = Expression.Constant(true);
+            }
+            else if (expression.NodeType == ExpressionType.Not)
+            {
+                var unaryExpression = expression as UnaryExpression;
+                if (unaryExpression.Operand.NodeType == ExpressionType.MemberAccess)
+                {
+                    // !a.FieldName => a.FieldName = 0
+                    left = ((UnaryExpression)expression).Operand;
+                    right = Expression.Constant(false);
+                }
             }
 
-            if (left != null) exp = Expression.MakeBinary(ExpressionType.Equal, left, right);
-
-            return exp;
+            if (left != null)
+                expression = Expression.MakeBinary(ExpressionType.Equal, left, right);
+            return expression;
         }
 
         protected virtual string GetOperator(BinaryExpression b)
@@ -426,20 +449,20 @@ namespace TZM.XFramework.Data
         }
 
         // 判断是否需要括号
-        protected bool TakeParenthese(Expression expression, Expression subExp = null)
+        protected bool UseBracket(Expression expression, Expression subExpression = null)
         {
-            if (subExp != null)
+            if (subExpression != null)
             {
-                UnaryExpression unaryExpression = subExp as UnaryExpression;
-                if (unaryExpression != null) return TakeParenthese(expression, unaryExpression.Operand);
+                UnaryExpression unaryExpression = subExpression as UnaryExpression;
+                if (unaryExpression != null) return this.UseBracket(expression, unaryExpression.Operand);
 
-                InvocationExpression invokeExpression = subExp as InvocationExpression;
-                if (invokeExpression != null) return TakeParenthese(expression, invokeExpression.Expression);
+                InvocationExpression invokeExpression = subExpression as InvocationExpression;
+                if (invokeExpression != null) return this.UseBracket(expression, invokeExpression.Expression);
 
-                LambdaExpression lambdaExpression = subExp as LambdaExpression;
-                if (lambdaExpression != null) return TakeParenthese(expression, lambdaExpression.Body);
+                LambdaExpression lambdaExpression = subExpression as LambdaExpression;
+                if (lambdaExpression != null) return this.UseBracket(expression, lambdaExpression.Body);
 
-                BinaryExpression b = subExp as BinaryExpression;
+                BinaryExpression b = subExpression as BinaryExpression;
                 if (b != null)
                 {
                     if (expression.NodeType == ExpressionType.OrElse)
@@ -447,7 +470,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            return this.GetPriority(expression) < this.GetPriority(subExp);
+            return this.GetPriority(expression) < this.GetPriority(subExpression);
         }
 
         protected int GetPriority(Expression expression)

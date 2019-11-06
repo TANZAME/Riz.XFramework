@@ -133,7 +133,7 @@ namespace TZM.XFramework.UnitTest
             /// <summary>
             /// demodatetime2
             /// </summary>   
-            [Column(DbType = System.Data.DbType.DateTime2, Scale = 6)]
+            [Column(DbType = System.Data.DbType.DateTime2, Scale = 7)]
             public virtual DateTime DemoDateTime2 { get; set; }
 
             /// <summary>
@@ -141,6 +141,18 @@ namespace TZM.XFramework.UnitTest
             /// </summary>
             [Column(DbType = System.Data.DbType.DateTime2, Scale = 7)]
             public virtual Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
+
+            /// <summary>
+            /// demotime_nullable
+            /// </summary>
+            [Column(DbType = System.Data.DbType.Time, Scale = 7)]
+            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+
+            /// <summary>
+            /// demodatetimeoffset_nullable
+            /// </summary>
+            [Column(DbType = System.Data.DbType.DateTimeOffset, Scale = 7)]
+            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demodecimal

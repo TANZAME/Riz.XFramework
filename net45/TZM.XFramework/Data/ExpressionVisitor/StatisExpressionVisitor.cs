@@ -69,8 +69,6 @@ namespace TZM.XFramework.Data
                 base.Visit(exp);
                 builder.Append(")");
             }
-
-            //base.Visit();
         }
 
         protected override Expression VisitMember(MemberExpression node)

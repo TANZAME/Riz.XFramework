@@ -79,6 +79,6 @@ namespace TZM.XFramework.Data
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        IMethodCallExressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
+        MethodCallExpressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
     }
 }

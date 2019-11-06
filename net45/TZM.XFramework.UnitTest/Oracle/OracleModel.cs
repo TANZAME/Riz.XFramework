@@ -74,13 +74,13 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// demodatetime2
             /// </summary>    
-            [Column(DbType = OracleDbType.TimeStamp, Scale = 9)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 7)]
             public override DateTime DemoDateTime2 { get; set; }
 
             /// <summary>
             /// demodatetime2_nullable
             /// </summary>        
-            [Column(DbType = OracleDbType.TimeStamp, Scale = 9)]
+            [Column(DbType = OracleDbType.TimeStamp, Scale = 7)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
             // ############################### 美丽的分隔线 ###################################
@@ -89,8 +89,8 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// Time 类型
             /// </summary>
-            [Column(DbType = OracleDbType.IntervalDS, Scale = 6)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            [Column(DbType = OracleDbType.IntervalDS, Scale = 7)]
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demotext_nullable
@@ -107,8 +107,8 @@ namespace TZM.XFramework.UnitTest.Oracle
             /// <summary>
             /// DateTimeOffset 类型，映射到 .NET DateTime类型
             /// </summary>
-            [Column(DbType = OracleDbType.TimeStampTZ, Scale = 4)]
-            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
+            [Column(DbType = OracleDbType.TimeStampTZ, Scale = 7)]
+            public override Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable

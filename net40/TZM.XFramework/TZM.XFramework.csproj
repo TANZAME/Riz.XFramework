@@ -289,9 +289,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
       <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IMethodCallExressionVisitor.cs">
-      <Link>Data\Infrastructure\IMethodCallExressionVisitor.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Queryable\DbQueryableInfo.cs">
       <Link>Data\Queryable\DbQueryableInfo.cs</Link>
     </Compile>

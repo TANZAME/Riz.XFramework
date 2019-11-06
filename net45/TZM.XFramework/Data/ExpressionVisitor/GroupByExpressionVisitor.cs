@@ -14,9 +14,9 @@ namespace TZM.XFramework.Data
         public GroupByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression groupBy)
             : base(provider, aliases, groupBy != null ? groupBy.Expressions[0] : null, false)
         {
-            
+
         }
-                
+
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
@@ -31,13 +31,13 @@ namespace TZM.XFramework.Data
             base.Write(builder);
         }
 
-        //{new  {Id = p.Id}} 
+        // => new  {Id = p.Id}}
         protected override Expression VisitNew(NewExpression node)
         {
             ReadOnlyCollection<Expression> arguments = node.Arguments;
             for (int index = 0; index < arguments.Count; ++index)
             {
-                this.Visit(arguments[index]);
+                this.VisitWithoutRemark(x => this.Visit(arguments[index]));
                 if (index < arguments.Count - 1) _builder.Append(",");
             }
 

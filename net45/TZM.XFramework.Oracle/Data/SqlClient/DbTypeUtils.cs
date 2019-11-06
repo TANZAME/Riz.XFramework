@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data.SqlClient
         public static bool IsUnicode(object dbType)
         {
             if (dbType == null)
-                return false;
+                return true;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.String || ((DbType)dbType) == System.Data.DbType.StringFixedLength;
             else if (dbType is OracleDbType)

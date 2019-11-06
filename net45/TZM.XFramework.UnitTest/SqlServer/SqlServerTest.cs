@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Text;
+using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using TZM.XFramework.Data;
@@ -16,9 +17,10 @@ namespace TZM.XFramework.UnitTest.SqlServer
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
             // new SqlDbContext();
-            var context = new SqlServerDbContext(connString) 
+            var context = new SqlServerDbContext(connString)
             {
-                IsDebug = base.IsDebug
+                IsDebug = base.IsDebug,
+                IsolationLevel = System.Data.IsolationLevel.Serializable
             };
             return context;
         }
@@ -89,6 +91,13 @@ namespace TZM.XFramework.UnitTest.SqlServer
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+#if netcore
+
+            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+
+#endif
+            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -118,7 +127,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -128,6 +137,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 .GetTable<SqlServerModel.SqlServerDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
             var demo = new SqlServerModel.SqlServerDemo
@@ -137,7 +147,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoBoolean = true,
                 DemoChar = 'A',
                 DemoNChar = 'B',
-                DemoByte =  128,
+                DemoByte = 128,
                 DemoDate = DateTime.Now,
                 DemoDateTime = DateTime.Now,
                 DemoDateTime2 = DateTime.Now,
@@ -153,12 +163,18 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
 
             context.Delete<Model.Client>(x => x.ClientId >= 2000);
             context.SubmitChanges();

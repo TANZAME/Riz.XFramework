@@ -9,7 +9,7 @@
 - 支持LINQ查询、拉姆达表达式
 - 支持批量增删改查和多表关联更新
 - 支持 SqlServer、MySql、Postgre、Oracle
-- 最大亮点，支持无限级一对一、一对多导航属性
+- 支持无限级一对一、一对多导航属性
 - 实体字段类型不必与数据库的类型一致
 - 提供原生Ado.NET操作
 - 支持临时表、表变量操作
@@ -39,7 +39,6 @@ SqlServer => TZM.XFrameworkCore
 MySql     => TZM.XFrameworkCore.MySql
 Oracle    => TZM.XFrameworkCore.Oracle
 Postgre   => TZM.XFrameworkCore.Postgre
-SQLite    => TZM.XFrameworkCore.SQLite
 ```
 - ###### 实体定义
 
@@ -85,13 +84,15 @@ public partial class Client
 string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;connect timeout=10;";
 -- 实例化数据上下文
 -- SqlServer
-var context = new SqlDbContext(connString);
+var context = new SqlServerDbContext(connString);
 -- MySql 需引用 TZM.XFramework.MySql
 var context = new MySqlDbContext(connString);
 -- Oracle 需引用 TZM.XFramework.Oracle
 var context = new OracleDbContext(connString);
 -- Postgre 需引用 TZM.XFramework.Postgre
 var context = new NpgDbContext(connString);
+-- SQLite 需引用 TZM.XFramework.SQLite
+var context = new SQLiteDbContext(connString);
 ```
 - ###### 查询
 

@@ -26,7 +26,8 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 if (_database == null) _database = new NpgDatabase(this.Provider.DbProviderFactory, _connString)
                 {
-                    CommandTimeout = _commandTimeout
+                    CommandTimeout = _commandTimeout,
+                    IsolationLevel = this.IsolationLevel
                 };
                 return _database;
             }

@@ -72,7 +72,7 @@ namespace TZM.XFramework
         /// <returns></returns>
         public static Expression ReduceUnary(this Expression exp)
         {
-            UnaryExpression unaryExpression = exp as UnaryExpression;
+            var unaryExpression = exp as UnaryExpression;
             return unaryExpression != null
                 ? unaryExpression.Operand.ReduceUnary()
                 : exp;
@@ -107,7 +107,13 @@ namespace TZM.XFramework
 
             var memberExpression = node as MemberExpression;
             if (memberExpression == null) return false;
-            if (memberExpression.Expression == null) return true;
+            if (memberExpression.Expression == null)
+            {
+                // 排除 DateTime 的几个常量
+                bool isDateTime = memberExpression.Type == typeof(DateTime) &&
+                    (memberExpression.Member.Name == "Now" || memberExpression.Member.Name == "UtcNow" || memberExpression.Member.Name == "Today");
+                return !isDateTime;
+            }
             if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
 
             return memberExpression.Expression.CanEvaluate();
@@ -227,9 +233,11 @@ namespace TZM.XFramework
 
             if (node.NodeType == ExpressionType.Parameter) return false;
 
-            if (node.NodeType == ExpressionType.MemberAccess)
+            var m = node as MemberExpression;
+            if (m != null)
             {
-                MemberExpression m = node as MemberExpression;
+                if (m.Expression == null) return false;
+
                 if (m.Expression.NodeType == ExpressionType.Parameter)
                 {
                     string name = (m.Expression as ParameterExpression).Name;

@@ -215,9 +215,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type declareType)
+        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type objType)
         {
-            var sql = _provider.DbValue.GetSqlValue(value, _token, m, declareType);
+            var sql = _provider.DbValue.GetSqlValue(value, _token, m, objType);
             return this.Append(sql);
         }
 
@@ -291,6 +291,18 @@ namespace TZM.XFramework.Data
         {
             _innerBuilder.Replace(oldValue, newValue);
             return this;
+        }
+
+        /// <summary>
+        /// 将此实例的指定段中的字符复制到目标 System.Char 数组的指定段中
+        /// </summary>
+        /// <param name="sourceIndex">此实例中开始复制字符的位置。 索引是从零开始的</param>
+        /// <param name="destination">将从中复制字符的数组</param>
+        /// <param name="destinationIndex">destination 中将从其开始复制字符的起始位置。 索引是从零开始的</param>
+        /// <param name="count">要复制的字符数。</param>
+        public void CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count)
+        {
+            _innerBuilder.CopyTo(sourceIndex, destination, destinationIndex, count);
         }
 
         /// <summary>

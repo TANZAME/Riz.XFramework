@@ -42,6 +42,24 @@ namespace TZM.XFramework.UnitTest.MySql
             public override string DemoName { get; set; }
 
             /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override char DemoChar { get; set; }
+
+            /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override char DemoNChar { get; set; }
+
+            /// <summary>
+            /// demochar_nullable
+            /// </summary>
+            [Column(DbType = System.Data.DbType.String, Size = 1)]
+            public override Nullable<char> DemoChar_Nullable { get; set; }
+
+            /// <summary>
             /// demodate
             /// </summary>        
             [Column(DbType = MySqlDbType.Date)]
@@ -84,13 +102,13 @@ namespace TZM.XFramework.UnitTest.MySql
             /// demolong_nullable
             /// </summary>
             [Column(DbType = MySqlDbType.Time, Scale = 5)]
-            public virtual Nullable<TimeSpan> DemoTime_Nullable { get; set; }
+            public override Nullable<TimeSpan> DemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demolong_nullable
             /// </summary>
             [Column(DbType = MySqlDbType.DateTime)]
-            public virtual Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }
+            public new Nullable<DateTime> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable
@@ -107,7 +125,7 @@ namespace TZM.XFramework.UnitTest.MySql
             /// <summary>
             /// demotimestamp_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Timestamp, Scale = 5)]
+            [Column(DbType = MySqlDbType.Timestamp, Scale = 6)]
             public virtual Nullable<DateTime> DemoTimestamp_Nullable { get; set; }
 
             ///// <summary>

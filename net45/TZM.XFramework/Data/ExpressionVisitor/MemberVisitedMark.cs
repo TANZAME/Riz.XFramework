@@ -11,42 +11,30 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class MemberVisitedMark
     {
-        private List<MemberExpression> _binaryMembers = null;
-        private List<MemberInfo> _columnMembers = null;
-        private bool _clearImmediately = true;
+        private Stack<MemberExpression> _binaryMembers = null;
 
         /// <summary>
         /// 当前访问的成员
         /// </summary>
         public MemberExpression Current
         {
-            get 
+            get
             {
-                if (_binaryMembers.Count > 0) return _binaryMembers[0];
+                if (_binaryMembers != null && _binaryMembers.Count > 0) return _binaryMembers.Peek();
                 //else if (_columnMembers.Count > 0) return _columnMembers[0];
                 else return null;
             }
         }
 
         /// <summary>
-        /// 当调用 Clear 方法时，标志Clear方法是否马上执行
-        /// <para>
-        /// 使用场景：当多个常数表达式共用一个 Member 时，那么只需要在访问最后一个常数表达式时清除访问列表
-        /// </para>
+        /// 访问链成员数量
         /// </summary>
-        public bool ClearImmediately
+        public int Count
         {
-            get { return _clearImmediately; }
-            set { _clearImmediately = value; }
-        }
-
-        /// <summary>
-        /// 实例化 <see cref="MemberVisitedMark"/> 类的新实例
-        /// </summary>
-        public MemberVisitedMark()
-        {
-            _binaryMembers = new List<MemberExpression>();
-            _columnMembers = new List<MemberInfo>();
+            get
+            {
+                return _binaryMembers == null ? 0 : _binaryMembers.Count;
+            }
         }
 
         /// <summary>
@@ -54,26 +42,41 @@ namespace TZM.XFramework.Data
         /// </summary>
         public void Add(MemberExpression m)
         {
-            _binaryMembers.Add(m);
+            if (_binaryMembers == null) _binaryMembers = new Stack<MemberExpression>();
+            _binaryMembers.Push(m);
         }
 
-        ///// <summary>
-        ///// 添加已访问成员
-        ///// </summary>
-        //public void Add(MemberInfo m)
-        //{
-        //    _columnMembers.Add(m);
-        //}
+        /// <summary>
+        /// 添加已访问成员
+        /// </summary>
+        public void Add(MemberInfo member, ParameterExpression p)
+        {
+            MemberExpression m = Expression.MakeMemberAccess(p, member);
+            this.Add(m);
+        }
 
         /// <summary>
-        /// 清空已访问成员
+        /// 添加已访问成员
         /// </summary>
-        public void Clear() 
+        public void Add(MemberInfo member, string alias)
         {
-            if (_clearImmediately)
+            ParameterExpression p = Expression.Parameter(member.ReflectedType, alias);
+            this.Add(member, p);
+        }
+
+        /// <summary>
+        /// 删除指定数量的访问足迹
+        /// </summary>
+        public void Remove(int count)
+        {
+            if (_binaryMembers != null)
             {
-                _binaryMembers.Clear();
-                _columnMembers.Clear(); 
+                int qty = 0;
+                while (count > qty)
+                {
+                    _binaryMembers.Pop();
+                    qty += 1;
+                }
             }
         }
     }

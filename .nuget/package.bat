@@ -1,6 +1,6 @@
 :: 1. 编译release版本
 :: 2. 填充api_key
-:: 3. 修改nuspec文件依赖项（TZM.XFramework）的版本
+
 @echo off
 set api_key=oy2kk2ngquhrxcavn5zq5kowltsoisye7cbs23wd3bmtdq
 set source_api_uri=https://api.nuget.org/v3/index.json

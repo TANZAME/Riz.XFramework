@@ -47,6 +47,11 @@ namespace TZM.XFramework.Data
         public int? CommandTimeout { get; set; }
 
         /// <summary>
+        /// 事务隔离级别
+        /// </summary>
+        public IsolationLevel? IsolationLevel { get; set; }
+
+        /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
         public virtual TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
@@ -122,12 +127,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建事务
         /// </summary>
-        public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+        public IDbTransaction BeginTransaction()
         {
             if (_transaction == null)
             {
                 this.CreateConnection(true);
-                _transaction = _connection.BeginTransaction(isolationLevel);
+                _transaction = _connection.BeginTransaction(this.IsolationLevel != null ? this.IsolationLevel.Value : System.Data.IsolationLevel.ReadCommitted);
             }
             return _transaction;
         }
@@ -798,7 +803,7 @@ namespace TZM.XFramework.Data
                 if (_connection == null) this.CreateConnection();
                 if (sqlList.Count > 1 && _transaction == null)
                 {
-                    this.BeginTransaction(IsolationLevel.ReadCommitted);
+                    this.BeginTransaction();
                     // 内部维护的事务，在执行完命令后需要自动提交-释放事务
                     _autoComplete = true;
                 }

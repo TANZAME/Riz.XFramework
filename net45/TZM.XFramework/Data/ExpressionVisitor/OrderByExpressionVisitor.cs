@@ -44,12 +44,13 @@ namespace TZM.XFramework.Data
                 if (newLine) _builder.AppendNewLine();
                 _builder.Append("ORDER BY ");
 
-
-                //foreach (DbExpression qj in _qOrder)
                 for (int i = 0; i < _qOrder.Count; i++)
                 {
-                    this.Visit(_qOrder[i].Expressions[0]);
-                    if (_qOrder[i].DbExpressionType == DbExpressionType.OrderByDescending || _qOrder[i].DbExpressionType == DbExpressionType.ThenByDescending) builder.Append(" DESC");
+                    this.VisitWithoutRemark(x => this.Visit(_qOrder[i].Expressions[0]));
+                    if (_qOrder[i].DbExpressionType == DbExpressionType.OrderByDescending || _qOrder[i].DbExpressionType == DbExpressionType.ThenByDescending)
+                    {
+                        builder.Append(" DESC");
+                    }
                     if (i < _qOrder.Count - 1) builder.Append(',');
                 }
             }

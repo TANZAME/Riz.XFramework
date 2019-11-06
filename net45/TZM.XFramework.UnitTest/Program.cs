@@ -14,7 +14,13 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            bool isDebug = true;
+            //DateTime myDateTime = DateTime.Parse("2019-11-06 12:11:11.1234567");
+            //Console.WriteLine(myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffff") + " 刻度数：" + myDateTime.Ticks);
+            //myDateTime = DateTime.Parse("2019-11-06 12:11:11.1234560");
+            //Console.WriteLine(myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffff") + " 刻度数：" + myDateTime.Ticks);
+            //Console.ReadKey();
+
+            bool isDebug = false;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;

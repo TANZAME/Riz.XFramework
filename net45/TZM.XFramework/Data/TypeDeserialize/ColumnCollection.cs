@@ -58,9 +58,8 @@ namespace TZM.XFramework.Data
         /// 添加项，如果字段存在，则产生一个新名称
         /// </summary>
         /// <param name="name">字段名称</param>
-        /// <param name="alias">所属性表别名</param>
         /// <returns></returns>
-        public string Add(string name, string alias)
+        public string Add(string name)
         {
             // ATTENTION：此方法不能在 VisitMember 方法里调用
             // 因为 VisitMember 方法不一定是最后SELECT的字段
@@ -81,8 +80,7 @@ namespace TZM.XFramework.Data
             {
                 Name = name,
                 NewName = newName,
-                DupCount = dup,
-                TableAlias = alias
+                DupCount = dup
             });
             return newName;
         }
