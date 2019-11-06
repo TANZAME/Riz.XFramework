@@ -193,7 +193,9 @@ begin transaction;
           ,DemoInt
           ,DemoInt_Nullable
           ,DemoLong
-          ,DemoLong_Nullable)
+          ,DemoLong_Nullable
+          ,DemoTime_Nullable
+          ,DemoDatetimeOffset_Nullable)
           VALUES(NULL
               ,'C0000009'
               ,'N0000001'
@@ -208,7 +210,7 @@ begin transaction;
               ,NULL
               ,DATETIME('now')
               ,NULL
-              ,DATETIME('now')
+              ,'2010-11-06 10:52:35.344835'
               ,NULL
               ,1024.123456789
               ,NULL
@@ -224,6 +226,8 @@ begin transaction;
               ,NULL
               ,8192000000000
               ,NULL
+              ,'10:10:10.4567890'
+              ,'2007-06-10 00:00:00.0000000 -07:00'
       );
       
     INSERT INTO Sys_Rabbit

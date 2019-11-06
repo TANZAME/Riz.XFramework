@@ -80,9 +80,9 @@ namespace TZM.XFramework.Data.SqlClient
             string format = @"hh\:mm\:ss\.fffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format(@"hh\:mm\:ss\.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format(@"hh\:mm\:ss\.{0}", s);
             }
 
             string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
@@ -98,12 +98,10 @@ namespace TZM.XFramework.Data.SqlClient
             else if (DbTypeUtils.IsDateTime(dbType)) format = "yyyy-MM-dd HH:mm:ss.fff";
             else if (DbTypeUtils.IsDateTime2(dbType))
             {
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad))
-                    format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
-                else
-                    format = "yyyy-MM-dd HH:mm:ss.fffffff";
+                string s = string.Empty;
+                format = "yyyy-MM-dd HH:mm:ss.fffffff";
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
             string result = this.EscapeQuote(((DateTime)value).ToString(format), false, false);
@@ -117,16 +115,16 @@ namespace TZM.XFramework.Data.SqlClient
             string format = "yyyy-MM-dd HH:mm:ss.fffffff";
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
-                string pad = string.Empty;
-                if (scale != null && scale.Value > 0) pad = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
-                if (!string.IsNullOrEmpty(pad)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", pad);
+                string s = string.Empty;
+                if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
+                if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
-            string date = ((DateTimeOffset)value).DateTime.ToString(format);
-            string span = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
-            span = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', span);
+            string myDateTime = ((DateTimeOffset)value).DateTime.ToString(format);
+            string myOffset = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
+            myOffset = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', myOffset);
 
-            string result = string.Format("'{0} {1}'", date, span);
+            string result = string.Format("'{0} {1}'", myDateTime, myOffset);
             return result;
         }
 

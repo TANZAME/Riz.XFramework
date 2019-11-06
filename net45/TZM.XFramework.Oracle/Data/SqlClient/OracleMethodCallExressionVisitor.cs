@@ -14,6 +14,20 @@ namespace TZM.XFramework.Data.SqlClient
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
+        private static TypeRuntimeInfo _typeRuntime = null;
+
+        /// <summary>
+        /// 运行时类成员
+        /// </summary>
+        protected override TypeRuntimeInfo TypeRuntime
+        {
+            get
+            {
+                if (_typeRuntime == null)
+                    _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+                return _typeRuntime;
+            }
+        }
 
         #region 构造函数
 
@@ -167,7 +181,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -203,7 +217,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -239,7 +253,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {

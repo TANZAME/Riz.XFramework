@@ -18,10 +18,17 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
-        private static TypeRuntimeInfo _typeRuntime = null;
         private static HashSet<string> _removeVisitedMethods = null;
 
-        protected HashSet<MethodCallExpression> _notMethods = null;
+        /// <summary>
+        /// Not 运算符的方法
+        /// </summary>
+        protected HashSet<MethodCallExpression> NotMethods { get; private set; }
+        
+        /// <summary>
+        /// 运行时类成员
+        /// </summary>
+        protected abstract TypeRuntimeInfo TypeRuntime { get; }
 
         #region 构造函数
 
@@ -48,7 +55,7 @@ namespace TZM.XFramework.Data
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
-            _notMethods = new HashSet<MethodCallExpression>();
+            this.NotMethods = new HashSet<MethodCallExpression>();
         }
 
         #endregion
@@ -138,11 +145,9 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (_typeRuntime == null)
-                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             MemberInvokerBase invoker = null;
-            if (node.Method.Name == "Concat") invoker = _typeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
-            else invoker = _typeRuntime.GetInvoker("Visit" + node.Method.Name);
+            if (node.Method.Name == "Concat") invoker = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
+            else invoker = this.TypeRuntime.GetInvoker("Visit" + node.Method.Name);
 
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
@@ -159,14 +164,12 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected Expression VisitMethodCall(BinaryExpression node)
         {
-            if (_typeRuntime == null)
-                _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
             string methodName = string.Empty;
             if (node.NodeType == ExpressionType.Modulo) methodName = "Modulo";
             else if (node.NodeType == ExpressionType.Divide) methodName = "Divide";
             else methodName = node.Method.Name;
 
-            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + methodName);
+            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + methodName);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
@@ -180,8 +183,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected Expression VisitMemberMember(MemberExpression node)
         {
-            if (_typeRuntime == null) _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
-            MemberInvokerBase invoker = _typeRuntime.GetInvoker("Visit" + node.Member.Name);
+            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + node.Member.Name);
             if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
             {
@@ -198,9 +200,9 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
             bool isCall = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
-            if (isCall) _notMethods.Add((MethodCallExpression)node.Operand);
+            if (isCall) this.NotMethods.Add((MethodCallExpression)node.Operand);
             _visitor.Visit(node.Operand);
-            if (_notMethods.Count > 0) _notMethods.Clear();
+            if (this.NotMethods.Count > 0) this.NotMethods.Clear();
             return node;
         }
 
@@ -262,7 +264,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -299,7 +301,7 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1210,7 +1212,7 @@ namespace TZM.XFramework.Data
             // EF 的 Like 不用参数化...
 
             _visitor.Visit(m.Object);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -1250,7 +1252,7 @@ namespace TZM.XFramework.Data
             if (m == null) return m;
 
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
-            if (_notMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" IN(");
 
             Expression exp = m.Object != null ? m.Object : m.Arguments[0];
@@ -1309,7 +1311,7 @@ namespace TZM.XFramework.Data
                 IsDebug = token.IsDebug
             } : null) as MappingCommand;
 
-            if (_notMethods.Contains(m)) _builder.Append("NOT ");
+            if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 

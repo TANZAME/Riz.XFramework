@@ -42,7 +42,7 @@ namespace TZM.XFramework.UnitTest.SQLite
             /// demolong_nullable
             /// </summary>
             [Column(DbType = System.Data.DbType.DateTimeOffset, Scale = 7)]
-            public virtual Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
+            public override Nullable<DateTimeOffset> DemoDatetimeOffset_Nullable { get; set; }
 
             /// <summary>
             /// demobinary_nullable
@@ -53,7 +53,7 @@ namespace TZM.XFramework.UnitTest.SQLite
             /// <summary>
             /// demvarbinary_nullable
             /// </summary>
-            [Column(DbType = System.Data.DbType.Binary, Size = 128)]
+            [Column(DbType = System.Data.DbType.Binary, Size = -1)]
             public virtual byte[] DemVarBinary_Nullable { get; set; }
 
             /// <summary>

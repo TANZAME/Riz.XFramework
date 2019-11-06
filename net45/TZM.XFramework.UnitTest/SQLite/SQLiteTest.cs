@@ -90,6 +90,12 @@ namespace TZM.XFramework.UnitTest.SQLite
 
         }
 
+        protected override void DbFunc()
+        {
+            // sqlite 暂时不支持各种函数
+            //base.DbFunc();
+        }
+
         protected override void API()
         {
             base.API();

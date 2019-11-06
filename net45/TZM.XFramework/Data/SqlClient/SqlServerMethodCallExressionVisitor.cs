@@ -13,6 +13,20 @@ namespace TZM.XFramework.Data.SqlClient
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
+        private static TypeRuntimeInfo _typeRuntime = null;
+
+        /// <summary>
+        /// 运行时类成员
+        /// </summary>
+        protected override TypeRuntimeInfo TypeRuntime
+        {
+            get
+            {
+                if (_typeRuntime == null)
+                    _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(this.GetType(), true);
+                return _typeRuntime;
+            }
+        }
 
         /// <summary>
         /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例

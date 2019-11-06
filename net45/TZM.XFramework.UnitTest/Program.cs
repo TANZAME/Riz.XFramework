@@ -14,7 +14,7 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            bool isDebug = true;
+            bool isDebug = false;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;
