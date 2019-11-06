@@ -6,13 +6,13 @@
     <Description>PostgreSQL/Npgsql provider for TZM.XFrameworkCore.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
+    <AssemblyVersion>2.0.4.0</AssemblyVersion>
+    <FileVersion>2.0.4.0</FileVersion>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</PackageTags>
   </PropertyGroup>
@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql" Version="4.1.0" />
+    <PackageReference Include="Npgsql" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>

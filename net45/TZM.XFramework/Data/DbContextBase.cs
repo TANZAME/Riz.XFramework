@@ -52,6 +52,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         public bool IsDebug { get; set; }
 
+        /// <summary>
+        /// 事务隔离级别
+        /// </summary>
+        public IsolationLevel IsolationLevel { get; set; }
+
         #endregion
 
         #region 构造函数

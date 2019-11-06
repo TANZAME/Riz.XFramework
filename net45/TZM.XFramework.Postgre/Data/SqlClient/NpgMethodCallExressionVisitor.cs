@@ -404,11 +404,21 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
+#if !netcore
                 // 指定基数
                 _builder.Append("LOG(");
                 _visitor.Visit(m.Arguments[1]);
                 _builder.Append(", ");
                 _visitor.Visit(m.Arguments[0]);
+#endif
+#if netcore
+                // 指定基数
+                _builder.Append("LOG(");
+                _visitor.Visit(m.Arguments[1]);
+                _builder.Append("::NUMERIC, ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append("::NUMERIC");
+#endif
             }
 
             _builder.Append(')');
@@ -587,9 +597,9 @@ namespace TZM.XFramework.Data.SqlClient
             // microseconds
             _builder.Append("(");
             // 年份
-            _builder.Append("(((TO_CHAR(");
+            _builder.Append("(((DATE_TRUNC('DAY',");
             _visitor.Visit(m.Expression);
-            _builder.Append(", 'yyyy-mm-dd')::DATE - '1970-01-01'::DATE) * 86400000::BIGINT + ");
+            _builder.Append(")::DATE - '1970-01-01'::DATE) * 86400000::BIGINT + ");
             // 时
             _builder.Append("DATE_PART('HOUR', ");
             _visitor.Visit(m.Expression);

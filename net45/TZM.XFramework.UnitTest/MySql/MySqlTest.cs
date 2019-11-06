@@ -23,13 +23,13 @@ namespace TZM.XFramework.UnitTest.MySql
             {
                 IsDebug = base.IsDebug
             };
-
             return context;
         }
 
         protected override void Parameterized()
         {
             var context = _newContext();
+
             // 构造函数
             var query =
                  from a in context.GetTable<MySqlModel.MySqlDemo>()
@@ -54,6 +54,11 @@ namespace TZM.XFramework.UnitTest.MySql
 
             var context = _newContext();
             string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+#if netcore
+
+            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\TZM.XFramework.UnitTest\长文本.txt";
+
+#endif
             string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
