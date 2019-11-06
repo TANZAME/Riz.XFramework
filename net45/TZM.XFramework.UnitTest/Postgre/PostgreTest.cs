@@ -128,6 +128,11 @@ namespace TZM.XFramework.UnitTest.Postgre
 
             demo = context.GetTable<PostgreModel.PostgreDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<PostgreModel.PostgreDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
         }
     }
 }

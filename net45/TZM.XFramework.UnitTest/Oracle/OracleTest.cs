@@ -140,6 +140,11 @@ namespace TZM.XFramework.UnitTest.Oracle
 
             demo = context.GetTable<OracleModel.OracleDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<OracleModel.OracleDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
         }
     }
 }

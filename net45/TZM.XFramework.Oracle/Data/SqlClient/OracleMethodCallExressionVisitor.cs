@@ -93,28 +93,32 @@ namespace TZM.XFramework.Data.SqlClient
 
             ColumnAttribute column = null;
             bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
-            
-            if (isUnicode)
-                _builder.Append("TO_NCHAR(");
-            else
-                _builder.Append("TO_CHAR(");
-
-            // 其它类型转字符串
+            bool isBytes = node.Type == typeof(byte[]);
             bool isDate = node.Type == typeof(DateTime) ||
                 node.Type == typeof(DateTime?) ||
                 node.Type == typeof(TimeSpan) ||
                 node.Type == typeof(TimeSpan?) ||
                 node.Type == typeof(DateTimeOffset) ||
                 node.Type == typeof(DateTimeOffset?);
+
+            if (!isBytes)
+            {
+                if (isUnicode)
+                    _builder.Append("TO_NCHAR(");
+                else
+                    _builder.Append("TO_CHAR(");
+            }
+
+            // 其它类型转字符串
             if (isDate)
             {
                 _visitor.Visit(node);
-                
+
                 string format = string.Empty;
                 ColumnAttribute c = _provider.DbValue.GetColumnAttribute(_visitedMark.Current);
-                if (c != null && DbTypeUtils.IsDate(c.DbType)) 
+                if (c != null && DbTypeUtils.IsDate(c.DbType))
                     format = "yyyy-mm-dd";
-                else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType))) 
+                else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType)))
                     format = "yyyy-mm-dd hh24:mi:ss.ff";
                 else if (c != null && DbTypeUtils.IsDateTimeOffset(c.DbType))
                     format = "yyyy-mm-dd hh24:mi:ss.ff tzh:tzm";
@@ -122,9 +126,9 @@ namespace TZM.XFramework.Data.SqlClient
                 // 没有显式指定数据类型，则根据表达式的类型来判断
                 if (string.IsNullOrEmpty(format))
                 {
-                    if(node.Type == typeof(DateTime) || node.Type == typeof(DateTime?)) 
+                    if (node.Type == typeof(DateTime) || node.Type == typeof(DateTime?))
                         format = "yyyy-mm-dd hh24:mi:ss.ff";
-                    else if(node.Type == typeof(DateTimeOffset) || node.Type == typeof(DateTimeOffset?)) 
+                    else if (node.Type == typeof(DateTimeOffset) || node.Type == typeof(DateTimeOffset?))
                         format = "yyyy-mm-dd hh24:mi:ss.ff tzh:tzm";
                 }
 
@@ -134,11 +138,11 @@ namespace TZM.XFramework.Data.SqlClient
                     _builder.Append(format);
                     _builder.Append("'");
                 }
-                
+
             }
-            else if (node.Type == typeof(byte[]))
+            else if (isBytes)
             {
-                _builder.Append("DBMS_LOB.SUBSTR(");
+                _builder.Append("RTRIM(DBMS_LOB.SUBSTR(");
                 _visitor.Visit(node);
                 _builder.Append(')');
             }

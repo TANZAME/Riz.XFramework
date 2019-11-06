@@ -164,6 +164,11 @@ namespace TZM.XFramework.UnitTest.SqlServer
 
             demo = context.GetTable<SqlServerModel.SqlServerDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
 
             context.Delete<Model.Client>(x => x.ClientId >= 2000);
             context.SubmitChanges();

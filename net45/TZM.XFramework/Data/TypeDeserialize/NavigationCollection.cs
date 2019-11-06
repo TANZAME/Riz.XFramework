@@ -47,18 +47,18 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 添加一个带有所提供的键和值的元素。
         /// </summary>
-        public void Add(string key, Navigation descriptor)
+        public void Add(string key, Navigation nav)
         {
-            _collection.Add(key, descriptor);
-            if (descriptor != null && descriptor.FieldCount != 0)
+            _collection.Add(key, nav);
+            if (nav != null && nav.FieldCount != 0)
             {
                 if (_minIndex == null)
                 {
-                    _minIndex = descriptor.Start;
+                    _minIndex = nav.Start;
                 }
                 else
                 {
-                    if (descriptor.Start < _minIndex.Value) _minIndex = descriptor.Start;
+                    if (nav.Start < _minIndex.Value) _minIndex = nav.Start;
                 }
             }
         }

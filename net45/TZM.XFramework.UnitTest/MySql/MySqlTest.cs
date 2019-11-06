@@ -129,6 +129,11 @@ namespace TZM.XFramework.UnitTest.MySql
 
             demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<MySqlModel.MySqlDemo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
         }
     }
 }

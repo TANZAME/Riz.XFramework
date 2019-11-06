@@ -103,7 +103,8 @@ namespace TZM.XFramework.Data
                 base._builder = builder;
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
-                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
+                if (base._methodVisitor == null) 
+                    base._methodVisitor = _provider.CreateMethodVisitor(this);
 
                 // SELECT 表达式解析
                 if (base.Expression.NodeType != ExpressionType.Constant) base.Write(builder);
@@ -136,7 +137,6 @@ namespace TZM.XFramework.Data
             {
                 // 例：a=>1
                 base.Visit(lambda.Body.Evaluate());
-
                 // 选择字段
                 string newName = _pickColumns.Add(Constant.CONSTANTNAME);
                 // 添加字段别名
@@ -158,7 +158,15 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                return base.VisitLambda(node);
+                var newNode = base.VisitLambda(node);
+                if (_pickColumns.Count == 0)
+                {
+                    // 选择字段
+                    string newName = _pickColumns.Add(Constant.CONSTANTNAME);
+                    // 添加字段别名
+                    _builder.AppendAs(newName);
+                }
+                return newNode;
             }
         }
 
@@ -496,11 +504,11 @@ namespace TZM.XFramework.Data
                     keyName = memberExpression.GetKeyWidthoutAnonymous(true);
                     if (!_navigations.ContainsKey(keyName))
                     {
-                        // fix issue# XC 列占一个位
-                        Navigation descriptor = new Navigation(keyName, memberExpression.Member);
-                        descriptor.Start = i == 0 ? _pickColumns.Count : -1;//_columns.Count;
-                        descriptor.FieldCount = i == 0 ? (GetFieldCount(exp) + 1) : -1; //i == 0 ? (GetFieldCount(exp) + 1) : 1;//-1;
-                        _navigations.Add(keyName, descriptor);
+                        // fix issue# SplitOn 列占一个位
+                        var nav = new Navigation(keyName, memberExpression.Member);
+                        nav.Start = i == 0 ? _pickColumns.Count : -1;
+                        nav.FieldCount = i == 0 ? (GetFieldCount(exp) + 1) : -1;
+                        _navigations.Add(keyName, nav);
                     }
                 }
 
@@ -537,22 +545,29 @@ namespace TZM.XFramework.Data
             switch (node.NodeType)
             {
                 case ExpressionType.MemberInit:
-                    MemberInitExpression m = node as MemberInitExpression;
-                    foreach (var exp in m.NewExpression.Arguments) num += _typeFieldAggregator(exp);
-                    foreach (MemberAssignment ma in m.Bindings) num += _primitiveAggregator((ma.Member as System.Reflection.PropertyInfo).PropertyType);
+                    var initExpression = node as MemberInitExpression;
+                    foreach (var exp in initExpression.NewExpression.Arguments) num += _countComplex(exp);
+                    foreach (MemberAssignment member in initExpression.Bindings)
+                    {
+                        num += _countPrimitive(((System.Reflection.PropertyInfo)member.Member).PropertyType);
+                    }
 
                     break;
 
                 case ExpressionType.MemberAccess:
-                    MemberExpression m1 = node as MemberExpression;
-                    num += _typeFieldAggregator(m1);
+                    var memberExpression = node as MemberExpression;
+                    num += _countComplex(memberExpression);
 
                     break;
 
                 case ExpressionType.New:
-                    NewExpression m2 = node as NewExpression;
-                    foreach (var exp in m2.Arguments) num += _typeFieldAggregator(exp);
-                    if (m2.Members != null) foreach (var member in m2.Members) num += _primitiveAggregator((member as System.Reflection.PropertyInfo).PropertyType);
+                    var newExpression = node as NewExpression;
+                    foreach (var exp in newExpression.Arguments) num += _countComplex(exp);
+                    if (newExpression.Members != null)
+                    {
+                        foreach (var member in newExpression.Members)
+                            num += _countPrimitive(((System.Reflection.PropertyInfo)member).PropertyType);
+                    }
 
                     break;
             }
@@ -560,9 +575,11 @@ namespace TZM.XFramework.Data
             return num;
         }
 
-        private static Func<Expression, int> _typeFieldAggregator = exp =>
-              exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type) ? 1 : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).DataFieldCount;
 
-        private static Func<Type, int> _primitiveAggregator = type => TypeUtils.IsPrimitiveType(type) ? 1 : 0;
+        // 基元类型计数器
+        private static Func<Type, int> _countPrimitive = type => TypeUtils.IsPrimitiveType(type) ? 1 : 0;
+        // 复合类型计数器
+        private static Func<Expression, int> _countComplex = exp =>
+              exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type) ? 1 : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).DataFieldCount;
     }
 }
