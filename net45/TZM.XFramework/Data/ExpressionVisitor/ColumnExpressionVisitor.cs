@@ -103,7 +103,7 @@ namespace TZM.XFramework.Data
                 base._builder = builder;
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
-                if (base._methodVisitor == null) 
+                if (base._methodVisitor == null)
                     base._methodVisitor = _provider.CreateMethodVisitor(this);
 
                 // SELECT 表达式解析
@@ -251,7 +251,7 @@ namespace TZM.XFramework.Data
         }
 
         // => Client = a.Client.CloudServer
-        private Expression VisitNavigation(MemberExpression node, bool visitNavigation)
+        private Expression VisitNavigation(MemberExpression node, bool visitNavigation, Expression pickExpression = null)
         {
             string alias = string.Empty;
             Type type = node.Type;
@@ -290,7 +290,13 @@ namespace TZM.XFramework.Data
             }
 
             if (type.IsGenericType) type = type.GetGenericArguments()[0];
-            this.VisitAllMember(type, alias);
+            if (pickExpression != null) this.VisitAllMember(type, alias);
+            else
+            {
+                Expression expr = pickExpression;
+                if (expr.NodeType == ExpressionType.Lambda) expr = (pickExpression as LambdaExpression).Body;
+            }
+  
             if (visitNavigation) AddSplitOnColumn(node.Member, alias);
 
             return node;
@@ -466,11 +472,12 @@ namespace TZM.XFramework.Data
 
             foreach (var dbExpression in _include)
             {
-                Expression exp = dbExpression.Expressions[0];
-                if (exp == null) continue;
+                Expression navExpression = dbExpression.Expressions[0];
+                Expression pickExpression = dbExpression.Expressions.Length > 1 ? dbExpression.Expressions[1] : null;
+                if (navExpression == null) continue;
 
-                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
-                MemberExpression memberExpression = exp as MemberExpression;
+                if (navExpression.NodeType == ExpressionType.Lambda) navExpression = (navExpression as LambdaExpression).Body;
+                MemberExpression memberExpression = navExpression as MemberExpression;
                 if (memberExpression == null) throw new XFrameworkException("Include expression body must be 'MemberExpression'.");
 
                 // 例：Include(a => a.Client.AccountList[0].Client)
@@ -507,12 +514,12 @@ namespace TZM.XFramework.Data
                         // fix issue# SplitOn 列占一个位
                         var nav = new Navigation(keyName, memberExpression.Member);
                         nav.Start = i == 0 ? _pickColumns.Count : -1;
-                        nav.FieldCount = i == 0 ? (GetFieldCount(exp) + 1) : -1;
+                        nav.FieldCount = i == 0 ? (GetFieldCount(navExpression) + 1) : -1;
                         _navigations.Add(keyName, nav);
                     }
                 }
 
-                this.VisitNavigation(memberExpression, true);
+                this.VisitNavigation(memberExpression, true, pickExpression);
             }
         }
 
@@ -520,8 +527,8 @@ namespace TZM.XFramework.Data
         private void AddSplitOnColumn(System.Reflection.MemberInfo member, string alias)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
-            var foreignKey = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(member.Name);
-            string keyName = foreignKey.OuterKeys[0];
+            var fkAttribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(member.Name);
+            string keyName = fkAttribute.OuterKeys[0];
 
             _builder.Append("CASE WHEN ");
             _builder.AppendMember(alias, keyName);

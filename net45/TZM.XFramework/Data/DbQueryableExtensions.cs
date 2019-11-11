@@ -291,6 +291,20 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 指示查询应该包含外键
+        /// </summary>
+        /// <typeparam name="TResult">主表类型</typeparam>
+        /// <typeparam name="TProperty">外键类型</typeparam>
+        /// <param name="source">主表</param>
+        /// <param name="path">外键</param>
+        /// <param name="picks">选择字段</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> picks)
+        {
+            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, picks }));
+        }
+
+        /// <summary>
         ///  基于匹配键对两个序列的元素进行关联。使用默认的相等比较器对键进行比较
         /// </summary>
         public static IDbQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IDbQueryable<TOuter> outer, IDbQueryable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
@@ -545,7 +559,7 @@ namespace TZM.XFramework.Data
                     if (rowCount % pageSize > 0) ++pages;
                     if (pageIndex > pages) pageIndex = pages;
                     if (pageIndex < 1) pageIndex = 1;
-                    result = source.ToList(pageIndex, pageSize); 
+                    result = source.ToList(pageIndex, pageSize);
                 }
             }
 
@@ -583,7 +597,7 @@ namespace TZM.XFramework.Data
                     if (rowCount % pageSize > 0) ++pages;
                     if (pageIndex > pages) pageIndex = pages;
                     if (pageIndex < 1) pageIndex = 1;
-                    result = source.ToList(pageIndex, pageSize); 
+                    result = source.ToList(pageIndex, pageSize);
                 }
             }
 
