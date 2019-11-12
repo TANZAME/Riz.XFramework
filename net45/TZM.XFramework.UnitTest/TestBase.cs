@@ -993,6 +993,40 @@ namespace TZM.XFramework.UnitTest
                 context
                 .GetTable<Model.Client>()
                 .Include(a => a.CloudServer);
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new { x.CloudServerId, x.CloudServerCode });
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
+                });
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
+                })
+                .Include(a => a.Accounts, x => new Model.ClientAccount
+                {
+                    AccountId = x[0].AccountId,
+                    AccountCode = x[0].AccountCode,
+                });
+            result = query.ToList();
+
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer);
             query =
                 from a in query
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId

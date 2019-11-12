@@ -20,7 +20,7 @@ namespace TZM.XFramework.UnitTest
             //Console.WriteLine(myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffff") + " 刻度数：" + myDateTime.Ticks);
             //Console.ReadKey();
 
-            bool isDebug = false;
+            bool isDebug = true;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;
