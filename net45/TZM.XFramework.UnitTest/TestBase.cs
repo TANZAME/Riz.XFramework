@@ -36,13 +36,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            Query();
-            DbFunc();
-            Join();
-            Insert();
-            Update();
-            Delete();
-            API();
+            //Query();
+            //DbFunc();
+            //Join();
+            //Insert();
+            //Update();
+            //Delete();
+            //API();
             Rabbit();
         }
 
@@ -2468,41 +2468,6 @@ namespace TZM.XFramework.UnitTest
         {
             Stopwatch stop = new Stopwatch();
             var context = _newContext();
-
-            var query =
-                from a in
-                    context
-                    .GetTable<Model.Client>()
-                    .Include(a => a.CloudServer)
-                    .Include(a => a.Accounts)
-                    .Include(a => a.Accounts[0].Markets)
-                    .Include(a => a.Accounts[0].Markets[0].Client)
-                group a by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
-                select new Model.Client
-                {
-                    ClientId = g.Key.ClientId,
-                    ClientCode = g.Key.ClientCode,
-                    ClientName = g.Key.ClientName,
-                    CloudServerId = g.Key.CloudServerId,
-                    Qty = g.Sum(a => a.Qty)
-                };
-            query = query
-                .Where(a => a.ClientId > 0)
-                .OrderBy(a => a.ClientId)
-                .Skip(10)
-                .Take(20);
-            //var result1 = query1.ToList();
-
-            stop = new Stopwatch();
-            stop.Start();
-            DateTime sDate2 = DateTime.Now;
-            for (int i = 0; i < 1000000; i++)
-            {
-                var cmd = query.Resolve();
-            }
-            stop.Stop();
-            Console.WriteLine(string.Format("解析 100w 次，用时：{0}", stop.Elapsed));
-            Console.ReadLine();
 
             stop = new Stopwatch();
             stop.Start();

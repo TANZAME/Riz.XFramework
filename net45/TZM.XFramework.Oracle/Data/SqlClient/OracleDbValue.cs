@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override string GetSqlValueByBytes(object value)
         {
             byte[] bytes = (byte[])value;
-            string hex = XfwCommon.BytesToHex(bytes, false, true);
+            string hex = Common.BytesToHex(bytes, false, true);
             string result = string.Empty;
             if (string.IsNullOrEmpty(hex)) 
                 result = "EMPTY_BLOB()";

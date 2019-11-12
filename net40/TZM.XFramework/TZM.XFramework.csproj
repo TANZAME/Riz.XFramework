@@ -82,6 +82,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs">
       <Link>Common\Common.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Common\DayPart.cs">
+      <Link>Common\DayPart.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs">
       <Link>Common\Helper\ConvertHelper.cs</Link>
     </Compile>

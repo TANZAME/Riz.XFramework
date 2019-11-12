@@ -42,7 +42,7 @@ namespace TZM.XFramework.UnitTest
                             writer.Write("-- ");
                             writer.Write(p.ParameterName);
                             writer.Write(" = ");
-                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[] ? XfwCommon.BytesToHex((byte[])p.Value, true, true) : p.Value));
+                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[] ? Common.BytesToHex((byte[])p.Value, true, true) : p.Value));
                             writer.Write(", DbType = {0}, ", p.DbType);
                             if (p.Size != default(int)) writer.Write("Size = {0}, ", p.Size);
                             if (p.Precision != default(byte)) writer.Write("Precision = {0}, ", p.Precision);
