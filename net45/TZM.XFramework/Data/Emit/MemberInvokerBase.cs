@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+//using System.Collections.Specialized;
 
 namespace TZM.XFramework.Data
 {
@@ -13,12 +14,12 @@ namespace TZM.XFramework.Data
     public abstract class MemberInvokerBase
     {
         private Type _dataType = null;
+        private MemberInfo _member = null;
         private object[] _attributes = null;
-        private MemberInfo _member;
         private ColumnAttribute _column = null;
         private ForeignKeyAttribute _foreignKey = null;
-        private BindingFlags? _flags = null;
         private string _memberName = null;
+        //private HybridDictionary _attributes = null;
 
         /// <summary>
         /// 列特性
@@ -50,13 +51,7 @@ namespace TZM.XFramework.Data
         /// 可能是方法，属性或者字段
         /// </para>
         /// </summary>
-        public MemberInfo Member
-        {
-            get
-            {
-                return _member;
-            }
-        }
+        public MemberInfo Member { get { return _member; } }
 
         /// <summary>
         /// 成员名称
@@ -97,7 +92,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 成员数据类型
+        /// 获取此成员对象对应数据库字段的类型
         /// </summary>
         public Type DataType
         {
@@ -110,29 +105,6 @@ namespace TZM.XFramework.Data
                 }
 
                 return _dataType;
-            }
-        }
-
-        /// <summary>
-        /// 指定控制绑定和由反射执行的成员和类型搜索方法的标志。
-        /// </summary>
-        public BindingFlags BindingFlags
-        {
-            get
-            {
-                if (_flags == null)
-                {
-                    Type type = this.Member.GetType();
-                    MemberInfo[] list = type.GetMember("BindingFlags", BindingFlags.Instance | BindingFlags.NonPublic);
-                    if (list != null && list.Length > 0)
-                    {
-                        var invoker = MemberInvokerBase.Create(list[0]);
-                        var obj = invoker.Invoke(this.Member);
-                        if (obj != null) _flags = (BindingFlags)obj;
-                    }
-                }
-
-                return _flags != null ? _flags.Value : BindingFlags.Default;
             }
         }
 
@@ -164,6 +136,15 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
         {
+            //if (_attributes == null)
+            //{
+            //    _attributes = new HybridDictionary();
+            //    var myAttributes = _member.GetCustomAttributes(false);
+            //    if (myAttributes != null) foreach (object item in myAttributes) _attributes.Add(item.GetType(), item);
+            //}
+
+            //return _attributes[typeof(TAttribute)] as TAttribute;
+
             if (_attributes == null) _attributes = _member.GetCustomAttributes(false);
             return _attributes.FirstOrDefault(x => x is TAttribute) as TAttribute;
         }

@@ -103,7 +103,7 @@ namespace TZM.XFramework.Data
                 base._builder = builder;
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
-                if (base._methodVisitor == null) 
+                if (base._methodVisitor == null)
                     base._methodVisitor = _provider.CreateMethodVisitor(this);
 
                 // SELECT 表达式解析
@@ -172,7 +172,8 @@ namespace TZM.XFramework.Data
 
         // => new App() {Id = p.Id}}
         protected override Expression VisitMemberInit(MemberInitExpression node)
-        {// 如果有一对多的导航属性会产生嵌套的SQL，这时需要强制主表选择的列里面必须包含导航外键
+        {
+            // 如果有一对多的导航属性会产生嵌套的SQL，这时需要强制主表选择的列里面必须包含导航外键
             // TODO #对 Bindings 进行排序，保证导航属性的赋值一定要最后面#
             // 未实现，在书写表达式时人工保证 ##
 
@@ -198,11 +199,7 @@ namespace TZM.XFramework.Data
                         this.VisitWithoutRemark(x => this.VisitMemberBinding(binding));
 
                     // 选择字段
-                    string newName = _pickColumns.Add(binding.Member.Name);
-                    // 添加字段别名
-                    _builder.AppendAs(newName);
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
+                    this.AddPickColumn(binding.Member.Name);
                 }
 
                 #endregion 一般属性
@@ -226,7 +223,7 @@ namespace TZM.XFramework.Data
                     Navigation nav = new Navigation(keyName, binding.Member);
                     if (!_navigations.ContainsKey(keyName))
                     {
-                        // fix issue# XC 列占一个位
+                        // fix issue# spliton 列占一个位
                         nav.Start = _pickColumns.Count;
                         nav.FieldCount = GetFieldCount(binding.Expression) + (binding.Expression.NodeType == ExpressionType.MemberAccess && binding.Expression.Acceptable() ? 1 : 0);
                         _navigations.Add(keyName, nav);
@@ -251,7 +248,7 @@ namespace TZM.XFramework.Data
         }
 
         // => Client = a.Client.CloudServer
-        private Expression VisitNavigation(MemberExpression node, bool visitNavigation)
+        private Expression VisitNavigation(MemberExpression node, bool visitNavigation, Expression pickExpression = null)
         {
             string alias = string.Empty;
             Type type = node.Type;
@@ -289,8 +286,47 @@ namespace TZM.XFramework.Data
                 type = node.Type;
             }
 
+
             if (type.IsGenericType) type = type.GetGenericArguments()[0];
-            this.VisitAllMember(type, alias);
+            if (pickExpression == null) this.VisitAllMember(type, alias);
+            else
+            {
+                // Include 中选中的字段
+                Expression expr = pickExpression;
+                if (expr.NodeType == ExpressionType.Lambda) expr = (pickExpression as LambdaExpression).Body;
+                if (expr.NodeType == ExpressionType.New)
+                {
+                    var newExpression = expr as NewExpression;
+                    for (int i = 0; i < newExpression.Arguments.Count; i++)
+                    {
+                        var memberExpression = newExpression.Arguments[i] as MemberExpression;
+                        if (memberExpression == null) throw new XFrameworkException("MemberExpression required at the {0} arguments.", i);
+
+                        _builder.AppendMember(alias, memberExpression.Member.Name);
+                        this.AddPickColumn(newExpression.Members != null ? newExpression.Members[i].Name : memberExpression.Member.Name);
+                    }
+                }
+                else if (expr.NodeType == ExpressionType.MemberInit)
+                {
+                    var initExpression = expr as MemberInitExpression;
+                    for (int i = 0; i < initExpression.Bindings.Count; i++)
+                    {
+                        var binding = initExpression.Bindings[i] as MemberAssignment;
+                        if (binding == null) throw new XFrameworkException("Only 'MemberAssignment' binding supported.");
+
+                        var memberExpression = binding.Expression as MemberExpression;
+                        if (memberExpression == null) throw new XFrameworkException("MemberExpression required at the {0} arguments.", i);
+
+                        _builder.AppendMember(alias, memberExpression.Member.Name);
+                        this.AddPickColumn(binding.Member.Name);
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(string.Format("Include method not supporte {0}", expr.NodeType));
+                }
+            }
+
             if (visitNavigation) AddSplitOnColumn(node.Member, alias);
 
             return node;
@@ -330,7 +366,7 @@ namespace TZM.XFramework.Data
                 {
                     //例： DateTime.Now
                     _builder.Append(expression.Evaluate().Value, node.Members[i], node.Type);
-                    this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
+                    this.AddPickColumn(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                 }
                 else if (expression.NodeType == ExpressionType.MemberAccess || expression.NodeType == ExpressionType.Call)
                 {
@@ -340,13 +376,13 @@ namespace TZM.XFramework.Data
                     {
                         // new Client(a.ClientId)
                         this.Visit(expression);
-                        this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
+                        this.AddPickColumn(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                     }
                 }
                 else
                 {
                     base.Visit(expression);
-                    this.VisitNewImpl_AddNewName(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
+                    this.AddPickColumn(node.Members != null ? node.Members[i].Name : (expression as MemberExpression).Member.Name);
                 }
 
                 // 删除本次访问的成员痕迹
@@ -354,14 +390,6 @@ namespace TZM.XFramework.Data
             }
 
             return node;
-        }
-
-        private void VisitNewImpl_AddNewName(string memberName)
-        {
-            string newName = _pickColumns.Add(memberName);
-            _builder.AppendAs(newName);
-            _builder.Append(',');
-            _builder.AppendNewLine();
         }
 
         // g.Key.CompanyName & g.Max(a)
@@ -466,11 +494,12 @@ namespace TZM.XFramework.Data
 
             foreach (var dbExpression in _include)
             {
-                Expression exp = dbExpression.Expressions[0];
-                if (exp == null) continue;
+                Expression navExpression = dbExpression.Expressions[0];
+                Expression pickExpression = dbExpression.Expressions.Length > 1 ? dbExpression.Expressions[1] : null;
+                if (navExpression == null) continue;
 
-                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
-                MemberExpression memberExpression = exp as MemberExpression;
+                if (navExpression.NodeType == ExpressionType.Lambda) navExpression = (navExpression as LambdaExpression).Body;
+                MemberExpression memberExpression = navExpression as MemberExpression;
                 if (memberExpression == null) throw new XFrameworkException("Include expression body must be 'MemberExpression'.");
 
                 // 例：Include(a => a.Client.AccountList[0].Client)
@@ -507,12 +536,12 @@ namespace TZM.XFramework.Data
                         // fix issue# SplitOn 列占一个位
                         var nav = new Navigation(keyName, memberExpression.Member);
                         nav.Start = i == 0 ? _pickColumns.Count : -1;
-                        nav.FieldCount = i == 0 ? (GetFieldCount(exp) + 1) : -1;
+                        nav.FieldCount = i == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
                         _navigations.Add(keyName, nav);
                     }
                 }
 
-                this.VisitNavigation(memberExpression, true);
+                this.VisitNavigation(memberExpression, true, pickExpression);
             }
         }
 
@@ -520,8 +549,8 @@ namespace TZM.XFramework.Data
         private void AddSplitOnColumn(System.Reflection.MemberInfo member, string alias)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
-            var foreignKey = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(member.Name);
-            string keyName = foreignKey.OuterKeys[0];
+            var fkAttribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(member.Name);
+            string keyName = fkAttribute.OuterKeys[0];
 
             _builder.Append("CASE WHEN ");
             _builder.AppendMember(alias, keyName);
@@ -537,16 +566,32 @@ namespace TZM.XFramework.Data
             _builder.AppendNewLine();
         }
 
+        // 缓存选中字段
+        private void AddPickColumn(string memberName)
+        {
+            string newName = _pickColumns.Add(memberName);
+            _builder.AppendAs(newName);
+            _builder.Append(',');
+            _builder.AppendNewLine();
+        }
+
         // 计算数据库字段数量
         private static int GetFieldCount(Expression node)
         {
             int num = 0;
+            if (node.NodeType == ExpressionType.Lambda) node = (node as LambdaExpression).Body;
 
             switch (node.NodeType)
             {
                 case ExpressionType.MemberInit:
                     var initExpression = node as MemberInitExpression;
-                    foreach (var exp in initExpression.NewExpression.Arguments) num += _countComplex(exp);
+                    foreach (var exp in initExpression.NewExpression.Arguments)
+                    {
+                        if (TypeUtils.IsPrimitiveType(exp.Type))
+                            num += 1;
+                        else
+                            num += _countComplex(exp);
+                    }
                     foreach (MemberAssignment member in initExpression.Bindings)
                     {
                         num += _countPrimitive(((System.Reflection.PropertyInfo)member.Member).PropertyType);
@@ -562,7 +607,7 @@ namespace TZM.XFramework.Data
 
                 case ExpressionType.New:
                     var newExpression = node as NewExpression;
-                    foreach (var exp in newExpression.Arguments) num += _countComplex(exp);
+                    //foreach (var exp in newExpression.Arguments) num += _countComplex(exp);
                     if (newExpression.Members != null)
                     {
                         foreach (var member in newExpression.Members)

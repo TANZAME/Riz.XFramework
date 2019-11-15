@@ -36,13 +36,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            Query();
-            DbFunc();
-            Join();
-            Insert();
-            Update();
-            Delete();
-            API();
+            //Query();
+            //DbFunc();
+            //Join();
+            //Insert();
+            //Update();
+            //Delete();
+            //API();
             Rabbit();
         }
 
@@ -989,6 +989,40 @@ namespace TZM.XFramework.UnitTest
             //ORDER BY t0.[ClientId]
 
             // Include 语法
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer);
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new { x.CloudServerId, x.CloudServerCode });
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
+                });
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
+                })
+                .Include(a => a.Accounts, x => new Model.ClientAccount
+                {
+                    AccountId = x[0].AccountId,
+                    AccountCode = x[0].AccountCode,
+                });
+            result = query.ToList();
+
             query =
                 context
                 .GetTable<Model.Client>()

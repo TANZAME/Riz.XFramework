@@ -10,22 +10,20 @@ namespace TZM.XFramework
     /// <summary>
     /// 公共帮助类
     /// </summary>
-    public class XfwCommon
+    public class Common
     {
         // Mono.Cecil
         // 
+
+        static string _autoClassName = "<>c__DisplayClass";
+        static DateTime _utcMinDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         #region 静态属性
 
         /// <summary>
         /// 验证方式
         /// </summary>
-        public static string AuthScheme = "Basic";
-
-        /// <summary>
-        /// 系统最小时间
-        /// </summary>
-        public static DateTime MinDateTime = Convert.ToDateTime("2010-01-01");
+        public static string AuthorizeScheme = "Basic";
 
         /// <summary>
         /// 日期格式
@@ -48,6 +46,11 @@ namespace TZM.XFramework
         public static string MoneyFormat = "0.00";
 
         /// <summary>
+        /// 系统最小时间
+        /// </summary>
+        public static DateTime MinDate = new DateTime(1970, 1, 1, 0, 0, 0);
+
+        /// <summary>
         /// 获取当前应用程序默认配置的数据。
         /// </summary>
         public static NameValueCollection AppSettings { get { return ConfigurationManager.AppSettings; } }
@@ -59,124 +62,114 @@ namespace TZM.XFramework
         /// <summary>
         /// 获取指定键值的连接字符串
         /// </summary>
-        /// <param name="name">连接键</param>
+        /// <param name="key">连接键</param>
         /// <returns></returns>
-        public static string GetConnString(string name)
+        public static string GetConnectionString(string key)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            return ConfigurationManager.ConnectionStrings[key].ConnectionString;
         }
 
         /// <summary>
-        /// 时间戳转为本地时间（毫秒）
+        /// 时间戳转时间类型
         /// </summary>
+        /// <typeparam name="T">时间戳值类型</typeparam>
+        /// <param name="source">时间戳</param>
+        /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
+        /// <param name="destinationTimeZoneId">目标时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <returns></returns>
-        public static DateTime ConvertToDateTime(long ticks)
+        public static DateTime ConvertToDateTime<T>(T source, DayPart dayPart = DayPart.Millisecond, string destinationTimeZoneId = null) where T : struct
         {
-            DateTime sDate = XfwCommon.ToLocalTime(new DateTime(1970, 1, 1));
-            ticks = long.Parse(ticks + "0000");
-            TimeSpan ts = new TimeSpan(ticks);
-            DateTime nDate = sDate.Add(ts);
-            return nDate;
+            // 时间戳是自 1970 年 1 月 1 日（00:00:00 GMT）以来的秒数。它也被称为 Unix 时间戳（Unix Timestamp）。
+            // Unix时间戳(Unix timestamp)，或称Unix时间(Unix time)、POSIX时间(POSIX time)，是一种时间表示方式，定义为从格林威治时间1970年01月01日00时00分00秒起至现在的总秒数
+
+            DateTime result;
+            DateTime s = _utcMinDate;
+
+            if (dayPart == DayPart.Second) result = s.AddSeconds(Convert.ToDouble(source));
+            else if (dayPart == DayPart.Millisecond) result = s.AddMilliseconds(Convert.ToDouble(source));
+            else if (dayPart == DayPart.Tick) result = s.AddTicks(Convert.ToInt64(source));
+            else throw new NotSupportedException(dayPart + " is not a support type.");
+
+            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local")
+                result = result.ToLocalTime();
+            else if (destinationTimeZoneId != "UTC")
+                result = Common.ConvertDateTime(result, "UTC", destinationTimeZoneId);
+
+            return result;
         }
 
         /// <summary>
-        /// 本地时间转时间戳（毫秒）
+        /// 时间转时间戳
         /// </summary>
+        /// <param name="source">源时间</param>
+        /// <param name="sourceTimeZoneId">源时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
+        /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <returns></returns>
-        public static long ConvertToLong(DateTime time)
+        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DayPart dayPart = DayPart.Millisecond)
         {
-            DateTime sDate = XfwCommon.ToLocalTime(new DateTime(1970, 1, 1));
-            TimeSpan ts = time.Subtract(sDate);
-            long ticks = ts.Ticks;
-            ticks = long.Parse(ticks.ToString().Substring(0, ticks.ToString().Length - 4));
-            return ticks;
+            // 转至UTC时区
+            if (sourceTimeZoneId != "UTC") source = Common.ConvertDateTime(source, sourceTimeZoneId, "UTC");
+            switch (dayPart)
+            {
+                case DayPart.Second:
+                    return (source.Ticks - 621355968000000000L) / 10000000;
+                case DayPart.Millisecond:
+                    return (source.Ticks - 621355968000000000L) / 10000;
+                case DayPart.Tick:
+                    return source.Ticks - 621355968000000000L;
+                default:
+                    throw new NotSupportedException(dayPart + " is not a support type."); 
+            }
         }
 
         /// <summary>
-        /// 时间戳转为本地时间（秒）
+        /// 不同时区时间转换
         /// </summary>
-        /// <param name="sec">是已秒做单位的时间戳</param>
+        /// <param name="source">时间</param>
+        /// <param name="sourceTimeZoneId">源时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
+        /// <param name="destinationTimeZoneId">目标时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <returns></returns>
-        public static DateTime ConvertToDateTimeSec(string sec)
+        public static DateTime ConvertDateTime(DateTime source, string sourceTimeZoneId = "UTC", string destinationTimeZoneId = "Pacific Standard Time")
         {
-            DateTime sDate = XfwCommon.ToLocalTime(new DateTime(1970, 1, 1));
-            long ticks = long.Parse(sec + "0000000");
-            TimeSpan toNow = new TimeSpan(ticks);
-            DateTime nDate = sDate.Add(toNow);
-            return nDate;
+            DateTime newDateTime = new DateTime(source.Ticks);
+            
+            if (sourceTimeZoneId == null || sourceTimeZoneId == "Local") 
+                sourceTimeZoneId = TimeZoneInfo.Local.Id;
+            
+            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local") 
+                destinationTimeZoneId = TimeZoneInfo.Local.Id;
+
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(newDateTime, sourceTimeZoneId, destinationTimeZoneId);
         }
 
         /// <summary>
-        /// 本地时间转时间戳（秒）
+        /// 判断是否为空日期
         /// </summary>
-        public static long ConvertToLongSec(string date)
-        {
-            System.DateTime eDate = DateTime.Parse(date);
-            System.DateTime sDate = XfwCommon.ToLocalTime(new DateTime(1970, 1, 1));
-            return (long)(eDate - sDate).TotalSeconds;
-        }
-
-        /// <summary>
-        /// 本地时间转时间戳（秒）
-        /// </summary>
-        public static long ConvertToLongSec(DateTime date)
-        {
-            System.DateTime sDate = XfwCommon.ToLocalTime(new DateTime(1970, 1, 1));
-            return (long)(date - sDate).TotalSeconds;
-        }
-
-        // 将客户端时间转换为服务端本地时间
-        static DateTime ToLocalTime(DateTime clientTime)
-        {
-#if netcore
-            DateTime serverTime1 = TimeZoneInfo.ConvertTime(clientTime, TimeZoneInfo.Local);
-#else
-            DateTime serverTime1 = TimeZone.CurrentTimeZone.ToLocalTime(clientTime);
-#endif
-            return serverTime1;
-        }
-
-        // unix时间戳是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数
-
-        /// <summary>
-        /// long 型转日期 Unix
-        /// </summary>
-        public static DateTime ConvertToDateTimeUnix(long d)
-        {
-            DateTime date = new DateTime(d * 10000000 + 621355968000000000);
-            return date;
-        }
-
-        /// <summary>
-        /// long 型转日期 Unix
-        /// </summary>
+        /// <param name="source">来源日期</param>
         /// <returns></returns>
-        public static DateTime ConvertToDateTimeUnix(string s)
+        public static bool IsEmptyDate(DateTime source)
         {
-            long d = long.Parse(s);
-            return XfwCommon.ConvertToDateTimeUnix(d);
-        }
+            if (source == DateTime.MinValue) return true;
 
-        /// <summary>
-        /// 日期转long型 Unix
-        /// </summary>
-        public static long ConvertToLongUnix(DateTime date)
-        {
-            return (date.Ticks - 621355968000000000) / 10000000;
+            string s = source.ToString("yyyy-MM-dd HH:mm:ss");
+            if (s == "0001-01-01 00:00:00") return true;
+            else if (s == "1900-01-01 00:00:00") return true;
+            else if (s == "1970-01-01 00:00:00") return true;
+            else return false;
         }
 
         /// <summary>
         /// 将数字的字符串表示形式转换为它的等效 32 位有符号整数,如果转换不成功,则使用传入的默认值.
         /// </summary>
         /// <param name="s">字符值</param>
-        /// <param name="vDefault">传入的默认值</param>
+        /// <param name="default">传入的默认值</param>
         /// <returns></returns>
-        public static int TryParse(string s, int vDefault)
+        public static int TryParse(string s, int @default)
         {
             int result;
             if (!int.TryParse(s, out result))
             {
-                result = vDefault;
+                result = @default;
             }
             return result;
         }
@@ -185,14 +178,14 @@ namespace TZM.XFramework
         /// 尝试将逻辑值的指定字符串表示形式转换为它的等效 System.Boolean 值,则使用传入的默认值.
         /// </summary>
         /// <param name="s">字符值</param>
-        /// <param name="vDefault">传入的默认值</param>
+        /// <param name="default">传入的默认值</param>
         /// <returns></returns>
-        public static bool TryParse(string s, bool vDefault)
+        public static bool TryParse(string s, bool @default)
         {
             bool result;
             if (!bool.TryParse(s, out result))
             {
-                result = vDefault;
+                result = @default;
             }
             return result;
         }
@@ -200,34 +193,28 @@ namespace TZM.XFramework
         /// <summary>
         /// 根据表达式取得属性名称
         /// </summary>
-        public static string Name<T>(System.Linq.Expressions.Expression<Func<T, object>> lambda)
+        public static string Name<T>(Expression<Func<T, object>> lambda)
         {
-
-            List<string> navs = new List<string>();
+            var navs = new List<string>();
             Expression node = (lambda as LambdaExpression).Body;
             if (node.NodeType == ExpressionType.New) node = (node as NewExpression).Arguments[0];
-            if (node.NodeType == System.Linq.Expressions.ExpressionType.Convert) node = (node as System.Linq.Expressions.UnaryExpression).Operand;
-            string closure = "<>c__DisplayClass";
+            if (node.NodeType == ExpressionType.Convert) node = (node as UnaryExpression).Operand;
+
             while (node != null)
             {
-                if (node.NodeType == ExpressionType.MemberAccess)
+                if (node.NodeType != ExpressionType.MemberAccess) node = null;
+                else
                 {
-                    MemberExpression m = node as MemberExpression;
-                    if (m.Expression != null && m.Expression.Type.Name.StartsWith(closure))
-                    {
-                        node = null;
-                    }
+                    var m = node as MemberExpression;
+                    if (m.Expression != null && m.Expression.Type.Name.StartsWith(_autoClassName, StringComparison.Ordinal)) node = null;
                     else
                     {
                         navs.Add(m.Member.Name);
                         node = m.Expression;
                     }
                 }
-                else
-                {
-                    node = null;
-                }
             }
+
             navs.Reverse();
             string nav = string.Join(".", navs);
             return nav;
@@ -236,9 +223,13 @@ namespace TZM.XFramework
         /// <summary>
         /// 将字符串转为 16 进制形式
         /// </summary>
-        public static string StringToHex(string str, Encoding encoding = null, bool upper = false)
+        /// <param name="source">来源字符串</param>
+        /// <param name="encoding">编码，如果不传则使用 UTF8</param>
+        /// <param name="upper">转为大写形式</param>
+        /// <returns></returns>
+        public static string StringToHex(string source, Encoding encoding = null, bool upper = false)
         {
-            byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(str);
+            byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(source);
 
             var builder = new StringBuilder();
             foreach (var c in buffer)
@@ -254,6 +245,10 @@ namespace TZM.XFramework
         /// <summary>
         /// 将字符串转为 16 进制形式
         /// </summary>
+        /// <param name="buffer">字节序列</param>
+        /// <param name="use0x">返回的字符串前面加上 0x</param>
+        /// <param name="upper">转为大写形式</param>
+        /// <returns></returns>
         public static string BytesToHex(byte[] buffer, bool use0x = true, bool upper = false)
         {
             if (buffer == null) return null;
@@ -271,35 +266,41 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 将字符串转为 16 进制形式
+        /// 16进制字符串转为明文
         /// </summary>
-        public static string HexToString(string hs, Encoding encoding = null, bool upper = false)
+        /// <param name="hex">16进制字符串</param>
+        /// <param name="encoding">编码，如果不传则使用 UTF8</param>
+        /// <param name="upper">转为大写形式</param>
+        /// <returns></returns>
+        public static string HexToString(string hex, Encoding encoding = null, bool upper = false)
         {
-            hs = hs ?? string.Empty;
+            hex = hex ?? string.Empty;
             encoding = encoding ?? Encoding.UTF8;
 
             string strTemp = "";
-            byte[] b = new byte[hs.Length / 2];
-            for (int i = 0; i < hs.Length / 2; i++)
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length / 2; i++)
             {
-                strTemp = hs.Substring(i * 2, 2);
-                b[i] = Convert.ToByte(strTemp, 16);
+                strTemp = hex.Substring(i * 2, 2);
+                bytes[i] = Convert.ToByte(strTemp, 16);
             }
             //按照指定编码将字节数组变为字符串
-            return encoding.GetString(b);
+            return encoding.GetString(bytes);
         }
 
         /// <summary>
         /// 将源字符串的双字节部分（如中文字符）转为 \u 的unicode形式
         /// </summary>
-        public static string ToUnicode(string str)
+        /// <param name="source">源字符串</param>
+        /// <returns></returns>
+        public static string ToUnicode(string source)
         {
-            if (string.IsNullOrEmpty(str)) return string.Empty;
+            if (string.IsNullOrEmpty(source)) return string.Empty;
 
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
-            for (int index = 0; index < str.Length; index++)
+            for (int index = 0; index < source.Length; index++)
             {
-                char c = str[index];
+                char c = source[index];
                 bool isChinese = (int)c > 127;
                 if (isChinese)
                 {
@@ -319,16 +320,16 @@ namespace TZM.XFramework
         /// 格式化容量
         /// </summary>
         /// <param name="volume">容量</param>
-        /// <param name="n">小数位</param>
-        public static string FormatVolume(decimal volume, int n = 1)
+        /// <param name="scale">小数位</param>
+        public static string FormatVolume(decimal volume, int scale = 1)
         {
             string result = string.Empty;
             result = volume < 1024 ? volume.ToString() : (volume / 1024).ToString();
 
             string[] d = result.Split('.');
-            if (d.Length == 2 && d[1].Length > n)
+            if (d.Length == 2 && d[1].Length > scale)
             {
-                d[1] = d[1].Substring(0, n);
+                d[1] = d[1].Substring(0, scale);
                 result = string.Format("{0}.{1}", d[0], d[1]);
             }
 

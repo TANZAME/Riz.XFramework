@@ -97,7 +97,7 @@ namespace TZM.XFramework.Data
         /// </para>
         /// </summary>
         public DbContextBase()
-            : this(XfwCommon.GetConnString("XFrameworkConnString"))
+            : this(Common.GetConnectionString("XFrameworkConnString"))
         {
         }
 

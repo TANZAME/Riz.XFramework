@@ -289,7 +289,7 @@ namespace TZM.XFramework.Data
         protected virtual string GetSqlValueByBytes(object value)
         {
             byte[] bytes = (byte[])value;
-            string hex = XfwCommon.BytesToHex(bytes, true, true);
+            string hex = Common.BytesToHex(bytes, true, true);
             return hex;
         }
 
