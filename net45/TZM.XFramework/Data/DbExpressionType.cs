@@ -37,11 +37,6 @@ namespace TZM.XFramework.Data
         Count,
 
         /// <summary>
-        /// 返回序列中的元素数量（不立即执行）
-        /// </summary>
-        LazyCount,
-
-        /// <summary>
         /// 返回指定序列中的元素；如果序列为空，则返回单一实例集合中的类型参数的默认值
         /// </summary>
         DefaultIfEmpty,
@@ -74,7 +69,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 基于键值等同性对两个序列的元素进行关联，并对结果进行分组。 使用默认的相等比较器对键进行比较（右关联）
         /// </summary>
-        GroupJoin2,
+        GroupRightJoin,
 
         /// <summary>
         /// 基于匹配键对两个序列的元素进行关联。 使用默认的相等比较器对键进行比较

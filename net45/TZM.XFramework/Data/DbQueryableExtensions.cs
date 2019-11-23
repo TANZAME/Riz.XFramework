@@ -46,14 +46,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 返回序列中的元素数量，不立即执行
-        /// </summary>
-        public static IDbQueryable<int> LazyCount<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, object>> keySelector)
-        {
-            return source.CreateQuery<int>>(new DbExpression(DbExpressionType.LazyCount, keySelector));
-        }
-
-        /// <summary>
         /// 返回指定序列中满足条件的元素数量
         /// </summary>
         public static int Count<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)

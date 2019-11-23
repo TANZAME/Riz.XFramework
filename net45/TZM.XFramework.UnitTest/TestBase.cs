@@ -29,9 +29,6 @@ namespace TZM.XFramework.UnitTest
             DateTime dateTime = DateTime.Parse("2019-10-27 23:59:59.1234567");
             long result = dateTime.Ticks;
             var r2 = Math.Log(100);
-
-            List<Model.Client> data = null;
-            data.All
         }
 
         public abstract IDbContext CreateDbContext();
