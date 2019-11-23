@@ -14,6 +14,7 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
+
             bool isDebug = true;
             ITest test = null;
             string fileName = string.Empty;

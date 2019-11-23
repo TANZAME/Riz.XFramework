@@ -200,8 +200,8 @@ namespace TZM.XFramework.Data
             sQueryInfo.Skip = skip != null ? skip.Value : 0;
             sQueryInfo.Take = take != null ? take.Value : 0;
             sQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, selectExpression);
-            sQueryInfo.WhereExpression = new DbExpression(DbExpressionType.Where, CombineWhere(whereExpressions));
-            sQueryInfo.HavingExpression = new DbExpression(DbExpressionType.None, CombineWhere(havingExpressions));
+            sQueryInfo.WhereExpression = new DbExpression(DbExpressionType.Where, CombineCondition(whereExpressions));
+            sQueryInfo.HavingExpression = new DbExpression(DbExpressionType.None, CombineCondition(havingExpressions));
             sQueryInfo.SourceQuery = dbQuery;
 
             #region 更新语义
@@ -416,7 +416,7 @@ namespace TZM.XFramework.Data
                 if (sQueryInfo.GroupByExpression != null)
                 {
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
-                    // demo => line 640
+                    // demo => line 1280
                     bool newSelector = bindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call) || newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call);
                     if (newSelector)
                     {
@@ -530,7 +530,7 @@ namespace TZM.XFramework.Data
         }
 
         // 合并 'Where' 表达式谓词
-        static Expression CombineWhere(IList<Expression> predicates)
+        static Expression CombineCondition(IList<Expression> predicates)
         {
             if (predicates.Count == 0) return null;
 

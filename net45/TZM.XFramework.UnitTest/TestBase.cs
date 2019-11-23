@@ -29,6 +29,9 @@ namespace TZM.XFramework.UnitTest
             DateTime dateTime = DateTime.Parse("2019-10-27 23:59:59.1234567");
             long result = dateTime.Ticks;
             var r2 = Math.Log(100);
+
+            List<Model.Client> data = null;
+            data.All
         }
 
         public abstract IDbContext CreateDbContext();
@@ -36,13 +39,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            //Query();
-            //DbFunc();
-            //Join();
-            //Insert();
-            //Update();
-            //Delete();
-            //API();
+            Query();
+            DbFunc();
+            Join();
+            Insert();
+            Update();
+            Delete();
+            API();
             Rabbit();
         }
 
@@ -1277,6 +1280,7 @@ namespace TZM.XFramework.UnitTest
                     Qty = g.Sum(a => a.Qty)
                 };
             query2 = query2.OrderBy(a => a.ClientId).ThenBy(a => a.Qty);
+            var result10 = query2.ToList();
             var result2 = query2.Max(a => a.ClientId);
             //SQL=>
             //SELECT
