@@ -56,9 +56,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs" Link="Common\Common.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\DatePart.cs" Link="Common\DatePart.cs" />
-
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs" Link="Common\Helper\ConvertHelper.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\FileHelper.cs" Link="Common\Helper\FileHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\GZipHelper.cs" Link="Common\Helper\GZipHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\PhoneticizeHelper.cs" Link="Common\Helper\PhoneticizeHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\SecurityHelper.cs" Link="Common\Helper\SecurityHelper.cs" />

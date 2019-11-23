@@ -46,7 +46,7 @@ namespace TZM.XFramework
         public static string MoneyFormat = "0.00";
 
         /// <summary>
-        /// 系统最小时间
+        /// 系统本地最小时间
         /// </summary>
         public static DateTime MinDate = new DateTime(1970, 1, 1, 0, 0, 0);
 
@@ -167,6 +167,9 @@ namespace TZM.XFramework
         public static T TryParse<T>(string s, T @default)
             where T : struct
         {
+            if (string.IsNullOrEmpty(s)) 
+                return @default;
+
             T result = @default;
             if (typeof(T) == typeof(short))
             {
@@ -282,15 +285,15 @@ namespace TZM.XFramework
         /// 将字符串转为 16 进制形式
         /// </summary>
         /// <param name="buffer">字节序列</param>
-        /// <param name="use0x">返回的字符串前面加上 0x</param>
+        /// <param name="append0x">返回的字符串前面加上 0x</param>
         /// <param name="upper">转为大写形式</param>
         /// <returns></returns>
-        public static string BytesToHex(byte[] buffer, bool use0x = true, bool upper = false)
+        public static string BytesToHex(byte[] buffer, bool append0x = true, bool upper = false)
         {
             if (buffer == null) return null;
-            if (buffer.Length == 0) return use0x ? "0x" : string.Empty;
+            if (buffer.Length == 0) return append0x ? "0x" : string.Empty;
 
-            var builder = new StringBuilder(use0x && buffer.Length > 0 ? "0x" : "");
+            var builder = new StringBuilder(append0x && buffer.Length > 0 ? "0x" : "");
             foreach (var c in buffer)
             {
                 string hex = Convert.ToString(c, 16);
@@ -299,6 +302,36 @@ namespace TZM.XFramework
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// 将byte[]转换成int
+        /// </summary>
+        /// <param name="data">需要转换成整数的byte数组</param>
+        /// <returns>返回值</returns>
+        public static int BytesToInt32(byte[] data)
+        {
+            //如果传入的字节数组长度小于4,则返回0
+            if (data.Length < 4) return 0;
+
+            //定义要返回的整数
+            int num = 0;
+
+            //如果传入的字节数组长度大于4,需要进行处理
+            if (data.Length >= 4)
+            {
+                //创建一个临时缓冲区
+                var tempBuffer = new byte[4];
+
+                //将传入的字节数组的前4个字节复制到临时缓冲区
+                Buffer.BlockCopy(data, 0, tempBuffer, 0, 4);
+
+                //将临时缓冲区的值转换成整数，并赋给num
+                num = BitConverter.ToInt32(tempBuffer, 0);
+            }
+
+            //返回整数
+            return num;
         }
 
         /// <summary>
@@ -359,30 +392,22 @@ namespace TZM.XFramework
         /// <param name="scale">小数位</param>
         public static string FormatVolume(decimal volume, int scale = 1)
         {
-            string result = string.Empty;
-            result = volume < 1024 ? volume.ToString() : (volume / 1024).ToString();
-
-            string[] d = result.Split('.');
-            if (d.Length == 2 && d[1].Length > scale)
-            {
-                d[1] = d[1].Substring(0, scale);
-                result = string.Format("{0}.{1}", d[0], d[1]);
-            }
-
-            string u = volume < 1024 ? " M" : " G";
-            return result + u;
+            if (volume > 1024 * 1024 * 1024)
+                return Convert.ToString(Math.Round(volume / (1024 * 1024 * 1024), scale)) + " G";
+            else if (volume > 1024 * 1024)
+                return Convert.ToString(Math.Round(volume / (1024 * 1024), scale)) + " M";
+            else return Convert.ToString(Math.Round(volume / 1024, scale)) + " KB";
         }
 
         /// <summary>
         /// 根据页长计算总页码
         /// </summary>
-        /// <param name="count">数据总数</param>
+        /// <param name="rowCount">数据总数</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
-        public static int Page(int count, int pageSize)
+        public static int Page(int rowCount, int pageSize)
         {
-            int page = count % pageSize == 0 ? count / pageSize : (count / pageSize + 1);
-            return page;
+            return ~~((rowCount - 1) / pageSize) + 1;
         }
 
         #endregion

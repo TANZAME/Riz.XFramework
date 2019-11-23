@@ -85,12 +85,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\DatePart.cs">
       <Link>Common\DatePart.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs">
-      <Link>Common\Helper\ConvertHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\FileHelper.cs">
-      <Link>Common\Helper\FileHelper.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\GZipHelper.cs">
       <Link>Common\Helper\GZipHelper.cs</Link>
     </Compile>

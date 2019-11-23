@@ -68,11 +68,9 @@
     <Compile Include="Caching\ReaderWriterCache.cs" />
     <Compile Include="Caching\SimpleCache.cs" />
     <Compile Include="Common\DatePart.cs" />
-    <Compile Include="Common\Helper\ConvertHelper.cs" />
-    <Compile Include="Common\Helper\FileHelper.cs" />
     <Compile Include="Common\Helper\GZipHelper.cs" />
     <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
-    <Compile Include="Common\Helper\StringHelper.cs" />
+    <Compile Include="Common\Helper\RegexHelper.cs" />
     <Compile Include="Common\Helper\XmlHelper.cs" />
     <Compile Include="Common\MetadataTypesRegister.cs" />
     <Compile Include="Common\Common.cs" />
