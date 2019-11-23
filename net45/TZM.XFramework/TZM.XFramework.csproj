@@ -67,7 +67,7 @@
     <Compile Include="Common\Collection\PagedList.cs" />
     <Compile Include="Caching\ReaderWriterCache.cs" />
     <Compile Include="Caching\SimpleCache.cs" />
-    <Compile Include="Common\DayPart.cs" />
+    <Compile Include="Common\DatePart.cs" />
     <Compile Include="Common\Helper\ConvertHelper.cs" />
     <Compile Include="Common\Helper\FileHelper.cs" />
     <Compile Include="Common\Helper\GZipHelper.cs" />

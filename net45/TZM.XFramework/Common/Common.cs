@@ -74,10 +74,10 @@ namespace TZM.XFramework
         /// </summary>
         /// <typeparam name="T">时间戳值类型</typeparam>
         /// <param name="source">时间戳</param>
-        /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
+        /// <param name="datePart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <param name="destinationTimeZoneId">目标时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <returns></returns>
-        public static DateTime ConvertToDateTime<T>(T source, DayPart dayPart = DayPart.Millisecond, string destinationTimeZoneId = null) where T : struct
+        public static DateTime ConvertToDateTime<T>(T source, DatePart datePart = DatePart.Millisecond, string destinationTimeZoneId = null) where T : struct
         {
             // 时间戳是自 1970 年 1 月 1 日（00:00:00 GMT）以来的秒数。它也被称为 Unix 时间戳（Unix Timestamp）。
             // Unix时间戳(Unix timestamp)，或称Unix时间(Unix time)、POSIX时间(POSIX time)，是一种时间表示方式，定义为从格林威治时间1970年01月01日00时00分00秒起至现在的总秒数
@@ -85,10 +85,10 @@ namespace TZM.XFramework
             DateTime result;
             DateTime s = _utcMinDate;
 
-            if (dayPart == DayPart.Second) result = s.AddSeconds(Convert.ToDouble(source));
-            else if (dayPart == DayPart.Millisecond) result = s.AddMilliseconds(Convert.ToDouble(source));
-            else if (dayPart == DayPart.Tick) result = s.AddTicks(Convert.ToInt64(source));
-            else throw new NotSupportedException(dayPart + " is not a support type.");
+            if (datePart == DatePart.Second) result = s.AddSeconds(Convert.ToDouble(source));
+            else if (datePart == DatePart.Millisecond) result = s.AddMilliseconds(Convert.ToDouble(source));
+            else if (datePart == DatePart.Tick) result = s.AddTicks(Convert.ToInt64(source));
+            else throw new NotSupportedException(datePart + " is not a support type.");
 
             if (destinationTimeZoneId == null || destinationTimeZoneId == "Local")
                 result = result.ToLocalTime();
@@ -105,17 +105,17 @@ namespace TZM.XFramework
         /// <param name="sourceTimeZoneId">源时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <returns></returns>
-        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DayPart dayPart = DayPart.Millisecond)
+        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DatePart dayPart = DatePart.Millisecond)
         {
             // 转至UTC时区
             if (sourceTimeZoneId != "UTC") source = Common.ConvertDateTime(source, sourceTimeZoneId, "UTC");
             switch (dayPart)
             {
-                case DayPart.Second:
+                case DatePart.Second:
                     return (source.Ticks - 621355968000000000L) / 10000000;
-                case DayPart.Millisecond:
+                case DatePart.Millisecond:
                     return (source.Ticks - 621355968000000000L) / 10000;
-                case DayPart.Tick:
+                case DatePart.Tick:
                     return source.Ticks - 621355968000000000L;
                 default:
                     throw new NotSupportedException(dayPart + " is not a support type."); 

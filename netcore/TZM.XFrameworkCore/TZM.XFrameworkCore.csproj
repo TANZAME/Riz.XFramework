@@ -55,7 +55,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\IPagedList.cs" Link="Common\Collection\IPagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs" Link="Common\Common.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\DayPart.cs" Link="Common\DayPart.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Common\DatePart.cs" Link="Common\DatePart.cs" />
 
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs" Link="Common\Helper\ConvertHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\FileHelper.cs" Link="Common\Helper\FileHelper.cs" />
