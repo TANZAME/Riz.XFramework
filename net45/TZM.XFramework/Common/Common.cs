@@ -118,7 +118,7 @@ namespace TZM.XFramework
                 case DatePart.Tick:
                     return source.Ticks - 621355968000000000L;
                 default:
-                    throw new NotSupportedException(dayPart + " is not a support type."); 
+                    throw new NotSupportedException(dayPart + " is not a support type.");
             }
         }
 
@@ -132,11 +132,11 @@ namespace TZM.XFramework
         public static DateTime ConvertDateTime(DateTime source, string sourceTimeZoneId = "UTC", string destinationTimeZoneId = "Pacific Standard Time")
         {
             DateTime newDateTime = new DateTime(source.Ticks);
-            
-            if (sourceTimeZoneId == null || sourceTimeZoneId == "Local") 
+
+            if (sourceTimeZoneId == null || sourceTimeZoneId == "Local")
                 sourceTimeZoneId = TimeZoneInfo.Local.Id;
-            
-            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local") 
+
+            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local")
                 destinationTimeZoneId = TimeZoneInfo.Local.Id;
 
             return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(newDateTime, sourceTimeZoneId, destinationTimeZoneId);
@@ -159,34 +159,70 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 将数字的字符串表示形式转换为它的等效 32 位有符号整数,如果转换不成功,则使用传入的默认值.
+        /// 尝试将逻辑值的指定字符串表示形式转换为它的等效值，如果不能转换则使用传入的默认值.
         /// </summary>
         /// <param name="s">字符值</param>
         /// <param name="default">传入的默认值</param>
         /// <returns></returns>
-        public static int TryParse(string s, int @default)
+        public static T TryParse<T>(string s, T @default)
+            where T : struct
         {
-            int result;
-            if (!int.TryParse(s, out result))
+            T result = @default;
+            if (typeof(T) == typeof(short))
             {
-                result = @default;
+                short value;
+                if (!short.TryParse(s, out value)) value = (short)((object)@default);
+                result = (T)((object)value);
             }
-            return result;
-        }
+            else if (typeof(T) == typeof(int))
+            {
+                int value;
+                if (!int.TryParse(s, out value)) value = (int)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                long value;
+                if (!long.TryParse(s, out value)) value = (long)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                float value;
+                if (!float.TryParse(s, out value)) value = (float)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                double value;
+                if (!double.TryParse(s, out value)) value = (double)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(decimal))
+            {
+                decimal value;
+                if (!decimal.TryParse(s, out value)) value = (decimal)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(byte))
+            {
+                byte value;
+                if (!byte.TryParse(s, out value)) value = (byte)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                bool value;
+                if (!bool.TryParse(s, out value)) value = (bool)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(DateTime))
+            {
+                DateTime value;
+                if (!DateTime.TryParse(s, out value)) value = (DateTime)((object)@default);
+                result = (T)((object)value);
+            }
 
-        /// <summary>
-        /// 尝试将逻辑值的指定字符串表示形式转换为它的等效 System.Boolean 值,则使用传入的默认值.
-        /// </summary>
-        /// <param name="s">字符值</param>
-        /// <param name="default">传入的默认值</param>
-        /// <returns></returns>
-        public static bool TryParse(string s, bool @default)
-        {
-            bool result;
-            if (!bool.TryParse(s, out result))
-            {
-                result = @default;
-            }
             return result;
         }
 
