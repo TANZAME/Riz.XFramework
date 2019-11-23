@@ -129,7 +129,7 @@
     <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
     <Compile Include="Data\DbQueryableExtensions.cs" />

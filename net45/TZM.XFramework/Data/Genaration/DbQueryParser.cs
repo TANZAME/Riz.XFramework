@@ -34,8 +34,8 @@ namespace TZM.XFramework.Data
             int? skip = null;
             int? take = null;
             int? outerIndex = null;
-            var whereExpressions = new List<Expression>();    // WHERE
-            var havingExpressions = new List<Expression>();   // HAVING
+            var conditins = new List<Expression>();    // WHERE
+            var havings = new List<Expression>();   // HAVING
             var joins = new List<DbExpression>();             // JOIN
             var orderBys = new List<DbExpression>();          // ORDER BY
             var includes = new List<DbExpression>();          // ORDER BY
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data
 
                     case DbExpressionType.Any:
                         isAny = true;
-                        if (curExpr.Expressions != null) whereExpressions.Add(curExpr.Expressions[0]);
+                        if (curExpr.Expressions != null) conditins.Add(curExpr.Expressions[0]);
                         break;
 
                     case DbExpressionType.AsSubQuery:
@@ -107,7 +107,7 @@ namespace TZM.XFramework.Data
 
                     case DbExpressionType.Count:
                         statisExpression = curExpr;
-                        if (curExpr.Expressions != null) whereExpressions.Add(curExpr.Expressions[0]);
+                        if (curExpr.Expressions != null) conditins.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Distinct:
@@ -117,7 +117,7 @@ namespace TZM.XFramework.Data
                     case DbExpressionType.First:
                     case DbExpressionType.FirstOrDefault:
                         take = 1;
-                        if (curExpr.Expressions != null) whereExpressions.Add(curExpr.Expressions[0]);
+                        if (curExpr.Expressions != null) conditins.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Join:
@@ -143,7 +143,7 @@ namespace TZM.XFramework.Data
                     case DbExpressionType.Single:
                     case DbExpressionType.SingleOrDefault:
                         take = 1;
-                        if (curExpr.Expressions != null) whereExpressions.Add(curExpr.Expressions[0]);
+                        if (curExpr.Expressions != null) conditins.Add(curExpr.Expressions[0]);
                         continue;
 
                     case DbExpressionType.Skip:
@@ -160,7 +160,7 @@ namespace TZM.XFramework.Data
                         continue;
 
                     case DbExpressionType.Where:
-                        var predicate = groupByExpression == null ? whereExpressions : havingExpressions;
+                        var predicate = groupByExpression == null ? conditins : havings;
                         if (curExpr.Expressions != null) predicate.Add(curExpr.Expressions[0]);
                         continue;
 
@@ -183,25 +183,25 @@ namespace TZM.XFramework.Data
                 #endregion
             }
 
-            // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关统计函数，则默认选择FromType的所有字段
+            // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关聚合函数，则默认选择FromType的所有字段
             bool useFullFields = insertExpression == null && deleteExpression == null && updateExpression == null && selectExpression == null && statisExpression == null;
             if (useFullFields) selectExpression = Expression.Constant(type ?? typeof(TElement));
 
             var sQueryInfo = new DbQueryableInfo_Select<TElement>();
-            sQueryInfo.FromType = type;
+            sQueryInfo.FromEntityType = type;
             sQueryInfo.HasDistinct = isDistinct;
             sQueryInfo.HasAny = isAny;
             sQueryInfo.Joins = joins;
             sQueryInfo.OrderBys = orderBys;
-            sQueryInfo.GroupByExpression = groupByExpression;
-            sQueryInfo.StatisExpression = statisExpression;
+            sQueryInfo.GroupBy = groupByExpression;
+            sQueryInfo.Aggregate = statisExpression;
             sQueryInfo.Unions = unions;
             sQueryInfo.Includes = includes;
             sQueryInfo.Skip = skip != null ? skip.Value : 0;
             sQueryInfo.Take = take != null ? take.Value : 0;
-            sQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, selectExpression);
-            sQueryInfo.WhereExpression = new DbExpression(DbExpressionType.Where, CombineCondition(whereExpressions));
-            sQueryInfo.HavingExpression = new DbExpression(DbExpressionType.None, CombineCondition(havingExpressions));
+            sQueryInfo.Select = new DbExpression(DbExpressionType.Select, selectExpression);
+            sQueryInfo.Condtion = new DbExpression(DbExpressionType.Where, CombineCondition(conditins));
+            sQueryInfo.Having = new DbExpression(DbExpressionType.None, CombineCondition(havings));
             sQueryInfo.SourceQuery = dbQuery;
 
             #region 更新语义
@@ -308,7 +308,7 @@ namespace TZM.XFramework.Data
                         var myOutQuery = rootQuery as IDbQueryableInfo_Select;
                         var mySubQuery = rootQuery.SubQueryInfo as IDbQueryableInfo_Select;
                         // 没有分页的嵌套统计，不需要排序
-                        if (myOutQuery.StatisExpression != null && !(mySubQuery.Take > 0 || mySubQuery.Skip > 0) && mySubQuery.OrderBys.Count > 0)
+                        if (myOutQuery.Aggregate != null && !(mySubQuery.Take > 0 || mySubQuery.Skip > 0) && mySubQuery.OrderBys.Count > 0)
                             mySubQuery.OrderBys = new List<DbExpression>(0);
                         // 继续下一轮迭代
                         rootQuery = rootQuery.SubQueryInfo;
@@ -329,11 +329,11 @@ namespace TZM.XFramework.Data
         {
             // @havePaging 是否有分页信息
 
-            if (sQueryInfo == null || sQueryInfo.SelectExpression == null) return sQueryInfo;
+            if (sQueryInfo == null || sQueryInfo.Select == null) return sQueryInfo;
 
-            Expression select = sQueryInfo.SelectExpression.Expressions[0];
+            Expression select = sQueryInfo.Select.Expressions[0];
             List<DbExpression> include = sQueryInfo.Includes;
-            Type type = sQueryInfo.FromType;
+            Type type = sQueryInfo.FromEntityType;
 
             // 解析导航属性 如果有 1:n 的导航属性，那么查询的结果集的主记录将会有重复记录
             // 这时就需要使用嵌套语义，先查主记录，再关联导航记录
@@ -361,19 +361,19 @@ namespace TZM.XFramework.Data
                     // 简化内层选择器，只选择最小字段，不选择导航字段，导航字段在外层加进去
                     initExpression = Expression.MemberInit(newExpression, bindings);
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
-                    sQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, lambdaExpression);
+                    sQueryInfo.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                sQueryInfo.SubQueryByMany = true;
+                sQueryInfo.SubQueryOfMany = true;
                 sQueryInfo.Includes = new List<DbExpression>(0);
 
                 var outQueryInfo = new DbQueryableInfo_Select<TElement>();
-                outQueryInfo.FromType = type;
+                outQueryInfo.FromEntityType = type;
                 outQueryInfo.SubQueryInfo = sQueryInfo;
                 outQueryInfo.Joins = new List<DbExpression>(0);
                 outQueryInfo.OrderBys = new List<DbExpression>(0);
                 outQueryInfo.Includes = include;
                 outQueryInfo.HasMany = true;
-                outQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, select);
+                outQueryInfo.Select = new DbExpression(DbExpressionType.Select, select);
 
                 #region 排序
 
@@ -413,7 +413,7 @@ namespace TZM.XFramework.Data
 
                 #region 分组
 
-                if (sQueryInfo.GroupByExpression != null)
+                if (sQueryInfo.GroupBy != null)
                 {
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
                     // demo => line 1280
@@ -444,7 +444,7 @@ namespace TZM.XFramework.Data
                         newExpression = Expression.New(newExpression.Constructor, arguments, newExpression.Members);
                         initExpression = Expression.MemberInit(newExpression, bindings);
                         lambdaExpression = Expression.Lambda(initExpression, parameterExpression);
-                        outQueryInfo.SelectExpression = new DbExpression(DbExpressionType.Select, lambdaExpression);
+                        outQueryInfo.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                     }
                 }
 

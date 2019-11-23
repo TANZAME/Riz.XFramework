@@ -89,7 +89,7 @@ namespace TZM.XFramework.Data
         internal void VisitArgument(Expression exp, bool wasFilter = false)
         {
             var token = _builder.Token;
-            _uQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, exp);
+            _uQueryInfo.SelectInfo.Select = new DbExpression(DbExpressionType.Select, exp);
             var cmd2 = (MappingCommand)ParseCommand(_uQueryInfo.SelectInfo, 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,

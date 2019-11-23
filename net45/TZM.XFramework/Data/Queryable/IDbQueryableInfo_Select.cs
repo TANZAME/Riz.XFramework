@@ -27,7 +27,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// GROUP BY 表达式集合
         /// </summary>
-        DbExpression GroupByExpression { get; set; }
+        DbExpression GroupBy { get; set; }
 
         /// <summary>
         /// SQL 命令是否含 DISTINCT 
@@ -38,11 +38,6 @@ namespace TZM.XFramework.Data
         /// 表达式是否是 Any 表达式
         /// </summary>
         bool HasAny { get; set; }
-
-        /// <summary>
-        /// 表达式是否包含 1:n 类型的导航属性
-        /// </summary>
-        bool HasMany { get; set; }
 
         /// <summary>
         /// 跳过序列中指定数量的元素
@@ -57,32 +52,36 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 指示 SELECT FROM 子句表对应类型
         /// </summary>
-        Type FromType { get; set; }
+        Type FromEntityType { get; set; }
 
         /// <summary>
-        /// SELECT 字段表达式，空表示选取 <see cref="FromType"/> 的所有字段
+        /// SELECT 字段表达式，如果为空则表示选择所有的字段
         /// </summary>
-        DbExpression SelectExpression { get; set; }
+        DbExpression Select { get; set; }
 
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        DbExpression WhereExpression { get; set; }
+        DbExpression Condtion { get; set; }
 
         /// <summary>
         /// HAVING 表达式
         /// </summary>
-        DbExpression HavingExpression { get; set; }
+        DbExpression Having { get; set; }
 
         /// <summary>
-        /// 统计函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
+        /// 聚合函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
         /// </summary>
-        DbExpression StatisExpression { get; set; }
-        
+        DbExpression Aggregate { get; set; }
+
         /// <summary>
-        /// 是否是由一对多导航产生的嵌套查询
-        /// <para>=true 时此查询一定是子查询</para>
+        /// 是否是由一对多导航产生的嵌套查询，=true 时此查询一定是子查询
         /// </summary>
-        bool SubQueryByMany { get; set; }
+        bool SubQueryOfMany { get; set; }
+
+        /// <summary>
+        /// 表达式是否包含 1:n 类型的导航属性
+        /// </summary>
+        bool HasMany { get; set; }
     }
 }

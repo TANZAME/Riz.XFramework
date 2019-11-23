@@ -85,6 +85,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfo.cs" Link="Data\Emit\TypeRuntimeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfoCache.cs" Link="Data\Emit\TypeRuntimeInfoCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeUtils.cs" Link="Data\Emit\TypeUtils.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\AggregateExpressionVisitor.cs" Link="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\ColumnExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionNominator.cs" Link="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionVisitorBase.cs" Link="Data\ExpressionVisitor\ExpressionVisitorBase.cs" />
@@ -94,7 +95,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedMark.cs" Link="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs" Link="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\StatisExpressionVisitor.cs" Link="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\BulkInsertInfo.cs" Link="Data\Genaration\BulkInsertInfo.cs" />

@@ -184,6 +184,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeUtils.cs">
       <Link>Data\Emit\TypeUtils.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\AggregateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\AggregateExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\ColumnExpressionVisitor.cs</Link>
     </Compile>
@@ -210,9 +213,6 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OrderByExpressionVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\StatisExpressionVisitor.cs">
-      <Link>Data\ExpressionVisitor\StatisExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\UpdateExpressionVisitor.cs</Link>

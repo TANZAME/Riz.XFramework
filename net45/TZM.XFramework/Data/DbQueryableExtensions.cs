@@ -38,6 +38,16 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 强制使用嵌套查询
+        /// </summary>
+        public static IDbQueryable<TResult> AsSubQuery<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            return source
+                .CreateQuery<TResult>(DbExpressionType.AsSubQuery)
+                .CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+        }
+
+        /// <summary>
         /// 返回序列中的元素数量
         /// </summary>
         public static int Count<TSource>(this IDbQueryable<TSource> source)
@@ -296,11 +306,11 @@ namespace TZM.XFramework.Data
         /// <typeparam name="TProperty">外键类型</typeparam>
         /// <param name="source">主表</param>
         /// <param name="path">外键</param>
-        /// <param name="selector">选择字段</param>
+        /// <param name="keySelector">选择字段</param>
         /// <returns></returns>
-        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> selector)
+        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> keySelector)
         {
-            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, selector }));
+            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, keySelector }));
         }
 
         /// <summary>
@@ -415,9 +425,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         ///  通过合并元素的索引将序列的每个元素投影到新表中
         /// </summary>
-        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            return source.CreateQuery<TResult>(DbExpressionType.Select, selector);
+            return source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
         }
 
         /// <summary>

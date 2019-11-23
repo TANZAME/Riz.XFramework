@@ -125,7 +125,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
-            // 2.在有统计函数的<MAX,MIN...>情况下，如果有 'Distinct' 'GroupBy' 'Skip' 'Take' 子句，则需要使用嵌套查询
+            // 2.在有聚合函数的<MAX,MIN...>情况下，如果有 'Distinct' 'GroupBy' 'Skip' 'Take' 子句，则需要使用嵌套查询
             // 3.'Any' 子句将翻译成 IF EXISTS...
             // 4.分组再分页时需要使用嵌套查询，此时子查询不需要 'OrderBy' 子句，但最外层则需要
             // 5.'Skip' 'Take' 子句视为语义结束符，在其之后的子句将使用嵌套查询
@@ -136,14 +136,14 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             DbQueryableInfo_Select<T> subQuery = sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo.HasMany && subQuery != null && subQuery.StatisExpression != null) sQueryInfo = subQuery;
+            if (sQueryInfo.HasMany && subQuery != null && subQuery.Aggregate != null) sQueryInfo = subQuery;
 
-            bool useStatis = sQueryInfo.StatisExpression != null;
-            // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
+            bool useStatis = sQueryInfo.Aggregate != null;
+            // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
-            bool useSubQuery = sQueryInfo.HasDistinct || sQueryInfo.GroupByExpression != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
-            bool useOrderBy = (!useStatis || sQueryInfo.Skip > 0) && !sQueryInfo.HasAny && (!sQueryInfo.SubQueryByMany || (sQueryInfo.Skip > 0 || sQueryInfo.Take > 0));
+            bool useSubQuery = sQueryInfo.HasDistinct || sQueryInfo.GroupBy != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
+            bool useOrderBy = (!useStatis || sQueryInfo.Skip > 0) && !sQueryInfo.HasAny && (!sQueryInfo.SubQueryOfMany || (sQueryInfo.Skip > 0 || sQueryInfo.Take > 0));
 
             IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
             TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
@@ -163,7 +163,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQueryInfo.StatisExpression, sQueryInfo.GroupByExpression, alias0);
+                var visitor2 = new AggregateExpressionVisitor(this, aliases, sQueryInfo.Aggregate, sQueryInfo.GroupBy, alias0);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -194,9 +194,9 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && !useSubQuery)
             {
-                // 如果有统计函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
+                // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQueryInfo.StatisExpression, sQueryInfo.GroupByExpression);
+                var visitor2 = new AggregateExpressionVisitor(this, aliases, sQueryInfo.Aggregate, sQueryInfo.GroupBy);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
             }
@@ -255,7 +255,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                         if (sQueryInfo.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                         jf.Append("ROW_NUMBER() OVER(");
-                        var visitor3 = new OrderByExpressionVisitor(this, aliases, sQueryInfo.OrderBys, sQueryInfo.GroupByExpression);
+                        var visitor3 = new OrderByExpressionVisitor(this, aliases, sQueryInfo.OrderBys, sQueryInfo.GroupBy);
                         visitor3.Write(jf, false);
                         cmd.AddNavMembers(visitor3.NavMembers);
                         jf.Append(") Row_Number0");
@@ -285,7 +285,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQueryInfo.FromType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQueryInfo.FromEntityType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias0);
@@ -299,24 +299,24 @@ namespace TZM.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, sQueryInfo.WhereExpression);
+            visitor = new WhereExpressionVisitor(this, aliases, sQueryInfo.Condtion);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(this, aliases, sQueryInfo.GroupByExpression);
+            visitor = new GroupByExpressionVisitor(this, aliases, sQueryInfo.GroupBy);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(this, aliases, sQueryInfo.HavingExpression, sQueryInfo.GroupByExpression);
+            visitor = new HavingExpressionVisitor(this, aliases, sQueryInfo.Having, sQueryInfo.GroupBy);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
             if (sQueryInfo.OrderBys.Count > 0 && useOrderBy)// && !groupByPaging)
             {
-                visitor = new OrderByExpressionVisitor(this, aliases, sQueryInfo.OrderBys, sQueryInfo.GroupByExpression);
+                visitor = new OrderByExpressionVisitor(this, aliases, sQueryInfo.OrderBys, sQueryInfo.GroupBy);
                 visitor.Write(wf);
                 cmd.AddNavMembers(visitor.NavMembers);
             }
@@ -355,7 +355,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (sQueryInfo.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.StatisExpression == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
+            if (sQueryInfo.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.Aggregate == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 cmd.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
@@ -580,7 +580,7 @@ namespace TZM.XFramework.Data.SqlClient
                 ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression);
+                visitor = new WhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Condtion);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 
@@ -667,7 +667,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new UpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
                 visitor.Write(cmd2.WhereFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
+                visitor = new WhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Condtion);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 

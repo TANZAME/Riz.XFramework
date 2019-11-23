@@ -1276,8 +1276,6 @@ namespace TZM.XFramework.UnitTest
                     ClientId = g.Key,
                     Qty = g.Sum(a => a.Qty)
                 };
-            query2 = query2.OrderBy(a => a.ClientId).ThenBy(a => a.Qty);
-            var result10 = query2.ToList();
             var result2 = query2.Max(a => a.ClientId);
             //SQL=>
             //SELECT
@@ -1573,6 +1571,18 @@ namespace TZM.XFramework.UnitTest
                     select a;
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.ToString());
+
+            var subQuery3 =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.ClientAccount>() on a.ClientId equals b.ClientId
+                select new
+                {
+                    ClientId = a.ClientId,
+                    ClientName = a.ClientName,
+                    Qty = a.Qty
+                };
+            subQuery3.AsSubQuery(a => new { a.Qty }).ToList();
+
             //SQL=> 
             //SELECT 
             //t0.[ClientId] AS [ClientId],
