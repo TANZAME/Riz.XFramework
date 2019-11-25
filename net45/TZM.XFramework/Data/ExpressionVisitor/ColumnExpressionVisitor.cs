@@ -220,11 +220,11 @@ namespace TZM.XFramework.Data
                     int n = _navChainHopper.Count;
                     string keyName = _navChainHopper.Count > 0 ? _navChainHopper[_navChainHopper.Count - 1] : string.Empty;
                     keyName = !string.IsNullOrEmpty(keyName) ? keyName + "." + binding.Member.Name : binding.Member.Name;
-                    Navigation nav = new Navigation(keyName, binding.Member);
-                    if (!_navigations.ContainsKey(keyName))
+                    var nav = new Navigation(keyName, binding.Member);
+                    if (!_navigations.Contains(keyName))
                     {
                         // fix issue# spliton 列占一个位
-                        nav.Start = _pickColumns.Count;
+                        nav.StartIndex = _pickColumns.Count;
                         nav.FieldCount = GetFieldCount(binding.Expression) + (binding.Expression.NodeType == ExpressionType.MemberAccess && binding.Expression.Acceptable() ? 1 : 0);
                         _navigations.Add(keyName, nav);
                         _navChainHopper.Add(keyName);
@@ -531,11 +531,11 @@ namespace TZM.XFramework.Data
                     if (memberExpression == null) continue;
 
                     keyName = memberExpression.GetKeyWidthoutAnonymous(true);
-                    if (!_navigations.ContainsKey(keyName))
+                    if (!_navigations.Contains(keyName))
                     {
                         // fix issue# SplitOn 列占一个位
                         var nav = new Navigation(keyName, memberExpression.Member);
-                        nav.Start = i == 0 ? _pickColumns.Count : -1;
+                        nav.StartIndex = i == 0 ? _pickColumns.Count : -1;
                         nav.FieldCount = i == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
                         _navigations.Add(keyName, nav);
                     }

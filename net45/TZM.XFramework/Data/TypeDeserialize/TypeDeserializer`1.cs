@@ -153,19 +153,19 @@ namespace TZM.XFramework.Data
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             if (string.IsNullOrEmpty(typeName)) typeName = type.Name;
 
-            foreach (var kvp in _map.Navigations)
+            //foreach (var kvp in _map.Navigations)
+            foreach(var navigation in _map.Navigations)
             {
                 int start = -1;
                 int end = -1;
-                var navigation = kvp.Value;
                 if (navigation.FieldCount > 0)
                 {
-                    start = navigation.Start;
-                    end = navigation.Start + navigation.FieldCount;
+                    start = navigation.StartIndex;
+                    end = navigation.StartIndex + navigation.FieldCount;
                 }
 
                 string keyName = typeName + "." + navigation.Name;
-                if (keyName != kvp.Key) continue;
+                if (keyName != navigation.KeyName) continue;
 
                 var navInvoker = typeRuntime.GetInvoker(navigation.Name);
                 if (navInvoker == null) continue;
@@ -266,7 +266,7 @@ namespace TZM.XFramework.Data
                                 bool isAny = false;
                                 if (_map.Navigations.Count > 1)
                                 {
-                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Value.Member));
+                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Member));
                                     if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
                                         if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();

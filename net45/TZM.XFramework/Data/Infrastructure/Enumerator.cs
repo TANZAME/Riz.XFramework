@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
             {
                 object obj = ((IEnumerator)_enumerator).Current;
                 if (obj is DictionaryEntry) return ((DictionaryEntry)obj).Value;
-                else if (obj is KeyValuePair<string, Column>) return ((KeyValuePair<string, Column>)obj).Value;
+                else if (obj is KeyValuePair<string, T>) return ((KeyValuePair<string, T>)obj).Value;
                 else return null;
             }
         }

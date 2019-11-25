@@ -91,6 +91,7 @@
     <Compile Include="Data\Genaration\DbValue.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Infrastructure\Enumerator.cs" />
+    <Compile Include="Data\Infrastructure\HashCollection.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Queryable\IDbQueryableInfo_Update.cs" />
     <Compile Include="Data\Genaration\SqlBuilder.cs" />

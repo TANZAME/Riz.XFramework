@@ -271,6 +271,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Enumerator.cs">
       <Link>Data\Infrastructure\Enumerator.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\HashCollection.cs">
+      <Link>Data\Infrastructure\HashCollection.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
       <Link>Data\Infrastructure\IDatabase.cs</Link>
     </Compile>
