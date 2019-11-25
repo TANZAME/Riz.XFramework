@@ -319,20 +319,19 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 根据页长计算总页码
+        /// 计算总页码
         /// </summary>
         /// <param name="collection">数据集合</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
         public static int Page<T>(this IEnumerable<T> collection, int pageSize)
         {
-            int count = 0;
-            if ((collection as ICollection<T>) != null) count = (collection as ICollection<T>).Count;
-            else if ((collection as T[]) != null) count = (collection as T[]).Length;
-            else count = collection.Count();
+            int rowCount = 0;
+            if ((collection as ICollection<T>) != null) rowCount = (collection as ICollection<T>).Count;
+            else if ((collection as T[]) != null) rowCount = (collection as T[]).Length;
+            else rowCount = collection.Count();
 
-            int page = (count + pageSize - 1) / pageSize;
-            return page;
+            return ~~((rowCount - 1) / pageSize) + 1;
         }
 
         /// <summary>

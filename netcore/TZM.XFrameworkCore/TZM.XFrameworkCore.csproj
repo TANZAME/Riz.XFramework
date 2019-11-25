@@ -7,9 +7,9 @@
     <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.5.0</AssemblyVersion>
-    <FileVersion>2.0.5.0</FileVersion>
-    <Version>2.0.5</Version>
+    <AssemblyVersion>2.0.7.0</AssemblyVersion>
+    <FileVersion>2.0.7.0</FileVersion>
+    <Version>2.0.7</Version>
     <Copyright>TANZAME</Copyright>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -55,10 +55,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\IPagedList.cs" Link="Common\Collection\IPagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs" Link="Common\Common.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\DayPart.cs" Link="Common\DayPart.cs" />
-
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\ConvertHelper.cs" Link="Common\Helper\ConvertHelper.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\FileHelper.cs" Link="Common\Helper\FileHelper.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Common\DatePart.cs" Link="Common\DatePart.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\GZipHelper.cs" Link="Common\Helper\GZipHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\PhoneticizeHelper.cs" Link="Common\Helper\PhoneticizeHelper.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\SecurityHelper.cs" Link="Common\Helper\SecurityHelper.cs" />
@@ -88,6 +85,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfo.cs" Link="Data\Emit\TypeRuntimeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfoCache.cs" Link="Data\Emit\TypeRuntimeInfoCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeUtils.cs" Link="Data\Emit\TypeUtils.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\AggregateExpressionVisitor.cs" Link="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\ColumnExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionNominator.cs" Link="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\ExpressionVisitorBase.cs" Link="Data\ExpressionVisitor\ExpressionVisitorBase.cs" />
@@ -97,7 +95,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedMark.cs" Link="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs" Link="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\StatisExpressionVisitor.cs" Link="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\BulkInsertInfo.cs" Link="Data\Genaration\BulkInsertInfo.cs" />
@@ -146,8 +143,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs" Link="Data\TypeDeserialize\Column.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ColumnCollection.cs" Link="Data\TypeDeserialize\ColumnCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs" Link="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs" Link="Data\TypeDeserialize\IMapping.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs" Link="Data\TypeDeserialize\MappingCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs" Link="Data\TypeDeserialize\IMapper.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs" Link="Data\TypeDeserialize\MapperCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs" Link="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs" Link="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />

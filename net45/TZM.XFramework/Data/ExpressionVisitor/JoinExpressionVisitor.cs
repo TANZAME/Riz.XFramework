@@ -9,17 +9,17 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class JoinExpressionVisitor : ExpressionVisitorBase
     {
-        private List<DbExpression> _qJoin = null;
+        private List<DbExpression> _joins = null;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
 
         /// <summary>
         /// 初始化 <see cref="JoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        public JoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin)
+        public JoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> joins)
             : base(provider, aliases, null, false)
         {
-            _qJoin = qJoin;
+            _joins = joins;
             _aliases = aliases;
             _provider = provider;
         }
@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
             base._builder = builder;
             if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
-            foreach (DbExpression qj in _qJoin)
+            foreach (DbExpression qj in _joins)
             {
                 builder.AppendNewLine();
 
@@ -53,31 +53,12 @@ namespace TZM.XFramework.Data
             }
         }
 
-        private void AppendJoinType(ISqlBuilder builder, JoinType joinType)
-        {
-            switch (joinType)
-            {
-                case JoinType.InnerJoin:
-                    builder.Append("INNER JOIN");
-                    break;
-                case JoinType.LeftJoin:
-                    builder.Append("LEFT JOIN");
-                    break;
-                case JoinType.RightJoin:
-                    builder.Append("RIGHT JOIN");
-                    break;
-                case JoinType.CrossJoin:
-                    builder.Append("CROSS JOIN");
-                    break;
-            }
-        }
-
         // LEFT OR INNER JOIN
         private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAliasCache aliases)
         {
             builder.Append(' ');
-            IDbQueryable sQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
-            if (sQuery.DbExpressions.Count == 1 && sQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
+            IDbQueryable dbQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
@@ -86,7 +67,7 @@ namespace TZM.XFramework.Data
             else
             {
                 // 嵌套
-                var cmd = sQuery.Resolve(builder.Indent + 1, false, builder.Token);
+                var cmd = dbQuery.Resolve(builder.Indent + 1, false, builder.Token);
                 builder.Append("(");
                 builder.Append(cmd.CommandText);
                 builder.AppendNewLine();
@@ -94,8 +75,8 @@ namespace TZM.XFramework.Data
             }
 
 
-            LambdaExpression left = dbExpression.Expressions[1] as LambdaExpression;
-            LambdaExpression right = dbExpression.Expressions[2] as LambdaExpression;
+            var left = dbExpression.Expressions[1] as LambdaExpression;
+            var right = dbExpression.Expressions[2] as LambdaExpression;
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
@@ -111,8 +92,8 @@ namespace TZM.XFramework.Data
             if (left.Body.NodeType == ExpressionType.New)
             {
 
-                NewExpression body1 = left.Body as NewExpression;
-                NewExpression body2 = right.Body as NewExpression;
+                var body1 = left.Body as NewExpression;
+                var body2 = right.Body as NewExpression;
 
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
@@ -124,8 +105,8 @@ namespace TZM.XFramework.Data
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
             {
-                MemberInitExpression body1 = left.Body as MemberInitExpression;
-                MemberInitExpression body2 = right.Body as MemberInitExpression;
+                var body1 = left.Body as MemberInitExpression;
+                var body2 = right.Body as MemberInitExpression;
 
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
@@ -146,7 +127,7 @@ namespace TZM.XFramework.Data
         // Cross Join
         private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
         {
-            LambdaExpression lambdaExp = exp.Expressions[1] as LambdaExpression;
+            var lambdaExp = exp.Expressions[1] as LambdaExpression;
             Type type = lambdaExp.Parameters[1].Type;
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             builder.Append(' ');
@@ -157,12 +138,30 @@ namespace TZM.XFramework.Data
             builder.Append(alias);
             builder.Append(' ');
         }
-
+        
+        protected void AppendJoinType(ISqlBuilder builder, JoinType joinType)
+        {
+            switch (joinType)
+            {
+                case JoinType.InnerJoin:
+                    builder.Append("INNER JOIN");
+                    break;
+                case JoinType.LeftJoin:
+                    builder.Append("LEFT JOIN");
+                    break;
+                case JoinType.RightJoin:
+                    builder.Append("RIGHT JOIN");
+                    break;
+                case JoinType.CrossJoin:
+                    builder.Append("CROSS JOIN");
+                    break;
+            }
+        }
 
         /// <summary>
         /// 关联类型
         /// </summary>
-        enum JoinType
+        protected enum JoinType
         {
             /// <summary>
             /// 内关联

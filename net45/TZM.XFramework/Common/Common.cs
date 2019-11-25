@@ -46,7 +46,7 @@ namespace TZM.XFramework
         public static string MoneyFormat = "0.00";
 
         /// <summary>
-        /// 系统最小时间
+        /// 系统本地最小时间
         /// </summary>
         public static DateTime MinDate = new DateTime(1970, 1, 1, 0, 0, 0);
 
@@ -74,10 +74,10 @@ namespace TZM.XFramework
         /// </summary>
         /// <typeparam name="T">时间戳值类型</typeparam>
         /// <param name="source">时间戳</param>
-        /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
+        /// <param name="datePart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <param name="destinationTimeZoneId">目标时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <returns></returns>
-        public static DateTime ConvertToDateTime<T>(T source, DayPart dayPart = DayPart.Millisecond, string destinationTimeZoneId = null) where T : struct
+        public static DateTime ConvertToDateTime<T>(T source, DatePart datePart = DatePart.Millisecond, string destinationTimeZoneId = null) where T : struct
         {
             // 时间戳是自 1970 年 1 月 1 日（00:00:00 GMT）以来的秒数。它也被称为 Unix 时间戳（Unix Timestamp）。
             // Unix时间戳(Unix timestamp)，或称Unix时间(Unix time)、POSIX时间(POSIX time)，是一种时间表示方式，定义为从格林威治时间1970年01月01日00时00分00秒起至现在的总秒数
@@ -85,10 +85,10 @@ namespace TZM.XFramework
             DateTime result;
             DateTime s = _utcMinDate;
 
-            if (dayPart == DayPart.Second) result = s.AddSeconds(Convert.ToDouble(source));
-            else if (dayPart == DayPart.Millisecond) result = s.AddMilliseconds(Convert.ToDouble(source));
-            else if (dayPart == DayPart.Tick) result = s.AddTicks(Convert.ToInt64(source));
-            else throw new NotSupportedException(dayPart + " is not a support type.");
+            if (datePart == DatePart.Second) result = s.AddSeconds(Convert.ToDouble(source));
+            else if (datePart == DatePart.Millisecond) result = s.AddMilliseconds(Convert.ToDouble(source));
+            else if (datePart == DatePart.Tick) result = s.AddTicks(Convert.ToInt64(source));
+            else throw new NotSupportedException(datePart + " is not a support type.");
 
             if (destinationTimeZoneId == null || destinationTimeZoneId == "Local")
                 result = result.ToLocalTime();
@@ -105,20 +105,20 @@ namespace TZM.XFramework
         /// <param name="sourceTimeZoneId">源时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <returns></returns>
-        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DayPart dayPart = DayPart.Millisecond)
+        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DatePart dayPart = DatePart.Millisecond)
         {
             // 转至UTC时区
             if (sourceTimeZoneId != "UTC") source = Common.ConvertDateTime(source, sourceTimeZoneId, "UTC");
             switch (dayPart)
             {
-                case DayPart.Second:
+                case DatePart.Second:
                     return (source.Ticks - 621355968000000000L) / 10000000;
-                case DayPart.Millisecond:
+                case DatePart.Millisecond:
                     return (source.Ticks - 621355968000000000L) / 10000;
-                case DayPart.Tick:
+                case DatePart.Tick:
                     return source.Ticks - 621355968000000000L;
                 default:
-                    throw new NotSupportedException(dayPart + " is not a support type."); 
+                    throw new NotSupportedException(dayPart + " is not a support type.");
             }
         }
 
@@ -132,11 +132,11 @@ namespace TZM.XFramework
         public static DateTime ConvertDateTime(DateTime source, string sourceTimeZoneId = "UTC", string destinationTimeZoneId = "Pacific Standard Time")
         {
             DateTime newDateTime = new DateTime(source.Ticks);
-            
-            if (sourceTimeZoneId == null || sourceTimeZoneId == "Local") 
+
+            if (sourceTimeZoneId == null || sourceTimeZoneId == "Local")
                 sourceTimeZoneId = TimeZoneInfo.Local.Id;
-            
-            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local") 
+
+            if (destinationTimeZoneId == null || destinationTimeZoneId == "Local")
                 destinationTimeZoneId = TimeZoneInfo.Local.Id;
 
             return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(newDateTime, sourceTimeZoneId, destinationTimeZoneId);
@@ -159,34 +159,73 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 将数字的字符串表示形式转换为它的等效 32 位有符号整数,如果转换不成功,则使用传入的默认值.
+        /// 尝试将逻辑值的指定字符串表示形式转换为它的等效值，如果不能转换则使用传入的默认值.
         /// </summary>
         /// <param name="s">字符值</param>
         /// <param name="default">传入的默认值</param>
         /// <returns></returns>
-        public static int TryParse(string s, int @default)
+        public static T TryParse<T>(string s, T @default)
+            where T : struct
         {
-            int result;
-            if (!int.TryParse(s, out result))
-            {
-                result = @default;
-            }
-            return result;
-        }
+            if (string.IsNullOrEmpty(s)) 
+                return @default;
 
-        /// <summary>
-        /// 尝试将逻辑值的指定字符串表示形式转换为它的等效 System.Boolean 值,则使用传入的默认值.
-        /// </summary>
-        /// <param name="s">字符值</param>
-        /// <param name="default">传入的默认值</param>
-        /// <returns></returns>
-        public static bool TryParse(string s, bool @default)
-        {
-            bool result;
-            if (!bool.TryParse(s, out result))
+            T result = @default;
+            if (typeof(T) == typeof(short))
             {
-                result = @default;
+                short value;
+                if (!short.TryParse(s, out value)) value = (short)((object)@default);
+                result = (T)((object)value);
             }
+            else if (typeof(T) == typeof(int))
+            {
+                int value;
+                if (!int.TryParse(s, out value)) value = (int)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                long value;
+                if (!long.TryParse(s, out value)) value = (long)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                float value;
+                if (!float.TryParse(s, out value)) value = (float)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                double value;
+                if (!double.TryParse(s, out value)) value = (double)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(decimal))
+            {
+                decimal value;
+                if (!decimal.TryParse(s, out value)) value = (decimal)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(byte))
+            {
+                byte value;
+                if (!byte.TryParse(s, out value)) value = (byte)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                bool value;
+                if (!bool.TryParse(s, out value)) value = (bool)((object)@default);
+                result = (T)((object)value);
+            }
+            else if (typeof(T) == typeof(DateTime))
+            {
+                DateTime value;
+                if (!DateTime.TryParse(s, out value)) value = (DateTime)((object)@default);
+                result = (T)((object)value);
+            }
+
             return result;
         }
 
@@ -246,15 +285,15 @@ namespace TZM.XFramework
         /// 将字符串转为 16 进制形式
         /// </summary>
         /// <param name="buffer">字节序列</param>
-        /// <param name="use0x">返回的字符串前面加上 0x</param>
+        /// <param name="append0x">返回的字符串前面加上 0x</param>
         /// <param name="upper">转为大写形式</param>
         /// <returns></returns>
-        public static string BytesToHex(byte[] buffer, bool use0x = true, bool upper = false)
+        public static string BytesToHex(byte[] buffer, bool append0x = true, bool upper = false)
         {
             if (buffer == null) return null;
-            if (buffer.Length == 0) return use0x ? "0x" : string.Empty;
+            if (buffer.Length == 0) return append0x ? "0x" : string.Empty;
 
-            var builder = new StringBuilder(use0x && buffer.Length > 0 ? "0x" : "");
+            var builder = new StringBuilder(append0x && buffer.Length > 0 ? "0x" : "");
             foreach (var c in buffer)
             {
                 string hex = Convert.ToString(c, 16);
@@ -263,6 +302,36 @@ namespace TZM.XFramework
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// 将byte[]转换成int
+        /// </summary>
+        /// <param name="data">需要转换成整数的byte数组</param>
+        /// <returns>返回值</returns>
+        public static int BytesToInt32(byte[] data)
+        {
+            //如果传入的字节数组长度小于4,则返回0
+            if (data.Length < 4) return 0;
+
+            //定义要返回的整数
+            int num = 0;
+
+            //如果传入的字节数组长度大于4,需要进行处理
+            if (data.Length >= 4)
+            {
+                //创建一个临时缓冲区
+                var tempBuffer = new byte[4];
+
+                //将传入的字节数组的前4个字节复制到临时缓冲区
+                Buffer.BlockCopy(data, 0, tempBuffer, 0, 4);
+
+                //将临时缓冲区的值转换成整数，并赋给num
+                num = BitConverter.ToInt32(tempBuffer, 0);
+            }
+
+            //返回整数
+            return num;
         }
 
         /// <summary>
@@ -323,30 +392,22 @@ namespace TZM.XFramework
         /// <param name="scale">小数位</param>
         public static string FormatVolume(decimal volume, int scale = 1)
         {
-            string result = string.Empty;
-            result = volume < 1024 ? volume.ToString() : (volume / 1024).ToString();
-
-            string[] d = result.Split('.');
-            if (d.Length == 2 && d[1].Length > scale)
-            {
-                d[1] = d[1].Substring(0, scale);
-                result = string.Format("{0}.{1}", d[0], d[1]);
-            }
-
-            string u = volume < 1024 ? " M" : " G";
-            return result + u;
+            if (volume > 1024 * 1024 * 1024)
+                return Convert.ToString(Math.Round(volume / (1024 * 1024 * 1024), scale)) + " G";
+            else if (volume > 1024 * 1024)
+                return Convert.ToString(Math.Round(volume / (1024 * 1024), scale)) + " M";
+            else return Convert.ToString(Math.Round(volume / 1024, scale)) + " KB";
         }
 
         /// <summary>
         /// 根据页长计算总页码
         /// </summary>
-        /// <param name="count">数据总数</param>
+        /// <param name="rowCount">数据总数</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
-        public static int Page(int count, int pageSize)
+        public static int Page(int rowCount, int pageSize)
         {
-            int page = count % pageSize == 0 ? count / pageSize : (count / pageSize + 1);
-            return page;
+            return ~~((rowCount - 1) / pageSize) + 1;
         }
 
         #endregion

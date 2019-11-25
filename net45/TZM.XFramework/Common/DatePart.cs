@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TZM.XFramework
 {
     /// <summary>
     /// 日期部分
     /// </summary>
-    public enum DayPart
+    public enum DatePart
     {
         /// <summary>
         /// 年

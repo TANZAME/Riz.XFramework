@@ -56,7 +56,7 @@
     <DefineConstants>DEBUG;TRACE;net45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>0472</NoWarn>
+    <NoWarn>1701;1702;0472</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />

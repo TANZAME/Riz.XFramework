@@ -70,35 +70,35 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="dbQueryable">查询 语句</param>
+        /// <param name="dbQuery">查询 语句</param>
         /// <param name="indent">缩进</param>
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token)
+        public Command Resolve<T>(IDbQueryable<T> dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 设置该查询是否需要参数化
             if (token == null) token = new ResolveToken();
-            if (!((DbQueryable)dbQueryable).HasSetParameterized) dbQueryable.Parameterized = true;
-            if (dbQueryable.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
+            if (!((DbQueryable)dbQuery).HasSetParameterized) dbQuery.Parameterized = true;
+            if (dbQuery.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
             // 调试模式
-            if (token != null && !token.HasSetIsDebug) token.IsDebug = dbQueryable.DbContext.IsDebug;
+            if (token != null && !token.HasSetIsDebug) token.IsDebug = dbQuery.DbContext.IsDebug;
 
             // 解析查询语义
-            IDbQueryableInfo<T> dbQueryInfo = DbQueryParser.Parse(dbQueryable);
-
-            DbQueryableInfo_Select<T> sQueryInfo = dbQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo != null) return this.ParseSelectCommand<T>(sQueryInfo, indent, isOuter, token);
-
-            DbQueryableInfo_Insert<T> nQueryInfo = dbQueryInfo as DbQueryableInfo_Insert<T>;
-            if (nQueryInfo != null) return this.ParseInsertCommand<T>(nQueryInfo, token);
-
-            DbQueryableInfo_Update<T> uQueryInfo = dbQueryInfo as DbQueryableInfo_Update<T>;
-            if (uQueryInfo != null) return this.ParseUpdateCommand<T>(uQueryInfo, token);
-
-            DbQueryableInfo_Delete<T> dQueryInfo = dbQueryInfo as DbQueryableInfo_Delete<T>;
-            if (dQueryInfo != null) return this.ParseDeleteCommand<T>(dQueryInfo, token);
+            IDbQueryableInfo<T> result = DbQueryParser.Parse(dbQuery);
+            // 查询
+            DbQueryableInfo_Select<T> result_Query = result as DbQueryableInfo_Select<T>;
+            if (result_Query != null) return this.ResolveSelectCommand<T>(result_Query, indent, isOuter, token);
+            // 新增
+            DbQueryableInfo_Insert<T> result_Insert = result as DbQueryableInfo_Insert<T>;
+            if (result_Insert != null) return this.ResolveInsertCommand<T>(result_Insert, token);
+            // 更新
+            DbQueryableInfo_Update<T> result_Update = result as DbQueryableInfo_Update<T>;
+            if (result_Update != null) return this.ResolveUpdateCommand<T>(result_Update, token);
+            // 删除
+            DbQueryableInfo_Delete<T> result_Delete = result as DbQueryableInfo_Delete<T>;
+            if (result_Delete != null) return this.ResolveDeleteCommand<T>(result_Delete, token);
 
             throw new NotImplementedException();
         }
@@ -194,22 +194,22 @@ namespace TZM.XFramework.Data
         #region 私有函数
 
         // 创建 SELECT 命令
-        protected abstract Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQuery, int indent, bool isOuter, ResolveToken token);
+        protected abstract Command ResolveSelectCommand<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token);
 
         // 创建 INSRT 命令
-        protected abstract Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQuery, ResolveToken token);
+        protected abstract Command ResolveInsertCommand<T>(DbQueryableInfo_Insert<T> dbQuery, ResolveToken token);
 
         // 创建 DELETE 命令
-        protected abstract Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQuery, ResolveToken token);
+        protected abstract Command ResolveDeleteCommand<T>(DbQueryableInfo_Delete<T> dbQuery, ResolveToken token);
 
         // 创建 UPDATE 命令
-        protected abstract Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQuery, ResolveToken token);
+        protected abstract Command ResolveUpdateCommand<T>(DbQueryableInfo_Update<T> dbQuery, ResolveToken token);
 
         // 获取 JOIN 子句关联表的的别名
-        protected TableAliasCache PrepareAlias<T>(DbQueryableInfo_Select<T> query, ResolveToken token)
+        protected TableAliasCache PrepareTableAlias<T>(DbQueryableInfo_Select<T> dbQuery, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache((query.Joins != null ? query.Joins.Count : 0) + 1, token != null ? token.TableAliasName : null);
-            foreach (DbExpression exp in query.Joins)
+            TableAliasCache aliases = new TableAliasCache((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.TableAliasName : null);
+            foreach (DbExpression exp in dbQuery.Joins)
             {
                 // [INNER/LEFT JOIN]
                 if (exp.DbExpressionType == DbExpressionType.GroupJoin || exp.DbExpressionType == DbExpressionType.Join || exp.DbExpressionType == DbExpressionType.GroupRightJoin)

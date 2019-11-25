@@ -423,13 +423,13 @@ namespace TZM.XFramework.Data.SqlClient
                 Parameters = token.Parameters,
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
-            } : null) as MappingCommand;
+            } : null) as MapperCommand;
 
             if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
-            if (((MappingCommand)cmd).WhereFragment.Length > 0)
+            if (((MapperCommand)cmd).WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");

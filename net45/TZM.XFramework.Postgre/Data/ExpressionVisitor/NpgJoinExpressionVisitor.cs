@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL片断
         /// </summary>
-        public void Write(NpgNavigationCommand cmd)
+        public void Write(NpgMapperCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder on = cmd.OnPhrase;

@@ -9,7 +9,7 @@ namespace TZM.XFramework
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DataContract]
-    public class PagedList<T> : IPagedList, IEnumerable<T>
+    public class PagedList<T> : IPagedList
     {
         /// <summary>
         /// 数据项
@@ -41,29 +41,29 @@ namespace TZM.XFramework
         [DataMember]
         public int PageSize { get; set; }
 
-        /// <summary>
-        /// 是否有上一页
-        /// </summary>
-        [DataMember]
-        public bool HasPreviousPage
-        {
-            get
-            {
-                return this.PageIndex > 1;
-            }
-        }
+        ///// <summary>
+        ///// 是否有上一页
+        ///// </summary>
+        //[DataMember]
+        //public bool HasPreviousPage
+        //{
+        //    get
+        //    {
+        //        return this.PageIndex > 1;
+        //    }
+        //}
 
-        /// <summary>
-        /// 是否有下一页
-        /// </summary>
-        [DataMember]
-        public bool HasNextPage
-        {
-            get
-            {
-                return this.PageIndex < this.Pages;
-            }
-        }
+        ///// <summary>
+        ///// 是否有下一页
+        ///// </summary>
+        //[DataMember]
+        //public bool HasNextPage
+        //{
+        //    get
+        //    {
+        //        return this.PageIndex < this.Pages;
+        //    }
+        //}
 
         /// <summary>
         /// 获取或设置位于指定索引处的元素
@@ -103,24 +103,6 @@ namespace TZM.XFramework
             {
                 this.PageIndex = this.RowCount;
             }
-        }
-
-        /// <summary>
-        /// 获取迭代器
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
-        {
-            return this.Items.GetEnumerator();
-        }
-
-        /// <summary>
-        /// 获取迭代器
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.Items.GetEnumerator();
         }
     }
 }

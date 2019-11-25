@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -13,7 +14,7 @@ namespace TZM.XFramework.Data.SqlClient
     public sealed class SqlServerDbQueryProvider : DbQueryProvider
     {
         // 无阻塞模式
-        private string _widthNoLock = "WITH(NOLOCK)";
+        private string _widthNoLock = "WITH (NOLOCK)";
 
         /// <summary>
         /// 查询语义提供者实例
@@ -120,11 +121,11 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        protected override Command ParseSelectCommand<T>(DbQueryableInfo_Select<T> sQueryInfo, int indent, bool isOuter, ResolveToken token)
+        protected override Command ResolveSelectCommand<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
-            // 2.在有统计函数的<MAX,MIN...>情况下，如果有 'Distinct' 'GroupBy' 'Skip' 'Take' 子句，则需要使用嵌套查询
+            // 2.在有聚合函数的<MAX,MIN...>情况下，如果有 'Distinct' 'GroupBy' 'Skip' 'Take' 子句，则需要使用嵌套查询
             // 3.'Any' 子句将翻译成 IF EXISTS...
             // 4.分组再分页时需要使用嵌套查询，此时子查询不需要 'OrderBy' 子句，但最外层则需要
             // 5.'Skip' 'Take' 子句视为语义结束符，在其之后的子句将使用嵌套查询
@@ -132,19 +133,20 @@ namespace TZM.XFramework.Data.SqlClient
 
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
-            var subQueryInfo = sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>;
-            if (sQueryInfo.HasMany && subQueryInfo != null && subQueryInfo.StatisExpression != null) sQueryInfo = subQueryInfo;
+            var subQuery = dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
+            if (dbQuery.HasMany && subQuery != null && subQuery.Aggregate != null) dbQuery = subQuery;
 
-            bool useStatis = sQueryInfo.StatisExpression != null;
-            // 没有统计函数或者使用 'Skip' 子句，则解析OrderBy
+            bool useStatis = dbQuery.Aggregate != null;
+            // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             string alias0 = token != null && !string.IsNullOrEmpty(token.TableAliasName) ? (token.TableAliasName + "0") : "t0";
-            bool useSubQuery = sQueryInfo.HasDistinct || sQueryInfo.GroupByExpression != null || sQueryInfo.Skip > 0 || sQueryInfo.Take > 0;
-            bool useOrderBy = (!useStatis || sQueryInfo.Skip > 0) && !sQueryInfo.HasAny && (!sQueryInfo.SubQueryByMany || (sQueryInfo.Skip > 0 || sQueryInfo.Take > 0));
+            bool useSubQuery = dbQuery.HasDistinct || dbQuery.GroupBy != null || dbQuery.Skip > 0 || dbQuery.Take > 0;
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.SubQueryOfMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            IDbQueryable dbQueryable = sQueryInfo.SourceQuery;
-            TableAliasCache aliases = this.PrepareAlias<T>(sQueryInfo, token);
-            MappingCommand cmd = new MappingCommand(this, aliases, token) { HasMany = sQueryInfo.HasMany };
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (SqlServerDbContext)sourceQuery.DbContext;
+            TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
+            MapperCommand cmd = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
 
@@ -159,7 +161,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQueryInfo.StatisExpression, sQueryInfo.GroupByExpression, alias0);
+                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy, alias0);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
 
@@ -177,7 +179,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             // SELECT 子句
             if (jf.Indent > 0) jf.AppendNewLine();
-            if (sQueryInfo.HasAny)
+            if (dbQuery.HasAny)
             {
                 jf.Append("IF EXISTS(");
                 indent += 1;
@@ -189,27 +191,27 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && !useSubQuery)
             {
-                // 如果有统计函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
+                // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor2 = new StatisExpressionVisitor(this, aliases, sQueryInfo.StatisExpression, sQueryInfo.GroupByExpression);
+                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy);
                 visitor2.Write(jf);
                 cmd.AddNavMembers(visitor2.NavMembers);
             }
             else
             {
                 // DISTINCT 子句
-                if (sQueryInfo.HasDistinct) jf.Append("DISTINCT ");
+                if (dbQuery.HasDistinct) jf.Append("DISTINCT ");
                 // TOP 子句
-                if (sQueryInfo.Take > 0 && sQueryInfo.Skip == 0) jf.AppendFormat("TOP({0})", this.DbValue.GetSqlValue(sQueryInfo.Take, token));
+                if (dbQuery.Take > 0 && dbQuery.Skip == 0) jf.AppendFormat("TOP({0})", this.DbValue.GetSqlValue(dbQuery.Take, token));
                 // Any
-                if (sQueryInfo.HasAny) jf.Append("TOP 1 1");
+                if (dbQuery.HasAny) jf.Append("TOP 1 1");
 
                 #region 字段
 
-                if (!sQueryInfo.HasAny)
+                if (!dbQuery.HasAny)
                 {
                     // SELECT 范围
-                    var visitor2 = new ColumnExpressionVisitor(this, aliases, sQueryInfo);
+                    var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
                     visitor2.Write(jf);
 
                     cmd.PickColumns = visitor2.PickColumns;
@@ -228,11 +230,11 @@ namespace TZM.XFramework.Data.SqlClient
             // FROM 子句
             jf.AppendNewLine();
             jf.Append("FROM ");
-            if (sQueryInfo.SubQueryInfo != null)
+            if (dbQuery.SubQueryInfo != null)
             {
                 // 子查询
                 jf.Append('(');
-                Command cmd2 = this.ParseSelectCommand<T>(sQueryInfo.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
+                Command cmd2 = this.ResolveSelectCommand<T>(dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -241,40 +243,39 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(sQueryInfo.FromType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.FromEntityType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias0);
                 jf.Append(' ');
-                SqlServerDbContext context = (SqlServerDbContext)dbQueryable.DbContext;
                 if (context.NoLock && !string.IsNullOrEmpty(this._widthNoLock)) jf.Append(this._widthNoLock);
             }
 
             // LEFT<INNER> JOIN 子句
-            ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, sQueryInfo.Joins);
+            ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Joins);
             visitor.Write(jf);
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, sQueryInfo.WhereExpression);
+            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Condtion);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(this, aliases, sQueryInfo.GroupByExpression);
+            visitor = new GroupByExpressionVisitor(this, aliases, dbQuery.GroupBy);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(this, aliases, sQueryInfo.HavingExpression, sQueryInfo.GroupByExpression);
+            visitor = new HavingExpressionVisitor(this, aliases, dbQuery.Having, dbQuery.GroupBy);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
-            if (sQueryInfo.OrderBys.Count > 0 && useOrderBy)
+            if (dbQuery.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(this, aliases, sQueryInfo.OrderBys, sQueryInfo.GroupByExpression);
+                visitor = new OrderByExpressionVisitor(this, aliases, dbQuery.OrderBys, dbQuery.GroupBy);
                 visitor.Write(wf);
                 cmd.AddNavMembers(visitor.NavMembers);
             }
@@ -283,18 +284,18 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 分页查询
 
-            if (sQueryInfo.Skip > 0)
+            if (dbQuery.Skip > 0)
             {
-                if (sQueryInfo.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
+                if (dbQuery.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                 wf.AppendNewLine();
                 wf.Append("OFFSET ");
-                wf.Append(this.DbValue.GetSqlValue(sQueryInfo.Skip, token));
+                wf.Append(this.DbValue.GetSqlValue(dbQuery.Skip, token));
                 wf.Append(" ROWS");
 
-                if (sQueryInfo.Take > 0)
+                if (dbQuery.Take > 0)
                 {
                     wf.Append(" FETCH NEXT ");
-                    wf.Append(this.DbValue.GetSqlValue(sQueryInfo.Take, token));
+                    wf.Append(this.DbValue.GetSqlValue(dbQuery.Take, token));
                     wf.Append(" ROWS ONLY ");
                 }
             }
@@ -318,11 +319,11 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套导航
 
-            if (sQueryInfo.HasMany && subQueryInfo.StatisExpression == null && subQueryInfo != null && subQueryInfo.OrderBys.Count > 0 && !(subQueryInfo.Skip > 0 || subQueryInfo.Take > 0))
+            if (dbQuery.HasMany && subQuery.Aggregate == null && subQuery != null && subQuery.OrderBys.Count > 0 && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
                 // TODO Include 从表，没分页，OrderBy 报错
                 cmd.CombineFragments();
-                visitor = new OrderByExpressionVisitor(this, aliases, subQueryInfo.OrderBys);
+                visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);
                 visitor.Write(jf);
             }
 
@@ -331,15 +332,15 @@ namespace TZM.XFramework.Data.SqlClient
             #region 并集查询
 
             // UNION 子句
-            if (sQueryInfo.Unions != null && sQueryInfo.Unions.Count > 0)
+            if (dbQuery.Unions != null && dbQuery.Unions.Count > 0)
             {
                 cmd.CombineFragments();
-                for (int index = 0; index < sQueryInfo.Unions.Count; index++)
+                for (int index = 0; index < dbQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ParseSelectCommand<T>(sQueryInfo.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
+                    Command cmd2 = this.ResolveSelectCommand<T>(dbQuery.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -349,7 +350,7 @@ namespace TZM.XFramework.Data.SqlClient
             #region Any 子句
 
             // 'Any' 子句
-            if (sQueryInfo.HasAny)
+            if (dbQuery.HasAny)
             {
                 cmd.CombineFragments();
                 indent -= 1;
@@ -364,29 +365,29 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 INSRT 命令
-        protected override Command ParseInsertCommand<T>(DbQueryableInfo_Insert<T> nQueryInfo, ResolveToken token)
+        protected override Command ResolveInsertCommand<T>(DbQueryableInfo_Insert<T> dbQuery, ResolveToken token)
         {
             TableAliasCache aliases = new TableAliasCache();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
-            if (nQueryInfo.Entity != null)
+            if (dbQuery.Entity != null)
             {
-                object entity = nQueryInfo.Entity;
+                object entity = dbQuery.Entity;
                 ISqlBuilder columnsBuilder = this.CreateSqlBuilder(token);
                 ISqlBuilder valuesBuilder = this.CreateSqlBuilder(token);
 
                 // 指定插入列
                 MemberInvokerCollection invokers = typeRuntime.Invokers;
-                if (nQueryInfo.EntityColumns != null && nQueryInfo.EntityColumns.Count > 0)
+                if (dbQuery.EntityColumns != null && dbQuery.EntityColumns.Count > 0)
                 {
                     invokers = new MemberInvokerCollection();
-                    for (int i = 0; i < nQueryInfo.EntityColumns.Count; i++)
+                    for (int i = 0; i < dbQuery.EntityColumns.Count; i++)
                     {
-                        Expression curExpr = nQueryInfo.EntityColumns[i];
+                        Expression curExpr = dbQuery.EntityColumns[i];
                         if (curExpr.NodeType == ExpressionType.Lambda) curExpr = (curExpr as LambdaExpression).Body.ReduceUnary();
                         if (curExpr.NodeType != ExpressionType.MemberAccess)
-                            throw new XFrameworkException("ERR {0}: Only support MemberAccess expression.", nQueryInfo.EntityColumns[i]);
+                            throw new XFrameworkException("ERR {0}: Only support MemberAccess expression.", dbQuery.EntityColumns[i]);
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
@@ -402,7 +403,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (invoker.Column != null && column.DbType is SqlDbType && (SqlDbType)column.DbType == SqlDbType.Timestamp) continue; // 行版本号
                     if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
-                    if (invoker != nQueryInfo.AutoIncrement)
+                    if (invoker != dbQuery.AutoIncrement)
                     {
                         columnsBuilder.AppendMember(invoker.Member.Name);
                         columnsBuilder.Append(',');
@@ -417,7 +418,7 @@ namespace TZM.XFramework.Data.SqlClient
                 columnsBuilder.Length -= 1;
                 valuesBuilder.Length -= 1;
 
-                if (nQueryInfo.Bulk == null || !nQueryInfo.Bulk.OnlyValue)
+                if (dbQuery.Bulk == null || !dbQuery.Bulk.OnlyValue)
                 {
                     builder.Append("INSERT INTO ");
                     builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -432,23 +433,23 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
                 builder.Append(valuesBuilder);
                 builder.Append(')');
-                if (nQueryInfo.Bulk != null && !nQueryInfo.Bulk.IsEndPos) builder.Append(",");
+                if (dbQuery.Bulk != null && !dbQuery.Bulk.IsEndPos) builder.Append(",");
 
-                if (nQueryInfo.Bulk == null && nQueryInfo.AutoIncrement != null)
+                if (dbQuery.Bulk == null && dbQuery.AutoIncrement != null)
                 {
                     builder.AppendNewLine();
                     builder.Append("SELECT SCOPE_IDENTITY()");
                     builder.AppendAs(Constant.AUTOINCREMENTNAME);
                 }
             }
-            else if (nQueryInfo.SelectInfo != null)
+            else if (dbQuery.SelectInfo != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.Append('(');
 
                 int i = 0;
-                MappingCommand cmd2 = this.ParseSelectCommand(nQueryInfo.SelectInfo, 0, true, token) as MappingCommand;
+                MapperCommand cmd2 = this.ResolveSelectCommand(dbQuery.SelectInfo, 0, true, token) as MapperCommand;
                 foreach (Column column in cmd2.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
@@ -465,21 +466,23 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 DELETE 命令
-        protected override Command ParseDeleteCommand<T>(DbQueryableInfo_Delete<T> dQueryInfo, ResolveToken token)
+        protected override Command ResolveDeleteCommand<T>(DbQueryableInfo_Delete<T> dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (SqlServerDbContext)sourceQuery.DbContext;
 
             builder.Append("DELETE t0 FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             builder.Append(" t0 ");
 
-            if (dQueryInfo.Entity != null)
+            if (dbQuery.Entity != null)
             {
                 if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
                     throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
 
-                object entity = dQueryInfo.Entity;
+                object entity = dbQuery.Entity;
 
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
@@ -497,15 +500,15 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (dQueryInfo.SelectInfo != null)
+            else if (dbQuery.SelectInfo != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(dQueryInfo.SelectInfo, token);
-                var cmd2 = new MappingCommand(this, aliases, token) { HasMany = dQueryInfo.SelectInfo.HasMany };
+                TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
+                var cmd2 = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.SelectInfo.HasMany };
 
-                ExpressionVisitorBase visitor = new JoinExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.Joins);
+                ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, dQueryInfo.SelectInfo.WhereExpression);
+                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 
@@ -516,17 +519,19 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         // 创建 UPDATE 命令
-        protected override Command ParseUpdateCommand<T>(DbQueryableInfo_Update<T> uQueryInfo, ResolveToken token)
+        protected override Command ResolveUpdateCommand<T>(DbQueryableInfo_Update<T> dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (SqlServerDbContext)sourceQuery.DbContext;
 
             builder.Append("UPDATE t0 SET");
             builder.AppendNewLine();
 
-            if (uQueryInfo.Entity != null)
+            if (dbQuery.Entity != null)
             {
-                object entity = uQueryInfo.Entity;
+                object entity = dbQuery.Entity;
                 ISqlBuilder whereBuilder = this.CreateSqlBuilder(token);
                 bool useKey = false;
                 int length = 0;
@@ -579,11 +584,11 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append("WHERE ");
                 builder.Append(whereBuilder);
             }
-            else if (uQueryInfo.Expression != null)
+            else if (dbQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareAlias<T>(uQueryInfo.SelectInfo, token);
+                TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
                 ExpressionVisitorBase visitor = null;
-                visitor = new UpdateExpressionVisitor(this, aliases, uQueryInfo.Expression);
+                visitor = new UpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);
 
                 builder.AppendNewLine();
@@ -591,12 +596,12 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd2 = new MappingCommand(this, aliases, token) { HasMany = uQueryInfo.SelectInfo.HasMany };
+                var cmd2 = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.SelectInfo.HasMany };
 
-                visitor = new JoinExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.Joins);
+                visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, uQueryInfo.SelectInfo.WhereExpression);
+                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 
@@ -604,6 +609,259 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+        }
+
+        // JOIN 表达式解析器
+        class SqlServerJoinExpressionVisitor : JoinExpressionVisitor
+        {
+            private List<DbExpression> _joins = null;
+            private TableAliasCache _aliases = null;
+            private SqlServerDbContext _context = null;
+            private SqlServerDbQueryProvider _provider = null;
+
+            /// <summary>
+            /// 初始化 <see cref="SqlServerJoinExpressionVisitor"/> 类的新实例
+            /// </summary>
+            internal SqlServerJoinExpressionVisitor(SqlServerDbContext context, TableAliasCache aliases, List<DbExpression> joins)
+                : base(context.Provider, aliases, joins)
+            {
+                _joins = joins;
+                _aliases = aliases;
+                _context = context;
+                _provider = context.Provider as SqlServerDbQueryProvider;
+            }
+
+            /// <summary>
+            /// 写入SQL片断
+            /// </summary>
+            public override void Write(ISqlBuilder builder)
+            {
+                base._builder = builder;
+                if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
+
+                foreach (DbExpression dbExpression in _joins)
+                {
+                    builder.AppendNewLine();
+
+                    // [INNER/LEFT JOIN]
+                    if (dbExpression.DbExpressionType == DbExpressionType.GroupJoin || dbExpression.DbExpressionType == DbExpressionType.Join || dbExpression.DbExpressionType == DbExpressionType.GroupRightJoin)
+                    {
+                        JoinType joinType = JoinType.InnerJoin;
+                        if (dbExpression.DbExpressionType == DbExpressionType.GroupJoin) joinType = JoinType.LeftJoin;
+                        else if (dbExpression.DbExpressionType == DbExpressionType.GroupRightJoin) joinType = JoinType.RightJoin;
+                        this.AppendJoinType(builder, joinType);
+                        this.AppendLfInJoin(builder, dbExpression, _aliases);
+                    }
+                    else if (dbExpression.DbExpressionType == DbExpressionType.SelectMany)
+                    {
+                        this.AppendJoinType(builder, JoinType.CrossJoin);
+                        this.AppendCrossJoin(builder, dbExpression, _aliases);
+                    }
+                }
+            }
+
+            // LEFT OR INNER JOIN
+            private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAliasCache aliases)
+            {
+                bool withNoLock = false;
+                builder.Append(' ');
+                IDbQueryable dbQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+                if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
+                {
+                    Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+
+                    withNoLock = !typeRuntime.IsTemporary && _context.NoLock && !string.IsNullOrEmpty(_provider.WidthNoLock);
+                }
+                else
+                {
+                    // 嵌套
+                    var cmd = dbQuery.Resolve(builder.Indent + 1, false, builder.Token);
+                    builder.Append("(");
+                    builder.Append(cmd.CommandText);
+                    builder.AppendNewLine();
+                    builder.Append(')');
+                }
+
+
+                var left = dbExpression.Expressions[1] as LambdaExpression;
+                var right = dbExpression.Expressions[2] as LambdaExpression;
+
+                // t0(t1)
+                string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
+                    ? aliases.GetTableAlias(dbExpression.Expressions[2])
+                    : aliases.GetTableAlias(right.Parameters[0]);
+                builder.Append(' ');
+                builder.Append(alias);
+                builder.Append(' ');
+
+                if (withNoLock)
+                {
+                    builder.Append(_provider.WidthNoLock);
+                    builder.Append(' ');
+                }
+
+                // ON a.Name = b.Name AND a.Id = b.Id
+                builder.Append("ON ");
+
+                if (left.Body.NodeType == ExpressionType.New)
+                {
+
+                    var body1 = left.Body as NewExpression;
+                    var body2 = right.Body as NewExpression;
+
+                    for (int index = 0; index < body1.Arguments.Count; ++index)
+                    {
+                        builder.AppendMember(aliases, body1.Arguments[index]);
+                        builder.Append(" = ");
+                        builder.AppendMember(aliases, body2.Arguments[index]);
+                        if (index < body1.Arguments.Count - 1) builder.Append(" AND ");
+                    }
+                }
+                else if (left.Body.NodeType == ExpressionType.MemberInit)
+                {
+                    var body1 = left.Body as MemberInitExpression;
+                    var body2 = right.Body as MemberInitExpression;
+
+                    for (int index = 0; index < body1.Bindings.Count; ++index)
+                    {
+                        builder.AppendMember(aliases, (body1.Bindings[index] as MemberAssignment).Expression);
+                        builder.Append(" = ");
+                        builder.AppendMember(aliases, (body2.Bindings[index] as MemberAssignment).Expression);
+                        if (index < body1.Bindings.Count - 1) builder.Append(" AND ");
+                    }
+                }
+                else
+                {
+                    builder.AppendMember(aliases, left.Body.ReduceUnary());
+                    builder.Append(" = ");
+                    builder.AppendMember(aliases, right.Body.ReduceUnary());
+                }
+            }
+
+            // Cross Join
+            private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
+            {
+                var lambdaExp = exp.Expressions[1] as LambdaExpression;
+                Type type = lambdaExp.Parameters[1].Type;
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                bool withNoLock = !typeRuntime.IsTemporary && _context.NoLock && !string.IsNullOrEmpty(_provider.WidthNoLock);
+
+                builder.Append(' ');
+                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+
+                string alias = aliases.GetTableAlias(lambdaExp.Parameters[1]);
+                builder.Append(' ');
+                builder.Append(alias);
+                builder.Append(' ');
+
+                if (withNoLock)
+                {
+                    builder.Append(_provider.WidthNoLock);
+                    builder.Append(' ');
+                }
+            }
+        }
+
+        // 含实体映射信息的SQL命令
+        class SqlServerMapperCommand : MapperCommand
+        {
+            private TableAliasCache _aliases = null;
+            private SqlServerDbContext _context = null;
+            private SqlServerDbQueryProvider _provider = null;
+
+            /// <summary>
+            /// 实例化 <see cref="SqlServerMapperCommand"/> 类的新实例
+            /// </summary>
+            /// <param name="context">数据查询提供者</param>
+            /// <param name="aliases">别名</param>
+            /// <param name="token">解析上下文参数</param>
+            public SqlServerMapperCommand(SqlServerDbContext context, TableAliasCache aliases, ResolveToken token)
+                : base(context.Provider, aliases, token)
+            {
+                _aliases = aliases;
+                _context = context;
+                _provider = context.Provider as SqlServerDbQueryProvider;
+            }
+
+            // 添加导航属性关联
+            protected override void AppendNavigation()
+            {
+                if (base.NavMembers == null || base.NavMembers.Count == 0) return;
+
+                // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
+                if (this.HasMany) _aliases = new TableAliasCache(_aliases.Declared);
+                //开始产生LEFT JOIN 子句
+                ISqlBuilder builder = this.JoinFragment;
+                foreach (var kvp in base.NavMembers)
+                {
+                    string key = kvp.Key;
+                    MemberExpression m = kvp.Value;
+                    TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
+                    ForeignKeyAttribute attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(m.Member.Name);
+
+                    string innerKey = string.Empty;
+                    string outerKey = key;
+                    string innerAlias = string.Empty;
+
+                    if (!m.Expression.Acceptable())
+                    {
+                        innerKey = m.Expression.NodeType == ExpressionType.Parameter
+                            ? (m.Expression as ParameterExpression).Name
+                            : (m.Expression as MemberExpression).Member.Name;
+                    }
+                    else
+                    {
+                        MemberExpression mLeft = null;
+                        if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
+                        else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
+                        string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableName;
+                        innerAlias = _aliases.GetJoinTableAlias(name);
+
+                        if (string.IsNullOrEmpty(innerAlias))
+                        {
+                            string keyLeft = mLeft.GetKeyWidthoutAnonymous();
+                            if (base.NavMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
+                            innerAlias = _aliases.GetNavigationTableAlias(innerKey);
+                        }
+                    }
+
+                    string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
+                    string alias2 = _aliases.GetNavigationTableAlias(outerKey);
+
+
+                    builder.AppendNewLine();
+                    builder.Append("LEFT JOIN ");
+                    Type type = m.Type;
+                    if (type.IsGenericType) type = type.GetGenericArguments()[0];
+                    var typeRuntime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    builder.AppendMember(typeRuntime2.TableName, !typeRuntime2.IsTemporary);
+                    builder.Append(" ");
+                    builder.Append(alias2);
+
+                    bool withNoLock = !typeRuntime2.IsTemporary && _context.NoLock && !string.IsNullOrEmpty(_provider.WidthNoLock);
+                    if (withNoLock)
+                    {
+                        builder.Append(' ');
+                        builder.Append(_provider.WidthNoLock);
+                    }
+
+                    builder.Append(" ON ");
+                    for (int i = 0; i < attribute.InnerKeys.Length; i++)
+                    {
+                        builder.Append(alias1);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.InnerKeys[i]);
+                        builder.Append(" = ");
+                        builder.Append(alias2);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.OuterKeys[i]);
+
+                        if (i < attribute.InnerKeys.Length - 1) builder.Append(" AND ");
+                    }
+                }
+            }
         }
     }
 }

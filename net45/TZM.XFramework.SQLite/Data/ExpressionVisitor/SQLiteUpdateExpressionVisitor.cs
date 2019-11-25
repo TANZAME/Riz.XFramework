@@ -89,8 +89,8 @@ namespace TZM.XFramework.Data
         internal void VisitArgument(Expression exp, bool wasFilter = false)
         {
             var token = _builder.Token;
-            _uQueryInfo.SelectInfo.SelectExpression = new DbExpression(DbExpressionType.Select, exp);
-            var cmd2 = (MappingCommand)ParseCommand(_uQueryInfo.SelectInfo, 1, false, new ResolveToken
+            _uQueryInfo.SelectInfo.Select = new DbExpression(DbExpressionType.Select, exp);
+            var cmd2 = (MapperCommand)ParseCommand(_uQueryInfo.SelectInfo, 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,
                 TableAliasName = "s",
@@ -100,7 +100,7 @@ namespace TZM.XFramework.Data
             _builder.Append('(');
             _builder.Append(cmd2.CommandText.Trim());
 
-            if (((MappingCommand)cmd2).WhereFragment.Length > 0)
+            if (((MapperCommand)cmd2).WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");

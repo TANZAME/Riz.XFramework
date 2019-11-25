@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// DELETE / UPDATE 语句的SelectInfo属性解析器
     /// </summary>
-    public sealed class NpgNavigationCommand : MappingCommand
+    public sealed class NpgMapperCommand : MapperCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;
@@ -48,10 +48,10 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="NpgNavigationCommand" /> 的新实例
+        /// 实例化 <see cref="NpgMapperCommand" /> 的新实例
         /// </summary>
         /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
-        public NpgNavigationCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
+        public NpgMapperCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;

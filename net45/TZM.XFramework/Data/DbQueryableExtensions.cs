@@ -38,6 +38,16 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 强制使用嵌套查询
+        /// </summary>
+        public static IDbQueryable<TResult> AsSubQuery<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            return source
+                .CreateQuery<TResult>(DbExpressionType.AsSubQuery)
+                .CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+        }
+
+        /// <summary>
         /// 返回序列中的元素数量
         /// </summary>
         public static int Count<TSource>(this IDbQueryable<TSource> source)
@@ -60,7 +70,6 @@ namespace TZM.XFramework.Data
         public static bool Contains<TSource>(this IDbQueryable<TSource> source, TSource item)
         {
             return false;
-            //return source.CreateQuery<TSource>(DbExpressionType.Contains, Expression.Constant(item));
         }
 
 #if !net40
@@ -107,8 +116,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static async Task<List<TElement>> ToListAsync<TElement>(this IDbQueryable<TElement> source)
         {
-            List<TElement> elementList = await source.DbContext.Database.ExecuteListAsync(source);
-            return elementList;
+            return await source.DbContext.Database.ExecuteListAsync(source);
         }
 
         /// <summary>
@@ -117,8 +125,7 @@ namespace TZM.XFramework.Data
         public static async Task<IList<TElement>> ToListAsync<TElement>(this IDbQueryable<TElement> source, int index, int pageSize)
         {
             if (index < 1) index = 1;
-            IList<TElement> listAsync = await source.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
-            return listAsync;
+            return await source.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         /// <summary>
@@ -297,11 +304,11 @@ namespace TZM.XFramework.Data
         /// <typeparam name="TProperty">外键类型</typeparam>
         /// <param name="source">主表</param>
         /// <param name="path">外键</param>
-        /// <param name="picks">选择字段</param>
+        /// <param name="keySelector">选择字段</param>
         /// <returns></returns>
-        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> picks)
+        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> keySelector)
         {
-            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, picks }));
+            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, keySelector }));
         }
 
         /// <summary>
@@ -320,36 +327,36 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 返回泛型 IDbQueryable&lt;TResult&gt; 中的最大值
         /// </summary>
-        public static TResult Max<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static TResult Max<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Max, selector);
+            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Max, keySelector);
             return query.DbContext.Database.Execute(query);
         }
 
         /// <summary>
         /// 返回泛型 IDbQueryable&lt;TResult&gt; 中的最小值
         /// </summary>
-        public static TResult Min<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static TResult Min<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Min, selector);
+            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Min, keySelector);
             return query.DbContext.Database.Execute(query);
         }
 
         /// <summary>
         /// 返回泛型 IDbQueryable&lt;TResult&gt; 中的平均值
         /// </summary>
-        public static TResult Average<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static TResult Average<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Average, selector);
+            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Average, keySelector);
             return query.DbContext.Database.Execute(query);
         }
 
         /// <summary>
         /// 返回泛型 IDbQueryable&lt;TResult&gt; 中的所有值之和
         /// </summary>
-        public static TResult Sum<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static TResult Sum<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Sum, selector);
+            IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Sum, keySelector);
             return query.DbContext.Database.Execute(query);
         }
 
@@ -359,17 +366,15 @@ namespace TZM.XFramework.Data
         public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
             return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
-            //source.DbExpressions.Add(new DbExpression(DbExpressionType.OrderBy, keySelector));
-            //return source;
         }
 
         /// <summary>
         ///  根据键按升序对序列的元素排序
         /// </summary>
-        public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, string order)
+        public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, string ordering)
         {
-            if (string.IsNullOrEmpty(order)) order = "ASC";
-            DbExpressionType t = order == "ASC" ? DbExpressionType.OrderBy : DbExpressionType.OrderByDescending;
+            if (string.IsNullOrEmpty(ordering)) ordering = "ASC";
+            DbExpressionType t = ordering == "ASC" ? DbExpressionType.OrderBy : DbExpressionType.OrderByDescending;
 
             return source.CreateQuery<TSource>(t, keySelector);
         }
@@ -377,12 +382,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         ///  根据键按升序对序列的元素排序
         /// </summary>
-        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string order)
+        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string ordering)
         {
-            if (string.IsNullOrEmpty(order)) return source;
+            if (string.IsNullOrEmpty(ordering)) return source;
 
             // a.Product.BuyDate ASC
-            string[] syntaxes = order.Split(' ');
+            string[] syntaxes = ordering.Split(' ');
             string[] segs = syntaxes[0].Split('.');
             if (segs.Length <= 1) return source;
 
@@ -416,9 +421,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         ///  通过合并元素的索引将序列的每个元素投影到新表中
         /// </summary>
-        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            return source.CreateQuery<TResult>(DbExpressionType.Select, selector);
+            return source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
         }
 
         /// <summary>

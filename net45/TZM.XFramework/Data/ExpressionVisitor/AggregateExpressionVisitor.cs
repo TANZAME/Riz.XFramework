@@ -1,29 +1,30 @@
-﻿using System.Linq.Expressions;
+﻿
+using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 统计函数 表达式解析器
+    /// 聚合函数表达式解析器
     /// </summary>
-    public class StatisExpressionVisitor : ExpressionVisitorBase
+    public class AggregateExpressionVisitor : ExpressionVisitorBase
     {
         private IDbQueryProvider _provider = null;
         private TableAliasCache _aliases = null;
-        private DbExpression _statis = null;
+        private DbExpression _aggregate = null;
         private DbExpression _groupBy = null;
-        private static IDictionary<DbExpressionType, string> _statisMethods = null;
+        private static IDictionary<DbExpressionType, string> _aggregateMethods = null;
         private string _alias = null;
         private string _columnName = string.Empty;
 
         /// <summary>
         /// 统计的列名 在嵌套统计时使用
         /// </summary>
-        public string ColumnName { get { return _columnName; } }
+        public string AggregateName { get { return _columnName; } }
 
-        static StatisExpressionVisitor()
+        static AggregateExpressionVisitor()
         {
-            _statisMethods = new Dictionary<DbExpressionType, string>
+            _aggregateMethods = new Dictionary<DbExpressionType, string>
             {
                 { DbExpressionType.Count,"COUNT" },
                 { DbExpressionType.Max,"MAX" },
@@ -34,14 +35,14 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 初始化 <see cref="StatisExpressionVisitor"/> 类的新实例
+        /// 初始化 <see cref="AggregateExpressionVisitor"/> 类的新实例
         /// </summary>
-        public StatisExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression statis, DbExpression groupBy = null, string alias = null)
-            : base(provider, aliases, statis.Expressions != null ? statis.Expressions[0] : null, false)
+        public AggregateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
+            : base(provider, aliases, aggregate.Expressions != null ? aggregate.Expressions[0] : null, false)
         {
             _provider = provider;
             _aliases = aliases;
-            _statis = statis;
+            _aggregate = aggregate;
             _groupBy = groupBy;
             _alias = alias;
         }
@@ -54,17 +55,17 @@ namespace TZM.XFramework.Data
             base._builder = builder;
             if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
 
-            if (_statis != null)
+            if (_aggregate != null)
             {
 
-                Expression exp = _statis.DbExpressionType == DbExpressionType.Count ? Expression.Constant(1) : base.Expression;
+                Expression exp = _aggregate.DbExpressionType == DbExpressionType.Count ? Expression.Constant(1) : base.Expression;
                 if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
 
                 // q.Average(a => a);
                 // 这种情况下g.Key 一定是单个字段，否则解析出来的SQL执行不了
                 if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[0];
 
-                builder.Append(_statisMethods[_statis.DbExpressionType]);
+                builder.Append(_aggregateMethods[_aggregate.DbExpressionType]);
                 builder.Append("(");
                 base.Visit(exp);
                 builder.Append(")");

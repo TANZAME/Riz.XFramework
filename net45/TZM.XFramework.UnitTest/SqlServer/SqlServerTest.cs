@@ -20,7 +20,8 @@ namespace TZM.XFramework.UnitTest.SqlServer
             var context = new SqlServerDbContext(connString)
             {
                 IsDebug = base.IsDebug,
-                IsolationLevel = System.Data.IsolationLevel.Serializable
+                NoLock = false,
+                IsolationLevel = System.Data.IsolationLevel.ReadCommitted
             };
             return context;
         }

@@ -67,12 +67,10 @@
     <Compile Include="Common\Collection\PagedList.cs" />
     <Compile Include="Caching\ReaderWriterCache.cs" />
     <Compile Include="Caching\SimpleCache.cs" />
-    <Compile Include="Common\DayPart.cs" />
-    <Compile Include="Common\Helper\ConvertHelper.cs" />
-    <Compile Include="Common\Helper\FileHelper.cs" />
+    <Compile Include="Common\DatePart.cs" />
     <Compile Include="Common\Helper\GZipHelper.cs" />
     <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
-    <Compile Include="Common\Helper\StringHelper.cs" />
+    <Compile Include="Common\Helper\RegexHelper.cs" />
     <Compile Include="Common\Helper\XmlHelper.cs" />
     <Compile Include="Common\MetadataTypesRegister.cs" />
     <Compile Include="Common\Common.cs" />
@@ -131,7 +129,7 @@
     <Compile Include="Data\ExpressionVisitor\MemberVisitedMark.cs" />
     <Compile Include="Data\ExpressionVisitor\ExpressionNominator.cs" />
     <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\StatisExpressionVisitor.cs" />
+    <Compile Include="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
     <Compile Include="Data\DbQueryableExtensions.cs" />
@@ -151,10 +149,10 @@
     <Compile Include="Data\SqlClient\SqlServerDbValue.cs" />
     <Compile Include="Data\TypeDeserialize\Column.cs" />
     <Compile Include="Data\TypeDeserialize\ColumnCollection.cs" />
-    <Compile Include="Data\TypeDeserialize\IMapping.cs" />
+    <Compile Include="Data\TypeDeserialize\IMapper.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\Command.cs" />
-    <Compile Include="Data\TypeDeserialize\MappingCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\MapperCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />

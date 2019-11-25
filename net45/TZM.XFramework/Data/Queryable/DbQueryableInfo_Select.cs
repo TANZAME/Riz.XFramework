@@ -70,32 +70,32 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 指示 SELECT FROM 子句表对应类型
         /// </summary>
-        public Type FromType { get; set; }
+        public Type FromEntityType { get; set; }
 
         /// <summary>
         /// SELECT 字段表达式
         /// </summary>
-        public DbExpression SelectExpression { get; set; }
+        public DbExpression Select { get; set; }
 
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        public DbExpression WhereExpression { get; set; }
+        public DbExpression Condtion { get; set; }
 
         /// <summary>
         /// HAVING 表达式
         /// </summary>
-        public DbExpression HavingExpression { get; set; }
+        public DbExpression Having { get; set; }
 
         /// <summary>
-        /// 统计函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
+        /// 聚合函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
         /// </summary>
-        public DbExpression StatisExpression { get; set; }
+        public DbExpression Aggregate { get; set; }
 
         /// <summary>
         /// GROUP BY 表达式集合
         /// </summary>
-        public DbExpression GroupByExpression
+        public DbExpression GroupBy
         {
             get { return _groupByExpression; }
             set { _groupByExpression = value; }
@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool SubQueryByMany { get; set; }
+        public bool SubQueryOfMany { get; set; }
 
         /// <summary>
         /// 并集

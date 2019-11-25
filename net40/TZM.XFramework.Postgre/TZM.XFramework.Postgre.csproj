@@ -81,8 +81,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs">
       <Link>Data\SqlClient\NpgSqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgNavigationCommand.cs">
-      <Link>Data\TypeDeserialize\NpgNavigationCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgMapperCommand.cs">
+      <Link>Data\TypeDeserialize\NpgMapperCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\NpgTypeDeserializerImpl.cs</Link>
