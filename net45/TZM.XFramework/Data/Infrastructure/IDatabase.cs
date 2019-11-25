@@ -193,7 +193,7 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
-        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
@@ -241,7 +241,7 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="query">SQL 命令</param>

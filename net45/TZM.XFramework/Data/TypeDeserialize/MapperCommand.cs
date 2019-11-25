@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令
     /// </summary>
-    public class MappingCommand : Command, IMapping
+    public class MapperCommand : Command, IMapper
     {
         private bool _haveManyNavigation = false;
         private bool _hasCombine = false;
@@ -88,12 +88,12 @@ namespace TZM.XFramework.Data
         public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
 
         /// <summary>
-        /// 实例化 <see cref="MappingCommand"/> 类的新实例
+        /// 实例化 <see cref="MapperCommand"/> 类的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
-        public MappingCommand(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
+        public MapperCommand(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
             : base(string.Empty, token != null ? token.Parameters : null, System.Data.CommandType.Text)
         {
             _provider = provider;

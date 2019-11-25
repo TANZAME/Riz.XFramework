@@ -116,8 +116,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static async Task<List<TElement>> ToListAsync<TElement>(this IDbQueryable<TElement> source)
         {
-            List<TElement> elementList = await source.DbContext.Database.ExecuteListAsync(source);
-            return elementList;
+            return await source.DbContext.Database.ExecuteListAsync(source);
         }
 
         /// <summary>
@@ -126,8 +125,7 @@ namespace TZM.XFramework.Data
         public static async Task<IList<TElement>> ToListAsync<TElement>(this IDbQueryable<TElement> source, int index, int pageSize)
         {
             if (index < 1) index = 1;
-            IList<TElement> listAsync = await source.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
-            return listAsync;
+            return await source.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         /// <summary>
@@ -368,8 +366,6 @@ namespace TZM.XFramework.Data
         public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
             return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
-            //source.DbExpressions.Add(new DbExpression(DbExpressionType.OrderBy, keySelector));
-            //return source;
         }
 
         /// <summary>

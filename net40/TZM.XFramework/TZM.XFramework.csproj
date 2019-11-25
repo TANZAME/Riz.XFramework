@@ -349,11 +349,11 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
-      <Link>Data\TypeDeserialize\IMapping.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs">
+      <Link>Data\TypeDeserialize\IMapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs">
-      <Link>Data\TypeDeserialize\MappingCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs">
+      <Link>Data\TypeDeserialize\MapperCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>

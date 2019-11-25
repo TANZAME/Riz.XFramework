@@ -342,7 +342,7 @@ namespace TZM.XFramework.Data
         {
             Command command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as MappingCommand);
+            return this.Execute<T>(cmd, command as MapperCommand);
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public T Execute<T>(List<Command> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapping) as IMapping));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
         }
 
         /// <summary>
@@ -374,7 +374,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回单个实体对象
-        protected virtual T Execute<T>(IDbCommand command, IMapping map)
+        protected virtual T Execute<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
 
@@ -402,7 +402,7 @@ namespace TZM.XFramework.Data
         {
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
+                p => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -416,7 +416,7 @@ namespace TZM.XFramework.Data
         {
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
+                p => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -430,7 +430,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
+        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -541,18 +541,18 @@ namespace TZM.XFramework.Data
         {
             Command cmd = query.Resolve();
             IDbCommand command = this.CreateCommand(cmd);
-            return this.ExecuteList<T>(command, cmd as IMapping);
+            return this.ExecuteList<T>(command, cmd as IMapper);
         }
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="IMapping"/> 做为实体反序列化描述</para>
+        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
         public List<T> ExecuteList<T>(List<Command> sqlList)
         {
-            return this.DoExecute<List<T>>(sqlList, p => this.ExecuteList<T>(p, sqlList.FirstOrDefault(x => x is IMapping) as IMapping));
+            return this.DoExecute<List<T>>(sqlList, p => this.ExecuteList<T>(p, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
         }
 
         /// <summary>
@@ -567,7 +567,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        protected virtual List<T> ExecuteList<T>(IDbCommand command, IMapping map)
+        protected virtual List<T> ExecuteList<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
             List<T> objList = new List<T>();

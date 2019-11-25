@@ -54,7 +54,7 @@ namespace TZM.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
-            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
+            List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;
@@ -109,7 +109,7 @@ namespace TZM.XFramework.Data
         }
 
         // 执行 SQL 语句，并返回多个实体集合
-        protected override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
+        protected override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             List<T1> q1 = null;
             List<T2> q2 = null;
@@ -286,7 +286,7 @@ namespace TZM.XFramework.Data
 
                 string methodName = string.Empty;
                 if (sql.Length > 6) methodName = sql.Substring(0, 6).Trim().ToUpper();
-                if (cmd is MappingCommand || methodName == "SELECT")
+                if (cmd is MapperCommand || methodName == "SELECT")
                 {
                     // 查询单独执行
                     if (myList.Count > 0 && (i - 1) >= 0 && myList[myList.Count - 1] != null) myList.Add(null);

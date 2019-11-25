@@ -1,12 +1,10 @@
 ﻿
-using System.Collections.Generic;
-
 namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 实体映射描述
     /// </summary>
-    public interface IMapping
+    public interface IMapper
     {
         /// <summary>
         /// 选择字段范围

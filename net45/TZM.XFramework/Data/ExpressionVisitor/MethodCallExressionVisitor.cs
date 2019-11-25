@@ -1309,7 +1309,7 @@ namespace TZM.XFramework.Data
                 Parameters = token.Parameters,
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
-            } : null) as MappingCommand;
+            } : null) as MapperCommand;
 
             if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");

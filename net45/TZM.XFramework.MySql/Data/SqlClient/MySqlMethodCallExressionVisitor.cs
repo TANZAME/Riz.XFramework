@@ -722,7 +722,7 @@ namespace TZM.XFramework.Data.SqlClient
                 Parameters = token.Parameters,
                 TableAliasName = "s",
                 IsDebug = token.IsDebug
-            }) as MappingCommand;
+            }) as MapperCommand;
 
             if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
