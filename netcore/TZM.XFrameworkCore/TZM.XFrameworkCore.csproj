@@ -115,6 +115,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbCommandInterceptor.cs" Link="Data\Infrastructure\DbCommandInterceptor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\DbInterception.cs" Link="Data\Infrastructure\DbInterception.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Enumerator.cs" Link="Data\Infrastructure\Enumerator.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\HashCollection.cs" Link="Data\Infrastructure\HashCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs" Link="Data\Infrastructure\IDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase45.cs" Link="Data\Infrastructure\IDatabase45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbCommandInterceptor.cs" Link="Data\Infrastructure\IDbCommandInterceptor.cs" />

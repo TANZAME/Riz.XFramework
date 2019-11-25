@@ -44,7 +44,7 @@ namespace TZM.XFramework.Data
         /// 表示从这个位置开始到 End 位置的所有字段都是属于该导航属性
         /// </para>
         /// </summary>
-        public int Start { get; set; }
+        public int StartIndex { get; set; }
 
         /// <summary>
         /// 导航属性的字段个数
