@@ -36,11 +36,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="TZM.XFrameworkCore" Version="2.0.5" />
-    <PackageReference Include="TZM.XFrameworkCore.MySql" Version="2.0.5" />
-    <PackageReference Include="TZM.XFrameworkCore.Oracle" Version="2.0.5" />
-    <PackageReference Include="TZM.XFrameworkCore.Postgre" Version="2.0.5" />
-    <PackageReference Include="TZM.XFrameworkCore.SQLite" Version="2.0.5" />
+    <PackageReference Include="TZM.XFrameworkCore" Version="2.0.7" />
+    <PackageReference Include="TZM.XFrameworkCore.MySql" Version="2.0.7" />
+    <PackageReference Include="TZM.XFrameworkCore.Oracle" Version="2.0.7" />
+    <PackageReference Include="TZM.XFrameworkCore.Postgre" Version="2.0.7" />
+    <PackageReference Include="TZM.XFrameworkCore.SQLite" Version="2.0.7" />
   </ItemGroup>
 
 </Project>
