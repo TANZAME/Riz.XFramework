@@ -611,356 +611,239 @@ namespace TZM.XFramework
         #region 网络
 
         /// <summary>
-        /// HttpWebRequest 用POST方法访问指定URI
+        /// 使用 GET 方式提交请求
         /// </summary>
-        public static T HttpPost<T>(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null)
-        {
-            //application/x-www-form-urlencoded
-#if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-#endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            if (timeout != null) request.Timeout = timeout.Value;
-            request.Method = "POST";
-            request.ContentType = contentType;
-            request.ContentLength = 0;
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                byte[] sndBytes = Encoding.UTF8.GetBytes(content);
-                request.ContentLength = sndBytes.Length;
-
-                Stream rs = request.GetRequestStream();
-                rs.Write(sndBytes, 0, sndBytes.Length);
-                rs.Close();
-            }
-
-
-            StreamReader reader = null;
-            Stream stream = null;
-            try
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                stream = response.GetResponseStream();
-                reader = new StreamReader(stream);
-
-                string line = reader.ReadToEnd();
-                T value = SerializeHelper.DeserializeFromJson<T>(line);
-                return value;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (stream != null) stream.Close();
-                if (reader != null) reader.Close();
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用GET方法访问指定URI
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
-        public static T HttpGet<T>(string uri, IDictionary<string, string> headers = null)
-        {
-#if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-#endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            request.Method = "GET";
-            request.ContentType = "text/json";
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-
-
-            StreamReader reader = null;
-            Stream stream = null;
-            try
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                stream = response.GetResponseStream();
-                reader = new StreamReader(stream);
-
-                string line = reader.ReadToEnd();
-                T value = SerializeHelper.DeserializeFromJson<T>(line);
-                return value;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (stream != null) stream.Close();
-                if (reader != null) reader.Close();
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用GET方法访问指定URI
-        /// </summary>
-        public static T HttpGet<T>(string uri, IDictionary<string, string> headers, string contentType)
-        {
-            StreamReader reader = null;
-            Stream stream = null;
-            try
-            {
-
-                stream = HttpGet(uri, headers, contentType);
-                reader = new StreamReader(stream);
-
-                string line = reader.ReadToEnd();
-                if (typeof(T) == typeof(string)) return (T)(line as object);
-                T value = SerializeHelper.DeserializeFromJson<T>(line);
-                return value;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (stream != null) stream.Close();
-                if (reader != null) reader.Close();
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用GET方法访问指定URI
-        /// </summary>
-        public static T HttpGet<T>(string uri, IDictionary<string, string> headers, string contentType, WebProxy proxy)
-        {
-            StreamReader reader = null;
-            Stream stream = null;
-            try
-            {
-
-                stream = HttpGet(uri, headers, contentType, proxy);
-                reader = new StreamReader(stream);
-
-                string line = reader.ReadToEnd();
-                if (typeof(T) == typeof(string)) return (T)(line as object);
-                T value = SerializeHelper.DeserializeFromJson<T>(line);
-                return value;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (stream != null) stream.Close();
-                if (reader != null) reader.Close();
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用GET方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
-        /// </summary>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <param name="contentType">请求的验证信息</param>
-        /// <param name="proxy">代理</param>
-        /// <returns></returns>
-        public static Stream HttpGet(string uri, IDictionary<string, string> headers = null, string contentType = "text/json", WebProxy proxy = null)
-        {
-#if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-#endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            request.Method = "GET";
-            request.ContentType = contentType;
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-            if (proxy != null) request.Proxy = proxy;
-
-            try
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                return response.GetResponseStream();
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
-        /// </summary>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">POST内容</param>
-        /// <param name="headers">请求的头部信息</param>
+        /// <typeparam name="T">返回类型，如果是 string 类型则直接返回原生 JSON </typeparam>
+        /// <param name="uri"></param>
+        /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
         /// <param name="contentType">内容类型</param>
         /// <param name="timeout">超时时间</param>
-        /// <param name="encoding">编码类型</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>T</returns>
+        public static T Get<T>(string uri, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            var response = WebHelper.Get(uri, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
+            return WebHelper.ReadAsResult<T>(response);
+        }
+
+        /// <summary>
+        /// 使用 GET 方式提交请求，需要调用方自行释放响应对象
+        /// </summary>
+        /// <param name="uri">请求路径</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>Stream</returns>
+        public static HttpWebResponse Get(string uri, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            try
+            {
+                var request = WebHelper.CreateRequest(uri, "GET", null, headers, contentType, timeout, encoding, proxy);
+                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+            }
+            catch (WebException we)
+            {
+                WebHelper.ThrowWebException(we);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 使用 POST 方式提交请求
+        /// </summary>
+        /// <typeparam name="T">返回类型，如果是 string 类型则直接返回原生 JSON </typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>T</returns>
+        public static T Post<T>(string uri, object obj, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            var response = WebHelper.Post(uri, obj, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
+            return WebHelper.ReadAsResult<T>(response);
+        }
+
+        /// <summary>
+        /// 使用 POST 方式提交请求，需要调用方自行释放响应对象
+        /// </summary>
+        /// <typeparam name="T">返回类型 T</typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>Stream</returns>
+        public static HttpWebResponse Post(string uri, object obj, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            try
+            {
+                var request = WebHelper.CreateRequest(uri, "POST", obj, headers, contentType, timeout, encoding, proxy);
+                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+            }
+            catch (WebException we)
+            {
+                WebHelper.ThrowWebException(we);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 使用 DELETE 方式提交请求
+        /// </summary>
+        /// <typeparam name="T">返回类型，如果是 string 类型则直接返回原生 JSON </typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>T</returns>
+        public static T Delete<T>(string uri, object obj, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            var response = WebHelper.Delete(uri, obj, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
+            return WebHelper.ReadAsResult<T>(response);
+        }
+
+        /// <summary>
+        /// 使用 POST 方式提交请求，需要调用方自行释放响应对象
+        /// </summary>
+        /// <typeparam name="T">返回类型 T</typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns>Stream</returns>
+        public static HttpWebResponse Delete(string uri, object obj, IDictionary<string, string> headers = null,
+            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            try
+            {
+                var request = WebHelper.CreateRequest(uri, "DELETE", obj, headers, contentType, timeout, encoding, proxy);
+                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+            }
+            catch (WebException we)
+            {
+                WebHelper.ThrowWebException(we);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 发起 HTTP  请求并返回 HTTP 响应
+        /// </summary>
+        /// <param name="request">请求参数</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns></returns>
-        public static Stream HttpPost(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
+        public static HttpWebResponse SubmitRequest(HttpWebRequest request, int tryTimes = 3, int sleep = 500)
         {
-            //application/x-www-form-urlencoded
-
-            encoding = encoding ?? Encoding.UTF8;
+            var uri = request.RequestUri;
+            if (uri != null)
+            {
 #if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                if (uri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #endif
 #if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                if (uri.Scheme == "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #endif
 #if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+                if (uri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
 #endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            if (timeout != null) request.Timeout = timeout.Value;
-            request.Method = "POST";
-            request.ContentType = contentType;
-            request.ContentLength = 0;
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                byte[] sndBytes = encoding.GetBytes(content);
-                request.ContentLength = sndBytes.Length;
-
-                Stream rs = request.GetRequestStream();
-                rs.Write(sndBytes, 0, sndBytes.Length);
-                rs.Close();
             }
 
             try
             {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                return response.GetResponseStream();
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
-        /// </summary>
-        public static Stream HttpDelete(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
-        {
-            //application/x-www-form-urlencoded
-
-            encoding = encoding ?? Encoding.UTF8;
-#if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-#endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            if (timeout != null) request.Timeout = timeout.Value;
-            request.Method = "DELETE";
-            request.ContentType = contentType;
-            request.ContentLength = 0;
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                byte[] sndBytes = encoding.GetBytes(content);
-                request.ContentLength = sndBytes.Length;
-
-                Stream rs = request.GetRequestStream();
-                rs.Write(sndBytes, 0, sndBytes.Length);
-                rs.Close();
-            }
-
-            try
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                return response.GetResponseStream();
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// HttpWebRequest 用POST方法访问指定URI<c>使用完记得调用Stream.Close方法</c>
-        /// </summary>
-        public static HttpWebResponse HttpResponse(string uri, string content, IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null)
-        {
-            //application/x-www-form-urlencoded
-
-            encoding = encoding ?? Encoding.UTF8;
-#if netcore
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net45
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-#endif
-#if net40
-            if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-#endif
-
-            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
-            if (timeout != null) request.Timeout = timeout.Value;
-            request.Method = "POST";
-            request.ContentType = contentType;
-            request.ContentLength = 0;
-            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                byte[] sndBytes = encoding.GetBytes(content);
-                request.ContentLength = sndBytes.Length;
-
-                Stream rs = request.GetRequestStream();
-                rs.Write(sndBytes, 0, sndBytes.Length);
-                rs.Close();
-            }
-
-            try
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                var response = request.GetResponse() as HttpWebResponse;
                 return response;
             }
             catch (WebException we)
             {
-                WebHelper.ThrowWebException(we);
-                throw;
+                tryTimes--;
+                if (tryTimes > 0)
+                {
+                    System.Threading.Thread.Sleep(sleep);
+                    return WebHelper.SubmitRequest(request, tryTimes);
+                }
+                else
+                {
+                    WebHelper.ThrowWebException(we);
+                    throw;
+                }
             }
+        }
+
+        /// <summary>
+        /// 创建请求
+        /// </summary>
+        /// <param name="uri">请求路径</param>
+        /// <param name="method">请求方法</param>
+        /// <param name="obj">如果是POST，表示上传参数</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="proxy">代理</param>
+        /// <returns></returns>
+        public static HttpWebRequest CreateRequest(string uri, string method, object obj = null,
+            IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null)
+        {
+            // 创建请求
+            var request = WebRequest.Create(uri) as HttpWebRequest;
+            if (timeout != null) request.Timeout = timeout.Value;
+            request.Method = method;
+            request.ContentType = contentType;
+            request.ContentLength = 0;
+            if (proxy != null) request.Proxy = proxy;
+            if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
+
+            // 写入参数
+            string content = null;
+            if (obj != null && obj is string) content = Convert.ToString(obj);
+            else if (obj != null) content = SerializeHelper.SerializeToJson(obj);
+            if (!string.IsNullOrEmpty(content))
+            {
+                encoding = encoding ?? Encoding.UTF8;
+                byte[] sndBytes = encoding.GetBytes(content);
+                request.ContentLength = sndBytes.Length;
+
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(sndBytes, 0, sndBytes.Length);
+                    stream.Close();
+                }
+            }
+
+            return request;
         }
 
         /// <summary>
@@ -1012,6 +895,57 @@ namespace TZM.XFramework
             {
                 if (reader != null) reader.Close();
                 if (stream != null) stream.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 从响应流中读取响应为实体
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="response">HTTP 响应</param>
+        /// <param name="disposing">自动释放</param>
+        /// <returns></returns>
+        public static T ReadAsResult<T>(HttpWebResponse response, bool disposing = true)
+        {
+            Stream stream = null;
+            StreamReader reader = null;
+            string json = string.Empty;
+            try
+            {
+                stream = response.GetResponseStream();
+                reader = new StreamReader(stream);
+
+                json = reader.ReadToEnd();
+                if (typeof(T) == typeof(string)) return (T)(json as object);
+                else
+                {
+                    T value = SerializeHelper.DeserializeFromJson<T>(json);
+                    return value;
+                }
+            }
+            catch (WebException we)
+            {
+                WebHelper.ThrowWebException(we);
+                throw;
+            }
+            catch (Exception e)
+            {
+                if (string.IsNullOrEmpty(json)) throw;
+                else
+                {
+                    // 抛出返回的原始 JSON
+                    string message = string.Format("{0}{1}{2}", e.Message, Environment.NewLine, json);
+                    throw new XFrameworkException(message, e);
+                }
+            }
+            finally
+            {
+                if (reader != null) reader.Close();
+                if (disposing)
+                {
+                    if (stream != null) stream.Close();
+                    if (response != null) response.Dispose();
+                }
             }
         }
 
