@@ -13,7 +13,7 @@ namespace TZM.XFramework
     /// </summary>
     public partial class WebHelper
     {
-#region 网络
+        #region 网络
 
         /// <summary>
         /// HttpClient 用POST方法访问指定URI
@@ -34,6 +34,7 @@ namespace TZM.XFramework
             try
             {
                 c = new HttpClient();
+                c.
                 httpContent = new StringContent(content);
                 if (headers != null) foreach (var kv in headers) c.DefaultRequestHeaders.Add(kv.Key, kv.Value);
                 if (authentication != null) c.DefaultRequestHeaders.Authorization = authentication;
@@ -66,7 +67,7 @@ namespace TZM.XFramework
         /// <param name="token">请求的验证信息</param>
         /// <param name="headers">请求的头部信息</param>
         /// <returns></returns>
-        public static async Task<HttpContent> PostAsync(string uri, string content,string token, IDictionary<string, string> headers)
+        public static async Task<HttpContent> PostAsync(string uri, string content, string token, IDictionary<string, string> headers)
         {
             HttpClient c = null;
             HttpContent httpContent = null;
@@ -179,6 +180,92 @@ namespace TZM.XFramework
             }
         }
 
-#endregion
+        /// <summary>
+        /// 发起 HTTP  请求并返回 HTTP 响应
+        /// </summary>
+        /// <param name="request">请求参数</param>
+        /// <param name="tryTimes">出现错误时重试次数</param>
+        /// <param name="sleep">重试等待毫秒数，默认500</param>
+        /// <returns></returns>
+        public static async Task<HttpResponseMessage> SendAsync(string uri, HttpMethod method, object obj = null, string contentType = "application/json",
+            IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        {
+            var handler = proxy != null ? new HttpClientHandler
+            {
+                Proxy = proxy,
+                UseProxy = true,
+            } : null;
+            var client = handler != null ? new HttpClient(handler) : new HttpClient();
+            if (timeout != null) client.Timeout = new System.TimeSpan(0, 0, 0, 0, timeout.Value);
+            //client.DefaultRequestHeaders.Clear();
+            if (headers != null)
+            {
+                string scheme = null;
+                string token = null;
+                foreach (var kv in headers)
+                {
+                    if (string.Equals(kv.Key, "scheme", System.StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
+                    else if (string.Equals(kv.Key, "token", System.StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
+                    else client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
+                }
+
+                if (token != null)
+                {
+                    if (scheme == null) scheme = "Basic";
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
+                }
+            }
+
+            var request = new HttpRequestMessage(method, uri);
+            string content = null;
+            if (obj != null && obj is string) content = System.Convert.ToString(obj);
+            else if (obj != null) content = SerializeHelper.SerializeToJson(obj);
+            if (content != null)
+            {
+                var httpContent = new StringContent(content, encoding ?? Encoding.UTF8, contentType);
+                request.Content = httpContent;
+            }
+
+            var requestUri = request.RequestUri;
+            if (requestUri != null)
+            {
+#if netcore
+                if (requestUri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+#endif
+#if net45
+                if (requestUri.Scheme == "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+#endif
+#if net40
+                if (requestUri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+#endif
+            }
+
+            try
+            {
+                var response = await client.SendAsync(request);
+                return response;
+            }
+            catch (WebException we)
+            {
+                tryTimes--;
+                if (tryTimes > 0)
+                {
+                    System.Threading.Thread.Sleep(sleep);
+                    return WebHelper.Send(request, tryTimes);
+                }
+                else
+                {
+                    WebHelper.ThrowWebException(we);
+                    throw;
+                }
+            }
+
+            //MultipartFormDataContent => multipart / form - data
+            //FormUrlEncodedContent => application / x - www - form - urlencoded
+            //StringContent => application / json等
+            //StreamContent => binary
+        }
+
+        #endregion
     }
 }

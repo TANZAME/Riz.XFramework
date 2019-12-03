@@ -617,17 +617,15 @@ namespace TZM.XFramework
         /// <param name="uri"></param>
         /// <param name="obj">参数内容，如果不是字符类型则序列化成字符串</param>
         /// <param name="headers">HTTP 标头的键值对</param>
-        /// <param name="contentType">内容类型</param>
         /// <param name="timeout">超时时间</param>
         /// <param name="encoding">编码</param>
         /// <param name="proxy">代理</param>
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns>T</returns>
-        public static T Get<T>(string uri, IDictionary<string, string> headers = null,
-            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        public static T Get<T>(string uri, IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
         {
-            var response = WebHelper.Get(uri, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
+            var response = WebHelper.Get(uri, headers, timeout, encoding, proxy, tryTimes, sleep);
             return WebHelper.ReadAsResult<T>(response);
         }
 
@@ -636,20 +634,18 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="uri">请求路径</param>
         /// <param name="headers">HTTP 标头的键值对</param>
-        /// <param name="contentType">内容类型</param>
         /// <param name="timeout">超时时间</param>
         /// <param name="encoding">编码</param>
         /// <param name="proxy">代理</param>
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns>Stream</returns>
-        public static HttpWebResponse Get(string uri, IDictionary<string, string> headers = null,
-            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        public static HttpWebResponse Get(string uri, IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
         {
             try
             {
-                var request = WebHelper.CreateRequest(uri, "GET", null, headers, contentType, timeout, encoding, proxy);
-                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+                var request = WebHelper.CreateRequest(uri, "GET", null, null, headers, timeout, encoding, proxy);
+                return WebHelper.Send(request, tryTimes, sleep);
             }
             catch (WebException we)
             {
@@ -672,8 +668,8 @@ namespace TZM.XFramework
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns>T</returns>
-        public static T Post<T>(string uri, object obj, IDictionary<string, string> headers = null,
-            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        public static T Post<T>(string uri, object obj, string contentType = "application/json",
+            IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
         {
             var response = WebHelper.Post(uri, obj, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
             return WebHelper.ReadAsResult<T>(response);
@@ -698,8 +694,8 @@ namespace TZM.XFramework
         {
             try
             {
-                var request = WebHelper.CreateRequest(uri, "POST", obj, headers, contentType, timeout, encoding, proxy);
-                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+                var request = WebHelper.CreateRequest(uri, "POST", obj, contentType, headers, timeout, encoding, proxy);
+                return WebHelper.Send(request, tryTimes, sleep);
             }
             catch (WebException we)
             {
@@ -722,10 +718,10 @@ namespace TZM.XFramework
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns>T</returns>
-        public static T Delete<T>(string uri, object obj, IDictionary<string, string> headers = null,
-            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        public static T Delete<T>(string uri, object obj, string contentType = "application/json",
+             IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
         {
-            var response = WebHelper.Delete(uri, obj, headers, contentType, timeout, encoding, proxy, tryTimes, sleep);
+            var response = WebHelper.Delete(uri, obj, contentType, headers, timeout, encoding, proxy, tryTimes, sleep);
             return WebHelper.ReadAsResult<T>(response);
         }
 
@@ -743,13 +739,13 @@ namespace TZM.XFramework
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns>Stream</returns>
-        public static HttpWebResponse Delete(string uri, object obj, IDictionary<string, string> headers = null,
-            string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        public static HttpWebResponse Delete(string uri, object obj, string contentType = "application/json",
+           IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
         {
             try
             {
-                var request = WebHelper.CreateRequest(uri, "DELETE", obj, headers, contentType, timeout, encoding, proxy);
-                return WebHelper.SubmitRequest(request, tryTimes, sleep);
+                var request = WebHelper.CreateRequest(uri, "DELETE", obj, contentType, headers, timeout, encoding, proxy);
+                return WebHelper.Send(request, tryTimes, sleep);
             }
             catch (WebException we)
             {
@@ -765,7 +761,7 @@ namespace TZM.XFramework
         /// <param name="tryTimes">出现错误时重试次数</param>
         /// <param name="sleep">重试等待毫秒数，默认500</param>
         /// <returns></returns>
-        public static HttpWebResponse SubmitRequest(HttpWebRequest request, int tryTimes = 3, int sleep = 500)
+        public static HttpWebResponse Send(HttpWebRequest request, int tryTimes = 3, int sleep = 500)
         {
             var uri = request.RequestUri;
             if (uri != null)
@@ -792,7 +788,7 @@ namespace TZM.XFramework
                 if (tryTimes > 0)
                 {
                     System.Threading.Thread.Sleep(sleep);
-                    return WebHelper.SubmitRequest(request, tryTimes);
+                    return WebHelper.Send(request, tryTimes);
                 }
                 else
                 {
@@ -810,19 +806,19 @@ namespace TZM.XFramework
         /// <param name="obj">如果是POST，表示上传参数</param>
         /// <param name="headers">HTTP 标头的键值对</param>
         /// <param name="contentType">内容类型</param>
-        /// <param name="timeout">超时时间</param>
+        /// <param name="timeout">超时时间（以毫秒为单位）</param>
         /// <param name="encoding">编码</param>
         /// <param name="proxy">代理</param>
         /// <returns></returns>
         public static HttpWebRequest CreateRequest(string uri, string method, object obj = null,
-            IDictionary<string, string> headers = null, string contentType = "application/json", int? timeout = null, Encoding encoding = null, WebProxy proxy = null)
+            string contentType = "application/json", IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null)
         {
             // 创建请求
             var request = WebRequest.Create(uri) as HttpWebRequest;
             if (timeout != null) request.Timeout = timeout.Value;
             request.Method = method;
-            request.ContentType = contentType;
             request.ContentLength = 0;
+            if (contentType != null) request.ContentType = contentType;
             if (proxy != null) request.Proxy = proxy;
             if (headers != null) foreach (var kv in headers) request.Headers.Add(kv.Key, kv.Value);
 
