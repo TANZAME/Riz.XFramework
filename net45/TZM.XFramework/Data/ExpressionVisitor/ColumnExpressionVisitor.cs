@@ -594,7 +594,10 @@ namespace TZM.XFramework.Data
                     }
                     foreach (MemberAssignment member in initExpression.Bindings)
                     {
-                        num += _countPrimitive(((System.Reflection.PropertyInfo)member.Member).PropertyType);
+                        if (TypeUtils.IsPrimitiveType(((System.Reflection.PropertyInfo)member.Member).PropertyType))
+                            num += 1;
+                        else
+                            num += GetFieldCount(member.Expression);
                     }
 
                     break;
