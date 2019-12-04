@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Data;
+using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -174,18 +176,17 @@ namespace TZM.XFramework.Data
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             // 如果有一对多的导航属性会产生嵌套的SQL，这时需要强制主表选择的列里面必须包含导航外键
-            // TODO #对 Bindings 进行排序，保证导航属性的赋值一定要最后面#
-            // 未实现，在书写表达式时人工保证 ##
 
             if (node.NewExpression != null) this.VisitNewImpl(node.NewExpression);
             if (_navChainHopper.Count == 0) _navChainHopper.Add(node.Type.Name);
 
-            for (int i = 0; i < node.Bindings.Count; i++)
+            var myBindings = node.Bindings.OrderBy(x => TypeUtils.IsPrimitiveType(((PropertyInfo)x.Member).PropertyType) ? 0 : 1).ToList();
+            for (int i = 0; i < myBindings.Count; i++)
             {
-                MemberAssignment binding = node.Bindings[i] as MemberAssignment;
+                MemberAssignment binding = myBindings[i] as MemberAssignment;
                 if (binding == null) throw new XFrameworkException("Only 'MemberAssignment' binding supported.");
 
-                Type propertyType = (node.Bindings[i].Member as System.Reflection.PropertyInfo).PropertyType;
+                Type propertyType = (binding.Member as PropertyInfo).PropertyType;
                 bool isNavigation = !TypeUtils.IsPrimitiveType(propertyType);
 
                 #region 一般属性

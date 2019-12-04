@@ -933,7 +933,7 @@ namespace TZM.XFramework.UnitTest
                     LocalServer = new Model.CloudServer
                     {
                         CloudServerId = a.CloudServerId,
-                        CloudServerName = a.LocalServer.CloudServerName
+                        CloudServerName = a.LocalServer.CloudServerName,
                     }
                 };
             result = query.ToList();
@@ -960,7 +960,8 @@ namespace TZM.XFramework.UnitTest
                 select new Model.Client(a)
                 {
                     CloudServer = a.CloudServer,
-                    Accounts = a.Accounts
+                    Accounts = a.Accounts,
+                    ClientCode = a.ClientCode
                 };
             result = query.ToList();
             //SQL=>

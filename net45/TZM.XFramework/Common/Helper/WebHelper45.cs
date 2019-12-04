@@ -1,10 +1,12 @@
 ﻿
+using System;
 using System.Net;
 using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TZM.XFramework
 {
@@ -16,234 +18,192 @@ namespace TZM.XFramework
         #region 网络
 
         /// <summary>
-        /// HttpClient 用POST方法访问指定URI
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">发送到服务器的 HTTP 请求内容。</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <param name="authentication">请求的验证信息</param>
-        /// <returns></returns>
-        public static async Task<T> PostAsync<T>(string uri, string content, IDictionary<string, string> headers = null, AuthenticationHeaderValue authentication = null)
-        {
-            HttpClient c = null;
-            HttpContent httpContent = null;
-            HttpResponseMessage msg = null;
-            T TEntity = default(T);
-
-            try
-            {
-                c = new HttpClient();
-                c.
-                httpContent = new StringContent(content);
-                if (headers != null) foreach (var kv in headers) c.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                if (authentication != null) c.DefaultRequestHeaders.Authorization = authentication;
-
-                msg = await c.PostAsync(uri, httpContent);
-                string json = await msg.Content.ReadAsStringAsync(); // ReadAsAsync
-                TEntity = SerializeHelper.DeserializeFromJson<T>(json);
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (httpContent != null) httpContent.Dispose();
-                if (c != null) c.Dispose();
-                if (msg != null) msg.Dispose();
-
-            }
-
-            return TEntity;
-        }
-
-        /// <summary>
-        /// HttpClient 用POST方法访问指定URI
-        /// </summary>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="content">发送到服务器的 HTTP 请求内容。</param>
-        /// <param name="token">请求的验证信息</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
-        public static async Task<HttpContent> PostAsync(string uri, string content, string token, IDictionary<string, string> headers)
-        {
-            HttpClient c = null;
-            HttpContent httpContent = null;
-            HttpResponseMessage msg = null;
-
-            try
-            {
-                c = new HttpClient();
-                httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                //httpContent.Headers.Add("Content-Type", "application/json");
-                if (headers != null) foreach (var kv in headers) c.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                if (!string.IsNullOrEmpty(token)) c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-                msg = await c.PostAsync(uri, httpContent);
-                return msg.Content;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (httpContent != null) httpContent.Dispose();
-                if (c != null) c.Dispose();
-            }
-        }
-
-        /// <summary>
         /// HttpClient 用GET方法访问指定URI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="uri">请求发送到的 URI。</param>
         /// <param name="headers">请求的头部信息</param>
-        /// <param name="authentication">请求的验证信息</param>
         /// <returns></returns>
-        public static async Task<T> GetAsync<T>(string uri, IDictionary<string, string> headers = null, AuthenticationHeaderValue authentication = null)
+        public static async Task<T> GetAsync<T>(string uri, IDictionary<string, string> headers = null)
         {
-            HttpClient c = null;
-            HttpResponseMessage msg = null;
-            T TEntity = default(T);
-
-            try
-            {
-                c = new HttpClient();
-                if (headers != null) foreach (var kv in headers) c.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                if (authentication != null) c.DefaultRequestHeaders.Authorization = authentication;
-
-                msg = await c.GetAsync(uri);
-                string json = await msg.Content.ReadAsStringAsync();
-                TEntity = SerializeHelper.DeserializeFromJson<T>(json);
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (c != null) c.Dispose();
-                if (msg != null) msg.Dispose();
-
-            }
-
-            return TEntity;
+            var configuration = new HttpConfiguration<T> { Headers = headers };
+            return await WebHelper.GetAsync<T>(uri, configuration);
         }
 
         /// <summary>
-        /// HttpClient 用GET方法访问指定URI
+        /// 使用 GET 方式提交请求
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="token">Basic 验证模式的令牌</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
-        public static async Task<T> GetAsync<T>(string uri, string token, IDictionary<string, string> headers = null)
+        /// <param name="uri">请求路径</param>
+        /// <param name="configuration">HTTP 配置</param>
+        public static async Task<T> GetAsync<T>(string uri, HttpConfiguration configuration)
         {
-            return await WebHelper.GetAsync<T>(uri, headers, new AuthenticationHeaderValue("Basic", token));
+            if (configuration == null) configuration = new HttpConfiguration<T>();
+            configuration.Method = HttpMethod.Get;
+
+            var conf = configuration as HttpConfiguration<T>;
+            var response = await WebHelper.SendAsync(uri, configuration);
+            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
-        /// HttpClient 用GET方法访问指定URI <c>用完注意调用HttpContent.Dispose方法</c>
+        /// 使用 POST 方式提交请求
         /// </summary>
-        /// <param name="uri">请求发送到的 URI。</param>
-        /// <param name="token">Basic 验证模式的令牌</param>
-        /// <param name="headers">请求的头部信息</param>
-        /// <returns></returns>
-        public static async Task<HttpContent> GetAsync(string uri, string token, IDictionary<string, string> headers = null)
+        /// <typeparam name="T">返回类型，如果是 string 类型则直接返回原生 JSON </typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="content">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        public static async Task<T> PostAsync<T>(string uri, object content, string contentType = "application/json", IDictionary<string, string> headers = null)
         {
-            HttpClient c = null;
-
-            try
+            var configuration = new HttpConfiguration<T>
             {
-                c = new HttpClient();
-                if (headers != null) foreach (var kv in headers) c.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                if (!string.IsNullOrEmpty(token)) c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-
-
-                var r = await c.GetAsync(uri);
-                return r.Content;
-            }
-            catch (WebException we)
-            {
-                WebHelper.ThrowWebException(we);
-                throw;
-            }
-            finally
-            {
-                if (c != null) c.Dispose();
-            }
+                Content = content,
+                ContentType = contentType,
+                Headers = headers,
+            };
+            return await WebHelper.PostAsync<T>(uri, configuration);
         }
 
         /// <summary>
-        /// 发起 HTTP  请求并返回 HTTP 响应
+        /// 使用 POST 方式提交请求，需要调用方自行释放响应对象
         /// </summary>
-        /// <param name="request">请求参数</param>
-        /// <param name="tryTimes">出现错误时重试次数</param>
-        /// <param name="sleep">重试等待毫秒数，默认500</param>
-        /// <returns></returns>
-        public static async Task<HttpResponseMessage> SendAsync(string uri, HttpMethod method, object obj = null, string contentType = "application/json",
-            IDictionary<string, string> headers = null, int? timeout = null, Encoding encoding = null, WebProxy proxy = null, int tryTimes = 3, int sleep = 500)
+        /// <param name="uri">请求路径</param>
+        /// <param name="configuration">HTTP 配置</param>
+        public static async Task<T> PostAsync<T>(string uri, HttpConfiguration configuration)
         {
-            var handler = proxy != null ? new HttpClientHandler
-            {
-                Proxy = proxy,
-                UseProxy = true,
-            } : null;
-            var client = handler != null ? new HttpClient(handler) : new HttpClient();
-            if (timeout != null) client.Timeout = new System.TimeSpan(0, 0, 0, 0, timeout.Value);
-            //client.DefaultRequestHeaders.Clear();
-            if (headers != null)
-            {
-                string scheme = null;
-                string token = null;
-                foreach (var kv in headers)
-                {
-                    if (string.Equals(kv.Key, "scheme", System.StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
-                    else if (string.Equals(kv.Key, "token", System.StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
-                    else client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                }
+            if (configuration == null) configuration = new HttpConfiguration<T>();
+            configuration.Method = HttpMethod.Post;
 
-                if (token != null)
-                {
-                    if (scheme == null) scheme = "Basic";
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-                }
-            }
+            var conf = configuration as HttpConfiguration<T>;
+            var response = await WebHelper.SendAsync(uri, configuration);
+            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
+        }
 
-            var request = new HttpRequestMessage(method, uri);
-            string content = null;
-            if (obj != null && obj is string) content = System.Convert.ToString(obj);
-            else if (obj != null) content = SerializeHelper.SerializeToJson(obj);
-            if (content != null)
+        /// <summary>
+        /// 使用 DELETE 方式提交请求
+        /// </summary>
+        /// <typeparam name="T">返回类型，如果是 string 类型则直接返回原生 JSON </typeparam>
+        /// <param name="uri">请求路径</param>
+        /// <param name="content">参数内容，如果不是字符类型则序列化成字符串</param>
+        /// <param name="headers">HTTP 标头的键值对</param>
+        /// <param name="contentType">内容类型</param>
+        public static async Task<T> DeleteAsync<T>(string uri, object content, string contentType = "application/json", IDictionary<string, string> headers = null)
+        {
+            var configuration = new HttpConfiguration<T>
             {
-                var httpContent = new StringContent(content, encoding ?? Encoding.UTF8, contentType);
-                request.Content = httpContent;
-            }
+                Content = content,
+                ContentType = contentType,
+                Headers = headers,
+            };
+            return await WebHelper.DeleteAsync<T>(uri, configuration);
+        }
 
-            var requestUri = request.RequestUri;
-            if (requestUri != null)
+        /// <summary>
+        /// 使用 POST 方式提交请求，需要调用方自行释放响应对象
+        /// </summary>
+        /// <param name="uri">请求路径</param>
+        /// <param name="configuration">HTTP 配置</param>
+        public static async Task<T> DeleteAsync<T>(string uri, HttpConfiguration configuration)
+        {
+            if (configuration == null) configuration = new HttpConfiguration<T>();
+            configuration.Method = HttpMethod.Delete;
+
+            var conf = configuration as HttpConfiguration<T>;
+            var response = await WebHelper.SendAsync(uri, configuration);
+            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
+        }
+
+        /// <summary>
+        /// 发起 HTTP，需要调用方自行释放响应对象
+        /// </summary>
+        /// <param name="uri">请求路径</param>
+        /// <param name="configuration">HTTP 配置</param>
+        /// <returns></returns>
+        public static async Task<HttpResponseMessage> SendAsync(string uri, HttpConfiguration configuration)
+        {
+            int tryTimes = configuration != null && configuration.TryTimes != null ? configuration.TryTimes.Value : 0;
+            int sleep = configuration != null && configuration.Sleep != null ? configuration.Sleep.Value : 500;
+
+            return await WebHelper.SendAsync(uri, configuration, tryTimes, sleep);
+        }
+
+        // 发起 HTTP请求
+        static async Task<HttpResponseMessage> SendAsync(string uri, HttpConfiguration configuration, int tryTimes, int sleep)
+        {
+            if (uri != null)
             {
 #if netcore
-                if (requestUri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #endif
 #if net45
-                if (requestUri.Scheme == "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #endif
 #if net40
-                if (requestUri.Scheme== "https") ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+                if (uri.StartsWith("https", StringComparison.OrdinalIgnoreCase)) ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
 #endif
+            }
+
+            // 初始化 HTTP 客户端
+            HttpClientHandler handler = null;
+            if (configuration != null && configuration.Proxy != null) handler = new HttpClientHandler
+            {
+                Proxy = configuration.Proxy,
+                UseProxy = true,
+            };
+            var client = handler != null ? new HttpClient(handler) : new HttpClient();
+            if (configuration != null)
+            {
+                if (configuration.Timeout != null) client.Timeout = new System.TimeSpan(0, 0, 0, 0, configuration.Timeout.Value);
+                if (configuration.Headers != null)
+                {
+                    // Authorization TODO
+                    string scheme = null;
+                    string token = null;
+                    foreach (var kv in configuration.Headers)
+                    {
+                        if (string.Equals(kv.Key, "scheme", System.StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
+                        else if (string.Equals(kv.Key, "token", System.StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
+                        else client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
+                    }
+
+                    if (token != null)
+                    {
+                        if (scheme == null) scheme = "Basic";
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
+                    }
+                }
+            }
+
+            // 初始化 HTTP 请求
+            var method = System.Net.Http.HttpMethod.Get;
+            if (configuration != null)
+            {
+                if (configuration.Method == HttpMethod.Get) method = System.Net.Http.HttpMethod.Get;
+                else if (configuration.Method == HttpMethod.Post) method = System.Net.Http.HttpMethod.Post;
+                else if (configuration.Method == HttpMethod.Put) method = System.Net.Http.HttpMethod.Put;
+                else if (configuration.Method == HttpMethod.Delete) method = System.Net.Http.HttpMethod.Delete;
+                else if (configuration.Method == HttpMethod.Head) method = System.Net.Http.HttpMethod.Head;
+                else if (configuration.Method == HttpMethod.Head) method = System.Net.Http.HttpMethod.Head;
+                else if (configuration.Method == HttpMethod.Trace) method = System.Net.Http.HttpMethod.Trace;
+                else if (configuration.Method == HttpMethod.Options) method = System.Net.Http.HttpMethod.Options;
+            }
+            var request = new HttpRequestMessage(method, uri);
+            string content = null;
+            if (configuration.Content != null && configuration.Content is string) content = (string)configuration.Content;
+            else if (configuration.Content != null) content = SerializeHelper.SerializeToJson(configuration.Content);
+            if (content != null)
+            {
+                var encoding = configuration.Encoding ?? Encoding.UTF8;
+                var contentType = "application/json";
+                var httpContent = new StringContent(content, encoding ?? Encoding.UTF8, contentType);
+                request.Content = httpContent;
             }
 
             try
             {
                 var response = await client.SendAsync(request);
                 return response;
+
             }
             catch (WebException we)
             {
@@ -251,7 +211,7 @@ namespace TZM.XFramework
                 if (tryTimes > 0)
                 {
                     System.Threading.Thread.Sleep(sleep);
-                    return WebHelper.Send(request, tryTimes);
+                    return await WebHelper.SendAsync(uri, configuration, tryTimes, sleep);
                 }
                 else
                 {
@@ -260,10 +220,29 @@ namespace TZM.XFramework
                 }
             }
 
-            //MultipartFormDataContent => multipart / form - data
-            //FormUrlEncodedContent => application / x - www - form - urlencoded
-            //StringContent => application / json等
+            //MultipartFormDataContent => multipart/form-data
+            //FormUrlEncodedContent => application/x-www-form-urlencoded
+            //StringContent => application/json
             //StreamContent => binary
+        }
+
+        // 从响应流中读取响应为实体
+        static async Task<T> ReadAsResultAsync<T>(HttpResponseMessage response, bool disposing = true, Func<string, T> deserializer = null)
+        {
+            Stream stream = null;
+            try
+            {
+                stream = await response.Content.ReadAsStreamAsync();
+                return WebHelper.ReadAsResult<T>(stream, disposing, deserializer);
+            }
+            finally
+            {
+                if (disposing)
+                {
+                    if (stream != null) stream.Close();
+                    if (response != null) response.Dispose();
+                }
+            }
         }
 
         #endregion
