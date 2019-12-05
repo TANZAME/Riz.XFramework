@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace TZM.XFramework
 {
@@ -42,7 +43,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, true, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -143,36 +144,25 @@ namespace TZM.XFramework
 #endif
             }
 
-            // 初始化 HTTP 客户端
+            // 初始化 HTTP 消息处理程序
             HttpClientHandler handler = null;
-            if (configuration != null && configuration.Proxy != null) handler = new HttpClientHandler
-            {
-                Proxy = configuration.Proxy,
-                UseProxy = true,
-            };
-            var client = handler != null ? new HttpClient(handler) : new HttpClient();
             if (configuration != null)
             {
-                if (configuration.Timeout != null) client.Timeout = new System.TimeSpan(0, 0, 0, 0, configuration.Timeout.Value);
-                if (configuration.Headers != null)
+                if (configuration.Proxy != null) handler = new HttpClientHandler
                 {
-                    // Authorization TODO
-                    string scheme = null;
-                    string token = null;
-                    foreach (var kv in configuration.Headers)
-                    {
-                        if (string.Equals(kv.Key, "scheme", System.StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
-                        else if (string.Equals(kv.Key, "token", System.StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
-                        else client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
-                    }
-
-                    if (token != null)
-                    {
-                        if (scheme == null) scheme = "Basic";
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-                    }
+                    Proxy = configuration.Proxy,
+                    UseProxy = true
+                };
+                if (configuration.CookieContainer != null)
+                {
+                    if (handler != null)
+                        handler.CookieContainer = configuration.CookieContainer;
+                    else
+                        handler = new HttpClientHandler { CookieContainer = configuration.CookieContainer };
                 }
             }
+            var client = handler != null ? new HttpClient(handler) : new HttpClient();
+            if (configuration != null && configuration.Timeout != null) client.Timeout = new TimeSpan(0, 0, 0, 0, configuration.Timeout.Value);
 
             // 初始化 HTTP 请求
             var method = System.Net.Http.HttpMethod.Get;
@@ -188,15 +178,41 @@ namespace TZM.XFramework
                 else if (configuration.Method == HttpMethod.Options) method = System.Net.Http.HttpMethod.Options;
             }
             var request = new HttpRequestMessage(method, uri);
-            string content = null;
-            if (configuration.Content != null && configuration.Content is string) content = (string)configuration.Content;
-            else if (configuration.Content != null) content = SerializeHelper.SerializeToJson(configuration.Content);
-            if (content != null)
+            if (configuration != null)
             {
-                var encoding = configuration.Encoding ?? Encoding.UTF8;
-                var contentType = "application/json";
-                var httpContent = new StringContent(content, encoding ?? Encoding.UTF8, contentType);
-                request.Content = httpContent;
+                if (configuration.Accept != null) request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(configuration.Accept));
+                if (configuration.UserAgent != null) request.Headers.UserAgent.Add(new ProductInfoHeaderValue(configuration.UserAgent, null));
+                if (configuration.KeepAlive != null) request.Headers.Connection.Add("keep-alive");
+
+                string content = null;
+                if (configuration.Content != null && configuration.Content is string) content = (string)configuration.Content;
+                else if (configuration.Content != null) content = SerializeHelper.SerializeToJson(configuration.Content);
+                if (content != null)
+                {
+                    var encoding = configuration.Encoding ?? Encoding.UTF8;
+                    var contentType = configuration.ContentType ?? "application/json";
+                    var httpContent = new StringContent(content, encoding ?? Encoding.UTF8, contentType);
+                    request.Content = httpContent;
+                }
+
+                if (configuration.Headers != null)
+                {
+                    // Authorization TODO
+                    string scheme = null;
+                    string token = null;
+                    foreach (var kv in configuration.Headers)
+                    {
+                        if (string.Equals(kv.Key, "scheme", StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
+                        else if (string.Equals(kv.Key, "token", StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
+                        else request.Headers.Add(kv.Key, kv.Value);
+                    }
+
+                    if (token != null)
+                    {
+                        if (scheme == null) scheme = "Basic";
+                        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
+                    }
+                }
             }
 
             try
@@ -207,6 +223,9 @@ namespace TZM.XFramework
             }
             catch (WebException we)
             {
+                if (handler != null) handler.Dispose();
+                if (client != null) client.Dispose();
+
                 tryTimes--;
                 if (tryTimes > 0)
                 {
@@ -227,21 +246,21 @@ namespace TZM.XFramework
         }
 
         // 从响应流中读取响应为实体
-        static async Task<T> ReadAsResultAsync<T>(HttpResponseMessage response, bool disposing = true, Func<string, T> deserializer = null)
+        static async Task<T> ReadAsResultAsync<T>(HttpResponseMessage response, Func<string, T> deserializer = null)
         {
             Stream stream = null;
             try
             {
+                Encoding encoding = null;
+                if (response.Content != null && response.Content.Headers != null && response.Content.Headers.ContentType != null)
+                    encoding = Encoding.GetEncoding(response.Content.Headers.ContentType.CharSet);
                 stream = await response.Content.ReadAsStreamAsync();
-                return WebHelper.ReadAsResult<T>(stream, disposing, deserializer);
+                return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
             }
             finally
             {
-                if (disposing)
-                {
-                    if (stream != null) stream.Close();
-                    if (response != null) response.Dispose();
-                }
+                if (stream != null) stream.Close();
+                if (response != null) response.Dispose();
             }
         }
 

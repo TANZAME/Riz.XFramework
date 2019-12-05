@@ -635,7 +635,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, true, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -669,7 +669,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, true, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -703,7 +703,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, true, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
         }
 
         /// <summary>
@@ -799,8 +799,12 @@ namespace TZM.XFramework
                     request.Method = configuration.Method.ToString().ToUpper();
                     if (configuration.Timeout != null) request.Timeout = configuration.Timeout.Value;
                     if (configuration.ContentType != null) request.ContentType = configuration.ContentType;
+                    if (configuration.Accept != null) request.Accept = configuration.Accept;
+                    if (configuration.UserAgent != null) request.UserAgent = configuration.UserAgent;
+                    if (configuration.KeepAlive != null) request.KeepAlive = configuration.KeepAlive.Value;
                     if (configuration.Proxy != null) request.Proxy = configuration.Proxy;
                     if (configuration.Headers != null) foreach (var kv in configuration.Headers) request.Headers.Add(kv.Key, kv.Value);
+                    if (configuration.CookieContainer != null) request.CookieContainer = configuration.CookieContainer;
 
                     // 写入参数
                     string content = null;
@@ -840,34 +844,31 @@ namespace TZM.XFramework
         }
 
         // 从响应流中读取响应为实体
-        static T ReadAsResult<T>(HttpWebResponse response, bool disposing = true, Func<string, T> deserializer = null)
+        static T ReadAsResult<T>(HttpWebResponse response, Func<string, T> deserializer = null)
         {
             Stream stream = null;
             try
             {
+                Encoding encoding = !string.IsNullOrEmpty(response.CharacterSet) ? Encoding.GetEncoding(response.CharacterSet) : null;
                 stream = response.GetResponseStream();
-                return WebHelper.ReadAsResult<T>(stream, disposing, deserializer);
+                return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
             }
             finally
             {
-                if (disposing)
-                {
-                    if (stream != null) stream.Close();
-                    if (response != null) response.Close();
-                }
+                if (stream != null) stream.Close();
+                if (response != null) response.Close();
             }
         }
 
         // 从响应流中读取响应为实体
-        static T ReadAsResult<T>(Stream stream, bool disposing = true, Func<string, T> deserializer = null)
+        static T ReadAsResult<T>(Stream stream, Encoding encoding = null, Func<string, T> deserializer = null)
         {
             StreamReader reader = null;
             string json = string.Empty;
             try
             {
                 // TODO 压缩类型流
-                reader = new StreamReader(stream);
-
+                reader = encoding != null ? new StreamReader(stream, encoding) : new StreamReader(stream);
                 json = reader.ReadToEnd();
                 if (typeof(T) == typeof(string)) return (T)(json as object);
                 else
@@ -893,7 +894,7 @@ namespace TZM.XFramework
             finally
             {
                 if (reader != null) reader.Close();
-                if (disposing && stream != null) stream.Close();
+                if (stream != null) stream.Close();
             }
         }
 
@@ -959,6 +960,21 @@ namespace TZM.XFramework
             public string ContentType { get; set; }
 
             /// <summary>
+            /// HTTP 接受类型标头
+            /// </summary>
+            public string Accept { get; set; }
+
+            /// <summary>
+            /// HTTP 用户代理标头
+            /// </summary>
+            public string UserAgent { get; set; }
+
+            /// <summary>
+            /// 获取或设置一个值，该值指示是否与资源建立持久性连接
+            /// </summary>
+            public bool? KeepAlive { get; set; }
+
+            /// <summary>
             /// 提交内容的编码方式
             /// </summary>
             public Encoding Encoding { get; set; }
@@ -981,6 +997,18 @@ namespace TZM.XFramework
             /// WEB 代理
             /// </summary>
             public WebProxy Proxy { get; set; }
+            //WebProxy webProxy = new WebProxy(proxy.Address);
+            //webProxy.Credentials = new NetworkCredential(proxy.AccountName, proxy.Password);
+
+            /// <summary>
+            /// COOKIE 容器
+            /// </summary>
+            public CookieContainer CookieContainer { get; set; }
+            //string path = "/";
+            //string domain = "www.merchantwords.com";
+            //CookieContainer container = new CookieContainer();
+            //container.Add(new Cookie("__zlcmid", "qShxFslerMOiOr", path, domain));
+            //container.Add(new Cookie("_ga", "GA1.2.1649633403.1547951981", path, domain));
 
             /// <summary>
             /// 请求出错时重试次数
