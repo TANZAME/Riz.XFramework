@@ -239,8 +239,8 @@ namespace TZM.XFramework.Data
             if (type != null && !TypeUtils.IsAnonymousType(type) && !TypeUtils.IsPrimitiveType(type))
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                var invoker = typeRuntime.GetInvoker(member.Name);
-                if (invoker != null) column = invoker.Column;
+                var m = typeRuntime.GetAccessor(member.Name);
+                if (m != null) column = m.Column;
             }
 
             return column;

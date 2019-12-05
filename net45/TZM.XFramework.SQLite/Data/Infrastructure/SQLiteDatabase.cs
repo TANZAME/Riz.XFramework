@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
     internal sealed partial class SQLiteDatabase : Database
     {
         static FieldInfo _disposed = typeof(SQLiteConnection).GetField("disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-        static MemberInvokerBase _disposedInvoker = new FieldInvoker(_disposed);
+        static MemberAccessorBase _disposedAccessor = new FieldAccessor(_disposed);
 
         /// <summary>
         /// 实体转换映射委托生成器
@@ -44,7 +44,7 @@ namespace TZM.XFramework.Data
             if (connection == null) base.Dispose(disposing);
             else
             {
-                bool disposed = (bool)_disposedInvoker.Invoke(connection);
+                bool disposed = (bool)_disposedAccessor.Invoke(connection);
                 base.Dispose(!disposed);
             }
         }

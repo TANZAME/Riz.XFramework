@@ -105,7 +105,7 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                var ctor = typeRuntime.ConstructInvoker.Constructor;
+                var ctor = typeRuntime.ConstructorAccessor.Constructor;
                 if (ctor.GetParameters().Length > 0) specializedConstructor = ctor;
                 else
                 {
@@ -151,8 +151,8 @@ namespace TZM.XFramework.Data
                     il.Emit(OpCodes.Brtrue_S, loadNullLabel);
                 }
 
-                var invoker = typeRuntime.GetInvoker(memberName);
-                if (invoker == null) continue;
+                var m = typeRuntime.GetAccessor(memberName);
+                if (m == null) continue;
 
                 if (specializedConstructor == null) il.Emit(OpCodes.Dup);// stack is now [target][target]
 
@@ -160,7 +160,7 @@ namespace TZM.XFramework.Data
                 Type myFieldType = reader.GetFieldType(index);
                 Type myFieldType2 = myFieldType;
                 // 实体属性类型
-                Type memberType = invoker.DataType;
+                Type memberType = m.DataType;
                 MethodInfo getFieldValue = this.GetReaderMethod(myFieldType, memberType, ref myFieldType2);
                 if (myFieldType != myFieldType2) myFieldType = myFieldType2;
 
@@ -249,10 +249,10 @@ namespace TZM.XFramework.Data
                 if (specializedConstructor == null)
                 {
                     // Store the value in the property/field
-                    if (invoker.MemberType == MemberTypes.Field) il.Emit(OpCodes.Stfld, invoker.Member as FieldInfo);// stack is now [target]
+                    if (m.MemberType == MemberTypes.Field) il.Emit(OpCodes.Stfld, m.Member as FieldInfo);// stack is now [target]
                     else
                     {
-                        MethodInfo setMethod = (invoker as PropertyInvoker).SetMethod;
+                        MethodInfo setMethod = (m as PropertyAccessor).SetMethod;
                         il.Emit(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, setMethod);// stack is now [target]
                     }
                 }
@@ -265,12 +265,12 @@ namespace TZM.XFramework.Data
                 else
                 {
                     // DbNull，将NULL或者0推到栈顶
-                    if (!invoker.DataType.IsValueType) il.Emit(OpCodes.Ldnull);
+                    if (!m.DataType.IsValueType) il.Emit(OpCodes.Ldnull);
                     else
                     {
-                        int localIndex = il.DeclareLocal(invoker.DataType).LocalIndex;
+                        int localIndex = il.DeclareLocal(m.DataType).LocalIndex;
                         il.LoadLocalAddress(localIndex);
-                        il.Emit(OpCodes.Initobj, invoker.DataType);
+                        il.Emit(OpCodes.Initobj, m.DataType);
                         il.LoadLocal(localIndex);
                     }
                 }

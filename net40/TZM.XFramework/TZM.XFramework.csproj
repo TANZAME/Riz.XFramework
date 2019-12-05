@@ -154,26 +154,26 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryable`1.cs">
       <Link>Data\DbQueryable`1.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorInvoker.cs">
-      <Link>Data\Emit\ConstructorInvoker.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorAccessor.cs">
+      <Link>Data\Emit\ConstructorAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldInvoker.cs">
-      <Link>Data\Emit\FieldInvoker.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldAccessor.cs">
+      <Link>Data\Emit\FieldAccessor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ILGeneratorExtensions.cs">
       <Link>Data\Emit\ILGeneratorExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs">
-      <Link>Data\Emit\MemberInvokerBase.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberAccessorBase.cs">
+      <Link>Data\Emit\MemberAccessorBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerCollection.cs">
-      <Link>Data\Emit\MemberInvokerCollection.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberAccessorCollection.cs">
+      <Link>Data\Emit\MemberAccessorCollection.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodInvoker.cs">
-      <Link>Data\Emit\MethodInvoker.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodAccessor.cs">
+      <Link>Data\Emit\MethodAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\PropertyInvoker.cs">
-      <Link>Data\Emit\PropertyInvoker.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\PropertyAccessor.cs">
+      <Link>Data\Emit\PropertyAccessor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfo.cs">
       <Link>Data\Emit\TypeRuntimeInfo.cs</Link>

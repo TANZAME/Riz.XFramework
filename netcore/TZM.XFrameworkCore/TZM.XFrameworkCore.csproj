@@ -37,7 +37,7 @@
   <ItemGroup>
     <None Remove="Caching\.gitkeep" />
     <None Remove="Common\Collection\.gitkeep" />
-    <None Remove="Common\Ioc\.gitkeep" />
+    <None Remove="Common\IoC\.gitkeep" />
     <None Remove="Data\ExpressionVisitor\.gitkeep" />
     <None Remove="Data\Genaration\.gitkeep" />
     <None Remove="Data\Infrastructure\.gitkeep" />
@@ -63,8 +63,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\WebHelper .cs" Link="Common\Helper\WebHelper .cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\WebHelper45.cs" Link="Common\Helper\WebHelper45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\XmlHelper.cs" Link="Common\Helper\XmlHelper.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\IContainer.cs" Link="Common\Ioc\IContainer.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\XfwContainer.cs" Link="Common\Ioc\XfwContainer.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\IContainer.cs" Link="Common\IoC\IContainer.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\XfwContainer.cs" Link="Common\IoC\XfwContainer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\ColumnAttribute.cs" Link="Data\Annotation\ColumnAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\ForeignKeyAttribute.cs" Link="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\TableAttribute.cs" Link="Data\Annotation\TableAttribute.cs" />
@@ -75,13 +75,13 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryable.cs" Link="Data\DbQueryable.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryableExtensions.cs" Link="Data\DbQueryableExtensions.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\DbQueryable`1.cs" Link="Data\DbQueryable`1.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorInvoker.cs" Link="Data\Emit\ConstructorInvoker.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldInvoker.cs" Link="Data\Emit\FieldInvoker.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ConstructorAccessor.cs" Link="Data\Emit\ConstructorAccessor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\FieldAccessor.cs" Link="Data\Emit\FieldAccessor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\ILGeneratorExtensions.cs" Link="Data\Emit\ILGeneratorExtensions.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerBase.cs" Link="Data\Emit\MemberInvokerBase.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberInvokerCollection.cs" Link="Data\Emit\MemberInvokerCollection.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodInvoker.cs" Link="Data\Emit\MethodInvoker.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\PropertyInvoker.cs" Link="Data\Emit\PropertyInvoker.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberAccessorBase.cs" Link="Data\Emit\MemberAccessorBase.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MemberAccessorCollection.cs" Link="Data\Emit\MemberAccessorCollection.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\MethodAccessor.cs" Link="Data\Emit\MethodAccessor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\PropertyAccessor.cs" Link="Data\Emit\PropertyAccessor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfo.cs" Link="Data\Emit\TypeRuntimeInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeRuntimeInfoCache.cs" Link="Data\Emit\TypeRuntimeInfoCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Emit\TypeUtils.cs" Link="Data\Emit\TypeUtils.cs" />
@@ -169,7 +169,7 @@
 
   <ItemGroup>
     <Folder Include="Common\Collection\" />
-    <Folder Include="Common\Ioc\" />
+    <Folder Include="Common\IoC\" />
   </ItemGroup>
 
   <ItemGroup>

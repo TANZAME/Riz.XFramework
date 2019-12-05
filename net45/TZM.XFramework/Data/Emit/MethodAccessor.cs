@@ -11,19 +11,19 @@ namespace TZM.XFramework.Data
     /// 底层使用 Emit IL 实现
     /// </para>
     /// </summary>
-    public sealed class MethodInvoker : MemberInvokerBase
+    public sealed class MethodAccessor : MemberAccessorBase
     {
-        private Func<object, object[], object> _invoker;
-        private MethodInfo _member = null;
+        private Func<object, object[], object> _func;
+        private MethodInfo _method = null;
 
         /// <summary>
-        /// 初始化 <see cref="MethodInvoker"/> 类的新实例
+        /// 初始化 <see cref="MethodAccessor"/> 类的新实例
         /// </summary>
         /// <param name="method">方法元数据</param>
-        public MethodInvoker(MethodInfo method)
+        public MethodAccessor(MethodInfo method)
             :base(method)
         {
-            _member = method;
+            _method = method;
         }
 
         /// <summary>
@@ -34,15 +34,15 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public override object Invoke(object target, params object[] parameters)
         {
-            if(_invoker== null) _invoker= MethodInvoker.InitializeInvoker(_member);
-            return _invoker(target, parameters);
+            if(_func== null) _func= MethodAccessor.Initialize(_method);
+            return _func(target, parameters);
         }
 
         // 初始化方法调用器
-        private static Func<object, object[], object> InitializeInvoker(MethodInfo method)
+        private static Func<object, object[], object> Initialize(MethodInfo method)
         {
-            DynamicMethod dynamicMethod = new DynamicMethod(method.Name, typeof(object), new Type[2] { typeof(object), typeof(object[]) }, typeof(TypeRuntimeInfoCache), true);
-            ILGenerator g = dynamicMethod.GetILGenerator();
+            var m = new DynamicMethod(method.Name, typeof(object), new Type[2] { typeof(object), typeof(object[]) }, typeof(TypeRuntimeInfoCache), true);
+            ILGenerator g = m.GetILGenerator();
             ParameterInfo[] parameters = method.GetParameters();
             Type[] parameterTypes = new Type[parameters.Length + (!method.IsStatic ? 1 : 0)];
 
@@ -109,29 +109,7 @@ namespace TZM.XFramework.Data
             }
             g.Emit(OpCodes.Ret);
 
-            return dynamicMethod.CreateDelegate(typeof(Func<object, object[], object>)) as Func<object, object[], object>;
+            return m.CreateDelegate(typeof(Func<object, object[], object>)) as Func<object, object[], object>;
         }
     }
 }
-
-
-
-
-//// 0x0FFC: 00
-//IL_0000: nop
-//// 0x0FFD: 73 A8 00 00 06
-//IL_0001: newobj instance void TZM.XFramework.UnitTest.Inte_CRM/Account::.ctor()
-//// 0x1002: 0A
-//IL_0006: stloc.0
-//    // 0x1003: 73 38 00 00 0A
-//IL_0007: newobj instance void class [mscorlib] System.Collections.Generic.List`1<class TZM.XFramework.UnitTest.Inte_CRM/Account>::.ctor()
-//    // 0x1008: 0B
-//IL_000c: stloc.1
-//	// 0x1009: 07
-//	IL_000d: ldloc.1
-//	// 0x100A: 06
-//	IL_000e: ldloc.0
-//	// 0x100B: 6F 39 00 00 0A
-//	IL_000f: callvirt instance void class [mscorlib] System.Collections.Generic.List`1<class TZM.XFramework.UnitTest.Inte_CRM/Account>::Add(!0)
-//    // 0x1010: 00
-//IL_0014: nop

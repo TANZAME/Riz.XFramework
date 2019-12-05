@@ -145,14 +145,14 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected Expression VisitMethodCall(MethodCallExpression node)
         {
-            MemberInvokerBase invoker = null;
-            if (node.Method.Name == "Concat") invoker = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
-            else invoker = this.TypeRuntime.GetInvoker("Visit" + node.Method.Name);
+            MemberAccessorBase m = null;
+            if (node.Method.Name == "Concat") m = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
+            else m = this.TypeRuntime.GetAccessor("Visit" + node.Method.Name);
 
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -169,11 +169,11 @@ namespace TZM.XFramework.Data
             else if (node.NodeType == ExpressionType.Divide) methodName = "Divide";
             else methodName = node.Method.Name;
 
-            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + methodName);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            MemberAccessorBase m = this.TypeRuntime.GetAccessor("Visit" + methodName);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -183,11 +183,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected Expression VisitMemberMember(MemberExpression node)
         {
-            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + node.Member.Name);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
+            MemberAccessorBase m = this.TypeRuntime.GetAccessor("Visit" + node.Member.Name);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }

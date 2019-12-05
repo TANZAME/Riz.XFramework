@@ -8,9 +8,9 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 构造函数访问器
     /// </summary>
-    public class ConstructorInvoker
+    public class ConstructorAccessor
     {
-        private Func<object[], object> _invoker = null;
+        private Func<object[], object> _func = null;
         private ConstructorInfo _ctor = null;
 
         /// <summary>
@@ -19,18 +19,18 @@ namespace TZM.XFramework.Data
         public ConstructorInfo Constructor { get { return _ctor; } }
 
         /// <summary>
-        /// 初始化 <see cref="MemberInvokerBase"/> 类的新实例
+        /// 初始化 <see cref="MemberAccessorBase"/> 类的新实例
         /// </summary>
         /// <param name="ctor">构造函数</param>
-        public ConstructorInvoker(ConstructorInfo ctor)
+        public ConstructorAccessor(ConstructorInfo ctor)
         {
             _ctor = ctor;
         }
 
-        static Func<object[], object> InitializeInvoker(ConstructorInfo ctor)
+        static Func<object[], object> Initialize(ConstructorInfo ctor)
         {
-            DynamicMethod dm = new DynamicMethod(string.Empty, typeof(object), new[] { typeof(object[]) }, true);//declaringType);
-            ILGenerator g = dm.GetILGenerator();
+            var m = new DynamicMethod(string.Empty, typeof(object), new[] { typeof(object[]) }, true);//declaringType);
+            ILGenerator g = m.GetILGenerator();
             ParameterInfo[] parameters = ctor.GetParameters();
 
             for (int index = 0; index < parameters.Length; ++index)
@@ -43,7 +43,7 @@ namespace TZM.XFramework.Data
             g.Emit(OpCodes.Newobj, ctor);
             g.Emit(OpCodes.Ret);
 
-            return dm.CreateDelegate(typeof(Func<object[], object>)) as Func<object[], object>;
+            return m.CreateDelegate(typeof(Func<object[], object>)) as Func<object[], object>;
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public object Invoke(params object[] parameters)
         {
-            _invoker = _invoker ?? ConstructorInvoker.InitializeInvoker(_ctor);
-            return _invoker(parameters);
+            _func = _func ?? ConstructorAccessor.Initialize(_ctor);
+            return _func(parameters);
         }
     }
 }

@@ -14,6 +14,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 自增列
         /// </summary>
-        MemberInvokerBase AutoIncrement { get; }
+        MemberAccessorBase AutoIncrement { get; }
     }
 }

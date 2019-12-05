@@ -339,19 +339,18 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="hex">16进制字符串</param>
         /// <param name="encoding">编码，如果不传则使用 UTF8</param>
-        /// <param name="upper">转为大写形式</param>
         /// <returns></returns>
-        public static string HexToString(string hex, Encoding encoding = null, bool upper = false)
+        public static string HexToString(string hex, Encoding encoding = null)
         {
             hex = hex ?? string.Empty;
             encoding = encoding ?? Encoding.UTF8;
 
-            string strTemp = "";
+            string s = "";
             byte[] bytes = new byte[hex.Length / 2];
             for (int i = 0; i < hex.Length / 2; i++)
             {
-                strTemp = hex.Substring(i * 2, 2);
-                bytes[i] = Convert.ToByte(strTemp, 16);
+                s = hex.Substring(i * 2, 2);
+                bytes[i] = Convert.ToByte(s, 16);
             }
             //按照指定编码将字节数组变为字符串
             return encoding.GetString(bytes);

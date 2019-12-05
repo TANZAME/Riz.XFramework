@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     /// 底层使用 Emit IL 实现
     /// </para>
     /// </summary>
-    public abstract class MemberInvokerBase
+    public abstract class MemberAccessorBase
     {
         private Type _dataType = null;
         private MemberInfo _member = null;
@@ -109,10 +109,10 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 初始化 <see cref="MemberInvokerBase"/> 类的新实例
+        /// 初始化 <see cref="MemberAccessorBase"/> 类的新实例
         /// </summary>
         /// <param name="member">成员元数据</param>
-        public MemberInvokerBase(MemberInfo member)
+        public MemberAccessorBase(MemberInfo member)
         {
             XFrameworkException.Check.NotNull<MemberInfo>(member, "member");
             _member = member;
@@ -136,15 +136,6 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
         {
-            //if (_attributes == null)
-            //{
-            //    _attributes = new HybridDictionary();
-            //    var myAttributes = _member.GetCustomAttributes(false);
-            //    if (myAttributes != null) foreach (object item in myAttributes) _attributes.Add(item.GetType(), item);
-            //}
-
-            //return _attributes[typeof(TAttribute)] as TAttribute;
-
             if (_attributes == null) _attributes = _member.GetCustomAttributes(false);
             return _attributes.FirstOrDefault(x => x is TAttribute) as TAttribute;
         }
@@ -162,14 +153,15 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="member">元数据</param>
         /// <returns></returns>
-        public static MemberInvokerBase Create(MemberInfo member)
+        public static MemberAccessorBase Create(MemberInfo member)
         {
-            MemberInvokerBase invoker = null;
-            if (member.MemberType == MemberTypes.Property) invoker = new PropertyInvoker((PropertyInfo)member);
-            if (member.MemberType == MemberTypes.Field) invoker = new FieldInvoker((FieldInfo)member);
-            if (member.MemberType == MemberTypes.Method) invoker = new MethodInvoker((MethodInfo)member);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} not supported", member.ReflectedType, member.Name);
-            return invoker;
+            MemberAccessorBase m = null;
+            if (member.MemberType == MemberTypes.Property) m = new PropertyAccessor((PropertyInfo)member);
+            else if (member.MemberType == MemberTypes.Field) m = new FieldAccessor((FieldInfo)member);
+            else if (member.MemberType == MemberTypes.Method) m = new MethodAccessor((MethodInfo)member);
+            
+            if (m == null) throw new XFrameworkException("{0}.{1} not supported", member.ReflectedType, member.Name);
+            return m;
         }
     }
 }

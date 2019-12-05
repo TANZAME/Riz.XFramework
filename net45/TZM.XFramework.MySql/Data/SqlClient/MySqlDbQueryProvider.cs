@@ -442,14 +442,14 @@ namespace TZM.XFramework.Data.SqlClient
             if (dbQuery.Entity != null)
             {
                 object entity = dbQuery.Entity;
-                ISqlBuilder columnsBuilder = this.CreateSqlBuilder(token);
-                ISqlBuilder valuesBuilder = this.CreateSqlBuilder(token);
+                ISqlBuilder seg_Columns = this.CreateSqlBuilder(token);
+                ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
 
                 // 指定插入列
-                MemberInvokerCollection invokers = typeRuntime.Invokers;
+                MemberAccessorCollection memberAssessors = typeRuntime.MemberAccessors;
                 if (dbQuery.EntityColumns != null && dbQuery.EntityColumns.Count > 0)
                 {
-                    invokers = new MemberInvokerCollection();
+                    memberAssessors = new MemberAccessorCollection();
                     for (int i = 0; i < dbQuery.EntityColumns.Count; i++)
                     {
                         Expression curExpr = dbQuery.EntityColumns[i];
@@ -459,37 +459,37 @@ namespace TZM.XFramework.Data.SqlClient
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
-                        invokers[name] = typeRuntime.Invokers[name];
+                        memberAssessors[name] = typeRuntime.MemberAccessors[name];
                     }
                 }
 
-                foreach (var invoker in invokers)
+                foreach (var m in memberAssessors)
                 {
-                    var column = invoker.Column;
+                    var column = m.Column;
                     if (column != null && column.NoMapped) continue;
-                    if (invoker.ForeignKey != null) continue;
-                    if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    if (m.ForeignKey != null) continue;
+                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
-                    if (invoker != dbQuery.AutoIncrement)
+                    if (m != dbQuery.AutoIncrement)
                     {
-                        columnsBuilder.AppendMember(invoker.Member.Name);
-                        columnsBuilder.Append(',');
+                        seg_Columns.AppendMember(m.Member.Name);
+                        seg_Columns.Append(',');
 
-                        var value = invoker.Invoke(entity);
+                        var value = m.Invoke(entity);
                         string seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
-                        valuesBuilder.Append(seg);
-                        valuesBuilder.Append(',');
+                        seg_Values.Append(seg);
+                        seg_Values.Append(',');
                     }
                 }
-                columnsBuilder.Length -= 1;
-                valuesBuilder.Length -= 1;
+                seg_Columns.Length -= 1;
+                seg_Values.Length -= 1;
 
                 if (dbQuery.Bulk == null || !dbQuery.Bulk.OnlyValue)
                 {
                     builder.Append("INSERT INTO ");
                     builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                     builder.Append('(');
-                    builder.Append(columnsBuilder);
+                    builder.Append(seg_Columns);
                     builder.Append(')');
                     builder.AppendNewLine();
                     builder.AppendNewTab();
@@ -497,7 +497,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
 
                 builder.Append('(');
-                builder.Append(valuesBuilder);
+                builder.Append(seg_Values);
                 builder.Append(')');
                 if (dbQuery.Bulk != null && !dbQuery.Bulk.IsEndPos) builder.Append(",");
 
@@ -545,7 +545,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dbQuery.Entity != null)
             {
-                if (typeRuntime.KeyInvokers == null || typeRuntime.KeyInvokers.Count == 0)
+                if (typeRuntime.KeyAccessors == null || typeRuntime.KeyAccessors.Count == 0)
                     throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
 
                 object entity = dbQuery.Entity;
@@ -553,13 +553,13 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var invoker in typeRuntime.KeyInvokers)
+                foreach (var m in typeRuntime.KeyAccessors)
                 {
-                    var column = invoker.Column;
-                    var value = invoker.Invoke(entity);
+                    var column = m.Column;
+                    var value = m.Invoke(entity);
                     var seg = this.DbValue.GetSqlValue(value, token, column);
 
-                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.AppendMember("t0", m.Member.Name);
                     builder.Append(" = ");
                     builder.Append(seg);
                     builder.Append(" AND ");
@@ -603,24 +603,24 @@ namespace TZM.XFramework.Data.SqlClient
             if (dbQuery.Entity != null)
             {
                 object entity = dbQuery.Entity;
-                ISqlBuilder whereBuilder = this.CreateSqlBuilder(token);
+                ISqlBuilder seg_Where = this.CreateSqlBuilder(token);
                 bool useKey = false;
                 int length = 0;
                 builder.AppendNewLine(" SET");
 
-                foreach (var invoker in typeRuntime.Invokers)
+                foreach (var m in typeRuntime.MemberAccessors)
                 {
-                    var column = invoker.Column;
+                    var column = m.Column;
                     if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
-                    if (invoker.ForeignKey != null) continue;
-                    if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    if (m.ForeignKey != null) continue;
+                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
-                    builder.AppendMember("t0", invoker.Member.Name);
+                    builder.AppendMember("t0", m.Member.Name);
                     builder.Append(" = ");
 
                 gotoLabel:
-                    var value = invoker.Invoke(entity);
+                    var value = m.Invoke(entity);
                     var seg = this.DbValue.GetSqlValueWidthDefault(value, token, column);
 
                     if (column == null || !column.IsIdentity)
@@ -634,21 +634,21 @@ namespace TZM.XFramework.Data.SqlClient
                     if (column != null && column.IsKey)
                     {
                         useKey = true;
-                        whereBuilder.AppendMember("t0", invoker.Member.Name);
-                        whereBuilder.Append(" = ");
-                        whereBuilder.Append(seg);
-                        whereBuilder.Append(" AND ");
+                        seg_Where.AppendMember("t0", m.Member.Name);
+                        seg_Where.Append(" = ");
+                        seg_Where.Append(seg);
+                        seg_Where.Append(" AND ");
                     }
                 }
 
                 if (!useKey) throw new XFrameworkException("Update<T>(T value) require T must have key column.");
 
                 builder.Length = length;
-                whereBuilder.Length -= 5;
+                seg_Where.Length -= 5;
 
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
-                builder.Append(whereBuilder);
+                builder.Append(seg_Where);
 
             }
             else if (dbQuery.Expression != null)

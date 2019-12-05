@@ -309,7 +309,7 @@ namespace TZM.XFramework.Data
                 MemberExpression memberExpression = node as MemberExpression;
 
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
                 if (attribute == null) break;
 
                 string key = memberExpression.GetKeyWidthoutAnonymous();

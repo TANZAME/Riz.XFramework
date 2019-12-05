@@ -201,7 +201,7 @@ namespace TZM.XFramework.Data
                     if (b.Expression.NodeType == ExpressionType.MemberAccess && b.Expression.Acceptable())
                     {
                         var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(b.Member.DeclaringType);
-                        var attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(b.Member.Name);
+                        var attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(b.Member.Name);
                         if (attribute == null) throw new XFrameworkException("Complex property {{{0}}} must mark 'ForeignKeyAttribute' ", b.Member.Name);
                     }
 
@@ -428,18 +428,16 @@ namespace TZM.XFramework.Data
             else
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                MemberInvokerCollection invokers = typeRuntime.Invokers;
-
-                foreach (var invoker in invokers)
+                foreach (var m in typeRuntime.MemberAccessors)
                 {
-                    if (invoker != null && invoker.Column != null && invoker.Column.NoMapped) continue;
-                    if (invoker != null && invoker.ForeignKey != null) continue; // 不加载导航属性
-                    if (invoker.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    if (m != null && m.Column != null && m.Column.NoMapped) continue;
+                    if (m != null && m.ForeignKey != null) continue; // 不加载导航属性
+                    if (m.Member.MemberType == MemberTypes.Method) continue;
 
-                    _builder.AppendMember(alias, invoker.Member.Name);
+                    _builder.AppendMember(alias, m.Member.Name);
 
                     // 选择字段
-                    string newName = _pickColumns.Add(invoker.Member.Name);
+                    string newName = _pickColumns.Add(m.Member.Name);
                     _builder.AppendAs(newName);
                     _builder.Append(",");
                     _builder.AppendNewLine();
@@ -497,7 +495,7 @@ namespace TZM.XFramework.Data
                 {
                     // a.Client 要求 <Client> 必须标明 ForeignKeyAttribute
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                    var attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
+                    var attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
                     if (attribute == null) throw new XFrameworkException("Include member {{{0}}} must mark 'ForeignKeyAttribute'.", memberExpression);
 
                     MemberExpression m = null;
@@ -537,7 +535,7 @@ namespace TZM.XFramework.Data
         private void AddSplitOnColumn(System.Reflection.MemberInfo member, string alias)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
-            var fkAttribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(member.Name);
+            var fkAttribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(member.Name);
             string keyName = fkAttribute.OuterKeys[0];
 
             _builder.Append("CASE WHEN ");

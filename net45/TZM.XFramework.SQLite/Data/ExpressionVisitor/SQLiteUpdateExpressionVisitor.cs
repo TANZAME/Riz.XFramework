@@ -106,13 +106,13 @@ namespace TZM.XFramework.Data
                 _builder.Append("WHERE ");
 
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            foreach (var invoker in typeRuntime.KeyInvokers)
+            foreach (var m in typeRuntime.KeyAccessors)
             {
-                _builder.AppendMember("s0", invoker.Name);
+                _builder.AppendMember("s0", m.Name);
                 _builder.Append(" = ");
                 _builder.AppendMember(typeRuntime.TableName);
                 _builder.Append('.');
-                _builder.AppendMember(invoker.Name);
+                _builder.AppendMember(m.Name);
                 _builder.Append(" AND ");
             }
             _builder.Length -= 5;

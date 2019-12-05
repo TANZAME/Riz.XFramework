@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class DbQueryableInfo_Insert<T> : DbQueryableInfo<T>, IDbQueryableInfo_Insert
     {
-        private MemberInvokerBase _autoIncrement = null;
+        private MemberAccessorBase _autoIncrement = null;
 
         /// <summary>
         /// 初始化 <see cref="DbQueryableInfo_Insert"/> 类的新实例
@@ -38,7 +38,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 自增列
         /// </summary>
-        public MemberInvokerBase AutoIncrement
+        public MemberAccessorBase AutoIncrement
         {
             get { return _autoIncrement; }
         }
@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         private void InitializeIdentity()
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            _autoIncrement = typeRuntime.Invokers.FirstOrDefault(x => x.Column != null && x.Column.IsIdentity);
+            _autoIncrement = typeRuntime.MemberAccessors.FirstOrDefault(x => x.Column != null && x.Column.IsIdentity);
         }
     }
 }
