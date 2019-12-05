@@ -93,7 +93,7 @@ namespace TZM.XFramework.Data
             var cmd2 = (MapperCommand)ParseCommand(_uQueryInfo.SelectInfo, 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,
-                TableAliasName = "s",
+                AliasPrefix = "s",
                 IsDebug = wasFilter ? token.IsDebug : false
             });
 

@@ -26,7 +26,7 @@ namespace TZM.XFramework.Data
         private bool _isInitialize = false;
         private bool _private = false;
 
-        private int _dataFieldCount = 0;
+        private int _dataFieldNumber = 0;
         private TableAttribute _attribute = null;
         private MemberInvokerCollection _invokers = null;
         private MemberInvokerCollection _navInvokers = null;
@@ -69,12 +69,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 数据字段（即对应数据库字段的属性）数量
         /// </summary>
-        public int DataFieldCount
+        public int DataFieldNumber
         {
             get
             {
                 var invokers = this.Invokers;
-                return _dataFieldCount;
+                return _dataFieldNumber;
             }
         }
 
@@ -360,7 +360,7 @@ namespace TZM.XFramework.Data
 
                             // 累计数据字段，即与数据库一一对应的字段
                             bool isDataField = !(invoker.Column != null && invoker.Column.NoMapped || invoker.ForeignKey != null || invoker.Member.MemberType == MemberTypes.Method);
-                            if (isDataField) _dataFieldCount += 1;
+                            if (isDataField) _dataFieldNumber += 1;
                         }
 
 

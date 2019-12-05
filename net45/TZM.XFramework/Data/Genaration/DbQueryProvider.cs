@@ -208,21 +208,21 @@ namespace TZM.XFramework.Data
         // 获取 JOIN 子句关联表的的别名
         protected TableAliasCache PrepareTableAlias<T>(DbQueryableInfo_Select<T> dbQuery, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.TableAliasName : null);
+            var aliases = new TableAliasCache((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.AliasPrefix : null);
             foreach (DbExpression exp in dbQuery.Joins)
             {
                 // [INNER/LEFT JOIN]
                 if (exp.DbExpressionType == DbExpressionType.GroupJoin || exp.DbExpressionType == DbExpressionType.Join || exp.DbExpressionType == DbExpressionType.GroupRightJoin)
-                    this.PrepareLfInJoinAlias(exp, aliases);
+                    this.PrepareJoinAlias(exp, aliases);
                 else if (exp.DbExpressionType == DbExpressionType.SelectMany)
-                    this.PrepareCrossJoinAlias(exp, aliases);
+                    this.PrepareCrossAlias(exp, aliases);
             }
 
             return aliases;
         }
 
         // 获取 LEFT JOIN / INNER JOIN 子句关联表的的别名
-        private void PrepareLfInJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
+        private void PrepareJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
             Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
@@ -270,7 +270,7 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 CROSS JOIN 子句关联表的的别名
-        private void PrepareCrossJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
+        private void PrepareCrossAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
             LambdaExpression lambdaExp = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambdaExp.Parameters.Count; ++index)

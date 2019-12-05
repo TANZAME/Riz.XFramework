@@ -96,6 +96,18 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 判断给定类型是否是ORM支持的基元类型
+        /// </summary>
+        public static bool IsPrimitiveType(MemberInfo member)
+        {
+            Type dataType = TypeUtils.GetDataType(member);
+            if (dataType == null) 
+                return false;
+            else
+                return TypeUtils.IsPrimitiveType(dataType);
+        }
+
+        /// <summary>
         /// 判断给定类型是否是数字类型
         /// </summary>
         public static bool IsNumberType(Type type)
@@ -224,10 +236,10 @@ namespace TZM.XFramework.Data
         public static Type GetDataType(MemberInfo member)
         {
             Type dataType = null;
-            if (member != null && member.MemberType == System.Reflection.MemberTypes.Field)
-                dataType = ((System.Reflection.FieldInfo)member).FieldType;
-            else if (member != null && member.MemberType == System.Reflection.MemberTypes.Property)
-                dataType = ((System.Reflection.PropertyInfo)member).PropertyType;
+            if (member != null && member.MemberType == MemberTypes.Field)
+                dataType = ((FieldInfo)member).FieldType;
+            else if (member != null && member.MemberType == MemberTypes.Property)
+                dataType = ((PropertyInfo)member).PropertyType;
 
             return dataType;
         }

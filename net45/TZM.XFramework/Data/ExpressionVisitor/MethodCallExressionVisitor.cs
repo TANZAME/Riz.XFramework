@@ -1307,7 +1307,7 @@ namespace TZM.XFramework.Data
             var cmd = subQuery.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
             {
                 Parameters = token.Parameters,
-                TableAliasName = "s",
+                AliasPrefix = "s",
                 IsDebug = token.IsDebug
             } : null) as MapperCommand;
 

@@ -720,7 +720,7 @@ namespace TZM.XFramework.Data.SqlClient
             var cmd = subQuery.Resolve(_builder.Indent + 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,
-                TableAliasName = "s",
+                AliasPrefix = "s",
                 IsDebug = token.IsDebug
             }) as MapperCommand;
 
