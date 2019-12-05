@@ -15,8 +15,6 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            var j= TimeZoneInfo.GetSystemTimeZones();
-            string n = string.Join(Environment.NewLine, j.Select(x => x.Id));
             bool isDebug = false;
             ITest test = null;
             string fileName = string.Empty;
