@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data.SqlClient
             MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
-            (jf as NpgSqlBuilder).IsOuter = isOuter;
+            (jf as NpgSqlBuilder).UseQuote = isOuter;
 
             jf.Indent = indent;
 
@@ -169,7 +169,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 indent += 1;
                 jf.Indent = indent;
-                (jf as NpgSqlBuilder).IsOuter = false;
+                (jf as NpgSqlBuilder).UseQuote = false;
             }
 
             #endregion
@@ -381,7 +381,7 @@ namespace TZM.XFramework.Data.SqlClient
                         if (curExpr.NodeType != ExpressionType.MemberAccess)
                             throw new XFrameworkException("Can't read field name from expression {0}", dbQuery.EntityColumns[i]);
 
-                        MemberExpression member = curExpr as MemberExpression;
+                        var member = curExpr as MemberExpression;
                         string name = member.Member.Name;
                         memberAccessors[name] = typeRuntime.MemberAccessors[name];
                     }

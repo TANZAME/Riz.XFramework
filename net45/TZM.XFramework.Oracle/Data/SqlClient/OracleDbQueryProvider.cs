@@ -303,11 +303,16 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.SubQueryOfMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (OracleDbContext)sourceQuery.DbContext;
             TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
             MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
-            (jf as OracleSqlBuilder).IsOuter = isOuter;
+            (jf as OracleSqlBuilder).UseQuote = isOuter;
+            (jf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+            (wf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+
 
             jf.Indent = indent;
 
@@ -330,7 +335,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 indent += 1;
                 jf.Indent = indent;
-                (jf as OracleSqlBuilder).IsOuter = false;
+                (jf as OracleSqlBuilder).UseQuote = false;
             }
 
             #endregion
@@ -370,7 +375,8 @@ namespace TZM.XFramework.Data.SqlClient
                     // SELECT 范围
                     ISqlBuilder sf = this.CreateSqlBuilder(token);
                     sf.Indent = jf.Indent + ((dbQuery.Skip > 0 || dbQuery.Take > 0) ? 2 : 0);
-                    (sf as OracleSqlBuilder).IsOuter = (dbQuery.Skip > 0 || dbQuery.Take > 0) ? false : (jf as OracleSqlBuilder).IsOuter;
+                    (sf as OracleSqlBuilder).UseQuote = (dbQuery.Skip > 0 || dbQuery.Take > 0) ? false : (jf as OracleSqlBuilder).UseQuote;
+                    (sf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
 
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
                     visitor2.Write(sf);
@@ -405,7 +411,7 @@ namespace TZM.XFramework.Data.SqlClient
                         indent += 1;
                         isOuter = false;
                         jf.Indent = indent;
-                        (jf as OracleSqlBuilder).IsOuter = isOuter;
+                        (jf as OracleSqlBuilder).UseQuote = isOuter;
                         jf.AppendNewLine();
 
                         jf.Append("SELECT");
@@ -418,7 +424,8 @@ namespace TZM.XFramework.Data.SqlClient
                             jf.Append(',');
                             jf.AppendNewLine();
                         }
-                        jf.Append("ROWNUM AS Row_Number0");
+                        jf.Append("ROWNUM");
+                        jf.AppendAs("Row_Number0");
                         jf.AppendNewLine();
                         jf.Append("FROM(");
 
@@ -613,6 +620,10 @@ namespace TZM.XFramework.Data.SqlClient
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (OracleDbContext)sourceQuery.DbContext;
+            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+
             if (dbQuery.Entity != null)
             {
                 // 如果没有Sequence列，使用 INSERT ALL INTO 语法，否则就一条一条逐行写入~~
@@ -621,6 +632,8 @@ namespace TZM.XFramework.Data.SqlClient
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Columns = this.CreateSqlBuilder(token);
                 ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
+                (seg_Columns as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                (seg_Values  as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
 
                 // 指定插入列
                 MemberAccessorCollection memberAccessors = typeRuntime.MemberAccessors;
@@ -768,6 +781,10 @@ namespace TZM.XFramework.Data.SqlClient
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (OracleDbContext)sourceQuery.DbContext;
+            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             builder.Append(" t0 ");
@@ -798,7 +815,6 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.SelectInfo != null)
             {
                 LambdaExpression lambda = null;
-                var sourceQuery = dbQuery.SourceQuery;
                 if (sourceQuery.DbExpressions != null && sourceQuery.DbExpressions.Count > 1)
                 {
                     switch (sourceQuery.DbExpressions[1].DbExpressionType)
@@ -831,7 +847,7 @@ namespace TZM.XFramework.Data.SqlClient
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.SelectInfo.Joins.Count > 0)
                 {
                     cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, token);
-                    builder.Append("WHERE t0.RowID IN(");
+                    builder.Append("WHERE t0.RowId IN(");
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(')');
                 }
@@ -858,6 +874,10 @@ namespace TZM.XFramework.Data.SqlClient
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (OracleDbContext)sourceQuery.DbContext;
+            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             builder.Append(" t0 SET");
@@ -867,6 +887,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Where = this.CreateSqlBuilder(token);
+                (seg_Where as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
                 bool useKey = false;
                 int length = 0;
 

@@ -42,6 +42,11 @@ namespace TZM.XFramework.Data
         public bool HasSetIsDebug { get { return _hasSetIsDebug; } }
 
         /// <summary>
+        /// 当前上下文
+        /// </summary>
+        public IDbContext Context { get; set; }
+
+        /// <summary>
         /// 扩展参数
         /// </summary>
         public IDictionary<string, object> Extendsions { get; set; }

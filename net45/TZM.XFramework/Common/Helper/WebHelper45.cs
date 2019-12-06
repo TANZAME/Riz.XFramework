@@ -173,7 +173,6 @@ namespace TZM.XFramework
                 else if (configuration.Method == HttpMethod.Put) method = System.Net.Http.HttpMethod.Put;
                 else if (configuration.Method == HttpMethod.Delete) method = System.Net.Http.HttpMethod.Delete;
                 else if (configuration.Method == HttpMethod.Head) method = System.Net.Http.HttpMethod.Head;
-                else if (configuration.Method == HttpMethod.Head) method = System.Net.Http.HttpMethod.Head;
                 else if (configuration.Method == HttpMethod.Trace) method = System.Net.Http.HttpMethod.Trace;
                 else if (configuration.Method == HttpMethod.Options) method = System.Net.Http.HttpMethod.Options;
             }

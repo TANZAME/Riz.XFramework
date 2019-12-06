@@ -158,5 +158,13 @@ namespace TZM.XFramework.UnitTest.Oracle
                 }
             }
         }
+
+        [Table(Name = "bas_post")]
+        public class bas_post
+        {
+            public int id { get; set; }
+
+            public int post_id { get; set; }
+        }
     }
 }

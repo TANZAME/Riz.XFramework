@@ -161,11 +161,15 @@ namespace TZM.XFramework.Data
             {
                 if (pageSize == 0) pageSize = 10;
                 rowCount = await source.CountAsync();
-                pages = rowCount / pageSize;
-                if (rowCount % pageSize > 0) ++pages;
-                if (pageIndex > pages) pageIndex = pages;
-                if (pageIndex < 1) pageIndex = 1;
-                result = await source.ToListAsync(pageIndex, pageSize);
+                if (rowCount == 0) result = new List<TElement>(0);
+                else
+                {
+                    pages = rowCount / pageSize;
+                    if (rowCount % pageSize > 0) ++pages;
+                    if (pageIndex > pages) pageIndex = pages;
+                    if (pageIndex < 1) pageIndex = 1;
+                    result = await source.ToListAsync(pageIndex, pageSize);
+                }
             }
 
             return new PagedList<TElement>(result, pageIndex, pageSize, rowCount);
@@ -194,12 +198,16 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                if (pageSize == 0) pageSize = 10;
-                pages = rowCount / pageSize;
-                if (rowCount % pageSize > 0) ++pages;
-                if (pageIndex > pages) pageIndex = pages;
-                if (pageIndex < 1) pageIndex = 1;
-                result = await source.ToListAsync(pageIndex, pageSize);
+                if (rowCount == 0) result = new List<TElement>(0);
+                else
+                {
+                    if (pageSize == 0) pageSize = 10;
+                    pages = rowCount / pageSize;
+                    if (rowCount % pageSize > 0) ++pages;
+                    if (pageIndex > pages) pageIndex = pages;
+                    if (pageIndex < 1) pageIndex = 1;
+                    result = await source.ToListAsync(pageIndex, pageSize);
+                }
             }
 
             return new PagedList<TElement>(result, pageIndex, pageSize, rowCount);

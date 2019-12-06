@@ -13,10 +13,14 @@ namespace TZM.XFramework.Data.SqlClient
     public class OracleSqlBuilder : SqlBuilder
     {
         /// <summary>
-        /// 是否最外层查询
-        /// oracle 只有最外层才需要区分大小
+        /// 是否使用双引号，ORACLE 只有最外层才需要区分大小
         /// </summary>
-        public bool IsOuter { get; set; }
+        internal bool UseQuote { get; set; }
+
+        /// <summary>
+        /// 整个上下文大小写敏感
+        /// </summary>
+        internal bool ContextUseQuote { get; set; }
 
         /// <summary>
         /// 实例化 <see cref="OracleSqlBuilder"/> 类的新实例
@@ -37,7 +41,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         public override ISqlBuilder AppendMember(string name, bool quote)
         {
+            if (this.ContextUseQuote) _innerBuilder.Append(_escCharLeft);
             _innerBuilder.Append(name);
+            if (this.ContextUseQuote) _innerBuilder.Append(_escCharRight);
             return this;
         }
 
@@ -47,9 +53,9 @@ namespace TZM.XFramework.Data.SqlClient
         public override ISqlBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
-            if (this.IsOuter) _innerBuilder.Append(_escCharLeft);
+            if (this.ContextUseQuote || this.UseQuote) _innerBuilder.Append(_escCharLeft);
             _innerBuilder.Append(name);
-            if (this.IsOuter) _innerBuilder.Append(_escCharRight);
+            if (this.ContextUseQuote || this.UseQuote) _innerBuilder.Append(_escCharRight);
             return this;
         }
     }

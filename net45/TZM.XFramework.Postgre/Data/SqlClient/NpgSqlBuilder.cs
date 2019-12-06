@@ -14,10 +14,9 @@ namespace TZM.XFramework.Data.SqlClient
     public class NpgSqlBuilder : SqlBuilder
     {
         /// <summary>
-        /// 是否最外层查询
-        /// pgsql 只有最外层才需要区分大小
+        /// 是否使用双引号，POSTGRE 只有最外层才需要区分大小
         /// </summary>
-        public bool IsOuter { get; set; }
+        public bool UseQuote { get; set; }
 
         /// <summary>
         /// 实例化 <see cref="NpgSqlBuilder"/> 类的新实例
@@ -48,9 +47,9 @@ namespace TZM.XFramework.Data.SqlClient
         public override ISqlBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
-            if (this.IsOuter) _innerBuilder.Append(_escCharLeft);
+            if (this.UseQuote) _innerBuilder.Append(_escCharLeft);
             _innerBuilder.Append(name);
-            if (this.IsOuter) _innerBuilder.Append(_escCharRight);
+            if (this.UseQuote) _innerBuilder.Append(_escCharRight);
             return this;
         }
     }

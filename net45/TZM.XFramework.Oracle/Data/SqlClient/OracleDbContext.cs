@@ -17,6 +17,11 @@ namespace TZM.XFramework.Data.SqlClient
         private int? _commandTimeout = null;
 
         /// <summary>
+        /// 大小写敏感，适用于建表时使用区分大小写的情况
+        /// </summary>
+        public bool CaseSensitive { get; set; }
+
+        /// <summary>
         /// 查询语义提供者
         /// </summary>
         public override IDbQueryProvider Provider { get { return OracleDbQueryProvider.Instance; } }

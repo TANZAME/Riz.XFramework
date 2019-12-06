@@ -28,8 +28,12 @@ namespace TZM.XFramework.UnitTest.Oracle
             // new OracleDbContext();
             var context = new OracleDbContext(connString)
             {
-                IsDebug = base.IsDebug
+                IsDebug = base.IsDebug,
+                CaseSensitive = true
             };
+
+            //context.Delete<OracleModel.bas_post>(x => x.id == 1);
+            //context.SubmitChanges();
 
             return context;
         }
