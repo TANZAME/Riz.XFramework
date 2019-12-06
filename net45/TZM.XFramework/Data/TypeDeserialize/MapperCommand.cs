@@ -132,7 +132,7 @@ namespace TZM.XFramework.Data
                 string key = kvp.Key;
                 MemberExpression m = kvp.Value;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(m.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
                 string innerKey = string.Empty;
                 string outerKey = key;

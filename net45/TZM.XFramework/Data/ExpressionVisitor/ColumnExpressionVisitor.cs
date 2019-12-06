@@ -201,7 +201,7 @@ namespace TZM.XFramework.Data
                     if (b.Expression.NodeType == ExpressionType.MemberAccess && b.Expression.Acceptable())
                     {
                         var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(b.Member.DeclaringType);
-                        var attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(b.Member.Name);
+                        var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(b.Member.Name);
                         if (attribute == null) throw new XFrameworkException("Complex property {{{0}}} must mark 'ForeignKeyAttribute' ", b.Member.Name);
                     }
 
@@ -428,7 +428,7 @@ namespace TZM.XFramework.Data
             else
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                foreach (var m in typeRuntime.MemberAccessors)
+                foreach (var m in typeRuntime.Members)
                 {
                     if (m != null && m.Column != null && m.Column.NoMapped) continue;
                     if (m != null && m.ForeignKey != null) continue; // 不加载导航属性
@@ -495,7 +495,7 @@ namespace TZM.XFramework.Data
                 {
                     // a.Client 要求 <Client> 必须标明 ForeignKeyAttribute
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                    var attribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
+                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
                     if (attribute == null) throw new XFrameworkException("Include member {{{0}}} must mark 'ForeignKeyAttribute'.", memberExpression);
 
                     MemberExpression m = null;
@@ -535,7 +535,7 @@ namespace TZM.XFramework.Data
         private void AddSplitOnColumn(System.Reflection.MemberInfo member, string alias)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
-            var fkAttribute = typeRuntime.GetAccessorAttribute<ForeignKeyAttribute>(member.Name);
+            var fkAttribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Name);
             string keyName = fkAttribute.OuterKeys[0];
 
             _builder.Append("CASE WHEN ");

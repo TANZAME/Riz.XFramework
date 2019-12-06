@@ -301,7 +301,7 @@ namespace TZM.XFramework.Data.SqlClient
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.SubQueryOfMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (OracleDbContext)sourceQuery.DbContext;
@@ -649,7 +649,7 @@ namespace TZM.XFramework.Data.SqlClient
                 (seg_Values  as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
 
                 // 指定插入列
-                MemberAccessorCollection memberAccessors = typeRuntime.MemberAccessors;
+                MemberAccessorCollection memberAccessors = typeRuntime.Members;
                 if (dbQuery.EntityColumns != null && dbQuery.EntityColumns.Count > 0)
                 {
                     memberAccessors = new MemberAccessorCollection();
@@ -662,7 +662,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
-                        memberAccessors[name] = typeRuntime.MemberAccessors[name];
+                        memberAccessors[name] = typeRuntime.Members[name];
                     }
                 }
 
@@ -680,7 +680,7 @@ namespace TZM.XFramework.Data.SqlClient
                     seg_Columns.AppendMember(m.Member.Name);
                     seg_Columns.Append(',');
 
-                    if (m == dbQuery.AutoIncrement)
+                    if (m == typeRuntime.Identity)
                     {
                         seqColumn = column;
                         if (dbQuery.Bulk == null)
@@ -804,7 +804,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dbQuery.Entity != null)
             {
-                if (typeRuntime.KeyAccessors == null || typeRuntime.KeyAccessors.Count == 0)
+                if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                     throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
 
                 object entity = dbQuery.Entity;
@@ -812,7 +812,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var m in typeRuntime.KeyAccessors)
+                foreach (var m in typeRuntime.KeyMembers)
                 {
                     var column = m.Column;
                     var value = m.Invoke(entity);
@@ -905,7 +905,7 @@ namespace TZM.XFramework.Data.SqlClient
                 int length = 0;
 
 
-                foreach (var m in typeRuntime.MemberAccessors)
+                foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
                     if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
@@ -937,7 +937,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 // ORACLE 需要注意参数顺序问题 
                 int index = -1;
-                foreach (var m in typeRuntime.KeyAccessors)
+                foreach (var m in typeRuntime.KeyMembers)
                 {
                     var column = m.Column;
                     var value = m.Invoke(entity);
@@ -947,7 +947,7 @@ namespace TZM.XFramework.Data.SqlClient
                     seg_Where.AppendMember(m.Member.Name);
                     seg_Where.Append(" = ");
                     seg_Where.Append(seg);
-                    if (index < typeRuntime.KeyAccessors.Count - 1) seg_Where.Append(" AND ");
+                    if (index < typeRuntime.KeyMembers.Count - 1) seg_Where.Append(" AND ");
                 }
 
                 builder.Length = length;
@@ -966,7 +966,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     var @init = body as MemberInitExpression;
                     var bindings = new List<MemberBinding>(@init.Bindings);
-                    foreach (var m in typeRuntime.KeyAccessors)
+                    foreach (var m in typeRuntime.KeyMembers)
                     {
                         var member = Expression.MakeMemberAccess(lambda.Parameters[0], m.Member);
                         var binding = Expression.Bind(m.Member, member);
@@ -980,21 +980,21 @@ namespace TZM.XFramework.Data.SqlClient
                     var bindings = new List<MemberBinding>();
                     for (int i = 0; i < newExpression.Members.Count; i++)
                     {
-                        var m = typeRuntime.GetAccessor(newExpression.Members[i].Name);
+                        var m = typeRuntime.GetMember(newExpression.Members[i].Name);
                         var binding = Expression.Bind(m.Member, newExpression.Arguments[i].Type != m.DataType
                             ? Expression.Convert(newExpression.Arguments[i], m.DataType)
                             : newExpression.Arguments[i]);
                         bindings.Add(binding);
                     }
 
-                    foreach (var m in typeRuntime.KeyAccessors)
+                    foreach (var m in typeRuntime.KeyMembers)
                     {
                         var member = Expression.MakeMemberAccess(lambda.Parameters[0], m.Member);
                         var binding = Expression.Bind(m.Member, member);
                         if (!bindings.Any(x => x.Member == m.Member)) bindings.Add(binding);
                     }
 
-                    var newExpression2 = Expression.New(typeRuntime.ConstructorAccessor.Constructor);
+                    var newExpression2 = Expression.New(typeRuntime.Constructor.Constructor);
                     expression = Expression.MemberInit(newExpression2, bindings);
                 }
 
@@ -1007,7 +1007,7 @@ namespace TZM.XFramework.Data.SqlClient
                     // 无法使用 DISTINCT, GROUP BY 等子句从视图中选择 ROWID 或采样。UPDATE 不能用rowid
                     // 有导航属性或者关联查询，使用 MERGE INTO 语法。要求必须有主键
 
-                    if (typeRuntime.KeyAccessors == null || typeRuntime.KeyAccessors.Count == 0)
+                    if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                         throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
 
                     builder.Length = 0;
@@ -1019,7 +1019,7 @@ namespace TZM.XFramework.Data.SqlClient
                     cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, token);
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(") t1 ON (");
-                    foreach (var m in typeRuntime.KeyAccessors)
+                    foreach (var m in typeRuntime.KeyMembers)
                     {
                         builder.AppendMember("t0", m.Name);
                         builder.Append(" = ");

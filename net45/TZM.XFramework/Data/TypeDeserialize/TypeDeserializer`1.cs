@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data
                 if (prevModel != null && _map.HasMany)
                 {
                     isThisLine = true;
-                    foreach (var m in _typeRuntime.KeyAccessors)
+                    foreach (var m in _typeRuntime.KeyMembers)
                     {
                         var value1 = m.Invoke(prevModel);
                         var value2 = m.Invoke(model);
@@ -167,7 +167,7 @@ namespace TZM.XFramework.Data
                 string keyName = typeName + "." + navigation.Name;
                 if (keyName != navigation.KeyName) continue;
 
-                var navAccessor = typeRuntime.GetAccessor(navigation.Name);
+                var navAccessor = typeRuntime.GetMember(navigation.Name);
                 if (navAccessor == null) continue;
 
                 Type navType = navAccessor.DataType;
@@ -185,7 +185,7 @@ namespace TZM.XFramework.Data
                         TypeRuntimeInfo navTypeRuntime2 = navType.IsInterface
                             ? TypeRuntimeInfoCache.GetRuntimeInfo(typeof(List<>).MakeGenericType(navTypeRuntime.GenericArguments[0]))
                             : navTypeRuntime;
-                        navCollection = navTypeRuntime2.ConstructorAccessor.Invoke();
+                        navCollection = navTypeRuntime2.Constructor.Invoke();
                         navAccessor.Invoke(model, navCollection);
                     }
                 }
@@ -225,7 +225,7 @@ namespace TZM.XFramework.Data
 
                             for (int i = 1; i < keys.Length; i++)
                             {
-                                curAccessor = curTypeRuntime.GetAccessor(keys[i]);
+                                curAccessor = curTypeRuntime.GetMember(keys[i]);
                                 curModel = curAccessor.Invoke(curModel);
                                 if (curModel == null) continue;
 
@@ -239,11 +239,11 @@ namespace TZM.XFramework.Data
                                     //if (curTypeRuntime.GenericTypeDefinition == typeof(List<>))
                                     if (TypeUtils.IsCollectionType(curType))
                                     {
-                                        var m = curTypeRuntime.GetAccessor("get_Count");
+                                        var m = curTypeRuntime.GetMember("get_Count");
                                         int count = Convert.ToInt32(m.Invoke(curModel));      // List.Count
                                         if (count > 0)
                                         {
-                                            var m2 = curTypeRuntime.GetAccessor("get_Item");
+                                            var m2 = curTypeRuntime.GetMember("get_Item");
                                             curModel = m2.Invoke(curModel, count - 1);        // List[List.Count-1]
                                             curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(curModel.GetType());
                                         }
@@ -273,7 +273,7 @@ namespace TZM.XFramework.Data
                                         curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                                         StringBuilder keyBuilder = new StringBuilder(64);
 
-                                        foreach (var m in curTypeRuntime.KeyAccessors)
+                                        foreach (var m in curTypeRuntime.KeyMembers)
                                         {
                                             var value = m.Invoke(navModel);
                                             keyBuilder.AppendFormat("{0}={1};", m.Name, (value ?? string.Empty).ToString());
@@ -293,7 +293,7 @@ namespace TZM.XFramework.Data
                                 if (!isAny)
                                 {
                                     // 如果列表中不存在，则添加到上一行的相同导航列表中去
-                                    var myAddMethod = navTypeRuntime.GetAccessor("Add");
+                                    var myAddMethod = navTypeRuntime.GetMember("Add");
                                     myAddMethod.Invoke(curModel, navModel);
                                 }
                             }
@@ -304,13 +304,13 @@ namespace TZM.XFramework.Data
                         {
                             // 此时的 navTypeRuntime 是 List<> 类型的运行时
                             // 先添加 List 列表
-                            var myAddMethod = navTypeRuntime.GetAccessor("Add");
+                            var myAddMethod = navTypeRuntime.GetMember("Add");
                             myAddMethod.Invoke(navCollection, navModel);
 
                             var curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navModel.GetType());
                             StringBuilder keyBuilder = new StringBuilder(64);
 
-                            foreach (var m in curTypeRuntime.KeyAccessors)
+                            foreach (var m in curTypeRuntime.KeyMembers)
                             {
                                 var value = m.Invoke(navModel);
                                 keyBuilder.AppendFormat("{0}={1};", m.Name, (value ?? string.Empty).ToString());
@@ -323,7 +323,7 @@ namespace TZM.XFramework.Data
 
                     //if (navTypeRuntime.GenericTypeDefinition == typeof(List<>)) navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navTypeRuntime.GenericArguments[0]);
                     if (TypeUtils.IsCollectionType(navTypeRuntime.Type)) navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navTypeRuntime.GenericArguments[0]);
-                    if (navTypeRuntime.NavAccessors.Count > 0) Deserialize_Navigation(prevModel, navModel, keyName, isThisLine);
+                    if (navTypeRuntime.NavMembers.Count > 0) Deserialize_Navigation(prevModel, navModel, keyName, isThisLine);
                 }
             }
         }

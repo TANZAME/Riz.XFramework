@@ -140,7 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.SubQueryOfMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
             MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
@@ -370,7 +370,7 @@ namespace TZM.XFramework.Data.SqlClient
                 ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
 
                 // 指定插入列
-                MemberAccessorCollection memberAccessors = typeRuntime.MemberAccessors;
+                MemberAccessorCollection memberAccessors = typeRuntime.Members;
                 if (dbQuery.EntityColumns != null && dbQuery.EntityColumns.Count > 0)
                 {
                     memberAccessors = new MemberAccessorCollection();
@@ -383,7 +383,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                         var member = curExpr as MemberExpression;
                         string name = member.Member.Name;
-                        memberAccessors[name] = typeRuntime.MemberAccessors[name];
+                        memberAccessors[name] = typeRuntime.Members[name];
                     }
                 }
 
@@ -394,7 +394,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (m.ForeignKey != null) continue;
                     if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
 
-                    if (m != dbQuery.AutoIncrement)
+                    if (m != typeRuntime.Identity)
                     {
                         seg_Columns.AppendMember(m.Member.Name);
                         seg_Columns.Append(',');
@@ -425,13 +425,13 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(')');
                 if (dbQuery.Bulk != null && !dbQuery.Bulk.IsEndPos) builder.Append(",");
 
-                if (dbQuery.Bulk == null && dbQuery.AutoIncrement != null)
+                if (dbQuery.Bulk == null && typeRuntime.Identity != null)
                 {
                     builder.Append(';');
                     builder.AppendNewLine();
 
                     // sequence，命名原则是 tablename_columnname_seq.
-                    builder.AppendFormat("SELECT CURRVAL('{0}_{1}_seq')", typeRuntime.TableName, dbQuery.AutoIncrement.Member.Name);
+                    builder.AppendFormat("SELECT CURRVAL('{0}_{1}_seq')", typeRuntime.TableName, typeRuntime.Identity.Member.Name);
                     builder.Append(" AS ");
                     builder.Append(this.QuotePrefix);
                     builder.Append(Constant.AUTOINCREMENTNAME);
@@ -475,7 +475,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (dbQuery.Entity != null)
             {
-                if (typeRuntime.KeyAccessors == null || typeRuntime.KeyAccessors.Count == 0)
+                if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                     throw new XFrameworkException("Delete<T>(T value) require entity must have key column.");
 
                 object entity = dbQuery.Entity;
@@ -483,7 +483,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var m in typeRuntime.KeyAccessors)
+                foreach (var m in typeRuntime.KeyMembers)
                 {
                     var column = m.Column;
                     var value = m.Invoke(entity);
@@ -532,7 +532,7 @@ namespace TZM.XFramework.Data.SqlClient
                 bool useKey = false;
                 int length = 0;
 
-                foreach (var m in typeRuntime.MemberAccessors)
+                foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
                     if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键

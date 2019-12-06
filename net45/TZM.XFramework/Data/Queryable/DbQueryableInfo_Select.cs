@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool SubQueryOfMany { get; set; }
+        public bool IsManyGeneration { get; set; }
 
         /// <summary>
         /// 并集

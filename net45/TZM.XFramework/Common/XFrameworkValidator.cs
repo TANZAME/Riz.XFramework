@@ -27,7 +27,7 @@ namespace TZM.XFramework
         {
             var result = new Dictionary<ValidationContext, object>();
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(instance.GetType());
-            foreach (var m in typeRuntime.MemberAccessors)
+            foreach (var m in typeRuntime.Members)
             {
                 if (m.MemberType == System.Reflection.MemberTypes.Property)
                 {

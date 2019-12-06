@@ -567,15 +567,19 @@ namespace TZM.XFramework.Data
             int index = -1;
             foreach (var obj in dbQueryables)
             {
-                IDbQueryable query = obj as IDbQueryable;
-                if (query == null) continue;
+                var dbQuery = obj as IDbQueryable;
+                if (dbQuery == null) continue;
 
-                var info = query.DbQueryInfo as IDbQueryableInfo_Insert;
-                if (info != null && info.Entity != null && info.AutoIncrement != null)
+                var result_Insert = dbQuery.DbQueryInfo as IDbQueryableInfo_Insert;
+                if (result_Insert != null && result_Insert.Entity != null)
                 {
-                    index += 1;
-                    var identity = identitys[index];
-                    info.AutoIncrement.Invoke(info.Entity, identity);
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(result_Insert.Entity.GetType());
+                    if (typeRuntime.Identity != null)
+                    {
+                        index += 1;
+                        var identity = identitys[index];
+                        typeRuntime.Identity.Invoke(result_Insert.Entity, identity);
+                    }
                 }
             }
         }

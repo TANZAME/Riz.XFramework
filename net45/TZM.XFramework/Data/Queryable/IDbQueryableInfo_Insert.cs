@@ -10,10 +10,5 @@ namespace TZM.XFramework.Data
         /// 插入的实体
         /// </summary>
         object Entity { get; set; }
-
-        /// <summary>
-        /// 自增列
-        /// </summary>
-        MemberAccessorBase AutoIncrement { get; }
     }
 }

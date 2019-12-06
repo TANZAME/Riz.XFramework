@@ -15,22 +15,24 @@ namespace TZM.XFramework.Data
         private bool _isAnonymousType = false;
         private object[] _attributes;
         private ConstructorInfo[] _ctors = null;
-        private ConstructorAccessor _ctorAccessor = null;
+        private ConstructorAccessor _ctor = null;
         private Type[] _genericArguments = null;
         private Type _genericTypeDefinition = null;
-        private bool? _lazyIsCompilerGenerated = null;
-        private bool? _lazyIsPrimitiveType = null;
-        private bool? _lazyIsCollectionType = null;
+        private bool? _isCompilerGenerated = null;
+        private bool? _isPrimitiveType = null;
+        private bool? _isCollectionType = null;
 
         private object _lock = new object();
         private bool _isInitialize = false;
-        private bool _private = false;
+        private bool _includePrivates = false;
 
         private int _dataFieldNumber = 0;
         private TableAttribute _attribute = null;
-        private MemberAccessorCollection _memberAccessors = null;
-        private MemberAccessorCollection _navAccessors = null;
-        private MemberAccessorCollection _keyAccessors = null;
+        private MemberAccessorCollection _members = null;
+        private MemberAccessorCollection _navMembers = null;
+        private MemberAccessorCollection _keyMembers = null;
+        private MemberAccessorBase _identityMember = null;
+        private bool _hasIdentityMember = false;
 
         /// <summary>
         /// 类型对应的数据表
@@ -73,7 +75,7 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                var members = this.MemberAccessors;
+                var members = this.Members;
                 return _dataFieldNumber;
             }
         }
@@ -81,55 +83,72 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员反射器集合
         /// </summary>
-        public MemberAccessorCollection MemberAccessors
+        public MemberAccessorCollection Members
         {
             get
             {
-                if (_memberAccessors == null) _memberAccessors = this.InitializeAccessors(_type);
-                return _memberAccessors;
+                if (_members == null) _members = this.Initialize(_type);
+                return _members;
             }
         }
 
         /// <summary>
         /// 导航属性成员
         /// </summary>
-        public MemberAccessorCollection NavAccessors
+        public MemberAccessorCollection NavMembers
         {
             get
             {
-                if (_navAccessors == null)
+                if (_navMembers == null)
                 {
-                    var navAccessors = new MemberAccessorCollection();
-                    foreach (var m in this.MemberAccessors)
+                    var navMembers = new MemberAccessorCollection();
+                    foreach (var m in this.Members)
                     {
-                        if (m.ForeignKey != null) navAccessors.Add(m);
+                        if (m.ForeignKey != null) navMembers.Add(m);
                     }
 
-                    _navAccessors = navAccessors;
+                    _navMembers = navMembers;
                 }
 
-                return _navAccessors;
+                return _navMembers;
             }
         }
 
         /// <summary>
         /// 主键属性成员
         /// </summary>
-        public MemberAccessorCollection KeyAccessors
+        public MemberAccessorCollection KeyMembers
         {
             get
             {
-                if (_keyAccessors == null)
+                if (_keyMembers == null)
                 {
-                    var keyAccessors = new MemberAccessorCollection();
-                    foreach (var m in this.MemberAccessors)
+                    var keyMembers = new MemberAccessorCollection();
+                    foreach (var m in this.Members)
                     {
-                        if (m.Column != null && m.Column.IsKey) keyAccessors.Add(m);
+                        if (m.Column != null && m.Column.IsKey) keyMembers.Add(m);
                     }
-                    _keyAccessors = keyAccessors;
+                    _keyMembers = keyMembers;
                 }
 
-                return _keyAccessors;
+                return _keyMembers;
+            }
+        }
+
+        /// <summary>
+        /// 自增属性成员
+        /// </summary>
+        public MemberAccessorBase Identity
+        {
+            get
+            {
+                if (!_hasIdentityMember)
+                {
+                    _identityMember = this.Members.FirstOrDefault(x => x.Column != null && x.Column.IsIdentity);
+                    _hasIdentityMember = true;
+                }
+
+                return _identityMember;
             }
         }
 
@@ -188,8 +207,8 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsCompilerGenerated == null) _lazyIsCompilerGenerated = TypeUtils.IsCompilerGenerated(_type);
-                return _lazyIsCompilerGenerated.Value;
+                if (_isCompilerGenerated == null) _isCompilerGenerated = TypeUtils.IsCompilerGenerated(_type);
+                return _isCompilerGenerated.Value;
             }
         }
 
@@ -200,8 +219,8 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsPrimitiveType == null) _lazyIsPrimitiveType = TypeUtils.IsPrimitiveType(_type);
-                return _lazyIsPrimitiveType.Value;
+                if (_isPrimitiveType == null) _isPrimitiveType = TypeUtils.IsPrimitiveType(_type);
+                return _isPrimitiveType.Value;
             }
         }
 
@@ -212,25 +231,25 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsCollectionType == null) _lazyIsCollectionType = TypeUtils.IsCollectionType(_type);
-                return _lazyIsCollectionType.Value;
+                if (_isCollectionType == null) _isCollectionType = TypeUtils.IsCollectionType(_type);
+                return _isCollectionType.Value;
             }
         }
 
         /// <summary>
-        /// 构造函数调用器
+        /// 构造函数调用器，返回最少参数的构造函数
         /// </summary>
-        public ConstructorAccessor ConstructorAccessor
+        public ConstructorAccessor Constructor
         {
             get
             {
-                if (_ctorAccessor == null)
+                if (_ctor == null)
                 {
                     var ctor = this.GetConstructor();
-                    _ctorAccessor = new ConstructorAccessor(ctor);
+                    _ctor = new ConstructorAccessor(ctor);
 
                 }
-                return _ctorAccessor;
+                return _ctor;
             }
         }
 
@@ -247,12 +266,12 @@ namespace TZM.XFramework.Data
         /// 初始化 <see cref="TypeRuntimeInfo"/> 类的新实例
         /// </summary>
         /// <param name="type">类型声明</param>
-        /// <param name="private">包含私有成员</param>
-        internal TypeRuntimeInfo(Type type, bool @private)
+        /// <param name="includePrivates">包含私有成员</param>
+        internal TypeRuntimeInfo(Type type, bool includePrivates)
         {
             _type = type;
             _isAnonymousType = TypeUtils.IsAnonymousType(_type);
-            _private = @private;
+            _includePrivates = includePrivates;
         }
 
         /// <summary>
@@ -260,10 +279,10 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="memberName">成员名称</param>
         /// <returns></returns>
-        public MemberAccessorBase GetAccessor(string memberName)
+        public MemberAccessorBase GetMember(string memberName)
         {
             MemberAccessorBase result = null;
-            this.MemberAccessors.TryGetValue(memberName, out result);
+            this.Members.TryGetValue(memberName, out result);
             return result;
         }
 
@@ -274,7 +293,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public MemberAccessorBase GetMethod(string memberName, Type[] parameters)
         {
-            return this.MemberAccessors.FirstOrDefault(x => x.Member.Name == memberName && this.CheckParameters((MethodInfo)x.Member, parameters));
+            return this.Members.FirstOrDefault(x => x.Member.Name == memberName && this.CheckParameters((MethodInfo)x.Member, parameters));
         }
 
         /// <summary>
@@ -282,9 +301,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="TAttribute">自定义特性</typeparam>
         /// <returns></returns>
-        public TAttribute GetAccessorAttribute<TAttribute>(string memberName) where TAttribute : Attribute
+        public TAttribute GetMemberAttribute<TAttribute>(string memberName) where TAttribute : Attribute
         {
-            MemberAccessorBase m = this.GetAccessor(memberName);
+            MemberAccessorBase m = this.GetMember(memberName);
             return m != null ? m.GetCustomAttribute<TAttribute>() : null;
         }
 
@@ -298,7 +317,7 @@ namespace TZM.XFramework.Data
         public object Invoke(object target, string memberName, params object[] parameters)
         {
             MemberAccessorBase m = null;
-            this.MemberAccessors.TryGetValue(memberName, out m);
+            this.Members.TryGetValue(memberName, out m);
 
             if (m == null) throw new XFrameworkException("{0}.{1} Not Found.", _type.Name, memberName);
             return m.Invoke(target, parameters);
@@ -320,7 +339,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected virtual MemberAccessorCollection InitializeAccessors(Type type)
+        protected virtual MemberAccessorCollection Initialize(Type type)
         {
             // fix issue#多线程下导致 FieldCount 不正确
             // 单个实例只初始化一次
@@ -335,7 +354,7 @@ namespace TZM.XFramework.Data
                     if (!_isInitialize)
                     {
                         var result = new MemberAccessorCollection();
-                        var sources = this.GetTypeMembers(type, _private).Select(x => MemberAccessorBase.Create(x));
+                        var sources = this.GetTypeMembers(type, _includePrivates).Select(x => MemberAccessorBase.Create(x));
 
                         foreach (var m in sources)
                         {
@@ -362,14 +381,14 @@ namespace TZM.XFramework.Data
                         }
 
 
-                        _memberAccessors = result;
+                        _members = result;
                         _isInitialize = true;
                     }
                 }
             }
 
 
-            return _memberAccessors;
+            return _members;
         }
 
         /// <summary>

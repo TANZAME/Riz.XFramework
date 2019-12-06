@@ -106,7 +106,7 @@ namespace TZM.XFramework.Data
                 _builder.Append("WHERE ");
 
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-            foreach (var m in typeRuntime.KeyAccessors)
+            foreach (var m in typeRuntime.KeyMembers)
             {
                 _builder.AppendMember("s0", m.Name);
                 _builder.Append(" = ");

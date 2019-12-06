@@ -105,7 +105,7 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                var ctor = typeRuntime.ConstructorAccessor.Constructor;
+                var ctor = typeRuntime.Constructor.Constructor;
                 if (ctor.GetParameters().Length > 0) specializedConstructor = ctor;
                 else
                 {
@@ -151,7 +151,7 @@ namespace TZM.XFramework.Data
                     il.Emit(OpCodes.Brtrue_S, loadNullLabel);
                 }
 
-                var m = typeRuntime.GetAccessor(memberName);
+                var m = typeRuntime.GetMember(memberName);
                 if (m == null) continue;
 
                 if (specializedConstructor == null) il.Emit(OpCodes.Dup);// stack is now [target][target]

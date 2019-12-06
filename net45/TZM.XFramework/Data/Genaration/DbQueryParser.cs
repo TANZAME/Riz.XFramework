@@ -274,25 +274,25 @@ namespace TZM.XFramework.Data
             if (outerIndex != null)
             {
                 var outQuery = DbQueryParser.Parse<TElement>(source, outerIndex.Value);
-                var nQuery = outQuery as DbQueryableInfo_Insert<TElement>;
-                var uQuery = outQuery as DbQueryableInfo_Update<TElement>;
-                if (nQuery != null)
+                var result_Insert = outQuery as DbQueryableInfo_Insert<TElement>;
+                var result_Update = outQuery as DbQueryableInfo_Update<TElement>;
+                if (result_Insert != null)
                 {
-                    if (nQuery.SelectInfo != null)
-                        nQuery.SelectInfo.SubQueryInfo = result_Query;
+                    if (result_Insert.SelectInfo != null)
+                        result_Insert.SelectInfo.SubQueryInfo = result_Query;
                     else
-                        nQuery.SelectInfo = result_Query;
-                    nQuery.SourceQuery = source;
-                    return nQuery;
+                        result_Insert.SelectInfo = result_Query;
+                    result_Insert.SourceQuery = source;
+                    return result_Insert;
                 }
-                else if (uQuery != null)
+                else if (result_Update != null)
                 {
-                    if (uQuery.SelectInfo != null)
-                        uQuery.SelectInfo.SubQueryInfo = result_Query;
+                    if (result_Update.SelectInfo != null)
+                        result_Update.SelectInfo.SubQueryInfo = result_Query;
                     else
-                        uQuery.SelectInfo = result_Query;
-                    uQuery.SourceQuery = source;
-                    return uQuery;
+                        result_Update.SelectInfo = result_Query;
+                    result_Update.SourceQuery = source;
+                    return result_Update;
                 }
                 else
                 {
@@ -363,7 +363,7 @@ namespace TZM.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     dbQuery.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                dbQuery.SubQueryOfMany = true;
+                dbQuery.IsManyGeneration = true;
                 dbQuery.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQueryableInfo_Select<TElement>();

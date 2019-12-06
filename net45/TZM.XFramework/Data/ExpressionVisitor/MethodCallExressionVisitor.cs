@@ -147,7 +147,7 @@ namespace TZM.XFramework.Data
         {
             MemberAccessorBase m = null;
             if (node.Method.Name == "Concat") m = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
-            else m = this.TypeRuntime.GetAccessor("Visit" + node.Method.Name);
+            else m = this.TypeRuntime.GetMember("Visit" + node.Method.Name);
 
             if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
@@ -169,7 +169,7 @@ namespace TZM.XFramework.Data
             else if (node.NodeType == ExpressionType.Divide) methodName = "Divide";
             else methodName = node.Method.Name;
 
-            MemberAccessorBase m = this.TypeRuntime.GetAccessor("Visit" + methodName);
+            MemberAccessorBase m = this.TypeRuntime.GetMember("Visit" + methodName);
             if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
@@ -183,7 +183,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected Expression VisitMemberMember(MemberExpression node)
         {
-            MemberAccessorBase m = this.TypeRuntime.GetAccessor("Visit" + node.Member.Name);
+            MemberAccessorBase m = this.TypeRuntime.GetMember("Visit" + node.Member.Name);
             if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
             {
