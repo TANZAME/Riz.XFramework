@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public sealed class OracleDbQueryProvider : DbQueryProvider
     {
-        static Expression<Func<OracleRowId, string>> _rowIdExpression = x => x.RowId;
+        static readonly Expression<Func<OracleRowId, string>> _rowId = x => x.RowId;
 
         /// <summary>
         /// 查询语义提供者实例
@@ -377,9 +377,22 @@ namespace TZM.XFramework.Data.SqlClient
                     sf.Indent = jf.Indent + ((dbQuery.Skip > 0 || dbQuery.Take > 0) ? 2 : 0);
                     (sf as OracleSqlBuilder).UseQuote = (dbQuery.Skip > 0 || dbQuery.Take > 0) ? false : (jf as OracleSqlBuilder).UseQuote;
                     (sf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                    if (dbQuery.Select != null)
+                    {
+                        var expression = dbQuery.Select.Expressions[0];
+                        if (expression.NodeType == ExpressionType.MemberAccess)
+                        {
+                            var memberExpression = expression as MemberExpression;
+                            if (memberExpression.Expression != null && memberExpression.Expression.Type == typeof(OracleRowId))
+                            {
+                                (sf as OracleSqlBuilder).ContextUseQuote = false;
+                            }
+                        }
+                    }
 
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
                     visitor2.Write(sf);
+                    (sf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
 
                     cmd.PickColumns = visitor2.PickColumns;
                     cmd.PickColumnText = visitor2.PickColumnText;
@@ -840,7 +853,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 // 解析查询以确定是否需要嵌套
                 var parameter = Expression.Parameter(typeof(OracleRowId), lambda != null ? lambda.Parameters[0].Name : "x");
-                var expression = Expression.MakeMemberAccess(parameter, (_rowIdExpression.Body as MemberExpression).Member);
+                var expression = Expression.MakeMemberAccess(parameter, (_rowId.Body as MemberExpression).Member);
                 dbQuery.SelectInfo.Select = new DbExpression(DbExpressionType.Select, expression);
                 var cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, null);
 
