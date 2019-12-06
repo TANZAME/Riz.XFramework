@@ -19,6 +19,11 @@ namespace TZM.XFramework.Data.SqlClient
         public bool UseQuote { get; set; }
 
         /// <summary>
+        /// 整个上下文大小写敏感
+        /// </summary>
+        internal bool CaseSensitive { get; set; }
+
+        /// <summary>
         /// 实例化 <see cref="NpgSqlBuilder"/> 类的新实例
         /// </summary>
         /// <param name="provider">提供者</param>

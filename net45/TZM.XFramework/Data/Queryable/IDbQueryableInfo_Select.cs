@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 指示 SELECT FROM 子句表对应类型
         /// </summary>
-        Type FromEntityType { get; set; }
+        Type PickType { get; set; }
 
         /// <summary>
         /// SELECT 字段表达式，如果为空则表示选择所有的字段

@@ -310,8 +310,8 @@ namespace TZM.XFramework.Data.SqlClient
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as OracleSqlBuilder).UseQuote = isOuter;
-            (jf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
-            (wf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+            (jf as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
+            (wf as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
 
             jf.Indent = indent;
@@ -376,7 +376,7 @@ namespace TZM.XFramework.Data.SqlClient
                     ISqlBuilder sf = this.CreateSqlBuilder(token);
                     sf.Indent = jf.Indent + ((dbQuery.Skip > 0 || dbQuery.Take > 0) ? 2 : 0);
                     (sf as OracleSqlBuilder).UseQuote = (dbQuery.Skip > 0 || dbQuery.Take > 0) ? false : (jf as OracleSqlBuilder).UseQuote;
-                    (sf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                    (sf as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
                     if (dbQuery.Select != null)
                     {
                         var expression = dbQuery.Select.Expressions[0];
@@ -385,14 +385,14 @@ namespace TZM.XFramework.Data.SqlClient
                             var memberExpression = expression as MemberExpression;
                             if (memberExpression.Expression != null && memberExpression.Expression.Type == typeof(OracleRowId))
                             {
-                                (sf as OracleSqlBuilder).ContextUseQuote = false;
+                                (sf as OracleSqlBuilder).CaseSensitive = false;
                             }
                         }
                     }
 
                     var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
                     visitor2.Write(sf);
-                    (sf as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                    (sf as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
                     cmd.PickColumns = visitor2.PickColumns;
                     cmd.PickColumnText = visitor2.PickColumnText;
@@ -475,7 +475,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.FromEntityType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.PickType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias0);
@@ -635,7 +635,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (OracleDbContext)sourceQuery.DbContext;
-            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+            (builder as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
             if (dbQuery.Entity != null)
             {
@@ -645,8 +645,8 @@ namespace TZM.XFramework.Data.SqlClient
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Columns = this.CreateSqlBuilder(token);
                 ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
-                (seg_Columns as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
-                (seg_Values  as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                (seg_Columns as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
+                (seg_Values  as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
                 // 指定插入列
                 MemberAccessorCollection memberAccessors = typeRuntime.Members;
@@ -796,7 +796,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (OracleDbContext)sourceQuery.DbContext;
-            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+            (builder as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -889,7 +889,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (OracleDbContext)sourceQuery.DbContext;
-            (builder as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+            (builder as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
 
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -900,7 +900,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Where = this.CreateSqlBuilder(token);
-                (seg_Where as OracleSqlBuilder).ContextUseQuote = context.CaseSensitive;
+                (seg_Where as OracleSqlBuilder).CaseSensitive = context.CaseSensitive;
                 bool useKey = false;
                 int length = 0;
 

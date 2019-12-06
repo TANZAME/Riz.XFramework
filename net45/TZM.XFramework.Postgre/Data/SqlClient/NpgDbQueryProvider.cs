@@ -142,11 +142,15 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (NpgDbContext)sourceQuery.DbContext;
             TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
             MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder wf = cmd.WhereFragment;
             (jf as NpgSqlBuilder).UseQuote = isOuter;
+            (jf as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+            (wf as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
 
             jf.Indent = indent;
 
@@ -240,7 +244,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.FromEntityType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.PickType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias0);
@@ -363,11 +367,17 @@ namespace TZM.XFramework.Data.SqlClient
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (NpgDbContext)sourceQuery.DbContext;
+            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+
             if (dbQuery.Entity != null)
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Columns = this.CreateSqlBuilder(token);
                 ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
+                (seg_Columns as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+                (seg_Values as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
 
                 // 指定插入列
                 MemberAccessorCollection memberAccessors = typeRuntime.Members;
@@ -469,6 +479,10 @@ namespace TZM.XFramework.Data.SqlClient
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (NpgDbContext)sourceQuery.DbContext;
+            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             builder.Append(" t0 ");
@@ -520,6 +534,10 @@ namespace TZM.XFramework.Data.SqlClient
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
+            IDbQueryable sourceQuery = dbQuery.SourceQuery;
+            var context = (NpgDbContext)sourceQuery.DbContext;
+            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             builder.Append(" t0 SET");
@@ -529,6 +547,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Where = this.CreateSqlBuilder(token);
+                (seg_Where as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
                 bool useKey = false;
                 int length = 0;
 
