@@ -140,7 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (NpgDbContext)sourceQuery.DbContext;
@@ -258,7 +258,7 @@ namespace TZM.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Condtion);
+            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
@@ -518,7 +518,7 @@ namespace TZM.XFramework.Data.SqlClient
                 var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins, DbExpressionType.Delete);
                 visitor0.Write(cmd2);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                 visitor1.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor1.NavMembers);
                 builder.Append(cmd2.CommandText);
@@ -606,7 +606,7 @@ namespace TZM.XFramework.Data.SqlClient
                 var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins, DbExpressionType.Update);
                 visitor0.Write(cmd2);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                 visitor1.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor1.NavMembers);
                 builder.Append(cmd2.CommandText);

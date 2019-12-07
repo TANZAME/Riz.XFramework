@@ -200,7 +200,7 @@ namespace TZM.XFramework.Data
             result_Query.Skip = skip != null ? skip.Value : 0;
             result_Query.Take = take != null ? take.Value : 0;
             result_Query.Select = new DbExpression(DbExpressionType.Select, select);
-            result_Query.Condtion = new DbExpression(DbExpressionType.Where, CombineCondition(conditions));
+            result_Query.Where = new DbExpression(DbExpressionType.Where, CombineCondition(conditions));
             result_Query.Having = new DbExpression(DbExpressionType.None, CombineCondition(havings));
             result_Query.SourceQuery = source;
 
@@ -296,22 +296,23 @@ namespace TZM.XFramework.Data
                 }
                 else
                 {
-                    var rootQuery = outQuery;
-                    while (rootQuery.SubQueryInfo != null) rootQuery = rootQuery.SubQueryInfo;
-                    rootQuery.SubQueryInfo = result_Query;
+                    // ?? what
+                    var iterator = outQuery;
+                    while (iterator.SubQueryInfo != null) iterator = iterator.SubQueryInfo;
+                    iterator.SubQueryInfo = result_Query;
                     outQuery.SourceQuery = source;
 
                     // 如果外层是统计，内层没有分页，则不需要排序
-                    rootQuery = outQuery;
-                    while (rootQuery.SubQueryInfo != null)
+                    iterator = outQuery;
+                    while (iterator.SubQueryInfo != null)
                     {
-                        var myOutQuery = rootQuery as IDbQueryableInfo_Select;
-                        var mySubQuery = rootQuery.SubQueryInfo as IDbQueryableInfo_Select;
+                        var myOutQuery = iterator as IDbQueryableInfo_Select;
+                        var mySubQuery = iterator.SubQueryInfo as IDbQueryableInfo_Select;
                         // 没有分页的嵌套统计，不需要排序
                         if (myOutQuery.Aggregate != null && !(mySubQuery.Take > 0 || mySubQuery.Skip > 0) && mySubQuery.OrderBys.Count > 0)
                             mySubQuery.OrderBys = new List<DbExpression>(0);
                         // 继续下一轮迭代
-                        rootQuery = rootQuery.SubQueryInfo;
+                        iterator = iterator.SubQueryInfo;
                     }
 
                     return outQuery;
@@ -363,7 +364,7 @@ namespace TZM.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     dbQuery.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                dbQuery.IsManyGeneration = true;
+                dbQuery.IsParsedByMany = true;
                 dbQuery.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQueryableInfo_Select<TElement>();

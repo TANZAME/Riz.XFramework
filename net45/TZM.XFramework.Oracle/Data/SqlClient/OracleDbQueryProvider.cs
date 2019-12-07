@@ -301,7 +301,7 @@ namespace TZM.XFramework.Data.SqlClient
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (OracleDbContext)sourceQuery.DbContext;
@@ -489,7 +489,7 @@ namespace TZM.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Condtion);
+            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
@@ -606,7 +606,7 @@ namespace TZM.XFramework.Data.SqlClient
                 // 如果没有分页，则显式指定只查一笔记录
                 if (dbQuery.Take == 0 && dbQuery.Skip == 0)
                 {
-                    if (dbQuery.Condtion != null && dbQuery.Condtion.Expressions != null) jf.Append(" AND ROWNUM <= 1");
+                    if (dbQuery.Where != null && dbQuery.Where.Expressions != null) jf.Append(" AND ROWNUM <= 1");
                     else
                     {
                         jf.AppendNewLine();
@@ -827,36 +827,52 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.SelectInfo != null)
             {
-                LambdaExpression lambda = null;
-                if (sourceQuery.DbExpressions != null && sourceQuery.DbExpressions.Count > 1)
+                //LambdaExpression lambda = null;
+                //if (sourceQuery.DbExpressions != null && sourceQuery.DbExpressions.Count > 1)
+                //{
+                //    switch (sourceQuery.DbExpressions[1].DbExpressionType)
+                //    {
+                //        case DbExpressionType.Join:
+                //        case DbExpressionType.GroupJoin:
+                //        case DbExpressionType.GroupRightJoin:
+                //            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[1];
+                //            break;
+
+                //        case DbExpressionType.Select:
+                //        case DbExpressionType.SelectMany:
+                //            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[0];
+                //            break;
+                //    }
+                //}
+                //if (lambda == null)
+                //{
+                //    DbExpression dbExpression = dbQuery.SelectInfo.Select;
+                //    if(dbExpression == null) dbExpression = dbQuery.SelectInfo.Where;
+                //    if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
+                //}
+
+                //string parameterName = "";
+                //var dbExpression = dbQuery.SelectInfo.Select;
+                //if (dbExpression == null) dbExpression = dbQuery.SelectInfo.Where;
+
+                //// 解析查询以确定是否需要嵌套
+                //var parameter = Expression.Parameter(typeof(OracleRowId), lambda != null ? lambda.Parameters[0].Name : "x");
+                //var expression = Expression.MakeMemberAccess(parameter, (_rowId.Body as MemberExpression).Member);
+                //dbQuery.SelectInfo.Select = new DbExpression(DbExpressionType.Select, expression);
+                //var cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, null);
+
+                // 每一层查询都加上 RowID
+                var outQuery = new OracleDbQueryableInfo_Select<T>(dbQuery.SelectInfo, "t0.RowID");
+                var iterator = outQuery;
+                while (iterator.SubQueryInfo != null)
                 {
-                    switch (sourceQuery.DbExpressions[1].DbExpressionType)
-                    {
-                        case DbExpressionType.Join:
-                        case DbExpressionType.GroupJoin:
-                        case DbExpressionType.GroupRightJoin:
-                            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[1];
-                            break;
+                    var subQuery = new OracleDbQueryableInfo_Select<T>(iterator.SubQueryInfo as DbQueryableInfo_Select<T>, "t0.RowID");
+                    iterator.SubQueryInfo = subQuery;
 
-                        case DbExpressionType.Select:
-                        case DbExpressionType.SelectMany:
-                            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[0];
-                            break;
-                    }
+                    iterator = iterator.SubQueryInfo as OracleDbQueryableInfo_Select<T>;
                 }
-                if (lambda == null)
-                {
-                    DbExpression dbExpression = dbQuery.SelectInfo.Select;
-                    dbExpression = dbQuery.SelectInfo.Condtion;
-                    if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
-                }
-
-                // 解析查询以确定是否需要嵌套
-                var parameter = Expression.Parameter(typeof(OracleRowId), lambda != null ? lambda.Parameters[0].Name : "x");
-                var expression = Expression.MakeMemberAccess(parameter, (_rowId.Body as MemberExpression).Member);
-                dbQuery.SelectInfo.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, null);
-
+                // 解析查询用来确定是否需要嵌套
+                var cmd = this.ResolveSelectCommand<T>(outQuery, 1, false, null) as MapperCommand;
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.SelectInfo.Joins.Count > 0)
                 {
                     cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, token);
@@ -872,7 +888,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor = new JoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins);
                     visitor.Write(builder);
 
-                    visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                    visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                     visitor.Write(builder);
                 }
             }
@@ -1045,7 +1061,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor = new UpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                     visitor.Write(builder);
 
-                    visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                    visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                     visitor.Write(builder);
                 }
             }

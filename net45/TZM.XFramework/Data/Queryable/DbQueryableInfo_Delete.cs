@@ -11,7 +11,8 @@
         public object Entity { get; set; }
 
         /// <summary>
-        /// 删除数据范围，支持 WHERE 和 JOIN 数据源
+        /// 删除数据范围，即查询部分
+        /// 支持 WHERE 和 JOIN 数据源
         /// </summary>
         public DbQueryableInfo_Select<T> SelectInfo { get; set; }
     }

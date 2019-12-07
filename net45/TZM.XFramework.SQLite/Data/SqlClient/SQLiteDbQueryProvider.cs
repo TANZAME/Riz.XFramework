@@ -144,7 +144,7 @@ namespace TZM.XFramework.Data.SqlClient
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
             MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
@@ -256,7 +256,7 @@ namespace TZM.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Condtion);
+            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
@@ -521,7 +521,7 @@ namespace TZM.XFramework.Data.SqlClient
                 if (lambda == null)
                 {
                     DbExpression dbExpression = dbQuery.SelectInfo.Select;
-                    dbExpression = dbQuery.SelectInfo.Condtion;
+                    dbExpression = dbQuery.SelectInfo.Where;
                     if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
                 }
 
@@ -553,7 +553,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor = new JoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins);
                     visitor.Write(builder);
 
-                    visitor = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Condtion);
+                    visitor = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Where);
                     visitor.Write(builder);
                 }
             }
@@ -692,7 +692,7 @@ namespace TZM.XFramework.Data.SqlClient
                     visitor.ParseCommand = this.ResolveSelectCommand;
                     visitor.Write(builder);
 
-                    var visitor2 = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Condtion);
+                    var visitor2 = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Where);
                     visitor2.Write(builder);
                 }
             }

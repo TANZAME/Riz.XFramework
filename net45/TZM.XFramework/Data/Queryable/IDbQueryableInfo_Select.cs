@@ -62,7 +62,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        DbExpression Condtion { get; set; }
+        DbExpression Where { get; set; }
 
         /// <summary>
         /// HAVING 表达式
@@ -77,7 +77,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询，=true 时此查询一定是子查询
         /// </summary>
-        bool IsManyGeneration { get; set; }
+        bool IsParsedByMany { get; set; }
 
         /// <summary>
         /// 表达式是否包含 1:n 类型的导航属性

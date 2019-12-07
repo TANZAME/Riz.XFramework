@@ -80,7 +80,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        public DbExpression Condtion { get; set; }
+        public DbExpression Where { get; set; }
 
         /// <summary>
         /// HAVING 表达式
@@ -110,7 +110,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool IsManyGeneration { get; set; }
+        public bool IsParsedByMany { get; set; }
 
         /// <summary>
         /// 并集

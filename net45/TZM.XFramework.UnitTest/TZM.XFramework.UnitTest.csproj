@@ -145,6 +145,7 @@
     <Content Include="MySql\sySys_Initialize.sql" />
     <Content Include="MySql\MySqlModel.sql" />
     <Content Include="Oracle\OracleModel.sql" />
+    <Content Include="Oracle\OracleModel2.sql" />
     <Content Include="Oracle\spSys_DropIfExists.sql" />
     <Content Include="Postgre\PostgreModel.sql" />
     <Content Include="SQLite\TZM_XFramework.db" />

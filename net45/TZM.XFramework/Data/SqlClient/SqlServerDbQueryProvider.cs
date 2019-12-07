@@ -141,7 +141,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
             bool useSubQuery = dbQuery.HasDistinct || dbQuery.GroupBy != null || dbQuery.Skip > 0 || dbQuery.Take > 0;
-            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsManyGeneration || (dbQuery.Skip > 0 || dbQuery.Take > 0));
+            bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             IDbQueryable sourceQuery = dbQuery.SourceQuery;
             var context = (SqlServerDbContext)sourceQuery.DbContext;
@@ -258,7 +258,7 @@ namespace TZM.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Condtion);
+            visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
             cmd.AddNavMembers(visitor.NavMembers);
 
@@ -508,7 +508,7 @@ namespace TZM.XFramework.Data.SqlClient
                 ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 
@@ -601,7 +601,7 @@ namespace TZM.XFramework.Data.SqlClient
                 visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.SelectInfo.Joins);
                 visitor.Write(cmd2.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Condtion);
+                visitor = new WhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
                 visitor.Write(cmd2.WhereFragment);
                 cmd2.AddNavMembers(visitor.NavMembers);
 
