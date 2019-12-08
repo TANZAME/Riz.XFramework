@@ -334,7 +334,7 @@ namespace TZM.XFramework.Data
 
             Expression select = dbQuery.Select.Expressions[0];
             List<DbExpression> includes = dbQuery.Includes;
-            Type type = dbQuery.PickType;
+            Type pickType = dbQuery.PickType;
 
             // 解析导航属性 如果有 1:n 的导航属性，那么查询的结果集的主记录将会有重复记录
             // 这时就需要使用嵌套语义，先查主记录，再关联导航记录
@@ -368,7 +368,7 @@ namespace TZM.XFramework.Data
                 dbQuery.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQueryableInfo_Select<TElement>();
-                result_Query.PickType = type;
+                result_Query.PickType = pickType;
                 result_Query.SubQueryInfo = dbQuery;
                 result_Query.Joins = new List<DbExpression>(0);
                 result_Query.OrderBys = new List<DbExpression>(0);

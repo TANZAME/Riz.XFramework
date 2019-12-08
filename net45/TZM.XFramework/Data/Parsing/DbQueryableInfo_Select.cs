@@ -108,6 +108,12 @@ namespace TZM.XFramework.Data
         public override IDbQueryableInfo<T> SubQueryInfo { get; set; }
 
         /// <summary>
+        /// 嵌套查询语义
+        /// 注意，T 可能不是 参数T 所表示的类型
+        /// </summary>
+        public IDbQueryableInfo_Select SubQueryInfo2 { get; set; }
+
+        /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
         public bool IsParsedByMany { get; set; }

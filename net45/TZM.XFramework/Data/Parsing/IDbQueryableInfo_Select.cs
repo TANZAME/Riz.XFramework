@@ -83,5 +83,10 @@ namespace TZM.XFramework.Data
         /// 表达式是否包含 1:n 类型的导航属性
         /// </summary>
         bool HasMany { get; set; }
+
+        /// <summary>
+        /// 子查询
+        /// </summary>
+        IDbQueryableInfo_Select SubQueryInfo2 { get; set; }
     }
 }
