@@ -5,7 +5,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleSqlBuilder : SqlBuilder
+    internal class OracleSqlBuilder : SqlBuilder
     {
         /// <summary>
         /// 是否使用双引号，ORACLE 只有最外层才需要区分大小

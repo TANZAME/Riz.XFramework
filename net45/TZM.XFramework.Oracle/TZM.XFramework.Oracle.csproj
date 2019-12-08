@@ -57,7 +57,8 @@
     <Compile Include="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase45.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase.cs" />
-    <Compile Include="Data\Queryable\OracleDbQueryableInfo_Select.cs" />
+    <Compile Include="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="Data\Parsing\OracleDbQueryableInfo_Select.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\OracleDbContext.cs" />
     <Compile Include="Data\SqlClient\OracleDbValue.cs" />

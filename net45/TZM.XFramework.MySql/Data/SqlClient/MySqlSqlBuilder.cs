@@ -4,7 +4,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class MySqlSqlBuilder : SqlBuilder
+    internal class MySqlSqlBuilder : SqlBuilder
     {
         /// <summary>
         /// 实例化 <see cref="MySqlSqlBuilder"/> 类的新实例

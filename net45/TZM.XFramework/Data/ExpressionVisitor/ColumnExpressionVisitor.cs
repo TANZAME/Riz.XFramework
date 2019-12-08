@@ -100,9 +100,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         public override void Write(ISqlBuilder builder)
         {
+            base._builder = builder;
             if (base.Expression != null)
             {
-                base._builder = builder;
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
                 if (base._methodVisitor == null)
@@ -114,7 +114,7 @@ namespace TZM.XFramework.Data
                 {
                     // if have no select syntax
                     Type type = (base.Expression as ConstantExpression).Value as Type;
-                    this.VisitAllMember(type, "t0");
+                    this.VisitAllMember(type, "t0", base.Expression);
                 }
 
                 // Include 表达式解析<导航属性>
@@ -416,8 +416,14 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 选择所有的字段
-        private Expression VisitAllMember(Type type, string alias, Expression node = null)
+        /// <summary>
+        /// 选择所有的字段
+        /// </summary>
+        /// <param name="type">实体类型</param>
+        /// <param name="alias">表别名</param>
+        /// <param name="node">节点</param>
+        /// <returns></returns>
+        protected virtual Expression VisitAllMember(Type type, string alias, Expression node = null)
         {
             if (_groupBy != null && node != null && node.IsGrouping())
             {

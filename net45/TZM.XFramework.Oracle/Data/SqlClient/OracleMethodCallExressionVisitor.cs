@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// <see cref="OracleMethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public class OracleMethodCallExressionVisitor : MethodCallExpressionVisitor
+    internal class OracleMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
