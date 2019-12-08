@@ -81,6 +81,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="dbQuery">查询语义</param>
         public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select dbQuery)
             : base(provider, aliases, dbQuery.Select.Expressions != null ? dbQuery.Select.Expressions[0] : null)
         {
@@ -98,6 +101,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
@@ -124,7 +128,12 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // p=>p p=>p.t p=>p.Id
+        /// <summary>
+        /// 访问 Lambda 表达式，如 p=>p p=>p.t p=>p.Id
+        /// </summary>
+        /// <typeparam name="T">返回类型</typeparam>
+        /// <param name="node">Lambda 表达式</param>
+        /// <returns></returns>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             LambdaExpression lambda = node as LambdaExpression;
@@ -173,7 +182,11 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // => new App() {Id = p.Id}}
+        /// <summary>
+        /// 访问成员初始化表达式，如 =>new App() {Id = p.Id}
+        /// </summary>
+        /// <param name="node">要访问的成员初始化表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.NewExpression != null)
@@ -320,7 +333,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        // => new  {Id = p.Id}
+        /// <summary>
+        /// 访问构造函数表达式，如 =>new  {Id = p.Id}}
+        /// </summary>
+        /// <param name="node">构造函数调用的表达式</param>
+        /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
             // TODO 未支持匿名类的导航属性
@@ -380,7 +397,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        // g.Key.CompanyName & g.Max(a)
+        /// <summary>
+        /// 访问字段或者属性表达式，如 g.Key.CompanyName、g.Max(a)
+        /// </summary>
+        /// <param name="node">字段或者成员表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node == null) return node;
@@ -453,7 +474,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        // g.Max(a=>a.Level)
+        /// <summary>
+        /// 访问方法表达式，如 g.Max(a=>a.Level)
+        /// </summary>
+        /// <param name="node">方法表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (_groupBy != null && node.IsGrouping())

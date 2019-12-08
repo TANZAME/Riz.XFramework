@@ -3,7 +3,7 @@
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;删&gt; 操作的语义表示
     /// </summary>
-    public class DbQueryableInfo_Delete<T> : DbQueryableInfo<T>, IDbQueryableInfo_Delete
+    public class DbQueryableInfo_Delete : DbQueryableInfo, IDbQueryableInfo_Delete
     {
         /// <summary>
         /// 实体对象
@@ -11,9 +11,8 @@
         public object Entity { get; set; }
 
         /// <summary>
-        /// 删除数据范围，即查询部分
-        /// 支持 WHERE 和 JOIN 数据源
+        /// 删除语义的查询部分，表示删除范围
         /// </summary>
-        public DbQueryableInfo_Select<T> SelectInfo { get; set; }
+        public IDbQueryableInfo_Select Query { get; set; }
     }
 }

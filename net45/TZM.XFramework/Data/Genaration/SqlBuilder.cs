@@ -11,17 +11,22 @@ namespace TZM.XFramework.Data
     /// </summary>
     public abstract class SqlBuilder : ISqlBuilder
     {
-        protected string _escCharLeft;
-        protected string _escCharRight;
-        protected string _escCharQuote;
-        protected StringBuilder _innerBuilder = null;
-        protected IDbQueryProvider _provider = null;
+        private string _escCharLeft;
+        private string _escCharRight;
+        private string _escCharQuote;
+        private StringBuilder _innerBuilder = null;
+        private IDbQueryProvider _provider = null;
         private ResolveToken _token = null;
 
         /// <summary>
         /// TAB 制表符
         /// </summary>
         public const string TAB = "    ";
+
+        /// <summary>
+        /// 内部可变字符串
+        /// </summary>
+        protected StringBuilder InnerBuilder { get { return _innerBuilder; } }
 
         /// <summary>
         /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。

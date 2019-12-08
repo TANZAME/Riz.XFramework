@@ -174,7 +174,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 显式指定会子查询
         /// </summary>
-        AsSubQuery,
+        AsSubquery,
 
         /// <summary>
         /// 通过使用默认的相等比较器确定序列是否包含指定的元素

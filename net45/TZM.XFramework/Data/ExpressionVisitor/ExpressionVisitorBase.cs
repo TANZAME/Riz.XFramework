@@ -78,11 +78,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="ExpressionVisitorBase"/> 类的新实例
         /// </summary>
-        public ExpressionVisitorBase(IDbQueryProvider provider, TableAliasCache aliases, Expression exp, bool useNominate = true)
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="expression">将访问的表达式</param>
+        public ExpressionVisitorBase(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
         {
             _provider = provider;
             _aliases = aliases;
-            _expression = exp;
+            _expression = expression;
             _visitedMark = new MemberVisitedMark();
             _navMembers = new Dictionary<string, MemberExpression>();
         }
@@ -94,6 +97,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public virtual void Write(ISqlBuilder builder)
         {
             _builder = builder;
@@ -104,6 +108,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问二元表达式
         /// </summary>
+        /// <param name="node">二元表达式</param>
+        /// <returns></returns>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
@@ -112,6 +118,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问二元表达式
         /// </summary>
+        /// <param name="node">二元表达式</param>
+        /// <returns></returns>
         protected virtual Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
@@ -145,6 +153,11 @@ namespace TZM.XFramework.Data
             return this.VisitBinary_Condition(b);
         }
 
+        /// <summary>
+        /// 访问包含条件运算符的表达式
+        /// </summary>
+        /// <param name="node">要访问的表达式</param>
+        /// <returns></returns>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
@@ -164,6 +177,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
+        /// <summary>
+        /// 访问常量表达式
+        /// </summary>
+        /// <param name="c">常量表达式</param>
+        /// <returns></returns>
         protected override Expression VisitConstant(ConstantExpression c)
         {
             //fix# char ~~，because expression tree converted char type 2 int.
@@ -182,6 +200,11 @@ namespace TZM.XFramework.Data
             return c;
         }
 
+        /// <summary>
+        /// 访问字段或者属性表达式
+        /// </summary>
+        /// <param name="node">字段或者成员表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             // 1.<>h__TransparentIdentifier3.b.Client.ClientName
@@ -224,6 +247,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
+        /// <summary>
+        /// 访问方法表达式
+        /// </summary>
+        /// <param name="node">方法表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // => List<int>[]
@@ -231,12 +259,20 @@ namespace TZM.XFramework.Data
             return _methodVisitor.Visit(node, MethodCall.MethodCall);
         }
 
+        /// <summary>
+        /// 访问一元表达式
+        /// </summary>
+        /// <param name="u">一元表达式</param>
+        /// <returns></returns>
         protected override Expression VisitUnary(UnaryExpression u)
         {
             return _methodVisitor.Visit(u, MethodCall.Unary);
         }
 
-        // 访问表达式树后自动删掉访问的成员痕迹
+        /// <summary>
+        /// 访问表达式树后自动删掉访问的成员痕迹
+        /// </summary>
+        /// <param name="visit">访问委托</param>
         protected void VisitWithoutRemark(Action<object> visit)
         {
             int visitedQty = _visitedMark.Count;
@@ -261,6 +297,11 @@ namespace TZM.XFramework.Data
 
         #region 私有函数
 
+        /// <summary>
+        /// 访问二元表达式
+        /// </summary>
+        /// <param name="b">二元表达式</param>
+        /// <returns></returns>
         protected virtual Expression VisitBinary_Condition(BinaryExpression b)
         {
             // 例： a.Name == a.FullName 
@@ -294,7 +335,12 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 访问导航属性
+        /// <summary>
+        /// 访问导航属性
+        /// </summary>
+        /// <param name="expression">导航属性表达式</param>
+        /// <param name="memberName">成员名称</param>
+        /// <returns></returns>
         protected virtual string VisitNavMember(Expression expression, string memberName = null)
         {
             // 表达式 => b.Client.Address.AddressName
@@ -353,6 +399,12 @@ namespace TZM.XFramework.Data
             return alias;
         }
 
+        /// <summary>
+        /// 尝试将一元表达式转换成二元表达式，如 TRUE=>1 == 1
+        /// </summary>
+        /// <param name="expression">将要转换的表达式</param>
+        /// <param name="skipConstant">是否忽略常量表达式</param>
+        /// <returns></returns>
         protected virtual Expression TryMakeBinary(Expression expression, bool skipConstant = false)
         {
             if (expression.Type != typeof(bool)) return expression;
@@ -389,6 +441,11 @@ namespace TZM.XFramework.Data
             return expression;
         }
 
+        /// <summary>
+        /// 获取二元表达式对应的操作符
+        /// </summary>
+        /// <param name="b">二元表达式</param>
+        /// <returns></returns>
         protected virtual string GetOperator(BinaryExpression b)
         {
             string opr = string.Empty;
@@ -448,7 +505,12 @@ namespace TZM.XFramework.Data
             return opr;
         }
 
-        // 判断是否需要括号
+        /// <summary>
+        /// 判断是否需要括号
+        /// </summary>
+        /// <param name="expression">表达式</param>
+        /// <param name="subExpression">子表达式</param>
+        /// <returns></returns>
         protected bool UseBracket(Expression expression, Expression subExpression = null)
         {
             if (subExpression != null)
@@ -473,6 +535,11 @@ namespace TZM.XFramework.Data
             return this.GetPriority(expression) < this.GetPriority(subExpression);
         }
 
+        /// <summary>
+        /// 获取表达式优先级
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         protected int GetPriority(Expression expression)
         {
             switch (expression.NodeType)

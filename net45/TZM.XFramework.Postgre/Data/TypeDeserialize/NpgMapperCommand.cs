@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// DELETE / UPDATE 语句的SelectInfo属性解析器
+    /// Npg 含实体映射信息的SQL命令
     /// </summary>
     public sealed class NpgMapperCommand : MapperCommand
     {
@@ -50,7 +50,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="NpgMapperCommand" /> 的新实例
         /// </summary>
-        /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
+        /// <param name="provider">数据查询提供者</param>
+        /// <param name="aliases">别名</param>
+        /// <param name="dbExpressionType">表达式类型</param>
+        /// <param name="token">解析上下文参数</param>
         public NpgMapperCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
@@ -64,7 +67,9 @@ namespace TZM.XFramework.Data
             _pad = "".PadLeft(_keywordName.Length, ' ');
         }
 
-        // 添加导航属性关联
+        /// <summary>
+        /// 添加导航属性关联
+        /// </summary>
         protected override void AppendNavigation()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;

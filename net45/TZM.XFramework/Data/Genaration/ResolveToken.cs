@@ -9,9 +9,6 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class ResolveToken
     {
-        bool _isDebug = false;
-        bool _hasSetIsDebug = false;
-
         /// <summary>
         /// 参数列表
         /// </summary>
@@ -26,20 +23,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 调试模式，调试模式生成的SQL会有换行
         /// </summary>
-        public bool IsDebug
-        {
-            get { return _isDebug; }
-            set
-            {
-                _isDebug = value;
-                this._hasSetIsDebug = true;
-            }
-        }
+        public bool IsDebug { get { return this.DbContext.IsDebug; } }
 
         /// <summary>
-        /// 是否已经设置 IsDebug 属性
+        /// 当前查询上下文
         /// </summary>
-        public bool HasSetIsDebug { get { return _hasSetIsDebug; } }
+        public IDbContext DbContext { get; set; }
 
         /// <summary>
         /// 扩展参数

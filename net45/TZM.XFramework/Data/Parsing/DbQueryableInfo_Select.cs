@@ -7,12 +7,12 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;查&gt; 操作的语义表示
     /// </summary>
-    public class DbQueryableInfo_Select<T> : DbQueryableInfo<T>, IDbQueryableInfo_Select
+    public class DbQueryableInfo_Select : DbQueryableInfo, IDbQueryableInfo_Select
     {
         private List<DbExpression> _joins = null;
         private List<DbExpression> _orderBys = null;
         private List<DbExpression> _includes = null;
-        private List<IDbQueryableInfo<T>> _unions = null;
+        private List<IDbQueryableInfo_Select> _unions = null;
         private DbExpression _groupByExpression = null;
 
         /// <summary>
@@ -102,16 +102,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 嵌套查询语义
-        /// 注意，T 可能不是 参数T 所表示的类型
+        /// 子查询语义
         /// </summary>
-        public override IDbQueryableInfo<T> SubQueryInfo { get; set; }
-
-        /// <summary>
-        /// 嵌套查询语义
-        /// 注意，T 可能不是 参数T 所表示的类型
-        /// </summary>
-        public IDbQueryableInfo_Select SubQueryInfo2 { get; set; }
+        public IDbQueryableInfo_Select Subquery { get; set; }
 
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
@@ -119,12 +112,9 @@ namespace TZM.XFramework.Data
         public bool IsParsedByMany { get; set; }
 
         /// <summary>
-        /// 并集
-        /// <para>
-        /// 注意，T 可能不是 参数T 所表示的类型
-        /// </para>
+        /// 并集操作，翻译成 UNION ALL
         /// </summary>
-        public List<IDbQueryableInfo<T>> Unions
+        public List<IDbQueryableInfo_Select> Unions
         {
             get { return _unions; }
             set { _unions = value; }
@@ -138,7 +128,7 @@ namespace TZM.XFramework.Data
             _joins = new List<DbExpression>(0);
             _orderBys = new List<DbExpression>(0);
             _includes = new List<DbExpression>(0);
-            _unions = new List<IDbQueryableInfo<T>>(0);
+            _unions = new List<IDbQueryableInfo_Select>(0);
         }
     }
 }

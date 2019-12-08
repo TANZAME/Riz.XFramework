@@ -4,12 +4,12 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;查&gt; 操作的语义表示
     /// </summary>
-    internal class OracleDbQueryableInfo_Select : DbQueryableInfo_Select, IWidthRowId
+    internal class SQLiteDbQueryableInfo_Select : DbQueryableInfo_Select, IWidthRowId
     {
         /// <summary>
         /// 初始化 <see cref="OracleDbQueryableInfo_Select"/> 类的新实例
         /// </summary>
-        public OracleDbQueryableInfo_Select(IDbQueryableInfo_Select source)
+        public SQLiteDbQueryableInfo_Select(IDbQueryableInfo_Select source)
             : base()
         {
             this.Joins = source.Joins;

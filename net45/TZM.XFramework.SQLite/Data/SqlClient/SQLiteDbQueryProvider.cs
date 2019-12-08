@@ -14,8 +14,6 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public sealed class SQLiteDbQueryProvider : DbQueryProvider
     {
-        static Expression<Func<SQLiteRowId, string>> _rowIdExpression = x => x.RowId;
-
         /// <summary>
         /// 查询语义提供者实例
         /// </summary>
@@ -107,23 +105,31 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
+        /// <param name="visitor">表达式访问器</param>
         /// <returns></returns>
         public override MethodCallExpressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor)
         {
             return new SQLiteMethodCallExressionVisitor(this, visitor);
         }
 
-        // 创建 SELECT 命令
-        protected override Command ResolveSelectCommand<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token)
+        /// <summary>
+        /// 解析 SELECT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="indent">缩进</param>
+        /// <param name="isOuter">指示是最外层查询</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl<T>(dbQuery, indent, isOuter, token);
+            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
         // 创建 SELECT 命令
-        Command ResolveSelectCommandImpl<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token)
+        Command ResolveSelectCommandImpl(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -136,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
-            var subQuery = dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
+            var subQuery = dbQuery.Subquery as IDbQueryableInfo_Select;
             if (dbQuery.HasMany && subQuery != null && subQuery.Aggregate != null) dbQuery = subQuery;
 
             bool useStatis = dbQuery.Aggregate != null;
@@ -146,10 +152,10 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
-            MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
-            ISqlBuilder jf = cmd.JoinFragment;
-            ISqlBuilder wf = cmd.WhereFragment;
+            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            ISqlBuilder jf = result.JoinFragment;
+            ISqlBuilder wf = result.WhereFragment;
 
             jf.Indent = indent;
 
@@ -162,9 +168,9 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy, alias0);
-                visitor2.Write(jf);
-                cmd.AddNavMembers(visitor2.NavMembers);
+                var visitor_ = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy, alias0);
+                visitor_.Write(jf);
+                result.AddNavMembers(visitor_.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -195,9 +201,9 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy);
-                visitor2.Write(jf);
-                cmd.AddNavMembers(visitor2.NavMembers);
+                var visitor_ = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy);
+                visitor_.Write(jf);
+                result.AddNavMembers(visitor_.NavMembers);
             }
             else
             {
@@ -210,13 +216,13 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!dbQuery.HasAny)
                 {
                     // SELECT 范围
-                    var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
+                    var visitor2 = new SQLiteColumnExpressionVisitor(this, aliases, dbQuery);
                     visitor2.Write(jf);
 
-                    cmd.PickColumns = visitor2.PickColumns;
-                    cmd.PickColumnText = visitor2.PickColumnText;
-                    cmd.Navigations = visitor2.Navigations;
-                    cmd.AddNavMembers(visitor2.NavMembers);
+                    result.PickColumns = visitor2.PickColumns;
+                    result.PickColumnText = visitor2.PickColumnText;
+                    result.Navigations = visitor2.Navigations;
+                    result.AddNavMembers(visitor2.NavMembers);
                 }
 
                 #endregion
@@ -229,12 +235,12 @@ namespace TZM.XFramework.Data.SqlClient
             // FROM 子句
             jf.AppendNewLine();
             jf.Append("FROM ");
-            if (dbQuery.SubQueryInfo != null)
+            if (dbQuery.Subquery != null)
             {
                 // 子查询
                 jf.Append('(');
-                Command cmd2 = this.ResolveSelectCommandImpl<T>(dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
-                jf.Append(cmd2.CommandText);
+                Command cmd = this.ResolveSelectCommandImpl(dbQuery.Subquery, indent + 1, false, token);
+                jf.Append(cmd.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
                 jf.Append(alias0);
@@ -258,24 +264,24 @@ namespace TZM.XFramework.Data.SqlClient
             // WHERE 子句
             visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
             visitor = new GroupByExpressionVisitor(this, aliases, dbQuery.GroupBy);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
             visitor = new HavingExpressionVisitor(this, aliases, dbQuery.Having, dbQuery.GroupBy);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
             if (dbQuery.OrderBys.Count > 0 && useOrderBy)
             {
                 visitor = new OrderByExpressionVisitor(this, aliases, dbQuery.OrderBys, dbQuery.GroupBy);
                 visitor.Write(wf);
-                cmd.AddNavMembers(visitor.NavMembers);
+                result.AddNavMembers(visitor.NavMembers);
             }
 
             #endregion
@@ -292,7 +298,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -307,7 +313,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (dbQuery.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.Aggregate == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -319,14 +325,14 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (dbQuery.Unions != null && dbQuery.Unions.Count > 0)
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 for (int index = 0; index < dbQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ResolveSelectCommand<T>(dbQuery.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
-                    jf.Append(cmd2.CommandText);
+                    Command cmd = this.ResolveSelectCommand(dbQuery.Unions[index], indent, isOuter, token);
+                    jf.Append(cmd.CommandText);
                 }
             }
 
@@ -338,7 +344,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (dbQuery.HasAny)
             {
                 // 产生 WHERE 子句
-                cmd.CombineFragments();
+                result.CombineFragments();
 
                 // 如果没有分页，则显式指定只查一笔记录
                 if (dbQuery.Take == 0 && dbQuery.Skip == 0)
@@ -356,15 +362,20 @@ namespace TZM.XFramework.Data.SqlClient
 
             #endregion
 
-            return cmd;
+            return result;
         }
 
-        // 创建 INSRT 命令
-        protected override Command ResolveInsertCommand<T>(DbQueryableInfo_Insert<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 INSRT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveInsertCommand(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
-            ISqlBuilder builder = this.CreateSqlBuilder(token);
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
+            ISqlBuilder builder = this.CreateSqlBuilder(token);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             if (dbQuery.Entity != null)
             {
@@ -440,36 +451,41 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append(this.QuoteSuffix);
                 }
             }
-            else if (dbQuery.SelectInfo != null)
+            else if (dbQuery.Query != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd2 = this.ResolveSelectCommandImpl(dbQuery.SelectInfo, 0, false, token) as MapperCommand;
+                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
-                foreach (var column in cmd2.PickColumns)
+                foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (i < cmd2.PickColumns.Count - 1) builder.Append(',');
+                    if (i < cmd.PickColumns.Count - 1) builder.Append(',');
                     i++;
                 }
 
                 builder.Append(')');
                 builder.AppendNewLine();
-                builder.Append(cmd2.CommandText);
+                builder.Append(cmd.CommandText);
             }
 
             if (dbQuery.Bulk == null || dbQuery.Bulk.IsEndPos) builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
-        // 创建 DELETE 命令
-        protected override Command ResolveDeleteCommand<T>(DbQueryableInfo_Delete<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 DELETE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveDeleteCommand(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -498,47 +514,32 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (dbQuery.SelectInfo != null)
+            else if (dbQuery.Query != null)
             {
-                LambdaExpression lambda = null;
-                var sourceQuery = dbQuery.SourceQuery;
-                if (sourceQuery.DbExpressions != null && sourceQuery.DbExpressions.Count > 1)
-                {
-                    switch (sourceQuery.DbExpressions[1].DbExpressionType)
-                    {
-                        case DbExpressionType.Join:
-                        case DbExpressionType.GroupJoin:
-                        case DbExpressionType.GroupRightJoin:
-                            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[1];
-                            break;
 
-                        case DbExpressionType.Select:
-                        case DbExpressionType.SelectMany:
-                            lambda = (LambdaExpression)sourceQuery.DbExpressions[1].Expressions[0];
-                            break;
-                    }
-                }
-                if (lambda == null)
-                {
-                    DbExpression dbExpression = dbQuery.SelectInfo.Select;
-                    dbExpression = dbQuery.SelectInfo.Where;
-                    if (dbExpression != null && dbExpression.Expressions != null) lambda = (LambdaExpression)dbExpression.Expressions[0];
-                }
-
-                // 解析查询以确定是否需要嵌套
-                var parameter = Expression.Parameter(typeof(SQLiteRowId), lambda != null ? lambda.Parameters[0].Name : "x");
-                var expression = Expression.MakeMemberAccess(parameter, (_rowIdExpression.Body as MemberExpression).Member);
-                dbQuery.SelectInfo.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, null);
+                // 解析查询用来确定是否需要嵌套
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperCommand;
                 if (token != null && token.Extendsions == null)
                 {
                     token.Extendsions = new Dictionary<string, object>();
                     if (!token.Extendsions.ContainsKey("SQLiteDelete")) token.Extendsions.Add("SQLiteDelete", null);
                 }
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.SelectInfo.Joins.Count > 0)
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
-                    cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, token);
+                    // 最外层仅选择 RowID 列
+                    var outQuery = dbQuery.Query;
+                    outQuery.Select = new DbExpression(DbExpressionType.Select, Expression.Constant("t0.RowId", typeof(string)));
+                    var iterator = outQuery;
+                    while (iterator.Subquery != null)
+                    {
+                        var subQuery = new SQLiteDbQueryableInfo_Select(iterator.Subquery);
+                        iterator.Subquery = subQuery;
+                        iterator = subQuery;
+                    }
+
+                    // 解析成 RowId IN 结构
+                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.Append("WHERE ");
                     builder.AppendMember("RowID");
                     builder.Append(" IN(");
@@ -547,13 +548,13 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
+                    TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
                     ExpressionVisitorBase visitor = null;
 
-                    visitor = new JoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins);
+                    visitor = new JoinExpressionVisitor(this, aliases, dbQuery.Query.Joins);
                     visitor.Write(builder);
 
-                    visitor = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Where);
+                    visitor = new WhereExpressionVisitor(this, null, dbQuery.Query.Where);
                     visitor.Write(builder);
                 }
             }
@@ -562,11 +563,16 @@ namespace TZM.XFramework.Data.SqlClient
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
-        // 创建 UPDATE 命令
-        protected override Command ResolveUpdateCommand<T>(DbQueryableInfo_Update<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 UPDATE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveUpdateCommand(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -666,50 +672,39 @@ namespace TZM.XFramework.Data.SqlClient
                 }
 
                 // 解析查询以确定是否需要嵌套
-                dbQuery.SelectInfo.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperCommand)this.ResolveSelectCommand<T>(dbQuery.SelectInfo, 1, false, null);
+                dbQuery.Query.Select = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.SelectInfo.Joins.Count > 0)
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
                     if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                         throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
 
                     // SET 字段
-                    var visitor = new SQLiteUpdateExpressionVisitor<T>(this, null, dbQuery, null);
+                    var visitor = new SQLiteUpdateExpressionVisitor(this, null, dbQuery, null);
                     visitor.ParseCommand = this.ResolveSelectCommand;
                     visitor.Write(builder);
 
                     // WHERE部分
                     builder.AppendNewLine();
                     builder.Append("WHERE EXISTS");
-                    visitor.VisitArgument(dbQuery.SelectInfo.Select.Expressions[0], true);
+                    visitor.VisitArgument(dbQuery.Query.Select.Expressions[0], true);
                 }
                 else
                 {
                     // 直接 SQL 的 UPDATE 语法
-                    TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
-                    var visitor = new SQLiteUpdateExpressionVisitor<T>(this, aliases, dbQuery, null);
+                    TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                    var visitor = new SQLiteUpdateExpressionVisitor(this, aliases, dbQuery, null);
                     visitor.ParseCommand = this.ResolveSelectCommand;
                     visitor.Write(builder);
 
-                    var visitor2 = new WhereExpressionVisitor(this, null, dbQuery.SelectInfo.Where);
+                    var visitor2 = new WhereExpressionVisitor(this, null, dbQuery.Query.Where);
                     visitor2.Write(builder);
                 }
             }
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
-        }
-
-        /// <summary>
-        /// 行记录ID
-        /// </summary>
-        public class SQLiteRowId
-        {
-            /// <summary>
-            /// 行记录ID
-            /// </summary>
-            public string RowId { get; set; }
         }
     }
 }

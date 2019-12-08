@@ -12,10 +12,10 @@ namespace TZM.XFramework.Data
     /// </summary>
     public abstract class DbValue
     {
-        protected string _escCharLeft;
-        protected string _escCharRight;
-        protected string _escCharQuote;
-        protected IDbQueryProvider _provider = null;
+        private string _escCharLeft;
+        private string _escCharRight;
+        private string _escCharQuote;
+        private IDbQueryProvider _provider = null;
 
         /// <summary>
         /// 实例化 <see cref="DbValue"/> 类的新实例
@@ -62,7 +62,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
-        /// <param name="attribute">数据列特性</param>
+        /// <param name="column">数据列特性</param>
         /// <returns></returns>
         public string GetSqlValueWidthDefault(object value, ResolveToken token, ColumnAttribute column)
         {
@@ -213,9 +213,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 获取指定成员的 <see cref="ColumnAttribute"/>
         /// </summary>
-        /// <param name="member">成员</param>
-        /// <param name="objType">成员所在类型</param>
-        /// <returns></returns>
+        /// <param name="node">成员表达式</param>
         public virtual ColumnAttribute GetColumnAttribute(MemberExpression node)
         {
             MemberInfo member = node != null ? node.Member : null;

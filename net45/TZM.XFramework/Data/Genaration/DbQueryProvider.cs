@@ -77,28 +77,26 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Command Resolve<T>(IDbQueryable<T> dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            // 设置该查询是否需要参数化
+            // 参数化设置
             if (token == null) token = new ResolveToken();
-            if (!((DbQueryable)dbQuery).HasSetParameterized) dbQuery.Parameterized = true;
+            if (!dbQuery.HasSetParameterized) dbQuery.Parameterized = true;
             if (dbQuery.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
-
-            // 调试模式
-            if (token != null && !token.HasSetIsDebug) token.IsDebug = dbQuery.DbContext.IsDebug;
+            if (token.DbContext == null) token.DbContext = dbQuery.DbContext;
 
             // 解析查询语义
-            IDbQueryableInfo<T> result = DbQueryParser.Parse(dbQuery);
+            IDbQueryableInfo result = DbQueryParser.Parse(dbQuery);
             // 查询
-            DbQueryableInfo_Select<T> result_Query = result as DbQueryableInfo_Select<T>;
-            if (result_Query != null) return this.ResolveSelectCommand<T>(result_Query, indent, isOuter, token);
+            var result_Query = result as IDbQueryableInfo_Select;
+            if (result_Query != null) return this.ResolveSelectCommand(result_Query, indent, isOuter, token);
             // 新增
-            DbQueryableInfo_Insert<T> result_Insert = result as DbQueryableInfo_Insert<T>;
-            if (result_Insert != null) return this.ResolveInsertCommand<T>(result_Insert, token);
+            var result_Insert = result as IDbQueryableInfo_Insert;
+            if (result_Insert != null) return this.ResolveInsertCommand(result_Insert, token);
             // 更新
-            DbQueryableInfo_Update<T> result_Update = result as DbQueryableInfo_Update<T>;
-            if (result_Update != null) return this.ResolveUpdateCommand<T>(result_Update, token);
+            var result_Update = result as IDbQueryableInfo_Update;
+            if (result_Update != null) return this.ResolveUpdateCommand(result_Update, token);
             // 删除
-            DbQueryableInfo_Delete<T> result_Delete = result as DbQueryableInfo_Delete<T>;
-            if (result_Delete != null) return this.ResolveDeleteCommand<T>(result_Delete, token);
+            var result_Delete = result as IDbQueryableInfo_Delete;
+            if (result_Delete != null) return this.ResolveDeleteCommand(result_Delete, token);
 
             throw new NotImplementedException();
         }
@@ -193,20 +191,47 @@ namespace TZM.XFramework.Data
 
         #region 私有函数
 
-        // 创建 SELECT 命令
-        protected abstract Command ResolveSelectCommand<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token);
+        /// <summary>
+        /// 解析 SELECT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="indent">缩进</param>
+        /// <param name="isOuter">指示是最外层查询</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected abstract Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token);
 
-        // 创建 INSRT 命令
-        protected abstract Command ResolveInsertCommand<T>(DbQueryableInfo_Insert<T> dbQuery, ResolveToken token);
+        /// <summary>
+        /// 创建 INSRT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected abstract Command ResolveInsertCommand(IDbQueryableInfo_Insert dbQuery, ResolveToken token);
 
-        // 创建 DELETE 命令
-        protected abstract Command ResolveDeleteCommand<T>(DbQueryableInfo_Delete<T> dbQuery, ResolveToken token);
+        /// <summary>
+        /// 创建 DELETE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected abstract Command ResolveDeleteCommand(IDbQueryableInfo_Delete dbQuery, ResolveToken token);
 
-        // 创建 UPDATE 命令
-        protected abstract Command ResolveUpdateCommand<T>(DbQueryableInfo_Update<T> dbQuery, ResolveToken token);
+        /// <summary>
+        /// 创建 UPDATE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected abstract Command ResolveUpdateCommand(IDbQueryableInfo_Update dbQuery, ResolveToken token);
 
-        // 获取 JOIN 子句关联表的的别名
-        protected TableAliasCache PrepareTableAlias<T>(DbQueryableInfo_Select<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 生成关联子句所表示的别名列表
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected TableAliasCache PrepareTableAlias(IDbQueryableInfo_Select dbQuery, ResolveToken token)
         {
             var aliases = new TableAliasCache((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.AliasPrefix : null);
             foreach (DbExpression exp in dbQuery.Joins)
@@ -279,7 +304,11 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 解析批量 INSERT 语句
+        /// <summary>
+        /// 解析批量 INSERT 语句
+        /// </summary>
+        /// <param name="sqlList">SQL 命令列表 </param>
+        /// <param name="bulkList">批量查询语义列表</param>
         protected void ResolveBulk(List<Command> sqlList, List<IDbQueryable> bulkList)
         {
             // SQL 只能接收1000个

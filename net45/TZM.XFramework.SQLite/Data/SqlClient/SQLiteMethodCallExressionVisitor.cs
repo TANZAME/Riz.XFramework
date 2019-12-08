@@ -45,6 +45,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问表示 null 合并运算的节点 a ?? b
         /// </summary>
+        /// <param name="b">二元表达式节点</param>
         protected override Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
@@ -62,6 +63,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        /// <param name="node">即将访问的表达式</param>
         protected override Expression VisitToStringImpl(Expression node)
         {
             // => a.ID.ToString()
@@ -129,18 +131,19 @@ namespace TZM.XFramework.Data.SqlClient
             //}
 
             return node;
-        
 
-        //_builder.Append("CAST(");
-        //    _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-        //    _builder.Append(" AS TEXT)");
 
-        //    return m;
+            //_builder.Append("CAST(");
+            //    _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
+            //    _builder.Append(" AS TEXT)");
+
+            //    return m;
         }
 
         /// <summary>
         /// 访问 Contains 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -177,6 +180,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 StartWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -212,6 +216,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 EndWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -247,6 +252,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 TrimStart 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitSubstring(MethodCallExpression m)
         {
             List<Expression> args = new List<Expression>(m.Arguments);
@@ -285,6 +291,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="b">二元表达式</param>
         protected override Expression VisitConcat(BinaryExpression b)
         {
             _builder.Append("(");
@@ -298,6 +305,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitConcat(MethodCallExpression m)
         {
             IList<Expression> expressions = null;
@@ -324,6 +332,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 IsNullOrEmpty 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitIsNullOrEmpty(MethodCallExpression m)
         {
             _builder.Append("IFNULL(");
@@ -335,6 +344,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 IndexOf 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitIndexOf(MethodCallExpression m)
         {
             _builder.Append("(INSTR(");
@@ -348,6 +358,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 TrimEnd 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitLength(MemberExpression m)
         {
             _builder.Append("LENGTH(");
@@ -360,6 +371,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Truncate 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitTruncate(MethodCallExpression m)
         {
             if (m != null)
@@ -375,6 +387,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">字段或属性表达式</param>
         protected override Expression VisitNow(MemberExpression m)
         {
             _builder.Append("STRFTIME('%Y-%m-%d %H:%M:%f',CURRENT_TIMESTAMP,'LOCALTIME')");
@@ -384,6 +397,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Today 属性
         /// </summary>
+        /// <param name="m">字段或属性表达式</param>
         protected override Expression VisitToday(MemberExpression m)
         {
             _builder.Append("DATE('NOW','LOCALTIME')");
@@ -393,6 +407,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">字段或属性表达式</param>
         protected override Expression VisitUtcNow(MemberExpression m)
         {
             _builder.Append("STRFTIME('%Y-%m-%d %H:%M:%f',CURRENT_TIMESTAMP)");
@@ -402,6 +417,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 new Guid 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitNewGuid(MethodCallExpression m)
         {
             System.Guid guid = System.Guid.NewGuid();
@@ -412,6 +428,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 IDbQueryable.Contains 方法
         /// </summary>
+        /// <param name="m">字段或属性表达式</param>
         protected override Expression VisitQueryableContains(MethodCallExpression m)
         {
             ResolveToken token = _builder.Token;
@@ -422,7 +439,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
-                IsDebug = token.IsDebug
+                DbContext = token.DbContext
             } : null) as MapperCommand;
 
             if (this.NotMethods.Contains(m)) _builder.Append("NOT ");

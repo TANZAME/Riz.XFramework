@@ -290,6 +290,7 @@ namespace TZM.XFramework.Data
         /// 获取方法反射器，适用于有多个签名的情况
         /// </summary>
         /// <param name="memberName">成员名称</param>
+        /// <param name="parameters">方法的参数列表</param>
         /// <returns></returns>
         public MemberAccessorBase GetMethod(string memberName, Type[] parameters)
         {

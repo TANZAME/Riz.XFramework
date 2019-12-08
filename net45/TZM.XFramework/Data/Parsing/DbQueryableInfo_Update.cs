@@ -1,14 +1,10 @@
 ﻿
-using System.Linq;
-using System.Linq.Expressions;
-using System.Collections.Generic;
-
 namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;改&gt; 操作的语义表示
     /// </summary>
-    public class DbQueryableInfo_Update<T> : DbQueryableInfo<T>, IDbQueryableInfo_Update
+    public class DbQueryableInfo_Update : DbQueryableInfo, IDbQueryableInfo_Update
     {
         /// <summary>
         /// 实体对象
@@ -18,12 +14,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 更新指定字段表达式
         /// </summary>
-        public Expression Expression { get; set; }
+        public System.Linq.Expressions.Expression Expression { get; set; }
 
         /// <summary>
-        /// 更新的数据范围，即查询部分
-        /// 支持 WHERE 和 JOIN 数据源
+        /// 更新语义的查询部分，表示更新范围
         /// </summary>
-        public DbQueryableInfo_Select<T> SelectInfo { get; set; }
+        public IDbQueryableInfo_Select Query { get; set; }
     }
 }

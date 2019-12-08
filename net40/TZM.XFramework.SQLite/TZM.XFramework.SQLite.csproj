@@ -43,11 +43,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
       <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWidthRowId .cs">
+      <Link>Data\Parsing\IWidthRowId .cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\SQLiteDbQueryableInfo_Select.cs">
+      <Link>Data\Parsing\SQLiteDbQueryableInfo_Select.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs">
       <Link>Data\SqlClient\DbTypeUtils.cs</Link>

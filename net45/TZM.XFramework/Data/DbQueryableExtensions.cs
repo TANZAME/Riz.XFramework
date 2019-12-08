@@ -32,18 +32,18 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 强制使用嵌套查询
         /// </summary>
-        public static IDbQueryable<TSource> AsSubQuery<TSource>(this IDbQueryable<TSource> source)
+        public static IDbQueryable<TSource> AsSubquery<TSource>(this IDbQueryable<TSource> source)
         {
-            return source.CreateQuery<TSource>(DbExpressionType.AsSubQuery);
+            return source.CreateQuery<TSource>(DbExpressionType.AsSubquery);
         }
 
         /// <summary>
         /// 强制使用嵌套查询
         /// </summary>
-        public static IDbQueryable<TResult> AsSubQuery<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        public static IDbQueryable<TResult> AsSubquery<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
             return source
-                .CreateQuery<TResult>(DbExpressionType.AsSubQuery)
+                .CreateQuery<TResult>(DbExpressionType.AsSubquery)
                 .CreateQuery<TResult>(DbExpressionType.Select, keySelector);
         }
 

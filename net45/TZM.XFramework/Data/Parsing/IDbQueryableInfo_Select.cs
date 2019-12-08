@@ -85,8 +85,13 @@ namespace TZM.XFramework.Data
         bool HasMany { get; set; }
 
         /// <summary>
+        /// 并集操作，翻译成 UNION ALL
+        /// </summary>
+        List<IDbQueryableInfo_Select> Unions { get; set; }
+
+        /// <summary>
         /// 子查询
         /// </summary>
-        IDbQueryableInfo_Select SubQueryInfo2 { get; set; }
+        IDbQueryableInfo_Select Subquery { get; set; }
     }
 }

@@ -2,23 +2,22 @@
 using System;
 using System.Linq.Expressions;
 
-
 namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 选择列表达式解析器
     /// </summary>
-    internal class OracleColumnExpressionVisitor : ColumnExpressionVisitor
+    internal class SQLiteColumnExpressionVisitor : ColumnExpressionVisitor
     {
         IDbQueryableInfo_Select _dbQuery = null;
 
         /// <summary>
-        /// 初始化 <see cref="OracleColumnExpressionVisitor"/> 类的新实例
+        /// 初始化 <see cref="SQLiteColumnExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="dbQuery">查询语义</param>
-        public OracleColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select dbQuery)
+        public SQLiteColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select dbQuery)
             : base(provider, aliases, dbQuery)
         {
             _dbQuery = dbQuery;

@@ -1,5 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿
 using System.Linq.Expressions;
+using System.Collections.ObjectModel;
 
 namespace TZM.XFramework.Data
 {
@@ -9,10 +10,12 @@ namespace TZM.XFramework.Data
     public class GroupByExpressionVisitor : ExpressionVisitorBase
     {
         /// <summary>
-        /// 初始化 <see cref="GroupByExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="groupBy">GROUP BY 子句</param>
         public GroupByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression groupBy)
-            : base(provider, aliases, groupBy != null ? groupBy.Expressions[0] : null, false)
+            : base(provider, aliases, groupBy != null ? groupBy.Expressions[0] : null)
         {
 
         }
@@ -20,6 +23,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             if (base.Expression != null)
@@ -31,7 +35,11 @@ namespace TZM.XFramework.Data
             base.Write(builder);
         }
 
-        // => new  {Id = p.Id}}
+        /// <summary>
+        /// 访问构造函数表达式，如 => new  {Id = p.Id}}
+        /// </summary>
+        /// <param name="node">构造函数表达式</param>
+        /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
             ReadOnlyCollection<Expression> arguments = node.Arguments;

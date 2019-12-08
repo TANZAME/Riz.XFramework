@@ -109,17 +109,24 @@ namespace TZM.XFramework.Data.SqlClient
             return new NpgMethodCallExressionVisitor(this, visitor);
         }
 
-        // 创建 SELECT 命令
-        protected override Command ResolveSelectCommand<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token)
+        /// <summary>
+        /// 解析 SELECT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="indent">缩进</param>
+        /// <param name="isOuter">指示是最外层查询</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl<T>(dbQuery, indent, isOuter, token);
+            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
         // 创建 SELECT 命令
-        Command ResolveSelectCommandImpl<T>(DbQueryableInfo_Select<T> dbQuery, int indent, bool isOuter, ResolveToken token)
+        Command ResolveSelectCommandImpl(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -132,7 +139,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
-            var subQuery = dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>;
+            var subQuery = dbQuery.Subquery as IDbQueryableInfo_Select;
             if (dbQuery.HasMany && subQuery != null && subQuery.Aggregate != null) dbQuery = subQuery;
 
             bool useStatis = dbQuery.Aggregate != null;
@@ -142,15 +149,11 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            IDbQueryable sourceQuery = dbQuery.SourceQuery;
-            var context = (NpgDbContext)sourceQuery.DbContext;
-            TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery, token);
-            MapperCommand cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
-            ISqlBuilder jf = cmd.JoinFragment;
-            ISqlBuilder wf = cmd.WhereFragment;
+            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            ISqlBuilder jf = result.JoinFragment;
+            ISqlBuilder wf = result.WhereFragment;
             (jf as NpgSqlBuilder).UseQuote = isOuter;
-            (jf as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
-            (wf as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
 
             jf.Indent = indent;
 
@@ -163,9 +166,9 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy, alias0);
-                visitor2.Write(jf);
-                cmd.AddNavMembers(visitor2.NavMembers);
+                var visitor_ = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy, alias0);
+                visitor_.Write(jf);
+                result.AddNavMembers(visitor_.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -197,9 +200,9 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor2 = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy);
-                visitor2.Write(jf);
-                cmd.AddNavMembers(visitor2.NavMembers);
+                var visitor_ = new AggregateExpressionVisitor(this, aliases, dbQuery.Aggregate, dbQuery.GroupBy);
+                visitor_.Write(jf);
+                result.AddNavMembers(visitor_.NavMembers);
             }
             else
             {
@@ -212,13 +215,13 @@ namespace TZM.XFramework.Data.SqlClient
                 if (!dbQuery.HasAny)
                 {
                     // SELECT 范围
-                    var visitor2 = new ColumnExpressionVisitor(this, aliases, dbQuery);
-                    visitor2.Write(jf);
+                    var visitor_ = new ColumnExpressionVisitor(this, aliases, dbQuery);
+                    visitor_.Write(jf);
 
-                    cmd.PickColumns = visitor2.PickColumns;
-                    cmd.PickColumnText = visitor2.PickColumnText;
-                    cmd.Navigations = visitor2.Navigations;
-                    cmd.AddNavMembers(visitor2.NavMembers);
+                    result.PickColumns = visitor_.PickColumns;
+                    result.PickColumnText = visitor_.PickColumnText;
+                    result.Navigations = visitor_.Navigations;
+                    result.AddNavMembers(visitor_.NavMembers);
                 }
 
                 #endregion
@@ -231,11 +234,11 @@ namespace TZM.XFramework.Data.SqlClient
             // FROM 子句
             jf.AppendNewLine();
             jf.Append("FROM ");
-            if (dbQuery.SubQueryInfo != null)
+            if (dbQuery.Subquery != null)
             {
                 // 子查询
                 jf.Append('(');
-                Command cmd2 = this.ResolveSelectCommandImpl<T>(dbQuery.SubQueryInfo as DbQueryableInfo_Select<T>, indent + 1, false, token);
+                Command cmd2 = this.ResolveSelectCommandImpl(dbQuery.Subquery, indent + 1, false, token);
                 jf.Append(cmd2.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -260,24 +263,24 @@ namespace TZM.XFramework.Data.SqlClient
             // WHERE 子句
             visitor = new WhereExpressionVisitor(this, aliases, dbQuery.Where);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
             visitor = new GroupByExpressionVisitor(this, aliases, dbQuery.GroupBy);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
             visitor = new HavingExpressionVisitor(this, aliases, dbQuery.Having, dbQuery.GroupBy);
             visitor.Write(wf);
-            cmd.AddNavMembers(visitor.NavMembers);
+            result.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
             if (dbQuery.OrderBys.Count > 0 && useOrderBy)
             {
                 visitor = new OrderByExpressionVisitor(this, aliases, dbQuery.OrderBys, dbQuery.GroupBy);
                 visitor.Write(wf);
-                cmd.AddNavMembers(visitor.NavMembers);
+                result.AddNavMembers(visitor.NavMembers);
             }
 
             #endregion
@@ -293,7 +296,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             if (useStatis && useNesting)
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 indent -= 1;
                 jf.Indent = indent;
                 jf.AppendNewLine();
@@ -308,7 +311,7 @@ namespace TZM.XFramework.Data.SqlClient
             // TODO Include 从表，没分页，OrderBy 报错
             if (dbQuery.HasMany && subQuery != null && subQuery.OrderBys.Count > 0 && subQuery.Aggregate == null && !(subQuery.Skip > 0 || subQuery.Take > 0))
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 visitor = new OrderByExpressionVisitor(this, aliases, subQuery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
@@ -320,13 +323,13 @@ namespace TZM.XFramework.Data.SqlClient
             // UNION 子句
             if (dbQuery.Unions != null && dbQuery.Unions.Count > 0)
             {
-                cmd.CombineFragments();
+                result.CombineFragments();
                 for (int index = 0; index < dbQuery.Unions.Count; index++)
                 {
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ResolveSelectCommandImpl<T>(dbQuery.Unions[index] as DbQueryableInfo_Select<T>, indent, isOuter, token);
+                    Command cmd2 = this.ResolveSelectCommandImpl(dbQuery.Unions[index], indent, isOuter, token);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -339,7 +342,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (dbQuery.HasAny)
             {
                 // 产生 WHERE 子句
-                cmd.CombineFragments();
+                result.CombineFragments();
 
                 // 如果没有分页，则显式指定只查一笔记录
                 if (dbQuery.Take == 0 && dbQuery.Skip == 0)
@@ -357,27 +360,26 @@ namespace TZM.XFramework.Data.SqlClient
 
             #endregion
 
-            return cmd;
+            return result;
         }
 
-        // 创建 INSRT 命令
-        protected override Command ResolveInsertCommand<T>(DbQueryableInfo_Insert<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 INSRT 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveInsertCommand(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             TableAliasCache aliases = new TableAliasCache();
-
-            IDbQueryable sourceQuery = dbQuery.SourceQuery;
-            var context = (NpgDbContext)sourceQuery.DbContext;
-            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             if (dbQuery.Entity != null)
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Columns = this.CreateSqlBuilder(token);
                 ISqlBuilder seg_Values = this.CreateSqlBuilder(token);
-                (seg_Columns as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
-                (seg_Values as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
 
                 // 指定插入列
                 MemberAccessorCollection memberAccessors = typeRuntime.Members;
@@ -448,40 +450,41 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append(this.QuoteSuffix);
                 }
             }
-            else if (dbQuery.SelectInfo != null)
+            else if (dbQuery.Query != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd2 = this.ResolveSelectCommandImpl(dbQuery.SelectInfo, 0, false, token) as MapperCommand;
+                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
-                foreach (var column in cmd2.PickColumns)
+                foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (i < cmd2.PickColumns.Count - 1) builder.Append(',');
+                    if (i < cmd.PickColumns.Count - 1) builder.Append(',');
                     i++;
                 }
 
                 builder.Append(')');
                 builder.AppendNewLine();
-                builder.Append(cmd2.CommandText);
+                builder.Append(cmd.CommandText);
             }
 
             if (dbQuery.Bulk == null || dbQuery.Bulk.IsEndPos) builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
-        // 创建 DELETE 命令
-        protected override Command ResolveDeleteCommand<T>(DbQueryableInfo_Delete<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 DELETE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveDeleteCommand(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-
-            IDbQueryable sourceQuery = dbQuery.SourceQuery;
-            var context = (NpgDbContext)sourceQuery.DbContext;
-            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -510,33 +513,34 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (dbQuery.SelectInfo != null)
+            else if (dbQuery.Query != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
-                var cmd2 = new NpgMapperCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.SelectInfo.HasMany };
+                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                var cmd = new NpgMapperCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
 
-                var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins, DbExpressionType.Delete);
-                visitor0.Write(cmd2);
+                var visitor = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Delete);
+                visitor.Write(cmd);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
-                visitor1.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor1.NavMembers);
-                builder.Append(cmd2.CommandText);
+                var visitor_ = new NpgWhereExpressionVisitor(this, aliases, dbQuery.Query.Where);
+                visitor_.Write(cmd.WhereFragment);
+                cmd.AddNavMembers(visitor_.NavMembers);
+                builder.Append(cmd.CommandText);
             }
 
             builder.Append(';');
             return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
-        // 创建 UPDATE 命令
-        protected override Command ResolveUpdateCommand<T>(DbQueryableInfo_Update<T> dbQuery, ResolveToken token)
+        /// <summary>
+        /// 创建 UPDATE 命令
+        /// </summary>
+        /// <param name="dbQuery">查询语义</param>
+        /// <param name="token">解析上下文</param>
+        /// <returns></returns>
+        protected override Command ResolveUpdateCommand(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
-
-            IDbQueryable sourceQuery = dbQuery.SourceQuery;
-            var context = (NpgDbContext)sourceQuery.DbContext;
-            (builder as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
 
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -547,7 +551,6 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 object entity = dbQuery.Entity;
                 ISqlBuilder seg_Where = this.CreateSqlBuilder(token);
-                (seg_Where as NpgSqlBuilder).CaseSensitive = context.CaseSensitive;
                 bool useKey = false;
                 int length = 0;
 
@@ -596,20 +599,19 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias<T>(dbQuery.SelectInfo, token);
-                ExpressionVisitorBase visitor = null;
-                visitor = new NpgUpdateExpressionVisitor(this, aliases, dbQuery.Expression);
+                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                var visitor = new NpgUpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd2 = new NpgMapperCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.SelectInfo.HasMany };
+                var cmd = new NpgMapperCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.Query.HasMany };
 
-                var visitor0 = new NpgJoinExpressionVisitor(this, aliases, dbQuery.SelectInfo.Joins, DbExpressionType.Update);
-                visitor0.Write(cmd2);
+                var visitor_ = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Update);
+                visitor_.Write(cmd);
 
-                var visitor1 = new NpgWhereExpressionVisitor(this, aliases, dbQuery.SelectInfo.Where);
-                visitor1.Write(cmd2.WhereFragment);
-                cmd2.AddNavMembers(visitor1.NavMembers);
-                builder.Append(cmd2.CommandText);
+                var visitor__ = new NpgWhereExpressionVisitor(this, aliases, dbQuery.Query.Where);
+                visitor__.Write(cmd.WhereFragment);
+                cmd.AddNavMembers(visitor__.NavMembers);
+                builder.Append(cmd.CommandText);
             }
 
             builder.Append(';');

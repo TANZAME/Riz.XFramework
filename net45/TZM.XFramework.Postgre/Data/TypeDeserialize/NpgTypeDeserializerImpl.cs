@@ -28,7 +28,14 @@ namespace TZM.XFramework.Data
 
 #if !netcore
 
-        // 自定义类型转换
+        /// <summary>
+        /// 自定义类型转换
+        /// </summary>
+        /// <param name="il">(MSIL)指令</param>
+        /// <param name="from">来源类型</param>
+        /// <param name="to">目标类型</param>
+        /// <param name="via">来源类型</param>
+        /// <returns></returns>
         protected override bool ConvertBoxExtendsion(ILGenerator il, Type from, Type to, Type via)
         {
             bool isExecuted = base.ConvertBoxExtendsion(il, from, to, via);

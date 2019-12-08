@@ -1,6 +1,4 @@
 ﻿
-using System.Data;
-
 namespace TZM.XFramework.Data
 {
     /// <summary>
@@ -8,9 +6,5 @@ namespace TZM.XFramework.Data
     /// </summary>
     public interface IDbQueryableInfo
     {
-        /// <summary>
-        /// 源查询语句
-        /// </summary>
-        IDbQueryable SourceQuery { get; set; }
     }
 }

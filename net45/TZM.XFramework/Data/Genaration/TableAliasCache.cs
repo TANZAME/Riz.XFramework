@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="TableAliasCache"/> 类的新实例
         /// </summary>
-        /// <param name="holdQty">FROM 和 JOIN 子句显式指定的别名数量/param>
+        /// <param name="holdQty">FROM 和 JOIN 子句显式指定的别名数量</param>
         /// <param name="aliasPrefix">显式指定别名，用于内嵌的 exists 解析</param>
         public TableAliasCache(int holdQty, string aliasPrefix)
         {

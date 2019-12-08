@@ -1,5 +1,4 @@
 ﻿
-using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -8,13 +7,8 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;增&gt; 操作的语义表示
     /// </summary>
-    public class DbQueryableInfo_Insert<T> : DbQueryableInfo<T>, IDbQueryableInfo_Insert
+    public class DbQueryableInfo_Insert : DbQueryableInfo, IDbQueryableInfo_Insert
     {
-        /// <summary>
-        /// SELECT 对象
-        /// </summary>
-        public DbQueryableInfo_Select<T> SelectInfo { get; set; }
-
         /// <summary>
         /// 实体对象
         /// </summary>
@@ -29,5 +23,10 @@ namespace TZM.XFramework.Data
         /// 批量插入信息
         /// </summary>
         public BulkInsertInfo Bulk { get; set; }
+
+        /// <summary>
+        /// 插入语义的查询部分，表示新增范围
+        /// </summary>
+        public IDbQueryableInfo_Select Query { get; set; }
     }
 }

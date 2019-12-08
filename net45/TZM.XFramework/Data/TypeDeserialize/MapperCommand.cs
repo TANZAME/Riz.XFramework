@@ -118,7 +118,9 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 添加导航属性关联
+        /// <summary>
+        /// 添加导航属性关联
+        /// </summary>
         protected virtual void AppendNavigation()
         {
             if (this._navMembers == null || this._navMembers.Count == 0) return;

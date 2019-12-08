@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -23,6 +24,10 @@ namespace TZM.XFramework.Data
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
         private readonly object _oLock = new object();
+        
+        /// <summary>
+        /// 查询语义集合
+        /// </summary>
         protected readonly List<object> _dbQueryables = new List<object>();
 
         #endregion
@@ -448,7 +453,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="T1">T</typeparam>
         /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">提交更改并查询数据</param>
+        /// <param name="result1">结果集合</param>
+        /// <param name="result2">结果集合</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {
@@ -559,7 +565,11 @@ namespace TZM.XFramework.Data
 
         #region 私有函数
 
-        // 更新自增列
+        /// <summary>
+        /// 更新自增列
+        /// </summary>
+        /// <param name="dbQueryables">查询语义集合</param>
+        /// <param name="identitys">自动ID</param>
         protected virtual void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
         {
             if (identitys == null || identitys.Count == 0) return;
@@ -569,16 +579,23 @@ namespace TZM.XFramework.Data
             {
                 var dbQuery = obj as IDbQueryable;
                 if (dbQuery == null) continue;
+                else if (dbQuery.DbExpressions == null) continue;
+                else if (dbQuery.DbExpressions.Count == 0) continue;
 
-                var result_Insert = dbQuery.DbQueryInfo as IDbQueryableInfo_Insert;
-                if (result_Insert != null && result_Insert.Entity != null)
+                var dbExpression = dbQuery.DbExpressions.FirstOrDefault(x => x.DbExpressionType == DbExpressionType.Insert);
+                if (dbExpression == null) continue;
+                else if (dbExpression.Expressions == null) continue;
+                else if (dbExpression.Expressions[0].NodeType != ExpressionType.Constant) continue;
+
+                var entity = (dbExpression.Expressions[0] as ConstantExpression).Value;
+                if (entity != null)
                 {
-                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(result_Insert.Entity.GetType());
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entity.GetType());
                     if (typeRuntime.Identity != null)
                     {
                         index += 1;
                         var identity = identitys[index];
-                        typeRuntime.Identity.Invoke(result_Insert.Entity, identity);
+                        typeRuntime.Identity.Invoke(entity, identity);
                     }
                 }
             }

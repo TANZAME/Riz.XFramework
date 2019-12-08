@@ -373,7 +373,13 @@ namespace TZM.XFramework.Data
             return this.Execute<T>(command, null);
         }
 
-        // 执行SQL 语句，并返回单个实体对象
+        /// <summary>
+        /// 执行SQL 语句，并返回单个实体对象
+        /// </summary>
+        /// <typeparam name="T">元素类型</typeparam>
+        /// <param name="command"></param>
+        /// <param name="map"></param>
+        /// <returns></returns>
         protected virtual T Execute<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
@@ -429,7 +435,19 @@ namespace TZM.XFramework.Data
             return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
 
-        // 执行 SQL 语句，并返回多个实体集合
+        /// <summary>
+        /// 执行 SQL 语句，并返回多个实体集合
+        /// </summary>
+        /// <typeparam name="T1">第一个列表的元素类型</typeparam>
+        /// <typeparam name="T2">第二个列表的元素类型</typeparam>
+        /// <typeparam name="T3">第三个列表的元素类型</typeparam>
+        /// <typeparam name="T4">第四个列表的元素类型</typeparam>
+        /// <typeparam name="T5">第五个列表的元素类型</typeparam>
+        /// <typeparam name="T6">第六个列表的元素类型</typeparam>
+        /// <typeparam name="T7">第七个列表的元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="maps">实体映射描述列表</param>
+        /// <returns></returns>
         protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             IDataReader reader = null;
@@ -566,7 +584,13 @@ namespace TZM.XFramework.Data
             return this.ExecuteList<T>(command, null);
         }
 
-        // 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
+        /// <summary>
+        /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
+        /// </summary>
+        /// <typeparam name="T">元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="map">实体映射描述</param>
+        /// <returns></returns>
         protected virtual List<T> ExecuteList<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;

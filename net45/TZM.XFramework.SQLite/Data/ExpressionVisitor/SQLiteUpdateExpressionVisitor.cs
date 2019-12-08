@@ -8,31 +8,39 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// UPDATE 表达式解析器
     /// </summary>
-    class SQLiteUpdateExpressionVisitor<T> : UpdateExpressionVisitor
+    class SQLiteUpdateExpressionVisitor : UpdateExpressionVisitor
     {
         private string _alias = null;
         private Expression _expression = null;
         private IDbQueryProvider _provider = null;
-        private DbQueryableInfo_Update<T> _uQueryInfo = null;
+        private IDbQueryableInfo_Update _dbQuery = null;
 
         /// <summary>
         /// SQL 命令解析器
         /// </summary>
-        internal Func<DbQueryableInfo_Select<T>, int, bool, ResolveToken, Command> ParseCommand { get; set; }
+        internal Func<IDbQueryableInfo_Select, int, bool, ResolveToken, Command> ParseCommand { get; set; }
 
         /// <summary>
         /// 初始化 <see cref="SQLiteUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        internal SQLiteUpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbQueryableInfo_Update<T> uQueryInfo, string alias)
-            : base(provider, aliases, uQueryInfo.Expression)
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="dbQuery">更新语义</param>
+        /// <param name="alias">指定的表达式别名</param>
+        internal SQLiteUpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Update dbQuery, string alias)
+            : base(provider, aliases, dbQuery.Expression)
         {
             _alias = alias;
             _provider = provider;
-            _uQueryInfo = uQueryInfo;
+            _dbQuery = dbQuery;
             _expression = base.Expression;
         }
 
-        //{new App() {Id = p.Id}}
+        /// <summary>
+        /// 访问成员初始化表达式，如 => new App() {Id = p.Id}
+        /// </summary>
+        /// <param name="node">要访问的成员初始化表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.Bindings == null || node.Bindings.Count == 0)
@@ -58,6 +66,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
+        /// <summary>
+        /// 访问构造函数表达式，如 =>new  {Id = p.Id}}
+        /// </summary>
+        /// <param name="node">构造函数调用的表达式</param>
+        /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
             // 匿名类的New
@@ -86,16 +99,21 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        internal void VisitArgument(Expression exp, bool wasFilter = false)
+        /// <summary>
+        /// 访问参数列表
+        /// </summary>
+        /// <param name="expression">将访问的表达式</param>
+        /// <param name="isFilter">是否过滤条件</param>
+        internal void VisitArgument(Expression expression, bool isFilter = false)
         {
             var token = _builder.Token;
-            _uQueryInfo.SelectInfo.Select = new DbExpression(DbExpressionType.Select, exp);
-            var cmd2 = (MapperCommand)ParseCommand(_uQueryInfo.SelectInfo, 1, false, new ResolveToken
+            _dbQuery.Query.Select = new DbExpression(DbExpressionType.Select, expression);
+            var cmd2 = ParseCommand(_dbQuery.Query, 1, false, new ResolveToken
             {
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
-                IsDebug = wasFilter ? token.IsDebug : false
-            });
+                DbContext = _builder.Token.DbContext
+            }) as MapperCommand;
 
             _builder.Append('(');
             _builder.Append(cmd2.CommandText.Trim());
@@ -105,7 +123,7 @@ namespace TZM.XFramework.Data
             else
                 _builder.Append("WHERE ");
 
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_dbQuery.Entity != null ? _dbQuery.Entity.GetType() : _dbQuery.Query.PickType);
             foreach (var m in typeRuntime.KeyMembers)
             {
                 _builder.AppendMember("s0", m.Name);

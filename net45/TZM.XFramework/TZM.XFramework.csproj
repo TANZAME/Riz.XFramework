@@ -114,7 +114,6 @@
     <Compile Include="Data\DbQueryable.cs" />
     <Compile Include="Data\Parsing\DbQueryableInfo.cs" />
     <Compile Include="Data\DbQueryable`1.cs" />
-    <Compile Include="Data\Parsing\DbQueryableInfo`1.cs" />
     <Compile Include="Data\Parsing\DbQueryableInfo_Delete.cs" />
     <Compile Include="Data\Parsing\DbQueryableInfo_Insert.cs" />
     <Compile Include="Data\Parsing\DbQueryableInfo_Select.cs" />
@@ -138,7 +137,6 @@
     <Compile Include="Data\Infrastructure\IDbQueryable.cs" />
     <Compile Include="Data\Parsing\IDbQueryableInfo.cs" />
     <Compile Include="Data\Parsing\IDbQueryableInfo_Insert.cs" />
-    <Compile Include="Data\Parsing\IDbQueryableInfo`1.cs" />
     <Compile Include="Data\Infrastructure\IDbQueryable`1.cs" />
     <Compile Include="Data\Annotation\ColumnAttribute.cs" />
     <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />

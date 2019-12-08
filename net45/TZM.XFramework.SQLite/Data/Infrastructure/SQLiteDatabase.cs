@@ -37,6 +37,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 强制释放所有资源
         /// </summary>
+        /// <param name="disposing">指示释放资源</param>
         protected override void Dispose(bool disposing)
         {
             // SQLiteConnection 连续调用 Dispose 方法会抛异常

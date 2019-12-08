@@ -1,5 +1,5 @@
-﻿using System;
-using System.Data;
+﻿
+using System;
 
 namespace TZM.XFramework.Data
 {

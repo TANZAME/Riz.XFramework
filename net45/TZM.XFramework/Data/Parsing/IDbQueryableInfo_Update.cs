@@ -16,5 +16,10 @@ namespace TZM.XFramework.Data
         /// 更新指定字段表达式
         /// </summary>
         Expression Expression { get; set; }
+
+        /// <summary>
+        /// 更新语义的查询部分，表示更新范围
+        /// </summary>
+        IDbQueryableInfo_Select Query { get; set; }
     }
 }

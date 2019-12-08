@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// JOIN 表达式解析器
+    /// 关联表达式解析器
     /// </summary>
     public class JoinExpressionVisitor : ExpressionVisitorBase
     {
@@ -16,8 +16,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="JoinExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="joins">JOIN 子句</param>
         public JoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> joins)
-            : base(provider, aliases, null, false)
+            : base(provider, aliases, null)
         {
             _joins = joins;
             _aliases = aliases;
@@ -27,6 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL片断
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
@@ -138,7 +142,12 @@ namespace TZM.XFramework.Data
             builder.Append(alias);
             builder.Append(' ');
         }
-        
+
+        /// <summary>
+        /// 写入关联类型
+        /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
+        /// <param name="joinType">关联类型</param>
         protected void AppendJoinType(ISqlBuilder builder, JoinType joinType)
         {
             switch (joinType)

@@ -28,15 +28,19 @@
   <ItemGroup>
     <None Remove="Data\ExpressionVisitor\.gitkeep" />
     <None Remove="Data\Infrastructure\.gitkeep" />
+    <None Remove="Data\Parsing\.gitkeep" />
     <None Remove="Data\SqlClient\.gitkeep" />
     <None Remove="Data\TypeDeserialize\.gitkeep" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs" Link="Data\Infrastructure\OracleDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase45.cs" Link="Data\Infrastructure\OracleDatabase45.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Parsing\IWidthRowId .cs" Link="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Parsing\OracleDbQueryableInfo_Select.cs" Link="Data\Parsing\OracleDbQueryableInfo_Select.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs" Link="Data\SqlClient\OracleDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbQueryProvider.cs" Link="Data\SqlClient\OracleDbQueryProvider.cs" />
@@ -49,6 +53,7 @@
   <ItemGroup>
     <Folder Include="Annotation\" />
     <Folder Include="Data\Infrastructure\" />
+    <Folder Include="Data\Parsing\" />
     <Folder Include="Data\SqlClient\" />
     <Folder Include="Data\TypeDeserialize\" />
   </ItemGroup>

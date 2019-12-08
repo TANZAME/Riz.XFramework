@@ -8,6 +8,11 @@ namespace TZM.XFramework.Data
     /// </summary>
     public static class ILGeneratorExtensions
     {
+        /// <summary>
+        /// 对值类型进行装箱
+        /// </summary>
+        /// <param name="il">(MSIL)指令</param>
+        /// <param name="type">指定类型</param>
         public static void EmitBoxIfNeeded(this ILGenerator il, Type type)
         {
             if (!type.IsValueType)
@@ -92,6 +97,11 @@ namespace TZM.XFramework.Data
             }
         }
 
+        /// <summary>
+        /// 加载指定索引处的本地局部变量到计算堆栈上
+        /// </summary>
+        /// <param name="il">(MSIL)指令</param>
+        /// <param name="index">指定索引</param>
         public static void LoadLocal(this ILGenerator il, int index)
         {
             if (index < 0 || index >= short.MaxValue) throw new ArgumentNullException("index");
@@ -114,6 +124,11 @@ namespace TZM.XFramework.Data
             }
         }
 
+        /// <summary>
+        /// 从计算堆栈的顶部弹出当前值并将其存储到指定索引 的局部变量列表中
+        /// </summary>
+        /// <param name="il">(MSIL)指令</param>
+        /// <param name="index">指定索引</param>
         public static void StoreLocal(this ILGenerator il, int index)
         {
             if (index < 0 || index >= short.MaxValue) throw new ArgumentNullException("index");
@@ -136,6 +151,11 @@ namespace TZM.XFramework.Data
             }
         }
 
+        /// <summary>
+        /// 加载指定索引处的本地局部变量到计算堆栈上（短格式）
+        /// </summary>
+        /// <param name="il">(MSIL)指令</param>
+        /// <param name="index">指定索引</param>
         public static void LoadLocalAddress(this ILGenerator il, int index)
         {
             if (index < 0 || index >= short.MaxValue) throw new ArgumentNullException("index");
