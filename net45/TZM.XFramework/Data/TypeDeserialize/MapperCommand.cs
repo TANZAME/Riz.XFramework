@@ -118,13 +118,15 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 添加导航属性关联
+        /// <summary>
+        /// 添加导航属性关联
+        /// </summary>
         protected virtual void AppendNavigation()
         {
             if (this._navMembers == null || this._navMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliases = new TableAliasCache(_aliases.Declared);
+            if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
             //开始产生LEFT JOIN 子句
             ISqlBuilder builder = this.JoinFragment;
             foreach (var kvp in _navMembers)
@@ -132,7 +134,7 @@ namespace TZM.XFramework.Data
                 string key = kvp.Key;
                 MemberExpression m = kvp.Value;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(m.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
                 string innerKey = string.Empty;
                 string outerKey = key;

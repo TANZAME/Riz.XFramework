@@ -17,6 +17,11 @@ namespace TZM.XFramework.Data.SqlClient
         private int? _commandTimeout = null;
 
         /// <summary>
+        /// 大小写敏感，适用于建表时使用区分大小写的情况
+        /// </summary>
+        public bool CaseSensitive { get; set; }
+
+        /// <summary>
         /// 查询语义提供者
         /// </summary>
         public override IDbQueryProvider Provider { get { return OracleDbQueryProvider.Instance; } }
@@ -112,7 +117,7 @@ namespace TZM.XFramework.Data.SqlClient
             try
             {
                 this.Database.Execute<object>(sqlList, doExecute);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -173,7 +178,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 this.Database.Execute<object>(sqlList, doExecute);
                 result = q1 ?? new List<T>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -188,7 +193,8 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <typeparam name="T1">T</typeparam>
         /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">提交更改并查询数据</param>
+        /// <param name="result1">结果集合</param>
+        /// <param name="result2">结果集合</param>
         /// <returns></returns>
         public override int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {
@@ -269,7 +275,7 @@ namespace TZM.XFramework.Data.SqlClient
                 this.Database.Execute<object>(sqlList, doExecute);
                 result1 = q1 ?? new List<T1>(0);
                 result2 = q2 ?? new List<T2>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -318,7 +324,7 @@ namespace TZM.XFramework.Data.SqlClient
                 };
 
                 await this.Database.ExecuteAsync<object>(sqlList, func);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally

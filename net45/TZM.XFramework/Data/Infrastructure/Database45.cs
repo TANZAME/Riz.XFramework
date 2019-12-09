@@ -174,7 +174,13 @@ namespace TZM.XFramework.Data
             return await this.ExecuteAsync<T>(command, null);
         }
 
-        // 执行SQL 语句，并返回单个实体对象
+        /// <summary>
+        /// 执行SQL 语句，并返回单个实体对象
+        /// </summary>
+        /// <typeparam name="T">元素类型</typeparam>
+        /// <param name="command">连接到数据源时执行的 SQL 语句</param>
+        /// <param name="map">实体映射描述</param>
+        /// <returns></returns>
         protected virtual async Task<T> ExecuteAsync<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
@@ -226,13 +232,32 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 异步执行 SQL 语句，并返回多个实体集合
         /// </summary>
+        /// <typeparam name="T1">第一个列表的元素类型</typeparam>
+        /// <typeparam name="T2">第二个列表的元素类型</typeparam>
+        /// <typeparam name="T3">第三个列表的元素类型</typeparam>
+        /// <typeparam name="T4">第四个列表的元素类型</typeparam>
+        /// <typeparam name="T5">第五个列表的元素类型</typeparam>
+        /// <typeparam name="T6">第六个列表的元素类型</typeparam>
+        /// <typeparam name="T7">第七个列表的元素类型</typeparam>
         /// <param name="command">SQL 命令</param>
         public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
             return await this.ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
 
-        // 异步执行 SQL 语句，并返回多个实体集合
+        /// <summary>
+        /// 执行 SQL 语句，并返回多个实体集合
+        /// </summary>
+        /// <typeparam name="T1">第一个列表的元素类型</typeparam>
+        /// <typeparam name="T2">第二个列表的元素类型</typeparam>
+        /// <typeparam name="T3">第三个列表的元素类型</typeparam>
+        /// <typeparam name="T4">第四个列表的元素类型</typeparam>
+        /// <typeparam name="T5">第五个列表的元素类型</typeparam>
+        /// <typeparam name="T6">第六个列表的元素类型</typeparam>
+        /// <typeparam name="T7">第七个列表的元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="maps">实体映射描述列表</param>
+        /// <returns></returns>
         protected virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             IDataReader reader = null;
@@ -500,7 +525,13 @@ namespace TZM.XFramework.Data
             return result;
         }
 
-        // 执行 SQL 命令
+        /// <summary>
+        /// 执行 SQL 命令
+        /// </summary>
+        /// <typeparam name="T">返回的元素类型</typeparam>
+        /// <param name="sqlList">SQL 命令列表</param>
+        /// <param name="func">执行命令的委托</param>
+        /// <returns></returns>
         protected virtual async Task<T> DoExecuteAsync<T>(List<Command> sqlList, Func<DbCommand, Task<T>> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
@@ -605,7 +636,15 @@ namespace TZM.XFramework.Data
             }
         }
 
-        // 执行 SQL 命令
+        /// <summary>
+        /// 执行 SQL 命令
+        /// </summary>
+        /// <typeparam name="T">返回的元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="func">执行命令的委托</param>
+        /// <param name="wasClosed">执行SQL命令后是否自动关闭连接</param>
+        /// <param name="interceptException">指示外层是否捕获异常</param>
+        /// <returns></returns>
         protected virtual async Task<T> DoExecuteAsync<T>(IDbCommand command, Func<DbCommand, Task<T>> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);

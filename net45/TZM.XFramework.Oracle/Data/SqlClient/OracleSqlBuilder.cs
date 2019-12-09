@@ -1,22 +1,21 @@
 ﻿
-using System;
-using System.Data;
-using System.Collections.Generic;
-using Oracle.ManagedDataAccess.Client;
-using Oracle.ManagedDataAccess.Types;
 
 namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class OracleSqlBuilder : SqlBuilder
+    internal class OracleSqlBuilder : SqlBuilder
     {
+        private bool _caseSensitive = false;
+        private string _escCharLeft;
+        private string _escCharRight;
+        private IDbQueryProvider _provider = null;
+
         /// <summary>
-        /// 是否最外层查询
-        /// oracle 只有最外层才需要区分大小
+        /// 是否使用双引号，ORACLE 只有最外层才需要区分大小
         /// </summary>
-        public bool IsOuter { get; set; }
+        internal bool UseQuote { get; set; }
 
         /// <summary>
         /// 实例化 <see cref="OracleSqlBuilder"/> 类的新实例
@@ -26,7 +25,10 @@ namespace TZM.XFramework.Data.SqlClient
         public OracleSqlBuilder(IDbQueryProvider provider, ResolveToken token)
             : base(provider, token)
         {
-
+            _provider = provider;
+            _escCharLeft = _provider.QuotePrefix;
+            _escCharRight = _provider.QuoteSuffix;
+            _caseSensitive = token != null && token.DbContext != null ? ((OracleDbContext)token.DbContext).CaseSensitive : false;
         }
 
         /// <summary>
@@ -37,7 +39,9 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         public override ISqlBuilder AppendMember(string name, bool quote)
         {
-            _innerBuilder.Append(name);
+            if (this._caseSensitive) base.InnerBuilder.Append(_escCharLeft);
+            base.InnerBuilder.Append(name);
+            if (this._caseSensitive) base.InnerBuilder.Append(_escCharRight);
             return this;
         }
 
@@ -46,10 +50,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         public override ISqlBuilder AppendAs(string name)
         {
-            _innerBuilder.Append(" AS ");
-            if (this.IsOuter) _innerBuilder.Append(_escCharLeft);
-            _innerBuilder.Append(name);
-            if (this.IsOuter) _innerBuilder.Append(_escCharRight);
+            base.InnerBuilder.Append(" AS ");
+            if (this._caseSensitive || this.UseQuote) base.InnerBuilder.Append(_escCharLeft);
+            base.InnerBuilder.Append(name);
+            if (this._caseSensitive || this.UseQuote) base.InnerBuilder.Append(_escCharRight);
             return this;
         }
     }

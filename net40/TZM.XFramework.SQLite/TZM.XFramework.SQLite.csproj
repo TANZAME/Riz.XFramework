@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\TZM.XFramework.SQLite.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\TZM.XFramework.SQLite.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,11 +45,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
       <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWidthRowId .cs">
+      <Link>Data\Parsing\IWidthRowId .cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\SQLiteDbQueryableInfo_Select.cs">
+      <Link>Data\Parsing\SQLiteDbQueryableInfo_Select.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs">
       <Link>Data\SqlClient\DbTypeUtils.cs</Link>
@@ -70,7 +81,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\SQLiteDeserializerImpl.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TZM.XFramework\TZM.XFramework.csproj">

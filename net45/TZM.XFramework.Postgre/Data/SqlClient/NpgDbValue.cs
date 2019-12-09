@@ -27,7 +27,17 @@ namespace TZM.XFramework.Data.SqlClient
 
         }
 
-        // 增加一个参数
+        /// <summary>
+        /// 增加一个SQL参数
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="token">解析SQL命令时的参数上下文</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <param name="precision">精度</param>
+        /// <param name="scale">小数位</param>
+        /// <param name="direction">查询参数类型</param>
+        /// <returns></returns>
         protected override IDbDataParameter AddParameter(object value, ResolveToken token, 
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
@@ -49,7 +59,10 @@ namespace TZM.XFramework.Data.SqlClient
             return parameter;
         }
 
-        // 获取 byte[] 类型的 SQL 片断
+        /// <summary>
+        /// 获取 byte[] 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
         protected override string GetSqlValueByBytes(object value)
         {
             byte[] bytes = (byte[])value;
@@ -58,14 +71,26 @@ namespace TZM.XFramework.Data.SqlClient
             return hex;
         }
 
-        // 获取 String 类型的 SQL 片断
+        /// <summary>
+        /// 获取 String 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <returns></returns>
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
             string result = this.EscapeQuote(value.ToString(), false, true);
             return result;
         }
 
-        // 获取 Time 类型的 SQL 片断
+        /// <summary>
+        /// 获取 Time 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
             // 默认精度6
@@ -82,7 +107,13 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 DatetTime 类型的 SQL 片断
+        /// <summary>
+        /// 获取 DatetTime 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             // 默认精度6
@@ -100,7 +131,13 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 DateTimeOffset 类型的 SQL 片断
+        /// <summary>
+        /// 获取 DateTimeOffset 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
             // 默认精度6
@@ -122,15 +159,21 @@ namespace TZM.XFramework.Data.SqlClient
             // Npgsql 的显示都是以本地时区显示的？###
         }
 
-        // 获取 Boolean 类型的 SQL 片断
+        /// <summary>
+        /// 获取 Boolean 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        /// <param name="dbType">数据类型</param>
         protected override string GetSqlValueByBoolean(object value, object dbType)
         {
             return ((bool)value) ? "TRUE" : "FALSE";
         }
 
         /// <summary>
-        /// 检查是否Unicode数据类型
+        /// 检查指定类型是否是 Unicode 
         /// </summary>
+        /// <param name="dbType">数据类型</param>
+        /// <returns></returns>
         public override bool IsUnicode(object dbType)
         {
             return DbTypeUtils.IsUnicode(dbType);

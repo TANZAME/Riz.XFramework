@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
@@ -23,6 +24,10 @@ namespace TZM.XFramework.Data
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
         private readonly object _oLock = new object();
+        
+        /// <summary>
+        /// 查询语义集合
+        /// </summary>
         protected readonly List<object> _dbQueryables = new List<object>();
 
         #endregion
@@ -329,7 +334,7 @@ namespace TZM.XFramework.Data
             try
             {
                 this.Database.Execute<object>(sqlList, doExecute);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -375,7 +380,7 @@ namespace TZM.XFramework.Data
                 };
 
                 await this.Database.ExecuteAsync<object>(sqlList, func);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -433,7 +438,7 @@ namespace TZM.XFramework.Data
             {
                 this.Database.Execute<object>(sqlList, doExecute);
                 result = q1 ?? new List<T>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -448,7 +453,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="T1">T</typeparam>
         /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">提交更改并查询数据</param>
+        /// <param name="result1">结果集合</param>
+        /// <param name="result2">结果集合</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {
@@ -519,7 +525,7 @@ namespace TZM.XFramework.Data
                 this.Database.Execute<object>(sqlList, doExecute);
                 result1 = q1 ?? new List<T1>(0);
                 result2 = q2 ?? new List<T2>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -559,23 +565,38 @@ namespace TZM.XFramework.Data
 
         #region 私有函数
 
-        // 更新自增列
-        protected virtual void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
+        /// <summary>
+        /// 更新自增列
+        /// </summary>
+        /// <param name="dbQueryables">查询语义集合</param>
+        /// <param name="identitys">自动ID</param>
+        protected virtual void SetIdentityValue(List<object> dbQueryables, List<int> identitys)
         {
             if (identitys == null || identitys.Count == 0) return;
 
             int index = -1;
             foreach (var obj in dbQueryables)
             {
-                IDbQueryable query = obj as IDbQueryable;
-                if (query == null) continue;
+                var dbQuery = obj as IDbQueryable;
+                if (dbQuery == null) continue;
+                else if (dbQuery.DbExpressions == null) continue;
+                else if (dbQuery.DbExpressions.Count == 0) continue;
 
-                var info = query.DbQueryInfo as IDbQueryableInfo_Insert;
-                if (info != null && info.Entity != null && info.AutoIncrement != null)
+                var dbExpression = dbQuery.DbExpressions.FirstOrDefault(x => x.DbExpressionType == DbExpressionType.Insert);
+                if (dbExpression == null) continue;
+                else if (dbExpression.Expressions == null) continue;
+                else if (dbExpression.Expressions[0].NodeType != ExpressionType.Constant) continue;
+
+                var entity = (dbExpression.Expressions[0] as ConstantExpression).Value;
+                if (entity != null)
                 {
-                    index += 1;
-                    var identity = identitys[index];
-                    info.AutoIncrement.Invoke(info.Entity, identity);
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entity.GetType());
+                    if (typeRuntime.Identity != null)
+                    {
+                        index += 1;
+                        var identity = identitys[index];
+                        typeRuntime.Identity.Invoke(entity, identity);
+                    }
                 }
             }
         }

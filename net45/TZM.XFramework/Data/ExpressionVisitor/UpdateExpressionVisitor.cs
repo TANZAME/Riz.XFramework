@@ -13,14 +13,21 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="UpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        public UpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression exp)
-            : base(provider, aliases, exp)
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="expression">要访问的表达式</param>
+        public UpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
+            : base(provider, aliases, expression)
         {
             _provider = provider;
             _aliases = aliases;
         }
 
-        //{new App() {Id = p.Id}}
+        /// <summary>
+        /// 访问成员初始化表达式，如 => new App() {Id = p.Id}
+        /// </summary>
+        /// <param name="node">要访问的成员初始化表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.Bindings == null || node.Bindings.Count == 0)
@@ -46,6 +53,11 @@ namespace TZM.XFramework.Data
             return node;
         }
 
+        /// <summary>
+        /// 访问构造函数表达式，如 =>new  {Id = p.Id}}
+        /// </summary>
+        /// <param name="node">构造函数调用的表达式</param>
+        /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
             // 匿名类的New

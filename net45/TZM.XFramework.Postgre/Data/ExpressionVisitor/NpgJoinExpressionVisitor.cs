@@ -20,10 +20,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="NpgJoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        public NpgJoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qJoin, DbExpressionType dbExpressionType)
-            : base(provider, aliases, qJoin)
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="joins">JOIN 子句</param>
+        /// <param name="dbExpressionType">表达式类型</param>
+        public NpgJoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> joins, DbExpressionType dbExpressionType)
+            : base(provider, aliases, joins)
         {
-            _qJoin = qJoin;
+            _qJoin = joins;
             _aliases = aliases;
             _provider = provider;
             _dbExpressionType = dbExpressionType;
@@ -36,6 +40,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL片断
         /// </summary>
+        /// <param name="cmd">SQL 命令</param>
         public void Write(NpgMapperCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;

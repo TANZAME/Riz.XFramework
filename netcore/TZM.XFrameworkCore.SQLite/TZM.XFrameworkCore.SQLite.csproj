@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.7</Version>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>2.0.8</Version>
     <Authors>TANZAME</Authors>
     <Company>TANZAME</Company>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
@@ -11,13 +11,31 @@
     <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
     <Description>SQLite provider for TZM.XFrameworkCore.</Description>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
-    <AssemblyVersion>2.0.7.0</AssemblyVersion>
-    <FileVersion>2.0.7.0</FileVersion>
+    <AssemblyVersion>2.0.8.0</AssemblyVersion>
+    <FileVersion>2.0.8.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.SQLite.xml</DocumentationFile>
+    <NoWarn />
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\Parsing\.gitkeep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs" Link="Data\Infrastructure\SQLiteDatabase.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWidthRowId .cs" Link="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\SQLiteDbQueryableInfo_Select.cs" Link="Data\Parsing\SQLiteDbQueryableInfo_Select.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs" Link="Data\SqlClient\SQLiteDbQueryProvider.cs" />
@@ -29,6 +47,7 @@
 
   <ItemGroup>
     <Folder Include="Data\ExpressionVisitor\" />
+    <Folder Include="Data\Parsing\" />
     <Folder Include="Data\SqlClient\" />
   </ItemGroup>
   <ItemGroup>

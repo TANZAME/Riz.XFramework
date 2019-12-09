@@ -46,7 +46,6 @@ namespace TZM.XFramework.Data
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
         /// <param name="query3">SQL 命令</param>
-        /// <param name="trans">事务对象</param>
         public override Tuple<List<T1>, List<T2>, List<T3>> ExecuteMultiple<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
         {
             List<T1> q1 = null;
@@ -108,7 +107,19 @@ namespace TZM.XFramework.Data
             return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(command);
         }
 
-        // 执行 SQL 语句，并返回多个实体集合
+        /// <summary>
+        /// 执行 SQL 语句，并返回多个实体集合
+        /// </summary>
+        /// <typeparam name="T1">第一个列表的元素类型</typeparam>
+        /// <typeparam name="T2">第二个列表的元素类型</typeparam>
+        /// <typeparam name="T3">第三个列表的元素类型</typeparam>
+        /// <typeparam name="T4">第四个列表的元素类型</typeparam>
+        /// <typeparam name="T5">第五个列表的元素类型</typeparam>
+        /// <typeparam name="T6">第六个列表的元素类型</typeparam>
+        /// <typeparam name="T7">第七个列表的元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="maps">实体映射描述列表</param>
+        /// <returns></returns>
         protected override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             List<T1> q1 = null;

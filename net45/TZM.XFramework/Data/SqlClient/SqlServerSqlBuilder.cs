@@ -5,7 +5,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// MSSQL 语句建造器
     /// <para>非线程安全</para>
     /// </summary>
-    public class SqlServerSqlBuilder : SqlBuilder
+    internal class SqlServerSqlBuilder : SqlBuilder
     {
         /// <summary>
         /// 实例化 <see cref="SqlServerSqlBuilder"/> 类的新实例

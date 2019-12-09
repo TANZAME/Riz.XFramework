@@ -90,7 +90,18 @@ namespace TZM.XFramework.Data
             return this.ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(command);
         }
 
-        // 执行 SQL 语句，并返回多个实体集合
+        /// <summary>
+        /// 异步执行 SQL 语句，并返回多个实体集合
+        /// </summary>
+        /// <typeparam name="T1">第一个列表的元素类型</typeparam>
+        /// <typeparam name="T2">第二个列表的元素类型</typeparam>
+        /// <typeparam name="T3">第三个列表的元素类型</typeparam>
+        /// <typeparam name="T4">第四个列表的元素类型</typeparam>
+        /// <typeparam name="T5">第五个列表的元素类型</typeparam>
+        /// <typeparam name="T6">第六个列表的元素类型</typeparam>
+        /// <typeparam name="T7">第七个列表的元素类型</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="maps">实体映射描述集合</param>
         protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             List<T1> q1 = null;
@@ -217,6 +228,7 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
+        /// <param name="useSeperate">使用分隔符</param>
         /// <returns></returns>
         async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList, bool useSeperate)
         {

@@ -26,7 +26,17 @@ namespace TZM.XFramework.Data.SqlClient
 
         }
 
-        // 增加一个参数
+        /// <summary>
+        /// 增加一个SQL参数
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="token">解析SQL命令时的参数上下文</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <param name="precision">精度</param>
+        /// <param name="scale">小数位</param>
+        /// <param name="direction">查询参数类型</param>
+        /// <returns></returns>
         protected override IDbDataParameter AddParameter(object value, ResolveToken token, 
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
@@ -49,7 +59,10 @@ namespace TZM.XFramework.Data.SqlClient
             return parameter;
         }
 
-        // 获取 byte[] 类型的 SQL 片断
+        /// <summary>
+        /// 获取 byte[] 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
         protected override string GetSqlValueByBytes(object value)
         {
             byte[] bytes = (byte[])value;
@@ -63,7 +76,14 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 String 类型的 SQL 片断
+
+        /// <summary>
+        /// 获取 String 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">长度</param>
+        /// <returns></returns>
         protected override string GetSqlValueByString(object value, object dbType, int? size = null)
         {
             bool unicode = DbTypeUtils.IsUnicode(dbType);
@@ -71,7 +91,13 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 Time 类型的 SQL 片断
+        /// <summary>
+        /// 获取 Time 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByTime(object value, object dbType, int? scale)
         {
             // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/nlspg/datetime-data-types-and-time-zone-support.html#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
@@ -93,7 +119,13 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 DatetTime 类型的 SQL 片断
+        /// <summary>
+        /// 获取 DatetTime 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByDateTime(object value, object dbType, int? scale)
         {
             DateTime date = (DateTime)value;
@@ -114,7 +146,13 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 DateTimeOffset 类型的 SQL 片断
+        /// <summary>
+        /// 获取 DateTimeOffset 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="scale">小数位</param>
+        /// <returns></returns>
         protected override string GetSqlValueByDateTimeOffset(object value, object dbType, int? scale)
         {
             // 默认精度为6
@@ -134,7 +172,11 @@ namespace TZM.XFramework.Data.SqlClient
             return result;
         }
 
-        // 获取 Guid 类型的 SQL 片断
+        /// <summary>
+        /// 获取 Guid 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <returns></returns>
         protected override string GetSqlValueByGuid(object value)
         {
             string b = BitConverter.ToString(((Guid)value).ToByteArray()).Replace("-", "");
@@ -142,8 +184,10 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 检查是否Unicode数据类型
+        /// 检查指定类型是否是 Unicode 
         /// </summary>
+        /// <param name="dbType">数据类型</param>
+        /// <returns></returns>
         public override bool IsUnicode(object dbType)
         {
             return DbTypeUtils.IsUnicode(dbType);

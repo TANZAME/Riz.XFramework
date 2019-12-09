@@ -22,6 +22,11 @@ namespace TZM.XFramework.UnitTest
         /// </summary>
         public bool IsDebug { get; set; }
 
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        public bool CaseSensitive { get; set; }
+
         public TestBase()
         {
             _newContext = this.CreateDbContext;
@@ -127,7 +132,7 @@ namespace TZM.XFramework.UnitTest
             //WHERE t0.[DemoId] <= 10
 
             var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
-            result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
+            if (!this.CaseSensitive) result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
@@ -933,7 +938,7 @@ namespace TZM.XFramework.UnitTest
                     LocalServer = new Model.CloudServer
                     {
                         CloudServerId = a.CloudServerId,
-                        CloudServerName = a.LocalServer.CloudServerName
+                        CloudServerName = a.LocalServer.CloudServerName,
                     }
                 };
             result = query.ToList();
@@ -960,7 +965,8 @@ namespace TZM.XFramework.UnitTest
                 select new Model.Client(a)
                 {
                     CloudServer = a.CloudServer,
-                    Accounts = a.Accounts
+                    Accounts = a.Accounts,
+                    ClientCode = a.ClientCode
                 };
             result = query.ToList();
             //SQL=>
@@ -1444,9 +1450,9 @@ namespace TZM.XFramework.UnitTest
             //WHERE t0.[ClientId] = 1
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q4 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10).AsSubQuery();//.OrderBy(x => x.ClientName)
-            var q5 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(5).AsSubQuery();
-            var q6 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(1).Take(2).AsSubQuery();
+            var q4 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10).AsSubquery();//.OrderBy(x => x.ClientName)
+            var q5 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(5).AsSubquery();
+            var q6 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(1).Take(2).AsSubquery();
             query6 = q4.Union(q5).Union(q6);
             result6 = query6.ToList();
             result6 = query6.Take(2).ToList();
@@ -1564,7 +1570,7 @@ namespace TZM.XFramework.UnitTest
                   join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId into u_c
                   from b in u_c.DefaultIfEmpty()
                   select a;
-            query = query.OrderBy(a => a.ClientId).Skip(10).Take(10).AsSubQuery();
+            query = query.OrderBy(a => a.ClientId).Skip(10).Take(10).AsSubquery();
             result = query.ToList();
             query = from a in query
                     join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
@@ -1581,7 +1587,7 @@ namespace TZM.XFramework.UnitTest
                     ClientName = a.ClientName,
                     Qty = a.Qty
                 };
-            subQuery3.AsSubQuery(a => new { a.Qty }).ToList();
+            subQuery3.AsSubquery(a => new { a.Qty }).ToList();
 
             //SQL=> 
             //SELECT 
@@ -1610,7 +1616,7 @@ namespace TZM.XFramework.UnitTest
                     ClientName = a.ClientName,
                     Qty = a.Qty
                 };
-            subQuery = subQuery.AsSubQuery();
+            subQuery = subQuery.AsSubquery();
 
             query =
                 from a in subQuery
@@ -1621,7 +1627,7 @@ namespace TZM.XFramework.UnitTest
                     ClientName = g.Max(a => a.ClientName),
                     Qty = g.Sum(a => a.Qty)
                 };
-            query = query.AsSubQuery();
+            query = query.AsSubquery();
             query = query.Select(a => new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.ToString());
@@ -1839,7 +1845,7 @@ namespace TZM.XFramework.UnitTest
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
-            sum = sum.AsSubQuery();
+            sum = sum.AsSubquery();
 
             maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
             var nQuery =
@@ -2452,8 +2458,11 @@ namespace TZM.XFramework.UnitTest
                 }, x => x.ClientId == result.ClientId);
                 result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
-                context.AddQuery(@"UPDATE Bas_Client SET ClientName = {0} WHERE ClientID={1}; UPDATE Bas_Client SET ClientName = {2} WHERE ClientID={3};",
-                    "事务4", 4, "事务5", 5);
+                if (!this.CaseSensitive)
+                {
+                    context.AddQuery(@"UPDATE Bas_Client SET ClientName = {0} WHERE ClientID={1}; UPDATE Bas_Client SET ClientName = {2} WHERE ClientID={3};",
+                       "事务4", 4, "事务5", 5);
+                }
                 context.SubmitChanges();
 
 
@@ -2529,13 +2538,18 @@ namespace TZM.XFramework.UnitTest
             //Console.ReadLine();
         }
 
-        // 有参构造函数查询
+        /// <summary>
+        /// 有参构造函数查询
+        /// </summary>
         protected virtual void Parameterized()
         {
 
         }
     }
 
+    /// <summary>
+    /// 测试接口
+    /// </summary>
     public interface ITest
     {
         /// <summary>
@@ -2543,6 +2557,15 @@ namespace TZM.XFramework.UnitTest
         /// </summary>
         bool IsDebug { get; set; }
 
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        bool CaseSensitive { get; set; }
+
+        /// <summary>
+        /// 运行测试
+        /// </summary>
+        /// <param name="dbType"></param>
         void Run(DatabaseType dbType);
     }
 }

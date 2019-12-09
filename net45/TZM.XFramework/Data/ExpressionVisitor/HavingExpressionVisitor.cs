@@ -13,6 +13,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="HavingExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="having">HAVING 子句</param>
+        /// <param name="groupBy">GROUP BY 子句</param>
         public HavingExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression having, DbExpression groupBy)
             : base(provider, aliases, having != null && having.Expressions != null ? having.Expressions[0] : null)
         {
@@ -21,8 +25,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 将表达式所表示的SQL片断写入 SQL 生成器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             if (base.Expression != null)
@@ -37,6 +42,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 遍历表达式
         /// </summary>
+        /// <param name="node">要访问的表达式</param>
+        /// <returns></returns>
         public override Expression Visit(Expression node)
         {
             if (node == null) return null;
@@ -46,6 +53,12 @@ namespace TZM.XFramework.Data
             return base.Visit(node);
         }
 
+        /// <summary>
+        /// 访问 Lambda 表达式
+        /// </summary>
+        /// <typeparam name="T">Lambda 表达式返回的类型</typeparam>
+        /// <param name="node">Lambda 表达式</param>
+        /// <returns></returns>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             LambdaExpression lambda = node as LambdaExpression;
@@ -55,6 +68,11 @@ namespace TZM.XFramework.Data
             return base.VisitLambda<T>(node);
         }
 
+        /// <summary>
+        /// 访问字段或者属性表达式
+        /// </summary>
+        /// <param name="node">字段或者成员表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node == null) return node;

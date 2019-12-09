@@ -34,9 +34,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="Enumerator"/> 结构的新实例
+        /// 实例化迭代器的新实例
         /// </summary>
-        /// <param name="enumerator"></param>
+        /// <param name="enumerator">枚举字典中的的元素</param>
         public Enumerator(Dictionary<string, T>.Enumerator enumerator)
         {
             _enumerator = enumerator;

@@ -28,7 +28,8 @@ namespace TZM.XFramework.UnitTest.Oracle
             // new OracleDbContext();
             var context = new OracleDbContext(connString)
             {
-                IsDebug = base.IsDebug
+                IsDebug = base.IsDebug,
+                CaseSensitive = base.CaseSensitive
             };
 
             return context;

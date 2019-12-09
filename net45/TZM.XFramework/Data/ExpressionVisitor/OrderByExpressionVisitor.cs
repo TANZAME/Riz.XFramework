@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿
 using System.Linq.Expressions;
-using System.Text;
+using System.Collections.Generic;
 
 namespace TZM.XFramework.Data
 {
@@ -12,7 +9,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class OrderByExpressionVisitor : ExpressionVisitorBase
     {
-        private List<DbExpression> _qOrder = null;
+        private List<DbExpression> _orderBy = null;
         private DbExpression _groupBy = null;
         private TableAliasCache _aliases = null;
         private string _alias = null;
@@ -21,10 +18,15 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="OrderByExpressionVisitor"/> 类的新实例
         /// </summary>
-        public OrderByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> qOrder, DbExpression groupBy = null, string alias = null)
-            : base(provider, aliases, null, false)
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="orderBy">ORDER BY 子句</param>
+        /// <param name="groupBy">GROUP BY 子句</param>
+        /// <param name="alias">指定的表别名</param>
+        public OrderByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> orderBy, DbExpression groupBy = null, string alias = null)
+            : base(provider, aliases, null)
         {
-            _qOrder = qOrder;
+            _orderBy = orderBy;
             _aliases = aliases;
             _groupBy = groupBy;
             _alias = alias;
@@ -32,11 +34,13 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 将表达式所表示的SQL片断写入 SQL 生成器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
+        /// <param name="newLine">表示是否需要强制换行</param>
         public void Write(ISqlBuilder builder, bool newLine)
         {
-            if (_qOrder.Count > 0)
+            if (_orderBy.Count > 0)
             {
                 base._builder = builder;
                 if (base._methodVisitor == null) base._methodVisitor = _provider.CreateMethodVisitor(this);
@@ -44,26 +48,32 @@ namespace TZM.XFramework.Data
                 if (newLine) _builder.AppendNewLine();
                 _builder.Append("ORDER BY ");
 
-                for (int i = 0; i < _qOrder.Count; i++)
+                for (int i = 0; i < _orderBy.Count; i++)
                 {
-                    this.VisitWithoutRemark(x => this.Visit(_qOrder[i].Expressions[0]));
-                    if (_qOrder[i].DbExpressionType == DbExpressionType.OrderByDescending || _qOrder[i].DbExpressionType == DbExpressionType.ThenByDescending)
+                    this.VisitWithoutRemark(x => this.Visit(_orderBy[i].Expressions[0]));
+                    if (_orderBy[i].DbExpressionType == DbExpressionType.OrderByDescending || _orderBy[i].DbExpressionType == DbExpressionType.ThenByDescending)
                     {
                         builder.Append(" DESC");
                     }
-                    if (i < _qOrder.Count - 1) builder.Append(',');
+                    if (i < _orderBy.Count - 1) builder.Append(',');
                 }
             }
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 将表达式所表示的SQL片断写入 SQL 生成器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             this.Write(builder, true);
         }
 
+        /// <summary>
+        /// 访问字段或者属性表达式
+        /// </summary>
+        /// <param name="node">字段或者成员表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node == null) return node;
@@ -107,7 +117,11 @@ namespace TZM.XFramework.Data
             }
         }
 
-        //=> order by new  {Id = p.Id}}
+        /// <summary>
+        /// 访问构造函数表达式，如 => order by new  {Id = p.Id}}
+        /// </summary>
+        /// <param name="node">构造函数调用的表达式</param>
+        /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
             if (node != null)

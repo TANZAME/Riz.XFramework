@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\TZM.XFramework.Oracle.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\TZM.XFramework.Oracle.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -53,9 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotation\OracleColumnAttribute.cs" />
+    <Compile Include="Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase45.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase.cs" />
+    <Compile Include="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="Data\Parsing\OracleDbQueryableInfo_Select.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\OracleDbContext.cs" />
     <Compile Include="Data\SqlClient\OracleDbValue.cs" />
@@ -71,6 +76,7 @@
       <Name>TZM.XFramework</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

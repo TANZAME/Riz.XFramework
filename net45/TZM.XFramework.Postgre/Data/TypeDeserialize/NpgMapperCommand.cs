@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// DELETE / UPDATE 语句的SelectInfo属性解析器
+    /// Npg 含实体映射信息的SQL命令
     /// </summary>
     public sealed class NpgMapperCommand : MapperCommand
     {
@@ -50,7 +50,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="NpgMapperCommand" /> 的新实例
         /// </summary>
-        /// <param name="token">参数列表，NULL 或者 Parameters=NULL 时表示不使用参数化</param>
+        /// <param name="provider">数据查询提供者</param>
+        /// <param name="aliases">别名</param>
+        /// <param name="dbExpressionType">表达式类型</param>
+        /// <param name="token">解析上下文参数</param>
         public NpgMapperCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
@@ -64,18 +67,20 @@ namespace TZM.XFramework.Data
             _pad = "".PadLeft(_keywordName.Length, ' ');
         }
 
-        // 添加导航属性关联
+        /// <summary>
+        /// 添加导航属性关联
+        /// </summary>
         protected override void AppendNavigation()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliases = new TableAliasCache(_aliases.Declared);
+            if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
             //开始产生 USING 子句
             ISqlBuilder jf = this.JoinFragment;
             int index = -1;
             // 未生成USING子句
-            if (_aliases.Declared <= 1)
+            if (_aliases.HoldQty <= 1)
             {
                 jf.AppendNewLine();
                 jf.Append(_keywordName);
@@ -92,7 +97,7 @@ namespace TZM.XFramework.Data
                 string key = kvp.Key;
                 MemberExpression m = kvp.Value;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetInvokerAttribute<ForeignKeyAttribute>(m.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
                 string innerKey = string.Empty;
                 string outerKey = key;
@@ -124,7 +129,7 @@ namespace TZM.XFramework.Data
                 string alias2 = _aliases.GetNavigationTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
-                if (_aliases.Declared > 1 || index > 0) jf.Append(_pad);
+                if (_aliases.HoldQty > 1 || index > 0) jf.Append(_pad);
 
                 Type type = m.Type;
                 var typeRumtime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);

@@ -10,5 +10,10 @@ namespace TZM.XFramework.Data
         /// 实体对象
         /// </summary>
         object Entity { get; set; }
+
+        /// <summary>
+        /// 删除语义的查询部分，表示删除范围
+        /// </summary>
+        IDbQueryableInfo_Select Query { get; set; }
     }
 }

@@ -26,11 +26,6 @@ namespace TZM.XFramework.Data
         BulkInsertInfo Bulk { get; set; }
 
         /// <summary>
-        /// 转换后的查询对象
-        /// </summary>
-        IDbQueryableInfo DbQueryInfo { get; set; }
-
-        /// <summary>
         /// 当前查询上下文
         /// </summary>
         IDbContext DbContext { get; }
@@ -42,6 +37,11 @@ namespace TZM.XFramework.Data
         /// 批量插入数据不需要参数化
         /// </remarks>
         bool Parameterized { get; set; }
+
+        /// <summary>
+        /// Parameterized 属性是否已被设置
+        /// </summary>
+        bool HasSetParameterized { get; }
 
         /// <summary>
         /// 解析成 SQL 命令

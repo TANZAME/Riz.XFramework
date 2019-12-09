@@ -12,7 +12,7 @@ namespace TZM.XFramework.Data
         private bool _hasSetParameterized = false;
         private IDbQueryableInfo _dbQueryInfo = null;
         private IDbQueryProvider _provider = null;
-        protected IDbContext _context = null;
+        private IDbContext _context = null;
 
         /// <summary>
         /// 参数化

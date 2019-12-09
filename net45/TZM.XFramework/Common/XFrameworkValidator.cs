@@ -25,18 +25,18 @@ namespace TZM.XFramework
         // 获取实例的属性值
         private static IDictionary<ValidationContext, object> GetPropertyValues(object instance, ValidationContext context)
         {
-            IDictionary<ValidationContext, object> result = new Dictionary<ValidationContext, object>();
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(instance.GetType());
-            foreach (var invoker in typeRuntime.Invokers)
+            var result = new Dictionary<ValidationContext, object>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(instance.GetType());
+            foreach (var m in typeRuntime.Members)
             {
-                if (invoker.MemberType == System.Reflection.MemberTypes.Property)
+                if (m.MemberType == System.Reflection.MemberTypes.Property)
                 {
                     ValidationContext context2 = XFrameworkValidator.CreateValidationContext(instance, context);
-                    context2.MemberName = invoker.Member.Name;
+                    context2.MemberName = m.Member.Name;
 
                     if (XFrameworkValidator._store.GetPropertyValidationAttributes(context2).Any<ValidationAttribute>())
                     {
-                        result.Add(context2, invoker.Invoke(instance));
+                        result.Add(context2, m.Invoke(instance));
                     }
                 }
             }

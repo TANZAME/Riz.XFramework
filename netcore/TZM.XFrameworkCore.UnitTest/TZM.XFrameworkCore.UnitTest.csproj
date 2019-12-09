@@ -2,20 +2,24 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.7</Version>
-    <AssemblyVersion>2.0.7.0</AssemblyVersion>
-    <FileVersion>2.0.7.0</FileVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>2.0.8</Version>
+    <AssemblyVersion>2.0.8.0</AssemblyVersion>
+    <FileVersion>2.0.8.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;0472;0618</NoWarn>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
     <DefineConstants>TRACE;netcore</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.UnitTest.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
-    <NoWarn>1701;1702;0472</NoWarn>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.UnitTest.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

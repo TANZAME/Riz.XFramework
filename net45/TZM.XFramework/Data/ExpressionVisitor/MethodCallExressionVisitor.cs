@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         /// Not 运算符的方法
         /// </summary>
         protected HashSet<MethodCallExpression> NotMethods { get; private set; }
-        
+
         /// <summary>
         /// 运行时类成员
         /// </summary>
@@ -49,6 +49,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="MethodCallExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="visitor">表达式访问器</param>
         public MethodCallExpressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
         {
             _provider = provider;
@@ -145,14 +147,14 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected Expression VisitMethodCall(MethodCallExpression node)
         {
-            MemberInvokerBase invoker = null;
-            if (node.Method.Name == "Concat") invoker = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
-            else invoker = this.TypeRuntime.GetInvoker("Visit" + node.Method.Name);
+            MemberAccessorBase m = null;
+            if (node.Method.Name == "Concat") m = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
+            else m = this.TypeRuntime.GetMember("Visit" + node.Method.Name);
 
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -169,11 +171,11 @@ namespace TZM.XFramework.Data
             else if (node.NodeType == ExpressionType.Divide) methodName = "Divide";
             else methodName = node.Method.Name;
 
-            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + methodName);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            MemberAccessorBase m = this.TypeRuntime.GetMember("Visit" + methodName);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -183,11 +185,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected Expression VisitMemberMember(MemberExpression node)
         {
-            MemberInvokerBase invoker = this.TypeRuntime.GetInvoker("Visit" + node.Member.Name);
-            if (invoker == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
+            MemberAccessorBase m = this.TypeRuntime.GetMember("Visit" + node.Member.Name);
+            if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Member.DeclaringType, node.Member.Name);
             else
             {
-                object exp = invoker.Invoke(this, new object[] { node });
+                object exp = m.Invoke(this, new object[] { node });
                 return exp as Expression;
             }
         }
@@ -213,6 +215,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitCast(MethodCallExpression m)
         {
             // => a.ID.ToString()
@@ -227,6 +230,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitToString(MethodCallExpression m)
         {
             // => a.ID.ToString()
@@ -241,6 +245,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        /// <param name="node">即将访问的表达式</param>
         protected virtual Expression VisitToStringImpl(Expression node)
         {
             return node;
@@ -249,18 +254,20 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Contains 方法
         /// </summary>
-        protected Expression VisitContains(MethodCallExpression node)
+        /// <param name="m">方法表达式</param>
+        protected Expression VisitContains(MethodCallExpression m)
         {
-            Type type = node.Method.ReflectedType != null ? node.Method.ReflectedType : node.Method.DeclaringType;
-            if (type == typeof(string)) return this.VisitStringContains(node);
-            else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(node);
-            else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(node);
-            else throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
+            Type type = m.Method.ReflectedType != null ? m.Method.ReflectedType : m.Method.DeclaringType;
+            if (type == typeof(string)) return this.VisitStringContains(m);
+            else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(m);
+            else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(m);
+            else throw new XFrameworkException("{0}.{1} is not supported.", m.Method.DeclaringType, m.Method.Name);
         }
 
         /// <summary>
         /// 访问 StartWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -298,6 +305,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 EndWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -335,6 +343,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 TrimStart 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitTrimStart(MethodCallExpression m)
         {
             _builder.Append("LTRIM(");
@@ -346,6 +355,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 TrimEnd 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitTrimEnd(MethodCallExpression m)
         {
             _builder.Append("RTRIM(");
@@ -357,6 +367,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Trim 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitTrim(MethodCallExpression m)
         {
             _builder.Append("RTRIM(LTRIM(");
@@ -368,6 +379,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 SubString 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitSubstring(MethodCallExpression m)
         {
             var expressions = new List<Expression>(m.Arguments);
@@ -414,6 +426,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitConcat(BinaryExpression m)
         {
             _builder.Append("(");
@@ -427,6 +440,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitConcat(MethodCallExpression m)
         {
             IList<Expression> expressions = null;
@@ -453,6 +467,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 IsNullOrEmpty 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitIsNullOrEmpty(MethodCallExpression m)
         {
             _builder.Append("ISNULL(");
@@ -469,6 +484,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Length 属性
         /// </summary>
+        /// <param name="m">字段或属性表达式</param>
         protected virtual Expression VisitLength(MemberExpression m)
         {
             _builder.Append("LEN(");
@@ -480,6 +496,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToUpper 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitToUpper(MethodCallExpression m)
         {
             _builder.Append("UPPER(");
@@ -491,6 +508,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 ToLower 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitToLower(MethodCallExpression m)
         {
             _builder.Append("LOWER(");
@@ -502,6 +520,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Replace 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitReplace(MethodCallExpression m)
         {
             _builder.Append("REPLACE(");
@@ -517,6 +536,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 PadLeft 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitPadLeft(MethodCallExpression m)
         {
             _builder.Append("LPAD(");
@@ -542,6 +562,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 PadRight 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitPadRight(MethodCallExpression m)
         {
             _builder.Append("RPAD(");
@@ -567,6 +588,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 IndexOf 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitIndexOf(MethodCallExpression m)
         {
             _builder.Append("(CHARINDEX(");
@@ -592,6 +614,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 % 方法
         /// </summary>
+        /// <param name="b">二元表达式</param>
         protected virtual Expression VisitModulo(BinaryExpression b)
         {
             _visitor.Visit(b.Left);
@@ -603,6 +626,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 / 方法
         /// </summary>
+        /// <param name="b">二元表达式</param>
         protected virtual Expression VisitDivide(BinaryExpression b)
         {
             _visitor.Visit(b.Left);
@@ -614,6 +638,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Abs 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAbs(MethodCallExpression m)
         {
             _builder.Append("ABS(");
@@ -625,6 +650,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Acos 方法， 仅介于 -1.00 到 1.00 之间的值有效
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAcos(MethodCallExpression m)
         {
             _builder.Append("ACOS(");
@@ -636,6 +662,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Asin 方法， 仅介于 -1.00 到 1.00 之间的值有效
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAsin(MethodCallExpression m)
         {
             _builder.Append("ASIN(");
@@ -647,6 +674,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Atan 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAtan(MethodCallExpression m)
         {
             _builder.Append("ATAN(");
@@ -658,6 +686,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAtan2(MethodCallExpression m)
         {
             _builder.Append("ATN2(");
@@ -671,6 +700,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Ceiling 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitCeiling(MethodCallExpression m)
         {
             _builder.Append("CEILING(");
@@ -682,6 +712,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Cos 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitCos(MethodCallExpression m)
         {
             _builder.Append("COS(");
@@ -693,6 +724,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Exp 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitExp(MethodCallExpression m)
         {
             _builder.Append("EXP(");
@@ -704,6 +736,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Floor 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitFloor(MethodCallExpression m)
         {
             _builder.Append("FLOOR(");
@@ -715,6 +748,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Log 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitLog(MethodCallExpression m)
         {
             //--Syntax for SQL Server
@@ -735,6 +769,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Log10 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitLog10(MethodCallExpression m)
         {
             _builder.Append("LOG10(");
@@ -746,6 +781,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Pow 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitPow(MethodCallExpression m)
         {
             _builder.Append("POWER(");
@@ -759,6 +795,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Round 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitRound(MethodCallExpression m)
         {
             _builder.Append("ROUND(");
@@ -775,6 +812,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Sign 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitSign(MethodCallExpression m)
         {
             _builder.Append("SIGN(");
@@ -786,6 +824,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Sin 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitSin(MethodCallExpression m)
         {
             _builder.Append("SIN(");
@@ -797,6 +836,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Sqrt 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitSqrt(MethodCallExpression m)
         {
             _builder.Append("SQRT(");
@@ -808,6 +848,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Tan 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitTan(MethodCallExpression m)
         {
             _builder.Append("TAN(");
@@ -819,6 +860,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 Math.Truncate 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitTruncate(MethodCallExpression m)
         {
             _builder.Append("FLOOR(");
@@ -830,6 +872,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitNow(MemberExpression m)
         {
             _builder.Append("GETDATE()");
@@ -839,6 +882,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitUtcNow(MemberExpression m)
         {
             _builder.Append("GETUTCDATE()");
@@ -848,6 +892,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitToday(MemberExpression m)
         {
             _builder.Append("CONVERT(DATE,CONVERT(CHAR(10),GETDATE(),120))");
@@ -857,6 +902,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Date 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitDate(MemberExpression m)
         {
             _builder.Append("CONVERT(CHAR(10),");
@@ -868,6 +914,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.DayOfWeek 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitDayOfWeek(MemberExpression m)
         {
             //Sunday = 0,
@@ -886,6 +933,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.DayOfYear 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitDayOfYear(MemberExpression m)
         {
             _builder.Append("DATEPART(DAYOFYEAR,");
@@ -897,6 +945,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.TimeOfDay 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitYear(MemberExpression m)
         {
             _builder.Append("DATEPART(YEAR,");
@@ -908,6 +957,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Month 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitMonth(MemberExpression m)
         {
             _builder.Append("DATEPART(MONTH,");
@@ -919,6 +969,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Day 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitDay(MemberExpression m)
         {
             _builder.Append("DATEPART(DAY,");
@@ -930,6 +981,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Hour 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitHour(MemberExpression m)
         {
             _builder.Append("DATEPART(HOUR,");
@@ -941,6 +993,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Minute 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitMinute(MemberExpression m)
         {
             _builder.Append("DATEPART(MINUTE,");
@@ -952,6 +1005,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Second 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitSecond(MemberExpression m)
         {
             _builder.Append("DATEPART(SECOND,");
@@ -963,6 +1017,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Millisecond 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitMillisecond(MemberExpression m)
         {
             _builder.Append("DATEPART(MILLISECOND,");
@@ -974,6 +1029,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.Ticks 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitTicks(MemberExpression m)
         {
             //1秒 = 1000毫秒
@@ -993,6 +1049,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.TimeOfDay 属性
         /// </summary>
+        /// <param name="m">成员表达式</param>
         protected virtual Expression VisitTimeOfDay(MemberExpression m)
         {
             _builder.Append("CONVERT(TIME,CONVERT(VARCHAR,");
@@ -1004,6 +1061,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.DaysInMonth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitDaysInMonth(MethodCallExpression m)
         {
             if (m != null)
@@ -1023,6 +1081,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.IsLeapYear 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitIsLeapYear(MethodCallExpression m)
         {
             _builder.Append('(');
@@ -1039,6 +1098,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddYears 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddYears(MethodCallExpression m)
         {
             _builder.Append("DATEADD(YEAR,");
@@ -1052,6 +1112,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddMonths 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddMonths(MethodCallExpression m)
         {
             _builder.Append("DATEADD(MONTH,");
@@ -1065,6 +1126,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddDays(MethodCallExpression m)
         {
             _builder.Append("DATEADD(DAY,");
@@ -1078,6 +1140,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddHours(MethodCallExpression m)
         {
             _builder.Append("DATEADD(HOUR,");
@@ -1091,6 +1154,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddMinutes(MethodCallExpression m)
         {
             _builder.Append("DATEADD(MINUTE,");
@@ -1104,6 +1168,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddSeconds 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddSeconds(MethodCallExpression m)
         {
             _builder.Append("DATEADD(SECOND,");
@@ -1117,6 +1182,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddMilliseconds 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddMilliseconds(MethodCallExpression m)
         {
             // 如果不转到DATETIME2，精度会有丢失
@@ -1134,6 +1200,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitAddTicks(MethodCallExpression m)
         {
             // 1tick = 100纳秒
@@ -1155,6 +1222,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 RowNumber 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitRowNumber(MethodCallExpression m)
         {
             _builder.Append("ROW_NUMBER() OVER(ORDER BY ");
@@ -1172,6 +1240,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 RowNumber 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitPartitionRowNumber(MethodCallExpression m)
         {
             _builder.Append("ROW_NUMBER() OVER(");
@@ -1196,6 +1265,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 new Guid 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitNewGuid(MethodCallExpression m)
         {
             _builder.Append("NEWID()");
@@ -1205,6 +1275,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 string.Contains 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitStringContains(MethodCallExpression m)
         {
             // https://www.cnblogs.com/yangmingyu/p/6928209.html
@@ -1247,6 +1318,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 IEnumerable.Contains 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitEnumerableContains(MethodCallExpression m)
         {
             if (m == null) return m;
@@ -1298,17 +1370,17 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问 IDbQueryable.Contains 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
             ResolveToken token = _builder.Token;
-            IDbQueryable subQuery = m.Arguments[0].Evaluate().Value as IDbQueryable;
-            // 设置子查询的参数化
+            var subQuery = m.Arguments[0].Evaluate().Value as IDbQueryable;
             subQuery.Parameterized = _builder.Parameterized;
             var cmd = subQuery.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
             {
                 Parameters = token.Parameters,
-                TableAliasName = "s",
-                IsDebug = token.IsDebug
+                AliasPrefix = "s",
+                DbContext = token.DbContext
             } : null) as MapperCommand;
 
             if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
@@ -1328,7 +1400,12 @@ namespace TZM.XFramework.Data
             return m;
         }
 
-        // 生成字符串片断
+        /// <summary>
+        /// 生成字符串片断
+        /// </summary>
+        /// <param name="c">常量表达式</param>
+        /// <param name="unicode">是否 Unicode 编码</param>
+        /// <returns></returns>
         protected string GetSqlValue(ConstantExpression c, ref bool unicode)
         {
             unicode = false;

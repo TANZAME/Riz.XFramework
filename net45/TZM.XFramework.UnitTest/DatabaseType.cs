@@ -6,6 +6,9 @@ namespace TZM.XFramework.UnitTest
     /// </summary>
     public enum DatabaseType
     {
+        /// <summary>
+        /// 未指定
+        /// </summary>
         None = 0,
 
         SqlServer = 1,

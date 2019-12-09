@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性描述集合
         /// <para>
-        /// 用于实体与 <see cref="IDataRecord"/> 做映射
+        /// 用于实体与 IDataRecord 做映射
         /// </para>
         /// </summary>
         NavigationCollection Navigations { get; set; }

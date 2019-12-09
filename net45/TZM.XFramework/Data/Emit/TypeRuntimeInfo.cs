@@ -15,22 +15,24 @@ namespace TZM.XFramework.Data
         private bool _isAnonymousType = false;
         private object[] _attributes;
         private ConstructorInfo[] _ctors = null;
-        private ConstructorInvoker _ctorInvoker = null;
+        private ConstructorAccessor _ctor = null;
         private Type[] _genericArguments = null;
         private Type _genericTypeDefinition = null;
-        private bool? _lazyIsCompilerGenerated = null;
-        private bool? _lazyIsPrimitiveType = null;
-        private bool? _lazyIsCollectionType = null;
+        private bool? _isCompilerGenerated = null;
+        private bool? _isPrimitiveType = null;
+        private bool? _isCollectionType = null;
 
         private object _lock = new object();
         private bool _isInitialize = false;
-        private bool _private = false;
+        private bool _includePrivates = false;
 
-        private int _dataFieldCount = 0;
+        private int _dataFieldNumber = 0;
         private TableAttribute _attribute = null;
-        private MemberInvokerCollection _invokers = null;
-        private MemberInvokerCollection _navInvokers = null;
-        private MemberInvokerCollection _keyInvokers = null;
+        private MemberAccessorCollection _members = null;
+        private MemberAccessorCollection _navMembers = null;
+        private MemberAccessorCollection _keyMembers = null;
+        private MemberAccessorBase _identityMember = null;
+        private bool _hasIdentityMember = false;
 
         /// <summary>
         /// 类型对应的数据表
@@ -69,67 +71,84 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 数据字段（即对应数据库字段的属性）数量
         /// </summary>
-        public int DataFieldCount
+        public int DataFieldNumber
         {
             get
             {
-                var invokers = this.Invokers;
-                return _dataFieldCount;
+                var members = this.Members;
+                return _dataFieldNumber;
             }
         }
 
         /// <summary>
         /// 成员反射器集合
         /// </summary>
-        public MemberInvokerCollection Invokers
+        public MemberAccessorCollection Members
         {
             get
             {
-                if (_invokers == null) _invokers = this.InitializeInvokers(_type);
-                return _invokers;
+                if (_members == null) _members = this.Initialize(_type);
+                return _members;
             }
         }
 
         /// <summary>
         /// 导航属性成员
         /// </summary>
-        public MemberInvokerCollection NavInvokers
+        public MemberAccessorCollection NavMembers
         {
             get
             {
-                if (_navInvokers == null)
+                if (_navMembers == null)
                 {
-                    var navInvokers = new MemberInvokerCollection();
-                    foreach (var invoker in this.Invokers)
+                    var navMembers = new MemberAccessorCollection();
+                    foreach (var m in this.Members)
                     {
-                        if (invoker.ForeignKey != null) navInvokers.Add(invoker);
+                        if (m.ForeignKey != null) navMembers.Add(m);
                     }
 
-                    _navInvokers = navInvokers;
+                    _navMembers = navMembers;
                 }
 
-                return _navInvokers;
+                return _navMembers;
             }
         }
 
         /// <summary>
         /// 主键属性成员
         /// </summary>
-        public MemberInvokerCollection KeyInvokers
+        public MemberAccessorCollection KeyMembers
         {
             get
             {
-                if (_keyInvokers == null)
+                if (_keyMembers == null)
                 {
-                    var keyInvokers = new MemberInvokerCollection();
-                    foreach (var invoker in this.Invokers)
+                    var keyMembers = new MemberAccessorCollection();
+                    foreach (var m in this.Members)
                     {
-                        if (invoker.Column != null && invoker.Column.IsKey) keyInvokers.Add(invoker);
+                        if (m.Column != null && m.Column.IsKey) keyMembers.Add(m);
                     }
-                    _keyInvokers = keyInvokers;
+                    _keyMembers = keyMembers;
                 }
 
-                return _keyInvokers;
+                return _keyMembers;
+            }
+        }
+
+        /// <summary>
+        /// 自增属性成员
+        /// </summary>
+        public MemberAccessorBase Identity
+        {
+            get
+            {
+                if (!_hasIdentityMember)
+                {
+                    _identityMember = this.Members.FirstOrDefault(x => x.Column != null && x.Column.IsIdentity);
+                    _hasIdentityMember = true;
+                }
+
+                return _identityMember;
             }
         }
 
@@ -188,8 +207,8 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsCompilerGenerated == null) _lazyIsCompilerGenerated = TypeUtils.IsCompilerGenerated(_type);
-                return _lazyIsCompilerGenerated.Value;
+                if (_isCompilerGenerated == null) _isCompilerGenerated = TypeUtils.IsCompilerGenerated(_type);
+                return _isCompilerGenerated.Value;
             }
         }
 
@@ -200,8 +219,8 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsPrimitiveType == null) _lazyIsPrimitiveType = TypeUtils.IsPrimitiveType(_type);
-                return _lazyIsPrimitiveType.Value;
+                if (_isPrimitiveType == null) _isPrimitiveType = TypeUtils.IsPrimitiveType(_type);
+                return _isPrimitiveType.Value;
             }
         }
 
@@ -212,25 +231,25 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_lazyIsCollectionType == null) _lazyIsCollectionType = TypeUtils.IsCollectionType(_type);
-                return _lazyIsCollectionType.Value;
+                if (_isCollectionType == null) _isCollectionType = TypeUtils.IsCollectionType(_type);
+                return _isCollectionType.Value;
             }
         }
 
         /// <summary>
-        /// 构造函数调用器
+        /// 构造函数调用器，返回最少参数的构造函数
         /// </summary>
-        public ConstructorInvoker ConstructInvoker
+        public ConstructorAccessor Constructor
         {
             get
             {
-                if (_ctorInvoker == null)
+                if (_ctor == null)
                 {
                     var ctor = this.GetConstructor();
-                    _ctorInvoker = new ConstructorInvoker(ctor);
+                    _ctor = new ConstructorAccessor(ctor);
 
                 }
-                return _ctorInvoker;
+                return _ctor;
             }
         }
 
@@ -247,12 +266,12 @@ namespace TZM.XFramework.Data
         /// 初始化 <see cref="TypeRuntimeInfo"/> 类的新实例
         /// </summary>
         /// <param name="type">类型声明</param>
-        /// <param name="private">包含私有成员</param>
-        internal TypeRuntimeInfo(Type type, bool @private)
+        /// <param name="includePrivates">包含私有成员</param>
+        internal TypeRuntimeInfo(Type type, bool includePrivates)
         {
             _type = type;
             _isAnonymousType = TypeUtils.IsAnonymousType(_type);
-            _private = @private;
+            _includePrivates = includePrivates;
         }
 
         /// <summary>
@@ -260,23 +279,22 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="memberName">成员名称</param>
         /// <returns></returns>
-        public MemberInvokerBase GetInvoker(string memberName)
+        public MemberAccessorBase GetMember(string memberName)
         {
-            MemberInvokerBase invoker = null;
-            this.Invokers.TryGetValue(memberName, out invoker);
-
-            return invoker;
+            MemberAccessorBase result = null;
+            this.Members.TryGetValue(memberName, out result);
+            return result;
         }
 
         /// <summary>
         /// 获取方法反射器，适用于有多个签名的情况
         /// </summary>
         /// <param name="memberName">成员名称</param>
+        /// <param name="parameters">方法的参数列表</param>
         /// <returns></returns>
-        public MemberInvokerBase GetMethod(string memberName, Type[] parameters)
+        public MemberAccessorBase GetMethod(string memberName, Type[] parameters)
         {
-            var invoker = this.Invokers.FirstOrDefault(x => x.Member.Name == memberName && this.CheckParameters((MethodInfo)x.Member, parameters));
-            return invoker;
+            return this.Members.FirstOrDefault(x => x.Member.Name == memberName && this.CheckParameters((MethodInfo)x.Member, parameters));
         }
 
         /// <summary>
@@ -284,10 +302,10 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="TAttribute">自定义特性</typeparam>
         /// <returns></returns>
-        public TAttribute GetInvokerAttribute<TAttribute>(string memberName) where TAttribute : Attribute
+        public TAttribute GetMemberAttribute<TAttribute>(string memberName) where TAttribute : Attribute
         {
-            MemberInvokerBase invoker = this.GetInvoker(memberName);
-            return invoker != null ? invoker.GetCustomAttribute<TAttribute>() : null;
+            MemberAccessorBase m = this.GetMember(memberName);
+            return m != null ? m.GetCustomAttribute<TAttribute>() : null;
         }
 
         /// <summary>
@@ -299,11 +317,11 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public object Invoke(object target, string memberName, params object[] parameters)
         {
-            MemberInvokerBase invoker = null;
-            this.Invokers.TryGetValue(memberName, out invoker);
+            MemberAccessorBase m = null;
+            this.Members.TryGetValue(memberName, out m);
 
-            if (invoker == null) throw new XFrameworkException("{0}.{1} Not Found.", _type.Name, memberName);
-            return invoker.Invoke(target, parameters);
+            if (m == null) throw new XFrameworkException("{0}.{1} Not Found.", _type.Name, memberName);
+            return m.Invoke(target, parameters);
         }
 
         /// <summary>
@@ -318,11 +336,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 初始化成员包装器集合
+        /// 初始化成员集合
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected virtual MemberInvokerCollection InitializeInvokers(Type type)
+        protected virtual MemberAccessorCollection Initialize(Type type)
         {
             // fix issue#多线程下导致 FieldCount 不正确
             // 单个实例只初始化一次
@@ -336,48 +354,48 @@ namespace TZM.XFramework.Data
                 {
                     if (!_isInitialize)
                     {
-                        var invokers = new MemberInvokerCollection();
-                        var collection = this.GetMembers(type, _private).Select(x => MemberInvokerBase.Create(x));
+                        var result = new MemberAccessorCollection();
+                        var sources = this.GetTypeMembers(type, _includePrivates).Select(x => MemberAccessorBase.Create(x));
 
-                        foreach (MemberInvokerBase invoker in collection)
+                        foreach (var m in sources)
                         {
-                            if (invoker.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>() != null) continue;
+                            if (m.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>() != null) continue;
 
                             // 判断当前成员是否重复
-                            if (invokers.Contains(invoker.Name))
+                            if (result.Contains(m.Name))
                             {
                                 // 属性和字段不允许重复
-                                if (invoker.Member.MemberType != MemberTypes.Method) continue;
+                                if (m.Member.MemberType != MemberTypes.Method) continue;
                                 else
                                 {
                                     // 方法成员考虑到有重载的情况，允许重复
-                                    int dup = invokers.Count(x => x.Member.Name == invoker.Name);
-                                    invoker.Name = string.Format("{0}{1}", invoker.Name, dup);
+                                    int dup = result.Count(x => x.Member.Name == m.Name);
+                                    m.Name = string.Format("{0}{1}", m.Name, dup);
                                 }
                             }
                             // 添加成员
-                            invokers.Add(invoker);
+                            result.Add(m);
 
                             // 累计数据字段，即与数据库一一对应的字段
-                            bool isDataField = !(invoker.Column != null && invoker.Column.NoMapped || invoker.ForeignKey != null || invoker.Member.MemberType == MemberTypes.Method);
-                            if (isDataField) _dataFieldCount += 1;
+                            bool isDataField = !(m.Column != null && m.Column.NoMapped || m.ForeignKey != null || m.Member.MemberType == MemberTypes.Method);
+                            if (isDataField) _dataFieldNumber += 1;
                         }
 
 
-                        _invokers = invokers;
+                        _members = result;
                         _isInitialize = true;
                     }
                 }
             }
 
 
-            return _invokers;
+            return _members;
         }
 
         /// <summary>
-        /// 获取当前类型的成员
+        /// 获取当前类型的所有成员
         /// </summary>
-        protected virtual IEnumerable<MemberInfo> GetMembers(Type type, bool @private)
+        protected virtual IEnumerable<MemberInfo> GetTypeMembers(Type type, bool @private)
         {
             return TypeUtils.GetMembers(type, @private);
         }

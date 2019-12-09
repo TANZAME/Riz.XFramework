@@ -37,8 +37,13 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="AggregateExpressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="aliases">表别名集合</param>
+        /// <param name="aggregate">聚合函数表达式</param>
+        /// <param name="groupBy">Group by 子句</param>
+        /// <param name="alias">指定的别名</param>
         public AggregateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
-            : base(provider, aliases, aggregate.Expressions != null ? aggregate.Expressions[0] : null, false)
+            : base(provider, aliases, aggregate.Expressions != null ? aggregate.Expressions[0] : null)
         {
             _provider = provider;
             _aliases = aliases;
@@ -50,6 +55,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 将表达式所表示的SQL片断写入SQL构造器
         /// </summary>
+        /// <param name="builder">SQL 语句生成器</param>
         public override void Write(ISqlBuilder builder)
         {
             base._builder = builder;
@@ -72,6 +78,11 @@ namespace TZM.XFramework.Data
             }
         }
 
+        /// <summary>
+        /// 访问成员
+        /// </summary>
+        /// <param name="node">字段或属性表达式</param>
+        /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node == null) return node;

@@ -53,6 +53,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问表示 null 合并运算的节点 a ?? b
         /// </summary>
+        /// <param name="b">二元表达式节点</param>
         protected override Expression VisitCoalesce(BinaryExpression b)
         {
             // 例： a.Name ?? "TAN" => ISNULL(a.Name,'TAN')
@@ -70,6 +71,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 ToString 方法
         /// </summary>
+        /// <param name="node">即将访问的表达式</param>
         protected override Expression VisitToStringImpl(Expression node)
         {
             // => a.ID.ToString()
@@ -138,6 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Contains 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -174,6 +177,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 StartWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
@@ -210,6 +214,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 EndWidth 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             if (m != null)
@@ -250,6 +255,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 TrimStart 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitSubstring(MethodCallExpression m)
         {
             var expressions = new List<Expression>(m.Arguments);
@@ -296,6 +302,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="b">二元表达式</param>
         protected override Expression VisitConcat(BinaryExpression b)
         {
             _builder.Append("(");
@@ -309,6 +316,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitConcat(MethodCallExpression m)
         {
             IList<Expression> expressions = null;
@@ -335,6 +343,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 IsNullOrEmpty 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitIsNullOrEmpty(MethodCallExpression m)
         {
             _builder.Append("COALESCE(");
@@ -346,6 +355,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 TrimEnd 方法
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitLength(MemberExpression m)
         {
             _builder.Append("LENGTH(");
@@ -358,6 +368,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 IndexOf 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitIndexOf(MethodCallExpression m)
         {
             _builder.Append("(STRPOS(");
@@ -371,6 +382,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 / 方法
         /// </summary>
+        /// <param name="b">二元表达式</param>
         protected override Expression VisitDivide(BinaryExpression b)
         {
             // 注意 PG 的 / 会取整
@@ -383,6 +395,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Truncate 方法
         /// </summary>
+        /// <param name="b">方法表达式</param>
         protected override Expression VisitTruncate(MethodCallExpression b)
         {
             _builder.Append("TRUNC(");
@@ -394,6 +407,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Log 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitLog(MethodCallExpression m)
         {
             //log(b numeric, x numeric)   logarithm to base b
@@ -428,6 +442,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Log 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitLog10(MethodCallExpression m)
         {
             //log(b numeric, x numeric)   logarithm to base b
@@ -440,6 +455,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
+        /// <param name="b">方法表达式</param>
         protected override Expression VisitAtan2(MethodCallExpression b)
         {
             _builder.Append("ATAN2(");
@@ -453,6 +469,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitNow(MemberExpression m)
         {
             // LOCALTIMESTAMP deliver values without time zone.
@@ -463,6 +480,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Today 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitToday(MemberExpression m)
         {
             _builder.Append("DATE_TRUNC('DAY', LOCALTIMESTAMP)");
@@ -472,6 +490,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Now 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitUtcNow(MemberExpression m)
         {
             _builder.Append("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')");
@@ -481,6 +500,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Date 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitDate(MemberExpression m)
         {
             _builder.Append("DATE_TRUNC('DAY', ");
@@ -492,6 +512,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.DayOfWeek 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitDayOfWeek(MemberExpression m)
         {
             _builder.Append("DATE_PART('DOW', ");
@@ -503,6 +524,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.DayOfYear 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitDayOfYear(MemberExpression m)
         {
             _builder.Append("DATE_PART('DOY', ");
@@ -514,6 +536,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Year 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitYear(MemberExpression m)
         {
             _builder.Append("DATE_PART('YEAR', ");
@@ -525,6 +548,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Month 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitMonth(MemberExpression m)
         {
             _builder.Append("DATE_PART('MONTH', ");
@@ -536,6 +560,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Day 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitDay(MemberExpression m)
         {
             _builder.Append("DATE_PART('DAY', ");
@@ -547,6 +572,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Hour 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitHour(MemberExpression m)
         {
             _builder.Append("DATE_PART('HOUR', ");
@@ -558,6 +584,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Minute 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitMinute(MemberExpression m)
         {
             _builder.Append("DATE_PART('MINUTE', ");
@@ -569,6 +596,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Second 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitSecond(MemberExpression m)
         {
             _builder.Append("DATE_PART('SECOND', ");
@@ -580,6 +608,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Millisecond 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitMillisecond(MemberExpression m)
         {
             //select(date_part('SECOND', '2019-11-15 20:55:04.25758'::TIMESTAMP)::NUMERIC % 1) * 1000
@@ -592,6 +621,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.Ticks 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitTicks(MemberExpression m)
         {
             // microseconds
@@ -619,6 +649,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.TimeOfDay 属性
         /// </summary>
+        /// <param name="m">字段或者属性表达式</param>
         protected override Expression VisitTimeOfDay(MemberExpression m)
         {
             //SELECT time '00:00' + ((EXTRACT(EPOCH FROM('2019-11-15 20:55:04.25758'::TIMESTAMP - '2019-11-15 20:55:04.25758'::DATE)) || ' SECOND')::INTERVAL)
@@ -646,6 +677,7 @@ namespace TZM.XFramework.Data.SqlClient
             return m;
         }
 
+        /// <param name="m">方法表达式</param>
         /// <summary>
         /// 访问 DateTime.DaysInMonth 方法
         /// </summary>
@@ -663,6 +695,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddYears(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "YEAR");
@@ -671,6 +704,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddMonths 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddMonths(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "MONTH");
@@ -679,6 +713,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddDays(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "DAY");
@@ -687,6 +722,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddDays 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddHours(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "HOUR");
@@ -695,6 +731,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddMinutes 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddMinutes(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "MINUTE");
@@ -703,6 +740,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddSeconds 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddSeconds(MethodCallExpression m)
         {
             return this.VisitAddDateTime(m, "SECOND");
@@ -711,6 +749,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddMilliseconds 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddMilliseconds(MethodCallExpression m)
         {
             _builder.Append('(');
@@ -746,6 +785,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 DateTime.AddTicks 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitAddTicks(MethodCallExpression m)
         {
             _builder.Append('(');
@@ -781,6 +821,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 new Guid 方法
         /// </summary>
+        /// <param name="m">方法表达式</param>
         protected override Expression VisitNewGuid(MethodCallExpression m)
         {
             System.Guid guid = System.Guid.NewGuid();

@@ -52,7 +52,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 指示 SELECT FROM 子句表对应类型
         /// </summary>
-        Type FromEntityType { get; set; }
+        Type FromType { get; set; }
 
         /// <summary>
         /// SELECT 字段表达式，如果为空则表示选择所有的字段
@@ -62,7 +62,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// WHERE 表达式
         /// </summary>
-        DbExpression Condtion { get; set; }
+        DbExpression Where { get; set; }
 
         /// <summary>
         /// HAVING 表达式
@@ -77,11 +77,21 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询，=true 时此查询一定是子查询
         /// </summary>
-        bool SubQueryOfMany { get; set; }
+        bool IsParsedByMany { get; set; }
 
         /// <summary>
         /// 表达式是否包含 1:n 类型的导航属性
         /// </summary>
         bool HasMany { get; set; }
+
+        /// <summary>
+        /// 并集操作，翻译成 UNION ALL
+        /// </summary>
+        List<IDbQueryableInfo_Select> Unions { get; set; }
+
+        /// <summary>
+        /// 子查询
+        /// </summary>
+        IDbQueryableInfo_Select Subquery { get; set; }
     }
 }

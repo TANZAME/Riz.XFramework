@@ -33,16 +33,16 @@ namespace TZM.XFramework.Data
 
         // FROM 和 JOIN 表达式总数
         // 在这个计数的基础上再分配导航属性关联的表别名
-        private int _declared = 0;
+        private int _holdQty = 0;
         // 别名前缀
-        private string _aliasName = null;
+        private string _aliasPrefix = null;
 
         /// <summary>
         /// FROM和JOIN子句显式指定的别名数量
         /// </summary>
-        public int Declared
+        public int HoldQty
         {
-            get { return _declared; }
+            get { return _holdQty; }
         }
 
         /// <summary>
@@ -66,11 +66,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="TableAliasCache"/> 类的新实例
         /// </summary>
-        /// <param name="aliasName">显式指定别名，用于内嵌的 exists 解析</param>
-        public TableAliasCache(int declared, string aliasName)
+        /// <param name="holdQty">FROM 和 JOIN 子句显式指定的别名数量</param>
+        /// <param name="aliasPrefix">显式指定别名，用于内嵌的 exists 解析</param>
+        public TableAliasCache(int holdQty, string aliasPrefix)
         {
-            _declared = declared;
-            _aliasName = aliasName;
+            _holdQty = holdQty;
+            _aliasPrefix = aliasPrefix;
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace TZM.XFramework.Data
         /// <param name="key">键值</param>
         public string GetTableAlias(string key)
         {
-            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasName) ? _aliasName : "t") + this._aliases.Count.ToString()) : "XFramework";
+            return !string.IsNullOrEmpty(key) ? this._aliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + this._aliases.Count.ToString()) : "XFramework";
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace TZM.XFramework.Data
         public string GetNavigationTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
-            return this._navigationAliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasName) ? _aliasName : "t") + (this._navigationAliases.Count + _declared).ToString());
+            return this._navigationAliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + (this._navigationAliases.Count + _holdQty).ToString());
         }
 
         /// <summary>

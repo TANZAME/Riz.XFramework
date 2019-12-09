@@ -45,9 +45,10 @@
     <DefineConstants>TRACE;DEBUG;net45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1701;1702;0472</NoWarn>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\TZM.XFramework.UnitTest.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,7 +57,8 @@
     <DefineConstants>DEBUG;TRACE;net45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1701;1702;0472</NoWarn>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+    <DocumentationFile>bin\Release\TZM.XFramework.UnitTest.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -145,8 +147,10 @@
     <Content Include="MySql\sySys_Initialize.sql" />
     <Content Include="MySql\MySqlModel.sql" />
     <Content Include="Oracle\OracleModel.sql" />
+    <Content Include="Oracle\OracleModel2.sql" />
     <Content Include="Oracle\spSys_DropIfExists.sql" />
     <Content Include="Postgre\PostgreModel.sql" />
+    <Content Include="Postgre\PostgreModel2.sql" />
     <Content Include="SQLite\TZM_XFramework.db" />
     <Content Include="SQLite\SQLiteModel.sql" />
     <Content Include="SqlServer\SqlServerModel.sql" />

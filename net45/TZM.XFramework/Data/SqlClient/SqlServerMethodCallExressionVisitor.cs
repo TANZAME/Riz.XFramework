@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data.SqlClient
     /// <summary>
     /// <see cref="SqlServerMethodCallExressionVisitor"/> 表达式访问器
     /// </summary>
-    public class SqlServerMethodCallExressionVisitor : MethodCallExpressionVisitor
+    internal class SqlServerMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
@@ -31,6 +31,8 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
+        /// <param name="provider">查询语义提供者</param>
+        /// <param name="visitor">表达式访问器</param>
         public SqlServerMethodCallExressionVisitor(IDbQueryProvider provider, ExpressionVisitorBase visitor)
             : base(provider, visitor)
         {

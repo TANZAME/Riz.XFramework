@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
     internal sealed partial class SQLiteDatabase : Database
     {
         static FieldInfo _disposed = typeof(SQLiteConnection).GetField("disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-        static MemberInvokerBase _disposedInvoker = new FieldInvoker(_disposed);
+        static MemberAccessorBase _disposedAccessor = new FieldAccessor(_disposed);
 
         /// <summary>
         /// 实体转换映射委托生成器
@@ -25,7 +25,7 @@ namespace TZM.XFramework.Data
         public override TypeDeserializerImpl TypeDeserializerImpl { get { return SQLiteDeserializerImpl.Instance; } }
 
         /// <summary>
-        /// 初始化 <see cref="OracleDatabase"/> 类的新实例
+        /// 初始化 <see cref="SQLiteDatabase"/> 类的新实例
         /// </summary>
         /// <param name="providerFactory">数据源提供者</param>
         /// <param name="connectionString">数据库连接字符串</param>
@@ -37,6 +37,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 强制释放所有资源
         /// </summary>
+        /// <param name="disposing">指示释放资源</param>
         protected override void Dispose(bool disposing)
         {
             // SQLiteConnection 连续调用 Dispose 方法会抛异常
@@ -44,7 +45,7 @@ namespace TZM.XFramework.Data
             if (connection == null) base.Dispose(disposing);
             else
             {
-                bool disposed = (bool)_disposedInvoker.Invoke(connection);
+                bool disposed = (bool)_disposedAccessor.Invoke(connection);
                 base.Dispose(!disposed);
             }
         }
