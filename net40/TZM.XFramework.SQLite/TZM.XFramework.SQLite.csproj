@@ -81,7 +81,9 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\TypeDeserialize\SQLiteDeserializerImpl.cs">
       <Link>Data\TypeDeserialize\SQLiteDeserializerImpl.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TZM.XFramework\TZM.XFramework.csproj">

@@ -123,7 +123,7 @@ namespace TZM.XFramework.Data
             else
                 _builder.Append("WHERE ");
 
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_dbQuery.Entity != null ? _dbQuery.Entity.GetType() : _dbQuery.Query.PickType);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_dbQuery.Entity != null ? _dbQuery.Entity.GetType() : _dbQuery.Query.FromType);
             foreach (var m in typeRuntime.KeyMembers)
             {
                 _builder.AppendMember("s0", m.Name);

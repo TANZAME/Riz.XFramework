@@ -334,7 +334,7 @@ namespace TZM.XFramework.Data
             try
             {
                 this.Database.Execute<object>(sqlList, doExecute);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -380,7 +380,7 @@ namespace TZM.XFramework.Data
                 };
 
                 await this.Database.ExecuteAsync<object>(sqlList, func);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -438,7 +438,7 @@ namespace TZM.XFramework.Data
             {
                 this.Database.Execute<object>(sqlList, doExecute);
                 result = q1 ?? new List<T>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -525,7 +525,7 @@ namespace TZM.XFramework.Data
                 this.Database.Execute<object>(sqlList, doExecute);
                 result1 = q1 ?? new List<T1>(0);
                 result2 = q2 ?? new List<T2>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -570,7 +570,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="dbQueryables">查询语义集合</param>
         /// <param name="identitys">自动ID</param>
-        protected virtual void SetAutoIncrementValue(List<object> dbQueryables, List<int> identitys)
+        protected virtual void SetIdentityValue(List<object> dbQueryables, List<int> identitys)
         {
             if (identitys == null || identitys.Count == 0) return;
 

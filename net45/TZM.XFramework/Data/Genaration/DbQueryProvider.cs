@@ -84,19 +84,19 @@ namespace TZM.XFramework.Data
             if (token.DbContext == null) token.DbContext = dbQuery.DbContext;
 
             // 解析查询语义
-            IDbQueryableInfo result = DbQueryParser.Parse(dbQuery);
+            IDbQueryableInfo result = DbQueryParser.Parse<T>(dbQuery);
             // 查询
             var result_Query = result as IDbQueryableInfo_Select;
             if (result_Query != null) return this.ResolveSelectCommand(result_Query, indent, isOuter, token);
             // 新增
             var result_Insert = result as IDbQueryableInfo_Insert;
-            if (result_Insert != null) return this.ResolveInsertCommand(result_Insert, token);
+            if (result_Insert != null) return this.ResolveInsertCommand<T>(result_Insert, token);
             // 更新
             var result_Update = result as IDbQueryableInfo_Update;
-            if (result_Update != null) return this.ResolveUpdateCommand(result_Update, token);
+            if (result_Update != null) return this.ResolveUpdateCommand<T>(result_Update, token);
             // 删除
             var result_Delete = result as IDbQueryableInfo_Delete;
-            if (result_Delete != null) return this.ResolveDeleteCommand(result_Delete, token);
+            if (result_Delete != null) return this.ResolveDeleteCommand<T>(result_Delete, token);
 
             throw new NotImplementedException();
         }
@@ -207,7 +207,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveInsertCommand(IDbQueryableInfo_Insert dbQuery, ResolveToken token);
+        protected abstract Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token);
 
         /// <summary>
         /// 创建 DELETE 命令
@@ -215,7 +215,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveDeleteCommand(IDbQueryableInfo_Delete dbQuery, ResolveToken token);
+        protected abstract Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token);
 
         /// <summary>
         /// 创建 UPDATE 命令
@@ -223,7 +223,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveUpdateCommand(IDbQueryableInfo_Update dbQuery, ResolveToken token);
+        protected abstract Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token);
 
         /// <summary>
         /// 生成关联子句所表示的别名列表

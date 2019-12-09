@@ -117,7 +117,7 @@ namespace TZM.XFramework.Data.SqlClient
             try
             {
                 this.Database.Execute<object>(sqlList, doExecute);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -178,7 +178,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 this.Database.Execute<object>(sqlList, doExecute);
                 result = q1 ?? new List<T>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -275,7 +275,7 @@ namespace TZM.XFramework.Data.SqlClient
                 this.Database.Execute<object>(sqlList, doExecute);
                 result1 = q1 ?? new List<T1>(0);
                 result2 = q2 ?? new List<T2>(0);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally
@@ -324,7 +324,7 @@ namespace TZM.XFramework.Data.SqlClient
                 };
 
                 await this.Database.ExecuteAsync<object>(sqlList, func);
-                this.SetAutoIncrementValue(_dbQueryables, identitys);
+                this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
             finally

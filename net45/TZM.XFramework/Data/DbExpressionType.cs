@@ -179,6 +179,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 通过使用默认的相等比较器确定序列是否包含指定的元素
         /// </summary>
-        Contains
+        Contains,
+
+        /// <summary>
+        /// 分组聚合中的 HAVING 子查询
+        /// </summary>
+        Having
     }
 }

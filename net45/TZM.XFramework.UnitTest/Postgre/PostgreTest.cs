@@ -20,7 +20,8 @@ namespace TZM.XFramework.UnitTest.Postgre
             // new NpgDbContext();
             var context = new NpgDbContext(connString)
             {
-                IsDebug = base.IsDebug
+                IsDebug = base.IsDebug,
+                CaseSensitive = base.CaseSensitive
             };
             return context;
         }

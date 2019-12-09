@@ -20,7 +20,7 @@ namespace TZM.XFramework.Data
             this.HasMany = source.HasMany;
             this.Skip = source.Skip;
             this.Take = source.Take;
-            this.PickType = source.PickType;
+            this.FromType = source.FromType;
             this.Select = source.Select;
             this.Where = source.Where;
             this.Having = source.Having;

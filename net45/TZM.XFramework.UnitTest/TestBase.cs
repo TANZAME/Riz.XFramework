@@ -22,6 +22,11 @@ namespace TZM.XFramework.UnitTest
         /// </summary>
         public bool IsDebug { get; set; }
 
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        public bool CaseSensitive { get; set; }
+
         public TestBase()
         {
             _newContext = this.CreateDbContext;
@@ -127,7 +132,7 @@ namespace TZM.XFramework.UnitTest
             //WHERE t0.[DemoId] <= 10
 
             var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
-            result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
+            if (!this.CaseSensitive) result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
@@ -2453,8 +2458,11 @@ namespace TZM.XFramework.UnitTest
                 }, x => x.ClientId == result.ClientId);
                 result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
-                context.AddQuery(@"UPDATE Bas_Client SET ClientName = {0} WHERE ClientID={1}; UPDATE Bas_Client SET ClientName = {2} WHERE ClientID={3};",
-                    "事务4", 4, "事务5", 5);
+                if (!this.CaseSensitive)
+                {
+                    context.AddQuery(@"UPDATE Bas_Client SET ClientName = {0} WHERE ClientID={1}; UPDATE Bas_Client SET ClientName = {2} WHERE ClientID={3};",
+                       "事务4", 4, "事务5", 5);
+                }
                 context.SubmitChanges();
 
 
@@ -2548,6 +2556,11 @@ namespace TZM.XFramework.UnitTest
         /// 调式模式，调式模式下产生的SQL会换行
         /// </summary>
         bool IsDebug { get; set; }
+
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        bool CaseSensitive { get; set; }
 
         /// <summary>
         /// 运行测试

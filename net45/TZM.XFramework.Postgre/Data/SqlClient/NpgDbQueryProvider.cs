@@ -247,7 +247,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.PickType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.FromType);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias0);
@@ -369,11 +369,12 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveInsertCommand(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
+        protected override Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             TableAliasCache aliases = new TableAliasCache();
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            var caseSensitive = token != null && token.DbContext != null ? ((NpgDbContext)token.DbContext).CaseSensitive : false;
 
             if (dbQuery.Entity != null)
             {
@@ -443,7 +444,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendNewLine();
 
                     // sequence，命名原则是 tablename_columnname_seq.
-                    builder.AppendFormat("SELECT CURRVAL('{0}_{1}_seq')", typeRuntime.TableName, typeRuntime.Identity.Member.Name);
+                    builder.AppendFormat("SELECT CURRVAL('{2}{0}_{1}_seq{2}')", typeRuntime.TableName, typeRuntime.Identity.Member.Name, caseSensitive ? "\"" : string.Empty);
                     builder.Append(" AS ");
                     builder.Append(this.QuotePrefix);
                     builder.Append(Constant.AUTOINCREMENTNAME);
@@ -481,10 +482,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveDeleteCommand(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
+        protected override Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("DELETE FROM ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -537,10 +538,10 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveUpdateCommand(IDbQueryableInfo_Update dbQuery, ResolveToken token)
+        protected override Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(dbQuery.Entity != null ? dbQuery.Entity.GetType() : dbQuery.Query.PickType);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("UPDATE ");
             builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);

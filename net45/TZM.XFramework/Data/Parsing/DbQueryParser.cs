@@ -27,7 +27,7 @@ namespace TZM.XFramework.Data
             // 3、uion 分页查询也使嵌套语义
             // 4、uion 后面跟着 WHERE,GROUP BY,SELECT,JOIN语句时需要使用嵌套查询
 
-            Type type = null;
+            Type fromType = null;
             bool isDistinct = false;
             bool isAny = false;
             bool subQuery = false;
@@ -95,7 +95,7 @@ namespace TZM.XFramework.Data
                         continue;
 
                     case DbExpressionType.GetTable:
-                        type = (item.Expressions[0] as ConstantExpression).Value as Type;
+                        fromType = (item.Expressions[0] as ConstantExpression).Value as Type;
                         continue;
 
                     case DbExpressionType.Average:
@@ -184,11 +184,11 @@ namespace TZM.XFramework.Data
             }
 
             // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关聚合函数，则默认选择 FromEntityType 的所有字段
-            bool pickAllColumns = insert == null && delete == null && update == null && select == null && aggregate == null;
-            if (pickAllColumns) select = Expression.Constant(type ?? typeof(TElement));
+            bool @zero = insert == null && delete == null && update == null && select == null && aggregate == null;
+            if (@zero) select = Expression.Constant(fromType ?? typeof(TElement));
 
             IDbQueryableInfo_Select result_Query = new DbQueryableInfo_Select();
-            result_Query.PickType = type;
+            result_Query.FromType = fromType;
             result_Query.HasDistinct = isDistinct;
             result_Query.HasAny = isAny;
             result_Query.Joins = joins;
@@ -201,7 +201,7 @@ namespace TZM.XFramework.Data
             result_Query.Take = take != null ? take.Value : 0;
             result_Query.Select = new DbExpression(DbExpressionType.Select, select);
             result_Query.Where = new DbExpression(DbExpressionType.Where, CombineCondition(conditions));
-            result_Query.Having = new DbExpression(DbExpressionType.None, CombineCondition(havings));
+            result_Query.Having = new DbExpression(DbExpressionType.Having, CombineCondition(havings));
 
             #region 更新语义
 
@@ -333,7 +333,7 @@ namespace TZM.XFramework.Data
 
             Expression select = dbQuery.Select.Expressions[0];
             List<DbExpression> includes = dbQuery.Includes;
-            Type pickType = dbQuery.PickType;
+            Type fromType = dbQuery.FromType;
 
             // 解析导航属性 如果有 1:n 的导航属性，那么查询的结果集的主记录将会有重复记录
             // 这时就需要使用嵌套语义，先查主记录，再关联导航记录
@@ -367,7 +367,7 @@ namespace TZM.XFramework.Data
                 dbQuery.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQueryableInfo_Select();
-                result_Query.PickType = pickType;
+                result_Query.FromType = fromType;
                 result_Query.Subquery = dbQuery;
                 result_Query.Joins = new List<DbExpression>(0);
                 result_Query.OrderBys = new List<DbExpression>(0);
