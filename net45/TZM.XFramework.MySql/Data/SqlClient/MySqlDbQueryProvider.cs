@@ -9,9 +9,8 @@ using MySql.Data.MySqlClient;
 namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// 数据查询提供者
+    /// MYSQL 数据查询提供者
     /// </summary>
-    /// <remarks>
     public sealed class MySqlDbQueryProvider : DbQueryProvider
     {
         /// <summary>
@@ -128,12 +127,6 @@ namespace TZM.XFramework.Data.SqlClient
             return cmd;
         }
 
-        /// <summary>
-        /// 创建 INSRT 命令
-        /// </summary>
-        /// <param name="dbQuery">查询语义</param>
-        /// <param name="token">解析上下文</param>
-        /// <returns></returns>
         Command ResolveSelectCommandImpl(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
@@ -446,7 +439,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 创建 DELETE 命令
+        /// 创建 INSERT 命令
         /// </summary>
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
@@ -552,7 +545,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 创建 UPDATE 命令
+        /// 创建 DELETE 命令
         /// </summary>
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
@@ -614,7 +607,7 @@ namespace TZM.XFramework.Data.SqlClient
         }
 
         /// <summary>
-        /// 生成关联子句所表示的别名列表
+        /// 创建 UPDATE 命令
         /// </summary>
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>

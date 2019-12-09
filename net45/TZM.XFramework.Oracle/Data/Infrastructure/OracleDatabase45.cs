@@ -101,6 +101,7 @@ namespace TZM.XFramework.Data
         /// <typeparam name="T6">第六个列表的元素类型</typeparam>
         /// <typeparam name="T7">第七个列表的元素类型</typeparam>
         /// <param name="command">SQL 命令</param>
+        /// <param name="maps">实体映射描述集合</param>
         protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             List<T1> q1 = null;
@@ -227,6 +228,7 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
+        /// <param name="useSeperate">使用分隔符</param>
         /// <returns></returns>
         async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList, bool useSeperate)
         {

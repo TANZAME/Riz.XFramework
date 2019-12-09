@@ -25,7 +25,8 @@
     <DefineConstants>TRACE;DEBUG;net40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>0108,1591,1571,1572,1573,1574,1587,1711</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <DocumentationFile>bin\Debug\TZM.XFramework.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

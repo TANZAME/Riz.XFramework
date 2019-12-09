@@ -19,10 +19,15 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
+    <OutputPath>bin\Debug\netcoreapp3.1</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.Oracle.xml</DocumentationFile>
+    <NoWarn />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
+    <OutputPath>bin\Release\netcoreapp3.1\</OutputPath>
+    <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.Oracle.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

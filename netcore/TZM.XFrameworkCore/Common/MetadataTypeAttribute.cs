@@ -5,7 +5,7 @@ using System.Text;
 namespace TZM.XFramework
 {
     /// <summary>
-    /// <summary>Specifies the metadata class to associate with a data model class.
+    /// 元数据类型
     /// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class MetadataTypeAttribute : Attribute
@@ -24,6 +24,10 @@ namespace TZM.XFramework
             }
         }
 
+        /// <summary>
+        /// 实例化 <see cref="MetadataTypeAttribute"/> 类的新实例
+        /// </summary>
+        /// <param name="metadataClassType">需要指定元数据的类型</param>
         public MetadataTypeAttribute(Type metadataClassType)
         {
             this._metadataClassType = metadataClassType;

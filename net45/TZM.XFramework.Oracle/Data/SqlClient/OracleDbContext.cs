@@ -193,7 +193,8 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <typeparam name="T1">T</typeparam>
         /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">提交更改并查询数据</param>
+        /// <param name="result1">结果集合</param>
+        /// <param name="result2">结果集合</param>
         /// <returns></returns>
         public override int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {

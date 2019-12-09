@@ -273,7 +273,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Concat 方法
         /// </summary>
-        /// <param name="m">二元表达式</param>
+        /// <param name="b">二元表达式</param>
         protected override Expression VisitConcat(BinaryExpression b)
         {
             _builder.Append("CONCAT(");
@@ -396,7 +396,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
-        /// <param name="m">方法表达式</param>
+        /// <param name="b">方法表达式</param>
         protected override Expression VisitAtan2(MethodCallExpression b)
         {
             _builder.Append("ATAN2(");

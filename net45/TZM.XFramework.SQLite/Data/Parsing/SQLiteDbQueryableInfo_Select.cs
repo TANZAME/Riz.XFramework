@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     internal class SQLiteDbQueryableInfo_Select : DbQueryableInfo_Select, IWidthRowId
     {
         /// <summary>
-        /// 初始化 <see cref="OracleDbQueryableInfo_Select"/> 类的新实例
+        /// 初始化 <see cref="SQLiteDbQueryableInfo_Select"/> 类的新实例
         /// </summary>
         public SQLiteDbQueryableInfo_Select(IDbQueryableInfo_Select source)
             : base()

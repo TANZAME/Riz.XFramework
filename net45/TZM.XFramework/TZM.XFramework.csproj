@@ -25,16 +25,18 @@
     <DefineConstants>TRACE;DEBUG;net45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>0108,1591,1571,1572,1573,1574,1587,1711</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <DocumentationFile>bin\Debug\TZM.XFramework.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;net45</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;net45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\TZM.XFramework.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

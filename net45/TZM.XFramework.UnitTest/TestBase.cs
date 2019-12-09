@@ -2530,13 +2530,18 @@ namespace TZM.XFramework.UnitTest
             //Console.ReadLine();
         }
 
-        // 有参构造函数查询
+        /// <summary>
+        /// 有参构造函数查询
+        /// </summary>
         protected virtual void Parameterized()
         {
 
         }
     }
 
+    /// <summary>
+    /// 测试接口
+    /// </summary>
     public interface ITest
     {
         /// <summary>
@@ -2544,6 +2549,10 @@ namespace TZM.XFramework.UnitTest
         /// </summary>
         bool IsDebug { get; set; }
 
+        /// <summary>
+        /// 运行测试
+        /// </summary>
+        /// <param name="dbType"></param>
         void Run(DatabaseType dbType);
     }
 }

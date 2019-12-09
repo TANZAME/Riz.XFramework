@@ -40,7 +40,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 写入SQL片断
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
+        /// <param name="cmd">SQL 命令</param>
         public void Write(NpgMapperCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;

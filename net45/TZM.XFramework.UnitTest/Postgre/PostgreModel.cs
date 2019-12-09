@@ -89,7 +89,7 @@ namespace TZM.XFramework.UnitTest.Postgre
 
 #if netcore
             
-            // <summary>
+            /// <summary>
             /// demolong_nullable
             /// </summary>
             [Column(DbType = NpgsqlDbType.TimestampTz, Scale = 6)]

@@ -395,7 +395,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Truncate 方法
         /// </summary>
-        /// <param name="m">方法表达式</param>
+        /// <param name="b">方法表达式</param>
         protected override Expression VisitTruncate(MethodCallExpression b)
         {
             _builder.Append("TRUNC(");
@@ -455,7 +455,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <summary>
         /// 访问 Math.Atan2 方法
         /// </summary>
-        /// <param name="m">方法表达式</param>
+        /// <param name="b">方法表达式</param>
         protected override Expression VisitAtan2(MethodCallExpression b)
         {
             _builder.Append("ATAN2(");

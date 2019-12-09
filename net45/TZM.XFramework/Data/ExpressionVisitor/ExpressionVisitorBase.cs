@@ -118,7 +118,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问二元表达式
         /// </summary>
-        /// <param name="node">二元表达式</param>
+        /// <param name="b">二元表达式</param>
         /// <returns></returns>
         protected virtual Expression VisitBinaryImpl(BinaryExpression b)
         {
