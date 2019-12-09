@@ -20,13 +20,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn></NoWarn>
     <DefineConstants>TRACE;netcore</DefineConstants>
-    <OutputPath>bin\Debug\netcoreapp3.1</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.Postgre.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
-    <OutputPath>bin\Release\netcoreapp3.1\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.Postgre.xml</DocumentationFile>
   </PropertyGroup>
 
