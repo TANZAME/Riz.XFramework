@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>
     </NoWarn>
+    <DocumentationFile>bin\Debug\TZM.XFramework.SQLite.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

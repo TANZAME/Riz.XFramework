@@ -48,6 +48,7 @@
     <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\TZM.XFramework.UnitTest.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
