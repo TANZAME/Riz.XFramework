@@ -81,7 +81,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 其它类型转字符串
             bool isDate =
                 node.Type == typeof(TimeSpan) ||
-                node.Type == typeof(TimeSpan?) ||
+                node.Type == typeof(TimeSpan?) || 
                 node.Type == typeof(DateTime) ||
                 node.Type == typeof(DateTime?) ||
                 node.Type == typeof(DateTimeOffset) ||
@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _builder.Append("(");
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    this.VisitToStringImpl(expressions[i]);
+                    _visitor.VisitWithoutRemark(x => this.VisitToStringImpl(expressions[i]));
                     if (i < expressions.Count - 1) _builder.Append(" || ");
                 }
                 _builder.Append(")");
@@ -641,7 +641,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 毫秒
             _builder.Append("DATE_PART('MICROSECOND', ");
             _visitor.Visit(m.Expression);
-            _builder.Append(") * 10)::BIGINT + 621355968000000000::BIGINT)");
+            _builder.Append(") * 10)::BIGINT + 621355968000000000::BIGINT)"); 
 
             return m;
         }

@@ -45,7 +45,7 @@ namespace TZM.XFramework.Data
             ReadOnlyCollection<Expression> arguments = node.Arguments;
             for (int index = 0; index < arguments.Count; ++index)
             {
-                this.Visit(arguments[index]);
+                this.VisitWithoutRemark(x => this.Visit(arguments[index]));
                 if (index < arguments.Count - 1) _builder.Append(",");
             }
 

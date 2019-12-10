@@ -163,7 +163,7 @@ namespace TZM.XFramework.Data
                 if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _aliases.GetTableAlias(lambda.Body), node);
                 else
                 {
-                    var newNode = base.VisitLambda(node);
+                    var newNode = this.VisitWithoutRemark(x => base.VisitLambda(node));
                     string newName = _pickColumns.Add((lambda.Body as MemberExpression).Member.Name);
                     return newNode;
                 }
@@ -203,7 +203,7 @@ namespace TZM.XFramework.Data
                     if (b.Expression.CanEvaluate())
                         _builder.Append(b.Expression.Evaluate().Value, b.Member, node.Type);
                     else
-                        this.VisitMemberBinding(b);
+                        this.VisitWithoutRemark(x => this.VisitMemberBinding(b));
 
                     // 选择字段
                     this.AddPickColumn(b.Member.Name);

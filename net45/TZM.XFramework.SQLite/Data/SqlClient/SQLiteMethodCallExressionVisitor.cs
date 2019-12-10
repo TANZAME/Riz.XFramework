@@ -321,7 +321,7 @@ namespace TZM.XFramework.Data.SqlClient
                 _builder.Append("(");
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    this.VisitToStringImpl(expressions[i]);
+                    _visitor.VisitWithoutRemark(x => this.VisitToStringImpl(expressions[i]));
                     if (i < expressions.Count - 1) _builder.Append(" || ");
                 }
                 _builder.Append(")");

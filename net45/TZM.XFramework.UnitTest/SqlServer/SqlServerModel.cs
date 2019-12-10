@@ -47,42 +47,6 @@ namespace TZM.XFramework.UnitTest.SqlServer
             public virtual string DemoNText_Nullable { get; set; }
 
             /// <summary>
-            /// demodate
-            /// </summary>
-            [Column(DbType = System.Data.SqlDbType.Date)]
-            public override DateTime DemoDate { get; set; }
-
-            /// <summary>
-            /// demodate_nullable
-            /// </summary>
-            [Column(DbType = System.Data.SqlDbType.Date)]
-            public override Nullable<DateTime> DemoDate_Nullable { get; set; }
-
-            /// <summary>
-            /// demodatetime
-            /// </summary>
-            [Column(DbType = System.Data.SqlDbType.DateTime)]
-            public override DateTime DemoDateTime { get; set; }
-
-            /// <summary>
-            /// demodatetime_nullable
-            /// </summary>
-            [Column(DbType = System.Data.SqlDbType.DateTime)]
-            public override Nullable<DateTime> DemoDateTime_Nullable { get; set; }
-
-            /// <summary>
-            /// demodatetime2
-            /// </summary>   
-            [Column(DbType = System.Data.SqlDbType.DateTime2, Scale = 7)]
-            public override DateTime DemoDateTime2 { get; set; }
-
-            /// <summary>
-            /// demodatetime2_nullable
-            /// </summary>
-            [Column(DbType = System.Data.SqlDbType.DateTime2, Scale = 7)]
-            public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
-
-            /// <summary>
             /// demolong_nullable
             /// </summary>
             [Column(DbType = System.Data.SqlDbType.Time, Scale = 6)]

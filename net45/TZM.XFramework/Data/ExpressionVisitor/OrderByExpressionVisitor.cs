@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
 
                 for (int i = 0; i < _orderBy.Count; i++)
                 {
-                    this.Visit(_orderBy[i].Expressions[0]);
+                    this.VisitWithoutRemark(x => this.Visit(_orderBy[i].Expressions[0]));
                     if (_orderBy[i].DbExpressionType == DbExpressionType.OrderByDescending || _orderBy[i].DbExpressionType == DbExpressionType.ThenByDescending)
                     {
                         builder.Append(" DESC");
