@@ -15,7 +15,7 @@ namespace TZM.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            bool isDebug = false;
+            bool isDebug = true;
             bool caseSensitive = true;
             ITest test = null;
             string fileName = string.Empty;
