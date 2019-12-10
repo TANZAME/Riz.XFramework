@@ -125,19 +125,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 访问二元表达式
         /// </summary>
-        /// <param name="node">二元表达式</param>
-        /// <returns></returns>
-        protected override Expression VisitBinary(BinaryExpression node)
-        {
-            return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
-        }
-
-        /// <summary>
-        /// 访问二元表达式
-        /// </summary>
         /// <param name="b">二元表达式</param>
         /// <returns></returns>
-        protected virtual Expression VisitBinaryImpl(BinaryExpression b)
+        protected override Expression VisitBinary(BinaryExpression b)
         {
             if (b == null) return b;
 
@@ -284,30 +274,6 @@ namespace TZM.XFramework.Data
         protected override Expression VisitUnary(UnaryExpression u)
         {
             return _methodVisitor.Visit(u, MethodCall.Unary);
-        }
-
-        /// <summary>
-        /// 访问表达式树后自动删掉访问的成员痕迹
-        /// </summary>
-        /// <param name="visit">访问委托</param>
-        protected void VisitWithoutRemark(Action<object> visit)
-        {
-            int visitedQty = _visitedMark.Count;
-            visit(null);
-            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
-        }
-
-        /// <summary>
-        /// 访问表达式树后自动删掉访问的成员痕迹
-        /// </summary>
-        /// <param name="visit">访问实现</param>
-        /// <returns></returns>
-        public Expression VisitWithoutRemark(Func<object, Expression> visit)
-        {
-            int visitedQty = _visitedMark.Count;
-            var newNode = visit(null);
-            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
-            return newNode;
         }
 
         #endregion

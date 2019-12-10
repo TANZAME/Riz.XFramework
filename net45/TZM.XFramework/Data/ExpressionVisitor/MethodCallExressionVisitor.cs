@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
-        private static HashSet<string> _removeVisitedMethods = null;
+        //private static HashSet<string> _removeVisitedMethods = null;
 
         /// <summary>
         /// Not 运算符的方法
@@ -32,19 +32,19 @@ namespace TZM.XFramework.Data
 
         #region 构造函数
 
-        static MethodCallExpressionVisitor()
-        {
-            // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
-            _removeVisitedMethods = new HashSet<string>
-            {
-                "ToString",
-                "Contains",
-                "StartsWith",
-                "EndsWith",
-                "IsNullOrEmpty",
-                "IndexOf"
-            };
-        }
+        //static MethodCallExpressionVisitor()
+        //{
+        //    // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
+        //    _removeVisitedMethods = new HashSet<string>
+        //    {
+        //        "ToString",
+        //        "Contains",
+        //        "StartsWith",
+        //        "EndsWith",
+        //        "IsNullOrEmpty",
+        //        "IndexOf"
+        //    };
+        //}
 
         /// <summary>
         /// 实例化 <see cref="MethodCallExpressionVisitor"/> 类的新实例
@@ -72,7 +72,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Expression Visit(Expression node, MethodCall router)
         {
-            int visitedQty = _visitedMark.Count;
+            //int visitedQty = _visitedMark.Count;
             Expression newNode = null;
 
             if (router == MethodCall.Coalesce)
@@ -88,18 +88,18 @@ namespace TZM.XFramework.Data
             else if (router == MethodCall.Unary)
                 newNode = this.VisitUnary((UnaryExpression)node);
 
-            // 自身已构成布尔表达式的则需要删除它本身所产生的访问链
-            if (_visitedMark.Count != visitedQty)
-            {
-                bool b = router != MethodCall.Unary;
-                if (b && router == MethodCall.MethodCall)
-                {
-                    var m = (MethodCallExpression)node;
-                    b = _removeVisitedMethods.Contains(m.Method.Name);
-                }
+            //// 自身已构成布尔表达式的则需要删除它本身所产生的访问链
+            //if (_visitedMark.Count != visitedQty)
+            //{
+            //    bool b = router != MethodCall.Unary;
+            //    if (b && router == MethodCall.MethodCall)
+            //    {
+            //        var m = (MethodCallExpression)node;
+            //        b = _removeVisitedMethods.Contains(m.Method.Name);
+            //    }
 
-                if (b) _visitedMark.Remove(_visitedMark.Count - visitedQty);
-            }
+            //    if (b) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            //}
             return newNode;
         }
 
@@ -456,7 +456,7 @@ namespace TZM.XFramework.Data
                 _builder.Append("(");
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    _visitor.VisitWithoutRemark(x => this.VisitToStringImpl(expressions[i]));
+                    this.VisitToStringImpl(expressions[i]);
                     if (i < expressions.Count - 1) _builder.Append(" + ");
                 }
                 _builder.Append(")");

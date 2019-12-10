@@ -42,7 +42,7 @@ namespace TZM.XFramework.Data
                 if (member.Expression.CanEvaluate())
                     _builder.Append(member.Expression.Evaluate().Value, member.Member, node.Type);
                 else
-                    this.VisitWithoutRemark(x => base.Visit(member.Expression));
+                    base.Visit(member.Expression);
 
                 if (index < node.Bindings.Count - 1)
                 {
