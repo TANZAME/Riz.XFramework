@@ -106,23 +106,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将表达式调度到此类中更专用的访问方法之一
-        /// </summary>
-        /// <param name="node">要访问的表达式</param>
-        /// <returns>如果修改了该表达式或任何子表达式，则为修改后的表达式；否则返回原始表达式</returns>
-        public override Expression Visit(Expression node)
-        {
-            if (node.NodeType == ExpressionType.MemberAccess) return base.Visit(node);
-            else
-            {
-                int visitedQty = _visitedMark.Count;
-                var newNode = base.Visit(node);
-                if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
-                return newNode;
-            }
-        }
-
-        /// <summary>
         /// 访问二元表达式
         /// </summary>
         /// <param name="b">二元表达式</param>

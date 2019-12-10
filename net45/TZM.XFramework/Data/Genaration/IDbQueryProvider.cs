@@ -78,7 +78,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
-        /// <param name="visitor">表达式解析器（装饰）</param>
         /// <returns></returns>
         MethodCallExpressionVisitor CreateMethodVisitor(ExpressionVisitorBase visitor);
     }
