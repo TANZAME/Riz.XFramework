@@ -179,15 +179,16 @@ namespace TZM.XFramework.UnitTest
                 .Where(a => a.DemoCode != a.DemoId.ToString() && a.DemoName != a.DemoId.ToString() && a.DemoChar == (a.DemoId == 0 ? 'A' : 'A') && a.DemoNChar == 'B')
                 .Select(a => new TDemo
                 {
+                    DemoDate = a.DemoDateTime2_Nullable.Value,
                     DemoId = a.DemoId,
                     DemoCode = a.DemoName == "张三" ? "李四" : "王五",
                     DemoName = a.DemoCode == "张三" ? "李四" : "王五",
                     DemoChar = 'A',
                     DemoNChar = 'B',
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,
-                    DemoDate = sDate,
+                    //DemoDate = sDate,
                     DemoDateTime = sDate,
-                    DemoDateTime2 = sDate
+                    DemoDateTime2 = sDate,
                 });
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.ToString());
