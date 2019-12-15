@@ -19,6 +19,7 @@ namespace TZM.XFramework
         private static Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);
         private static Func<string, bool> _isAnonymous = name => !string.IsNullOrEmpty(name) && name.StartsWith(_anonymousName, StringComparison.Ordinal);
         private static MethodInfo _collectionItem = typeof(List<int>).GetMethod("get_Item");
+        private static MethodInfo _getListItem = typeof(List<>).GetMethod("get_Item");
 
         /// <summary>
         /// 返回真表达式
@@ -127,8 +128,8 @@ namespace TZM.XFramework
         public static bool IsGetListItem(this MethodCallExpression node)
         {
             if (node == null) return false;
-            Expression objExpression = node.Object;
-            bool result = objExpression != null && Data.TypeUtils.IsCollectionType(objExpression.Type) && node.Method.Name == "get_Item";
+            Expression expression = node.Object;
+            bool result = expression != null && Data.TypeUtils.IsCollectionType(expression.Type) && node.Method.Name == "get_Item";
             return result;
         }
 
