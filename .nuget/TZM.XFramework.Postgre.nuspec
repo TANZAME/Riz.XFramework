@@ -16,6 +16,8 @@
 	<dependencies>
         <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
         <dependency id="Npgsql" version="2.2.3" exclude="Build,Analyzers" />
+        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
 </package>

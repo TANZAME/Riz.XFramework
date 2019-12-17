@@ -18,8 +18,8 @@
     </dependencies>
     <references>
       <group targetFramework=".NETFramework4.5">
-        <reference file="TZM.XFramework.Oracle.dll" />
-        <reference file="Oracle.ManagedDataAccess.dll" />
+        <dependency id="Oracle.ManagedDataAccess" version="19.3.0" exclude="Build,Analyzers" />
+        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
       </group>
     </references>
   </metadata>

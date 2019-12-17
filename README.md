@@ -1,7 +1,7 @@
 # TZM.XFramework
 
 #### 介绍
-一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式、聚合查询等等。
+一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。
 支持版本：.Net4.0 .Net4.5+ .Net Core3.0。
 
 #### 亮点
@@ -38,7 +38,7 @@ SQLite    => TZM.XFramework.SQLite
 SqlServer => TZM.XFrameworkCore
 MySql     => TZM.XFrameworkCore.MySql
 Oracle    => TZM.XFrameworkCore.Oracle
-SQLite    => TZM.XFrameworkCore.SQLite
+Postgre   => TZM.XFrameworkCore.Postgre
 ```
 - ###### 实体定义
 
