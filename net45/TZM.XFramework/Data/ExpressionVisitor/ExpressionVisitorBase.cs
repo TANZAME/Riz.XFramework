@@ -106,34 +106,21 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将表达式调度到此类中更专用的访问方法之一
+        /// 访问二元表达式
         /// </summary>
-        /// <param name="node">要访问的表达式</param>
+        /// <param name="node">二元表达式</param>
         /// <returns></returns>
-        public override Expression Visit(Expression node)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (node.NodeType == ExpressionType.MemberAccess) 
-                return base.Visit(node);
-            else
-                return this.VisitNoRemark(x => base.Visit(node));
+            return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
         }
-
-        ///// <summary>
-        ///// 访问二元表达式
-        ///// </summary>
-        ///// <param name="node">二元表达式</param>
-        ///// <returns></returns>
-        //protected override Expression VisitBinary(BinaryExpression node)
-        //{
-        //    return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
-        //}
 
         /// <summary>
         /// 访问二元表达式
         /// </summary>
         /// <param name="b">二元表达式</param>
         /// <returns></returns>
-        protected override Expression VisitBinary(BinaryExpression b)
+        protected virtual Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
 
@@ -246,16 +233,16 @@ namespace TZM.XFramework.Data
             if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
             // => a.Accounts[0].Markets[0].MarketId
             // => b.Client.Address.AddressName
-            Expression expression = node.Expression;
-            bool isMethodCall = expression != null && expression.NodeType == ExpressionType.Call;
+            Expression objExpression = node.Expression;
+            bool isMethodCall = objExpression != null && objExpression.NodeType == ExpressionType.Call;
             if (isMethodCall)
             {
-                MethodCallExpression methodExpression = expression as MethodCallExpression;
+                MethodCallExpression methodExpression = objExpression as MethodCallExpression;
                 bool isGetItem = methodExpression.IsGetListItem();
-                if (isGetItem) expression = methodExpression.Object;
+                if (isGetItem) objExpression = methodExpression.Object;
             }
             // => b.Client.Address.AddressName
-            this.VisitNavMember(expression, node.Member.Name);
+            this.VisitNavMember(objExpression, node.Member.Name);
 
             return node;
         }
@@ -286,7 +273,7 @@ namespace TZM.XFramework.Data
         /// 访问表达式树后自动删掉访问的成员痕迹
         /// </summary>
         /// <param name="visit">访问委托</param>
-        internal protected void VisitNoRemark(Action<object> visit)
+        protected void VisitWithoutRemark(Action<object> visit)
         {
             int visitedQty = _visitedMark.Count;
             visit(null);
@@ -298,7 +285,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="visit">访问实现</param>
         /// <returns></returns>
-        internal protected Expression VisitNoRemark(Func<object, Expression> visit)
+        public Expression VisitWithoutRemark(Func<object, Expression> visit)
         {
             int visitedQty = _visitedMark.Count;
             var newNode = visit(null);
