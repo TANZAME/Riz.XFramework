@@ -237,11 +237,7 @@ namespace TZM.XFramework.Data
             if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
-            if (isNullable)
-            {
-                this.Visit(node.Expression);
-                return node;
-            }
+            if (isNullable) return this.Visit(node.Expression);
 
             _visitedMark.Add(node);
             // => a.Name.Length
