@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace TZM.XFramework.Data
 {
@@ -17,6 +18,7 @@ namespace TZM.XFramework.Data
         private StringBuilder _innerBuilder = null;
         private IDbQueryProvider _provider = null;
         private ResolveToken _token = null;
+        private DbValue _dbValue = null;
 
         /// <summary>
         /// TAB 制表符
@@ -71,6 +73,7 @@ namespace TZM.XFramework.Data
         public SqlBuilder(IDbQueryProvider provider, ResolveToken token)
         {
             _provider = provider;
+            _dbValue = provider.DbValue;
             _token = token;
             _innerBuilder = new StringBuilder(128);
             _escCharLeft = _provider.QuotePrefix;
@@ -82,24 +85,24 @@ namespace TZM.XFramework.Data
         /// 追加列名
         /// </summary>
         /// <param name="aliases">表别名</param>
-        /// <param name="expression">列名表达式</param>
+        /// <param name="node">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        public string AppendMember(TableAliasCache aliases, Expression expression)
+        public string AppendMember(TableAliasCache aliases, Expression node)
         {
-            Expression exp = expression;
-            LambdaExpression lambdaExpression = exp as LambdaExpression;
-            if (lambdaExpression != null) exp = lambdaExpression.Body;
+            Expression expression = node;
+            LambdaExpression lambdaExpression = expression as LambdaExpression;
+            if (lambdaExpression != null) expression = lambdaExpression.Body;
 
-            if (expression.CanEvaluate())
+            if (node.CanEvaluate())
             {
-                ConstantExpression c = expression.Evaluate();
-                string value = _provider.DbValue.GetSqlValue(c.Value, _token);
+                ConstantExpression c = node.Evaluate();
+                string value = _dbValue.GetSqlValue(c.Value, _token);
                 _innerBuilder.Append(value);
                 return value;
             }
             else
             {
-                MemberExpression m = expression as MemberExpression;
+                MemberExpression m = node as MemberExpression;
                 string alias = aliases == null ? null : aliases.GetTableAlias(m);
                 this.AppendMember(alias, m.Member.Name);
                 return alias;
@@ -164,33 +167,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 将字符串插入到此实例中的指定字符位置。
-        /// </summary>
-        public ISqlBuilder Insert(int index, string value)
-        {
-            _innerBuilder.Insert(index, value);
-            return this;
-        }
-
-        /// <summary>
-        /// 将字符串插入到此实例中的指定字符位置。
-        /// </summary>
-        public ISqlBuilder Insert(int index, object value)
-        {
-            _innerBuilder.Insert(index, value);
-            return this;
-        }
-
-        /// <summary>
-        /// 在此实例的结尾追加指定字符串的副本。
-        /// </summary>
-        public ISqlBuilder Append(int value)
-        {
-            _innerBuilder.Append(value);
-            return this;
-        }
-
-        /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
         public ISqlBuilder Append(char value)
@@ -204,25 +180,23 @@ namespace TZM.XFramework.Data
         /// </summary>
         public ISqlBuilder Append(object value)
         {
-            if (value != null) _innerBuilder.Append(value);
+            if (value != null)
+            {
+                SqlBuilder self = value as SqlBuilder;
+                if (self != null)
+                    _innerBuilder.Append(self.InnerBuilder);
+                else
+                    _innerBuilder.Append(value);
+            }
             return this;
         }
 
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, MemberExpression m)
+        public ISqlBuilder Append(object value, MemberVisitedMark.VisitedMember m)
         {
-            var sql = _provider.DbValue.GetSqlValue(value, _token, m);
-            return this.Append(sql);
-        }
-
-        /// <summary>
-        /// 在此实例的结尾追加指定字符串的副本。
-        /// </summary>
-        public ISqlBuilder Append(object value, System.Reflection.MemberInfo m, Type objType)
-        {
-            var sql = _provider.DbValue.GetSqlValue(value, _token, m, objType);
+            var sql = _dbValue.GetSqlValue(value, _token, m);
             return this.Append(sql);
         }
 
@@ -245,7 +219,7 @@ namespace TZM.XFramework.Data
                 _innerBuilder.Append(Environment.NewLine);
                 if (this.Indent > 0)
                 {
-                    for (int i = 1; i <= this.Indent; i++) this.AppendNewTab();
+                    for (int i = 1; i <= this.Indent; i++) this.AppendTab();
                 }
             }
 
@@ -274,7 +248,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加制表符
         /// </summary>
-        public ISqlBuilder AppendNewTab()
+        public ISqlBuilder AppendTab()
         {
             if (_token == null || _token.IsDebug) _innerBuilder.Append(SqlBuilder.TAB);
             else

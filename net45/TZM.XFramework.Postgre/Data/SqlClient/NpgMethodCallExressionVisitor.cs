@@ -15,6 +15,7 @@ namespace TZM.XFramework.Data.SqlClient
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
+        private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
@@ -44,6 +45,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
+            _dbValue = _provider.DbValue;
         }
 
         #endregion
@@ -86,55 +88,57 @@ namespace TZM.XFramework.Data.SqlClient
                 node.Type == typeof(DateTime?) ||
                 node.Type == typeof(DateTimeOffset) ||
                 node.Type == typeof(DateTimeOffset?);
-            if (isDate)
-            {
-                _builder.Append("TO_CHAR(");
-                _visitor.Visit(node);
 
-                string format = string.Empty;
-                ColumnAttribute c = _provider.DbValue.GetColumnAttribute(_visitedMark.Current);
-                if (c != null && DbTypeUtils.IsTime(c.DbType))
-                    format = "hh24:mi:ss.us";
-                else if (c != null && DbTypeUtils.IsDate(c.DbType))
-                    format = "yyyy-mm-dd";
-                else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType)))
-                    format = "yyyy-mm-dd hh24:mi:ss.us";
-                else if (c != null && DbTypeUtils.IsDateTimeOffset(c.DbType))
-                    format = "yyyy-mm-dd hh24:mi:ss.us TZH:TZM";
+            throw new Exception();
+            //if (isDate)
+            //{
+            //    _builder.Append("TO_CHAR(");
+            //    _visitor.Visit(node);
 
-                // 没有显式指定数据类型，则根据表达式的类型来判断
-                if (string.IsNullOrEmpty(format))
-                {
-                    if (node.Type == typeof(TimeSpan) || node.Type == typeof(TimeSpan?))
-                        format = "hh24:mi:ss.us";
-                    else if (node.Type == typeof(DateTime) || node.Type == typeof(DateTime?))
-                        format = "yyyy-mm-dd hh24:mi:ss.us";
-                    else if (node.Type == typeof(DateTimeOffset) || node.Type == typeof(DateTimeOffset?))
-                        format = "yyyy-mm-dd hh24:mi:ss.us TZH:TZM";
-                }
+            //    string format = string.Empty;
+            //    ColumnAttribute c = TypeUtils.GetColumnAttribute(_visitedMark.Current);
+            //    if (c != null && DbTypeUtils.IsTime(c.DbType))
+            //        format = "hh24:mi:ss.us";
+            //    else if (c != null && DbTypeUtils.IsDate(c.DbType))
+            //        format = "yyyy-mm-dd";
+            //    else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType)))
+            //        format = "yyyy-mm-dd hh24:mi:ss.us";
+            //    else if (c != null && DbTypeUtils.IsDateTimeOffset(c.DbType))
+            //        format = "yyyy-mm-dd hh24:mi:ss.us TZH:TZM";
 
-                if (!string.IsNullOrEmpty(format))
-                {
-                    _builder.Append(",'");
-                    _builder.Append(format);
-                    _builder.Append("'");
-                }
-                _builder.Append(')');
-            }
-            else if (node.Type == typeof(byte[]))
-            {
-                _builder.Append("ENCODE(");
-                _visitor.Visit(node);
-                _builder.Append(",'hex')");
-            }
-            else
-            {
-                _builder.Append("CAST(");
-                _visitor.Visit(node);
-                _builder.Append(" AS VARCHAR)");
-            }
+            //    // 没有显式指定数据类型，则根据表达式的类型来判断
+            //    if (string.IsNullOrEmpty(format))
+            //    {
+            //        if (node.Type == typeof(TimeSpan) || node.Type == typeof(TimeSpan?))
+            //            format = "hh24:mi:ss.us";
+            //        else if (node.Type == typeof(DateTime) || node.Type == typeof(DateTime?))
+            //            format = "yyyy-mm-dd hh24:mi:ss.us";
+            //        else if (node.Type == typeof(DateTimeOffset) || node.Type == typeof(DateTimeOffset?))
+            //            format = "yyyy-mm-dd hh24:mi:ss.us TZH:TZM";
+            //    }
 
-            return node;
+            //    if (!string.IsNullOrEmpty(format))
+            //    {
+            //        _builder.Append(",'");
+            //        _builder.Append(format);
+            //        _builder.Append("'");
+            //    }
+            //    _builder.Append(')');
+            //}
+            //else if (node.Type == typeof(byte[]))
+            //{
+            //    _builder.Append("ENCODE(");
+            //    _visitor.Visit(node);
+            //    _builder.Append(",'hex')");
+            //}
+            //else
+            //{
+            //    _builder.Append("CAST(");
+            //    _visitor.Visit(node);
+            //    _builder.Append(" AS VARCHAR)");
+            //}
+
+            //return node;
         }
 
         /// <summary>
@@ -144,12 +148,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
                 {
@@ -159,7 +165,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    if (unicode) _builder.Append('N');
+                    if (isUnicode) _builder.Append('N');
                     _builder.Append("'%");
                     _builder.Append(value);
                     _builder.Append("%'");
@@ -181,12 +187,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
                 {
@@ -196,7 +204,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    if (unicode) _builder.Append('N');
+                    if (isUnicode) _builder.Append('N');
                     _builder.Append("'");
                     _builder.Append(value);
                     _builder.Append("%'");
@@ -220,12 +228,14 @@ namespace TZM.XFramework.Data.SqlClient
             if (m != null)
             {
                 _visitor.Visit(m.Object);
-                if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+                if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
                 _builder.Append(" LIKE ");
                 if (m.Arguments[0].CanEvaluate())
                 {
-                    bool unicode = true;
-                    string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                    ColumnAttribute column = null;
+                    bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                    string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                    if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                     if (_builder.Parameterized)
                     {
@@ -235,7 +245,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
                     else
                     {
-                        if (unicode) _builder.Append('N');
+                        if (isUnicode) _builder.Append('N');
                         _builder.Append("'%");
                         _builder.Append(value);
                         _builder.Append("'");

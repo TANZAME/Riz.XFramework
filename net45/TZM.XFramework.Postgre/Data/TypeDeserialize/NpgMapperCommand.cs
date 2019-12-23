@@ -103,7 +103,7 @@ namespace TZM.XFramework.Data
                 string outerKey = key;
                 string innerAlias = string.Empty;
 
-                if (!m.Expression.Acceptable())
+                if (!m.Expression.Visitable())
                 {
                     innerKey = m.Expression.NodeType == ExpressionType.Parameter
                         ? (m.Expression as ParameterExpression).Name

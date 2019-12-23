@@ -11,6 +11,7 @@ namespace TZM.XFramework.Data.SqlClient
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
+        private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
@@ -40,6 +41,149 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
+            _dbValue = _provider.DbValue;
+        }
+
+        /// <summary>
+        /// 访问 StartWidth 方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected override Expression VisitStartsWith(MethodCallExpression m)
+        {
+            _visitor.Visit(m.Object);
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
+            {
+                ColumnAttribute column = null;
+                bool unicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
+
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append(value);
+                    _builder.Append(" + '%')");
+                }
+                else
+                {
+                    if (unicode) _builder.Append('N');
+                    _builder.Append("'");
+                    _builder.Append(value);
+                    _builder.Append("%'");
+                }
+            }
+            else
+            {
+                _builder.Append("(");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" + '%')");
+            }
+
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 EndWidth 方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected override Expression VisitEndsWith(MethodCallExpression m)
+        {
+            _visitor.Visit(m.Object);
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
+            {
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
+
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("('%' + ");
+                    _builder.Append(value);
+                    _builder.Append(')');
+                }
+                else
+                {
+                    if (isUnicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("'");
+                }
+            }
+            else
+            {
+                _builder.Append("('%' + ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(')');
+            }
+
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 string.Contains 方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected override Expression VisitStringContains(MethodCallExpression m)
+        {
+            // https://www.cnblogs.com/yangmingyu/p/6928209.html
+            // 对于其他的特殊字符：'^'， '-'， ']' 因为它们本身在包含在 '[]' 中使用，所以需要用另外的方式来转义，于是就引入了 like 中的 escape 子句，另外值得注意的是：escape 可以转义所有的特殊字符。
+            // EF 的 Like 不用参数化...
+
+            _visitor.Visit(m.Object);
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            _builder.Append(" LIKE ");
+            if (m.Arguments[0].CanEvaluate())
+            {
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
+
+                if (_builder.Parameterized)
+                {
+                    _builder.Append("(");
+                    _builder.Append("'%' + ");
+                    _builder.Append(value);
+                    _builder.Append(" + '%'");
+                    _builder.Append(")");
+                }
+                else
+                {
+                    if (isUnicode) _builder.Append('N');
+                    _builder.Append("'%");
+                    _builder.Append(value);
+                    _builder.Append("%'");
+                }
+            }
+            else
+            {
+                _builder.Append("('%' + ");
+                _visitor.Visit(m.Arguments[0]);
+                _builder.Append(" + '%')");
+            }
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 IsNullOrEmpty 方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected override Expression VisitIsNullOrEmpty(MethodCallExpression m)
+        {
+            _builder.Append("ISNULL(");
+            _visitor.Visit(m.Arguments[0]);
+            _builder.Append(",");
+            bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current);
+            string empty = isUnicode ? "N''" : "''";
+            _builder.Append(empty);
+            _builder.Append(") = ");
+            _builder.Append(empty);
+            return m;
         }
 
         /// <summary>
@@ -52,7 +196,7 @@ namespace TZM.XFramework.Data.SqlClient
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
             ColumnAttribute column = null;
-            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current, out column);
+            bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
             string native = isUnicode ? "NVARCHAR" : "VARCHAR";
 
             // 其它类型转字符串

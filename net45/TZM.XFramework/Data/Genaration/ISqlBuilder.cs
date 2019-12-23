@@ -76,21 +76,6 @@ namespace TZM.XFramework.Data
         ISqlBuilder Append(string value);
 
         /// <summary>
-        /// 将字符串插入到此实例中的指定字符位置。
-        /// </summary>
-        ISqlBuilder Insert(int index, string value);
-
-        /// <summary>
-        /// 将字符串插入到此实例中的指定字符位置。
-        /// </summary>
-        ISqlBuilder Insert(int index, object value);
-
-        /// <summary>
-        /// 在此实例的结尾追加指定字符串的副本。
-        /// </summary>
-        ISqlBuilder Append(int value);
-
-        /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
         ISqlBuilder Append(char value);
@@ -103,12 +88,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(object value, MemberExpression m);
-
-        /// <summary>
-        /// 在此实例的结尾追加指定字符串的副本。
-        /// </summary>
-        ISqlBuilder Append(object value, MemberInfo m, Type declareType);
+        ISqlBuilder Append(object value, MemberVisitedMark.VisitedMember m);
 
         /// <summary>
         /// 在此实例的结尾追加回车符
@@ -128,7 +108,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加制表符
         /// </summary>
-        ISqlBuilder AppendNewTab();
+        ISqlBuilder AppendTab();
 
         /// <summary>
         /// 将此实例中所有指定字符串的匹配项替换为其他指定字符串。

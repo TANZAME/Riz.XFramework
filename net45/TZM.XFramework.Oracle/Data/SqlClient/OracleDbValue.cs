@@ -183,16 +183,6 @@ namespace TZM.XFramework.Data.SqlClient
             return this.EscapeQuote(b, false, false);
         }
 
-        /// <summary>
-        /// 检查指定类型是否是 Unicode 
-        /// </summary>
-        /// <param name="dbType">数据类型</param>
-        /// <returns></returns>
-        public override bool IsUnicode(object dbType)
-        {
-            return DbTypeUtils.IsUnicode(dbType);
-        }
-
 
         // 官方数据类型和.NET数据类型映射关系
         // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281

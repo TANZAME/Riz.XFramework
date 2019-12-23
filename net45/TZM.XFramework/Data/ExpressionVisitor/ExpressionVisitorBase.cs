@@ -146,7 +146,7 @@ namespace TZM.XFramework.Data
             if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodCall.Coalesce);
 
             // 例： a.Name == null
-            ConstantExpression constExpression = left as ConstantExpression ?? right as ConstantExpression;
+            var constExpression = left as ConstantExpression ?? right as ConstantExpression;
             if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodCall.EqualNull);
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
@@ -187,8 +187,8 @@ namespace TZM.XFramework.Data
             //fix# char ~~，because expression tree converted char type 2 int.
             if (c != null && c.Value != null)
             {
-                MemberExpression visited = _visitedMark.Current;
-                bool isChar = visited != null && (visited.Type == typeof(char) || visited.Type == typeof(char?)) && c.Type == typeof(int);
+                var m = _visitedMark.Current;
+                bool isChar = m != null && (m.DataType == typeof(char) || m.DataType == typeof(char?)) && c.Type == typeof(int);
                 if (isChar)
                 {
                     char @char = Convert.ToChar(c.Value);
@@ -230,11 +230,13 @@ namespace TZM.XFramework.Data
                 return node;
             }
 
+            // 记录访问成员栈
             _visitedMark.Add(node);
+            
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => <>h__3.b.ClientName
-            if (!node.Expression.Acceptable()) return _builder.AppendMember(node, _aliases);
+            if (!node.Expression.Visitable()) return _builder.AppendMember(node, _aliases);
             // => a.Accounts[0].Markets[0].MarketId
             // => b.Client.Address.AddressName
             Expression objExpression = node.Expression;
@@ -312,12 +314,12 @@ namespace TZM.XFramework.Data
             // or like a.Name == "TAN"
 
             if (b == null) return b;
-            // 字符相加
-            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             // 取模运算
             else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             // 除法运算
             else if (b.NodeType == ExpressionType.Divide) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            // 字符相加
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
             else
             {
                 // 常量表达式放在右边，以充分利用 MemberVisitedMark
@@ -351,14 +353,14 @@ namespace TZM.XFramework.Data
             Expression node = expression;
             Stack<KeyValuePair<string, MemberExpression>> stack = null;
             string alias = string.Empty;
-            while (node != null && node.Acceptable())
+            while (node != null && node.Visitable())
             {
                 if (node.NodeType != ExpressionType.MemberAccess) break;
 
                 if (stack == null) stack = new Stack<KeyValuePair<string, MemberExpression>>();
-                MemberExpression memberExpression = node as MemberExpression;
+                var memberExpression = node as MemberExpression;
 
-                TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
                 ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
                 if (attribute == null) break;
 
@@ -374,11 +376,11 @@ namespace TZM.XFramework.Data
                 {
                     KeyValuePair<string, MemberExpression> kvp = stack.Pop();
                     string key = kvp.Key;
-                    MemberExpression m = kvp.Value;
-                    Type type = m.Type;
+                    MemberExpression memberExpression = kvp.Value;
+                    Type type = memberExpression.Type;
                     if (type.IsGenericType) type = type.GetGenericArguments()[0];
 
-                    TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                     // 检查查询表达式是否显示指定该表关联
                     alias = _aliases.GetJoinTableAlias(typeRuntime.TableName);
                     if (string.IsNullOrEmpty(alias))
@@ -407,12 +409,12 @@ namespace TZM.XFramework.Data
         /// 尝试将一元表达式转换成二元表达式，如 TRUE=>1 == 1
         /// </summary>
         /// <param name="expression">将要转换的表达式</param>
-        /// <param name="skipConstant">是否忽略常量表达式</param>
+        /// <param name="ignoreConst">是否忽略常量表达式</param>
         /// <returns></returns>
-        protected virtual Expression TryMakeBinary(Expression expression, bool skipConstant = false)
+        protected virtual Expression TryMakeBinary(Expression expression, bool ignoreConst = false)
         {
             if (expression.Type != typeof(bool)) return expression;
-            else if (expression.NodeType == ExpressionType.Constant && skipConstant) return expression;
+            else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;
 
             Expression left = null;
             Expression right = null;

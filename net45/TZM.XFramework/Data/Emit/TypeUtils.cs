@@ -96,18 +96,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 判断给定类型是否是ORM支持的基元类型
-        /// </summary>
-        public static bool IsPrimitiveType(MemberInfo member)
-        {
-            Type dataType = TypeUtils.GetDataType(member);
-            if (dataType == null) 
-                return false;
-            else
-                return TypeUtils.IsPrimitiveType(dataType);
-        }
-
-        /// <summary>
         /// 判断给定类型是否是数字类型
         /// </summary>
         public static bool IsNumberType(Type type)
@@ -159,7 +147,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 返回给定类型的 NULL 值
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type">给定类型</param>
         /// <returns></returns>
         public static object GetNullValue(Type type)
         {
@@ -214,19 +202,19 @@ namespace TZM.XFramework.Data
             Func<MemberInfo, bool> predicate = x => x.MemberType == MemberTypes.Method || x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property;
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public;
             if (includePrivate) flags = flags | BindingFlags.NonPublic;
-            
-            var members = type.GetMembers(flags).Where(predicate);
+
+            var result = type.GetMembers(flags).Where(predicate);
             if (type.IsInterface)
             {
                 var inheritsTypes = type.GetInterfaces();
                 foreach (var ihType in inheritsTypes)
                 {
                     var second = TypeUtils.GetMembers(ihType);
-                    members = members.Union(second);
+                    result = result.Union(second);
                 }
             }
 
-            return members;
+            return result;
         }
 
         /// <summary>
@@ -235,13 +223,51 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static Type GetDataType(MemberInfo member)
         {
-            Type dataType = null;
+            Type result = null;
             if (member != null && member.MemberType == MemberTypes.Field)
-                dataType = ((FieldInfo)member).FieldType;
+                result = ((FieldInfo)member).FieldType;
             else if (member != null && member.MemberType == MemberTypes.Property)
-                dataType = ((PropertyInfo)member).PropertyType;
+                result = ((PropertyInfo)member).PropertyType;
 
-            return dataType;
+            return result;
+        }
+
+        /// <summary>
+        /// 判断字段或属性成员的数据类型是否为 ORM 支持的基元类型
+        /// </summary>
+        /// <param name="member">字段或属性成员</param>
+        /// <returns></returns>
+        public static bool IsPrimitive(MemberInfo member)
+        {
+            Type t = null;
+            if (member != null && member.MemberType == MemberTypes.Field)
+                t = ((FieldInfo)member).FieldType;
+            else if (member != null && member.MemberType == MemberTypes.Property)
+                t = ((PropertyInfo)member).PropertyType;
+
+            return t == null ? false : TypeUtils.IsPrimitiveType(t);
+        }
+
+        /// <summary>
+        /// 获取字段或属性成员的 <see cref="ColumnAttribute"/>
+        /// </summary>
+        /// <param name="member">字段或属性成员</param>
+        /// <param name="reflectedType">调用字段或属性成员的实际类型</param>
+        /// <returns></returns>
+        public static ColumnAttribute GetColumnAttribute(MemberInfo member, Type reflectedType)
+        {
+            if (member == null) return null;
+
+            if (reflectedType == null) reflectedType = member.ReflectedType ?? member.DeclaringType;
+            ColumnAttribute column = null;
+            if (!TypeUtils.IsAnonymousType(reflectedType) && !TypeUtils.IsPrimitiveType(reflectedType))
+            {
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(reflectedType);
+                var m = typeRuntime.GetMember(member.Name);
+                if (m != null) column = m.Column;
+            }
+
+            return column;
         }
     }
 }

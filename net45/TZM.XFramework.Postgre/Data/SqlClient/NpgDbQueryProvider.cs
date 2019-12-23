@@ -429,7 +429,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append(seg_Columns);
                     builder.Append(')');
                     builder.AppendNewLine();
-                    builder.AppendNewTab();
+                    builder.AppendTab();
                     builder.Append("VALUES");
                 }
 

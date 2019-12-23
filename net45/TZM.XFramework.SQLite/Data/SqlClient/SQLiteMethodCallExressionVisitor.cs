@@ -13,6 +13,7 @@ namespace TZM.XFramework.Data.SqlClient
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
+        private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
@@ -40,6 +41,7 @@ namespace TZM.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
+            _dbValue = _provider.DbValue;
         }
 
         /// <summary>
@@ -147,12 +149,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
                 {
@@ -162,7 +166,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    if (unicode) _builder.Append('N');
+                    if (isUnicode) _builder.Append('N');
                     _builder.Append("'%");
                     _builder.Append(value);
                     _builder.Append("%'");
@@ -184,12 +188,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
                 {
@@ -198,7 +204,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    if (unicode) _builder.Append('N');
+                    if (isUnicode) _builder.Append('N');
                     _builder.Append("'");
                     _builder.Append(value);
                     _builder.Append("%'");
@@ -220,12 +226,14 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
+                ColumnAttribute column = null;
+                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
                 {
@@ -234,7 +242,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    if (unicode) _builder.Append('N');
+                    if (isUnicode) _builder.Append('N');
                     _builder.Append("'%");
                     _builder.Append(value);
                     _builder.Append("'");
@@ -442,7 +450,7 @@ namespace TZM.XFramework.Data.SqlClient
                 DbContext = token.DbContext
             } : null) as MapperCommand;
 
-            if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
+            if (this.NotExpressions.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 

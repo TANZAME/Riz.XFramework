@@ -169,16 +169,6 @@ namespace TZM.XFramework.Data.SqlClient
             return ((bool)value) ? "TRUE" : "FALSE";
         }
 
-        /// <summary>
-        /// 检查指定类型是否是 Unicode 
-        /// </summary>
-        /// <param name="dbType">数据类型</param>
-        /// <returns></returns>
-        public override bool IsUnicode(object dbType)
-        {
-            return DbTypeUtils.IsUnicode(dbType);
-        }
-
         // https://www.postgresql.org/docs/
         // http://www.npgsql.org/doc/index.html
         // http://shouce.jb51.net/postgresql/ postgre 文档

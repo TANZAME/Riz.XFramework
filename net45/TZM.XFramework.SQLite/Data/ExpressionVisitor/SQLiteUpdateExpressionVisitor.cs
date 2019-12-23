@@ -46,24 +46,25 @@ namespace TZM.XFramework.Data
             if (node.Bindings == null || node.Bindings.Count == 0)
                 throw new XFrameworkException("Update<T> at least update one member.");
 
-            for (int index = 0; index < node.Bindings.Count; ++index)
-            {
-                MemberAssignment member = node.Bindings[index] as MemberAssignment;
-                _builder.AppendMember(member.Member.Name);
-                _builder.Append(" = ");
+            throw new Exception();
+            //for (int index = 0; index < node.Bindings.Count; ++index)
+            //{
+            //    MemberAssignment member = node.Bindings[index] as MemberAssignment;
+            //    _builder.AppendMember(member.Member.Name);
+            //    _builder.Append(" = ");
 
-                if (member.Expression.CanEvaluate())
-                    _builder.Append(member.Expression.Evaluate().Value, member.Member, node.Type);
-                else
-                    this.VisitArgument(member.Expression);
+            //    if (member.Expression.CanEvaluate())
+            //        _builder.Append(member.Expression.Evaluate().Value, member.Member);
+            //    else
+            //        this.VisitArgument(member.Expression);
 
-                if (index < node.Bindings.Count - 1)
-                {
-                    _builder.Append(",");
-                    _builder.AppendNewLine();
-                }
-            }
-            return node;
+            //    if (index < node.Bindings.Count - 1)
+            //    {
+            //        _builder.Append(",");
+            //        _builder.AppendNewLine();
+            //    }
+            //}
+            //return node;
         }
 
         /// <summary>
@@ -78,25 +79,26 @@ namespace TZM.XFramework.Data
             if (node.Arguments == null || node.Arguments.Count == 0)
                 throw new XFrameworkException("Update<T> at least update one member.");
 
-            for (int index = 0; index < node.Arguments.Count; index++)
-            {
-                var member = node.Members[index];
-                _builder.AppendMember(member.Name);
-                _builder.Append(" = ");
+            throw new Exception();
+            //for (int index = 0; index < node.Arguments.Count; index++)
+            //{
+            //    var member = node.Members[index];
+            //    _builder.AppendMember(member.Name);
+            //    _builder.Append(" = ");
 
-                if (node.Arguments[index].CanEvaluate())
-                    _builder.Append(node.Arguments[index].Evaluate().Value, member, node.Type);
-                else
-                    this.VisitArgument(node.Arguments[index]);
+            //    if (node.Arguments[index].CanEvaluate())
+            //        _builder.Append(node.Arguments[index].Evaluate().Value, member);
+            //    else
+            //        this.VisitArgument(node.Arguments[index]);
 
-                if (index < node.Arguments.Count - 1)
-                {
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
-                }
-            }
+            //    if (index < node.Arguments.Count - 1)
+            //    {
+            //        _builder.Append(',');
+            //        _builder.AppendNewLine();
+            //    }
+            //}
 
-            return node;
+            //return node;
         }
 
         /// <summary>

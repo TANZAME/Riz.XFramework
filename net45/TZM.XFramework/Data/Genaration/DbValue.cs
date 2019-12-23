@@ -34,25 +34,22 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="token">解析SQL命令时的参数上下文</param>
-        /// <param name="node">成员访问表达式</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, MemberExpression node = null)
+        public string GetSqlValue(object value, ResolveToken token)
         {
-            ColumnAttribute column = this.GetColumnAttribute(node);
-            return this.GetSqlValue(value, token, column);
+            return this.GetSqlValue(value, token, (ColumnAttribute)null);
         }
 
         /// <summary>
         /// 生成 value 对应的 SQL 片断
         /// </summary>
         /// <param name="value">SQL值</param>
-        /// <param name="token">解析SQL命令时的参数上下文</param>
-        /// <param name="member">成员</param>
-        /// <param name="objType">成员所在类型</param>
+        /// <param name="token">解析上下文</param>
+        /// <param name="m">value 对应的成员</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, MemberInfo member, Type objType)
+        public string GetSqlValue(object value, ResolveToken token, MemberVisitedMark.VisitedMember m)
         {
-            ColumnAttribute column = this.GetColumnAttribute(member, objType);
+            ColumnAttribute column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
             return this.GetSqlValue(value, token, column);
         }
 
@@ -121,9 +118,7 @@ namespace TZM.XFramework.Data
             // 4.参数化查询只需要重写 CreateParameter
 
             if (value == null) return "NULL";
-
-            Type type = value.GetType();
-            if (token != null && token.Parameters != null)
+            else if (token != null && token.Parameters != null)
             {
                 // 参数化 ##########
                 if (!(value is string) && !(value is byte[]) && (value is IEnumerable))
@@ -135,6 +130,7 @@ namespace TZM.XFramework.Data
             {
                 // 非参数化 ##########
 
+                Type type = value.GetType();
                 // 枚举类型
                 if (type.IsEnum)
                     return this.GetSqlValueByEnum(value);
@@ -172,30 +168,6 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 检查是否Unicode数据类型
-        /// </summary>
-        public abstract bool IsUnicode(object dbType);
-
-        /// <summary>
-        /// 检查是否Unicode数据类型
-        /// </summary>
-        public bool IsUnicode(MemberExpression member)
-        {
-            ColumnAttribute column = null;
-            return this.IsUnicode(member, out column);
-        }
-
-        /// <summary>
-        /// 检查是否Unicode数据类型
-        /// </summary>
-        public bool IsUnicode(MemberExpression member, out ColumnAttribute column)
-        {
-            column = this.GetColumnAttribute(member != null ? member.Member : null, member != null ? member.Expression.Type : null);
-            bool isUnicode = this.IsUnicode(column != null ? column.DbType : null);
-            return isUnicode;
-        }
-
-        /// <summary>
         /// 单引号转义
         /// </summary>
         /// <param name="s">源字符串</param>
@@ -208,40 +180,6 @@ namespace TZM.XFramework.Data
             string escCharQuoteDouble = string.Format("{0}{0}", _escCharQuote);
             if (isReplace) s = s.Replace(_escCharQuote, escCharQuoteDouble);
             return string.Format("{0}{1}{2}{1}", isUnicode ? "N" : string.Empty, useQuote ? _escCharQuote : string.Empty, s);
-        }
-
-        /// <summary>
-        /// 获取指定成员的 <see cref="ColumnAttribute"/>
-        /// </summary>
-        /// <param name="node">成员表达式</param>
-        public virtual ColumnAttribute GetColumnAttribute(MemberExpression node)
-        {
-            MemberInfo member = node != null ? node.Member : null;
-            Type objType = node != null && node.Expression != null ? node.Expression.Type : null;
-            return this.GetColumnAttribute(member, objType);
-        }
-
-        /// <summary>
-        /// 获取指定成员的 <see cref="ColumnAttribute"/>
-        /// </summary>
-        /// <param name="member">成员</param>
-        /// <param name="objType">成员所在类型</param>
-        /// <returns></returns>
-        public virtual ColumnAttribute GetColumnAttribute(MemberInfo member, Type objType)
-        {
-            Type dataType = TypeUtils.GetDataType(member);
-            if (dataType == null) return null;
-
-            ColumnAttribute column = null;
-            Type type = objType != null ? objType : (member.ReflectedType != null ? member.ReflectedType : member.DeclaringType);
-            if (type != null && !TypeUtils.IsAnonymousType(type) && !TypeUtils.IsPrimitiveType(type))
-            {
-                TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                var m = typeRuntime.GetMember(member.Name);
-                if (m != null) column = m.Column;
-            }
-
-            return column;
         }
 
         /// <summary>

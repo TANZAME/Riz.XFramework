@@ -225,7 +225,7 @@ namespace TZM.XFramework
         /// <summary>
         /// 在递归访问 MemberAccess 表达式时，判定节点是否能够被继续递归访问
         /// </summary>
-        public static bool Acceptable(this Expression node)
+        public static bool Visitable(this Expression node)
         {
             // a 
             // <>h__TransparentIdentifier.a
@@ -263,7 +263,7 @@ namespace TZM.XFramework
             segs.Add(node.Member.Name);
 
             Expression expression = node.Expression;
-            while (expression.Acceptable())
+            while (expression.Visitable())
             {
                 MemberExpression memberExpression = null;
                 if (expression.NodeType == ExpressionType.MemberAccess) memberExpression = (MemberExpression)expression;

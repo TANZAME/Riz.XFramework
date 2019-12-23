@@ -487,7 +487,7 @@ namespace TZM.XFramework.Data
         {
             bool hasMany = false;
             Expression myExpression = node.Body;
-            while (myExpression.Acceptable())
+            while (myExpression.Visitable())
             {
                 if (myExpression.NodeType == ExpressionType.MemberAccess) myExpression = (myExpression as MemberExpression).Expression;
                 else if (myExpression.NodeType == ExpressionType.Call)

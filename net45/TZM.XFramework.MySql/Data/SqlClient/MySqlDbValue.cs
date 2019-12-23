@@ -134,16 +134,6 @@ namespace TZM.XFramework.Data.SqlClient
             return null;
         }
 
-        /// <summary>
-        /// 检查指定类型是否是 Unicode 
-        /// </summary>
-        /// <param name="dbType">数据类型</param>
-        /// <returns></returns>
-        public override bool IsUnicode(object dbType)
-        {
-            return DbTypeUtils.IsUnicode(dbType);
-        }
-
         // MySQL 8.0以上版本没有 nvarchar,nchar 的类型
         // https://dev.mysql.com/doc/refman/8.0/en/charset-national.html
 

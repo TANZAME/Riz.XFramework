@@ -16,6 +16,7 @@ namespace TZM.XFramework.Data
     {
         private ISqlBuilder _builder = null;
         private IDbQueryProvider _provider = null;
+        private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static HashSet<string> _removeVisitedMethods = null;
@@ -23,7 +24,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// Not 运算符的方法
         /// </summary>
-        protected HashSet<MethodCallExpression> NotMethods { get; private set; }
+        protected HashSet<MethodCallExpression> NotExpressions { get; private set; }
 
         /// <summary>
         /// 运行时类成员
@@ -57,7 +58,8 @@ namespace TZM.XFramework.Data
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
-            this.NotMethods = new HashSet<MethodCallExpression>();
+            _dbValue = _provider.DbValue;
+            this.NotExpressions = new HashSet<MethodCallExpression>();
         }
 
         #endregion
@@ -202,9 +204,9 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
             bool isCall = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
-            if (isCall) this.NotMethods.Add((MethodCallExpression)node.Operand);
+            if (isCall) this.NotExpressions.Add((MethodCallExpression)node.Operand);
             _visitor.Visit(node.Operand);
-            if (this.NotMethods.Count > 0) this.NotMethods.Clear();
+            if (this.NotExpressions.Count > 0) this.NotExpressions.Clear();
             return node;
         }
 
@@ -268,77 +270,13 @@ namespace TZM.XFramework.Data
         /// 访问 StartWidth 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitStartsWith(MethodCallExpression m)
-        {
-            _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
-            _builder.Append(" LIKE ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
-
-                if (_builder.Parameterized)
-                {
-                    _builder.Append("(");
-                    _builder.Append(value);
-                    _builder.Append(" + '%')");
-                }
-                else
-                {
-                    if (unicode) _builder.Append('N');
-                    _builder.Append("'");
-                    _builder.Append(value);
-                    _builder.Append("%'");
-                }
-            }
-            else
-            {
-                _builder.Append("(");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" + '%')");
-            }
-
-            return m;
-        }
+        protected abstract Expression VisitStartsWith(MethodCallExpression m);
 
         /// <summary>
         /// 访问 EndWidth 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitEndsWith(MethodCallExpression m)
-        {
-            _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
-            _builder.Append(" LIKE ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
-
-                if (_builder.Parameterized)
-                {
-                    _builder.Append("('%' + ");
-                    _builder.Append(value);
-                    _builder.Append(')');
-                }
-                else
-                {
-                    if (unicode) _builder.Append('N');
-                    _builder.Append("'%");
-                    _builder.Append(value);
-                    _builder.Append("'");
-                }
-            }
-            else
-            {
-                _builder.Append("('%' + ");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(')');
-            }
-
-            return m;
-        }
+        protected abstract Expression VisitEndsWith(MethodCallExpression m);
 
         /// <summary>
         /// 访问 TrimStart 方法
@@ -468,18 +406,7 @@ namespace TZM.XFramework.Data
         /// 访问 IsNullOrEmpty 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitIsNullOrEmpty(MethodCallExpression m)
-        {
-            _builder.Append("ISNULL(");
-            _visitor.Visit(m.Arguments[0]);
-            _builder.Append(",");
-            bool isUnicode = _provider.DbValue.IsUnicode(_visitedMark.Current);
-            string empty = isUnicode ? "N''" : "''";
-            _builder.Append(empty);
-            _builder.Append(") = ");
-            _builder.Append(empty);
-            return m;
-        }
+        protected abstract Expression VisitIsNullOrEmpty(MethodCallExpression m);
 
         /// <summary>
         /// 访问 Length 属性
@@ -1276,44 +1203,7 @@ namespace TZM.XFramework.Data
         /// 访问 string.Contains 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitStringContains(MethodCallExpression m)
-        {
-            // https://www.cnblogs.com/yangmingyu/p/6928209.html
-            // 对于其他的特殊字符：'^'， '-'， ']' 因为它们本身在包含在 '[]' 中使用，所以需要用另外的方式来转义，于是就引入了 like 中的 escape 子句，另外值得注意的是：escape 可以转义所有的特殊字符。
-            // EF 的 Like 不用参数化...
-
-            _visitor.Visit(m.Object);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
-            _builder.Append(" LIKE ");
-            if (m.Arguments[0].CanEvaluate())
-            {
-                bool unicode = true;
-                string value = this.GetSqlValue(m.Arguments[0].Evaluate(), ref unicode);
-
-                if (_builder.Parameterized)
-                {
-                    _builder.Append("(");
-                    _builder.Append("'%' + ");
-                    _builder.Append(value);
-                    _builder.Append(" + '%'");
-                    _builder.Append(")");
-                }
-                else
-                {
-                    if (unicode) _builder.Append('N');
-                    _builder.Append("'%");
-                    _builder.Append(value);
-                    _builder.Append("%'");
-                }
-            }
-            else
-            {
-                _builder.Append("('%' + ");
-                _visitor.Visit(m.Arguments[0]);
-                _builder.Append(" + '%')");
-            }
-            return m;
-        }
+        protected abstract Expression VisitStringContains(MethodCallExpression m);
 
         /// <summary>
         /// 访问 IEnumerable.Contains 方法
@@ -1324,7 +1214,7 @@ namespace TZM.XFramework.Data
             if (m == null) return m;
 
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
-            if (this.NotMethods.Contains(m)) _builder.Append(" NOT");
+            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" IN(");
 
             Expression exp = m.Object != null ? m.Object : m.Arguments[0];
@@ -1383,7 +1273,7 @@ namespace TZM.XFramework.Data
                 DbContext = token.DbContext
             } : null) as MapperCommand;
 
-            if (this.NotMethods.Contains(m)) _builder.Append("NOT ");
+            if (this.NotExpressions.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
@@ -1398,28 +1288,6 @@ namespace TZM.XFramework.Data
             _builder.Append(")");
 
             return m;
-        }
-
-        /// <summary>
-        /// 生成字符串片断
-        /// </summary>
-        /// <param name="c">常量表达式</param>
-        /// <param name="unicode">是否 Unicode 编码</param>
-        /// <returns></returns>
-        protected string GetSqlValue(ConstantExpression c, ref bool unicode)
-        {
-            unicode = false;
-            var visited = _visitedMark.Current;
-            MemberInfo member = visited != null ? visited.Member : null;
-            Type objType = visited != null && visited.Expression != null ? visited.Expression.Type : null;
-            string value = _provider.DbValue.GetSqlValue(c.Value, _builder.Token, member, objType);
-            if (!_builder.Parameterized)
-            {
-                unicode = _provider.DbValue.IsUnicode(visited);
-                if (value != null) value = value.TrimStart('N').Trim('\'');
-            }
-
-            return value;
         }
 
         #endregion

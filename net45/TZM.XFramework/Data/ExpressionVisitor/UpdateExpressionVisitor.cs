@@ -35,20 +35,20 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {
-                MemberAssignment member = node.Bindings[index] as MemberAssignment;
-                _builder.AppendMember("t0", member.Member.Name);
-                _builder.Append(" = ");
+                //MemberAssignment member = node.Bindings[index] as MemberAssignment;
+                //_builder.AppendMember("t0", member.Member.Name);
+                //_builder.Append(" = ");
 
-                if (member.Expression.CanEvaluate())
-                    _builder.Append(member.Expression.Evaluate().Value, member.Member, node.Type);
-                else
-                    this.VisitWithoutRemark(x => base.Visit(member.Expression));
+                //if (member.Expression.CanEvaluate())
+                //    _builder.Append(member.Expression.Evaluate().Value, member.Member);
+                //else
+                //    this.VisitWithoutRemark(x => base.Visit(member.Expression));
 
-                if (index < node.Bindings.Count - 1)
-                {
-                    _builder.Append(",");
-                    _builder.AppendNewLine();
-                }
+                //if (index < node.Bindings.Count - 1)
+                //{
+                //    _builder.Append(",");
+                //    _builder.AppendNewLine();
+                //}
             }
             return node;
         }
@@ -67,20 +67,20 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Arguments.Count; index++)
             {
-                var member = node.Members[index];
-                _builder.AppendMember("t0", member.Name);
-                _builder.Append(" = ");
+                //var member = node.Members[index];
+                //_builder.AppendMember("t0", member.Name);
+                //_builder.Append(" = ");
 
-                if (node.Arguments[index].CanEvaluate())
-                    _builder.Append(node.Arguments[index].Evaluate().Value, member, node.Type);
-                else
-                    base.Visit(node.Arguments[index]);
+                //if (node.Arguments[index].CanEvaluate())
+                //    _builder.Append(node.Arguments[index].Evaluate().Value, member);
+                //else
+                //    base.Visit(node.Arguments[index]);
 
-                if (index < node.Arguments.Count - 1)
-                {
-                    _builder.Append(',');
-                    _builder.AppendNewLine();
-                }
+                //if (index < node.Arguments.Count - 1)
+                //{
+                //    _builder.Append(',');
+                //    _builder.AppendNewLine();
+                //}
             }
 
             return node;

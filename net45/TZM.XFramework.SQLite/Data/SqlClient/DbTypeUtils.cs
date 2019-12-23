@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Reflection;
 
 namespace TZM.XFramework.Data.SqlClient
 {
@@ -93,6 +94,29 @@ namespace TZM.XFramework.Data.SqlClient
                 return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
             else
                 return DbTypeUtils.ThrowException(dbType);
+        }
+
+        /// <summary>
+        /// 检查字段或属性成员声明的 DbType 是否为 Unicode 数据类型
+        /// </summary>
+        /// <param name="m">将要检查的字段或属性成员</param>
+        /// <returns></returns>
+        public static bool IsUnicode(MemberVisitedMark.VisitedMember m)
+        {
+            ColumnAttribute column = null;
+            return DbTypeUtils.IsUnicode(m, out column);
+        }
+
+        /// <summary>
+        /// 检查字段或属性成员声明的 DbType 是否为 Unicode 数据类型
+        /// </summary>
+        /// <param name="m">将要检查的字段或属性成员</param>
+        /// <param name="column">字段或属性成员显示声明的列特性</param>
+        /// <returns></returns>
+        public static bool IsUnicode(MemberVisitedMark.VisitedMember m, out ColumnAttribute column)
+        {
+            column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
+            return DbTypeUtils.IsUnicode(column == null ? null : column.DbType);
         }
 
         /// <summary>
