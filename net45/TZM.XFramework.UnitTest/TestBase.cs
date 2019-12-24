@@ -383,7 +383,7 @@ namespace TZM.XFramework.UnitTest
             query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + a.DemoByte * 12 == 12);
             result1 = query.ToList();
             query = context.GetTable<TDemo>().Where(a =>
-                a.DemoCode.StartsWith(a.DemoCode ?? "C0000009") || a.DemoName.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
+                a.DemoCode.StartsWith(a.DemoName ?? "C0000009") || a.DemoCode.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.ToString());
             //SQL=>

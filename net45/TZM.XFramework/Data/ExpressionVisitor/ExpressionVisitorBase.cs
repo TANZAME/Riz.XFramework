@@ -115,12 +115,8 @@ namespace TZM.XFramework.Data
             return this.VisitWithoutRemark(x => this.VisitBinaryImpl(node));
         }
 
-        /// <summary>
-        /// 访问二元表达式
-        /// </summary>
-        /// <param name="b">二元表达式</param>
-        /// <returns></returns>
-        protected virtual Expression VisitBinaryImpl(BinaryExpression b)
+        // 访问二元表达式
+        Expression VisitBinaryImpl(BinaryExpression b)
         {
             if (b == null) return b;
 
@@ -162,16 +158,14 @@ namespace TZM.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.TryMakeBinary(node.Test, false);
-            Expression ifTrueExpression = this.TryMakeBinary(node.IfTrue, true);
-            Expression ifFalseExpression = this.TryMakeBinary(node.IfFalse, true);
+            Expression testExpression = this.TryMakeBinary(node.Test);
 
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
             _builder.Append(" THEN ");
-            this.Visit(ifTrueExpression);
+            this.Visit(node.IfTrue);
             _builder.Append(" ELSE ");
-            this.Visit(ifFalseExpression);
+            this.Visit(node.IfFalse);
             _builder.Append(" END)");
 
             return node;
@@ -232,7 +226,7 @@ namespace TZM.XFramework.Data
 
             // 记录访问成员栈
             _visitedMark.Add(node);
-            
+
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
             // => <>h__3.b.ClientName
@@ -409,12 +403,11 @@ namespace TZM.XFramework.Data
         /// 尝试将一元表达式转换成二元表达式，如 TRUE=>1 == 1
         /// </summary>
         /// <param name="expression">将要转换的表达式</param>
-        /// <param name="ignoreConst">是否忽略常量表达式</param>
         /// <returns></returns>
-        protected virtual Expression TryMakeBinary(Expression expression, bool ignoreConst = false)
+        protected virtual Expression TryMakeBinary(Expression expression)
         {
             if (expression.Type != typeof(bool)) return expression;
-            else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;
+            //else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;
 
             Expression left = null;
             Expression right = null;
@@ -447,12 +440,8 @@ namespace TZM.XFramework.Data
             return expression;
         }
 
-        /// <summary>
-        /// 获取二元表达式对应的操作符
-        /// </summary>
-        /// <param name="b">二元表达式</param>
-        /// <returns></returns>
-        protected virtual string GetOperator(BinaryExpression b)
+        // 获取二元表达式对应的操作符
+        string GetOperator(BinaryExpression b)
         {
             string opr = string.Empty;
             switch (b.NodeType)
@@ -511,13 +500,8 @@ namespace TZM.XFramework.Data
             return opr;
         }
 
-        /// <summary>
-        /// 判断是否需要括号
-        /// </summary>
-        /// <param name="expression">表达式</param>
-        /// <param name="subExpression">子表达式</param>
-        /// <returns></returns>
-        protected bool UseBracket(Expression expression, Expression subExpression = null)
+        // 判断是否需要括号
+        bool UseBracket(Expression expression, Expression subExpression = null)
         {
             if (subExpression != null)
             {
@@ -541,12 +525,8 @@ namespace TZM.XFramework.Data
             return this.GetPriority(expression) < this.GetPriority(subExpression);
         }
 
-        /// <summary>
-        /// 获取表达式优先级
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        protected int GetPriority(Expression expression)
+        // 获取表达式优先级
+        int GetPriority(Expression expression)
         {
             switch (expression.NodeType)
             {

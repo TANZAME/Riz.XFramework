@@ -199,7 +199,8 @@ namespace TZM.XFramework.Data
             var newBindings = node.Bindings.OrderBy(x => TypeUtils.IsPrimitive(x.Member) ? 0 : 1);
             foreach (MemberAssignment m in newBindings)
             {
-                this.VisitWithoutRemark(x => this.VisitMemberAssignmentImpl(node.Type, m));
+                Type newType = node.Type;
+                this.VisitWithoutRemark(x => this.VisitMemberAssignmentImpl(newType, m));
             }
 
             return node;
@@ -365,8 +366,13 @@ namespace TZM.XFramework.Data
             for (int i = 0; i < node.Arguments.Count; i++)
             {
                 Type newType = node.Type;
-                MemberInfo member = node.Members != null ? node.Members[i] : (node.Arguments[i] as MemberExpression).Member;
                 Expression expression = node.Arguments[i];
+                MemberInfo member = node.Members != null ? node.Members[i] : null;
+                if (member == null)
+                {
+                    var memberExpression = expression as MemberExpression;
+                    if (memberExpression != null) member = memberExpression.Member;
+                }
                 this.VisitWithoutRemark(x => this.VisitNewArgumentImpl(newType, member, expression));
             }
 
@@ -377,7 +383,7 @@ namespace TZM.XFramework.Data
         private Expression VisitNewArgumentImpl(Type newType, MemberInfo member, Expression argument)
         {
             // 先添加当前字段的访问痕迹标记
-            _visitedMark.Add(member, newType);
+            if (member != null) _visitedMark.Add(member, newType);
 
             if (argument.NodeType == ExpressionType.Parameter)
             {
@@ -404,6 +410,7 @@ namespace TZM.XFramework.Data
             }
             else
             {
+                if (member == null) throw new XFrameworkException("{0} is not support for NewExpression's arguments.");
                 base.Visit(argument);
                 this.AddPickColumn(member.Name);
             }

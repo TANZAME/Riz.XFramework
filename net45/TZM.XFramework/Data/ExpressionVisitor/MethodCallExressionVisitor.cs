@@ -233,7 +233,7 @@ namespace TZM.XFramework.Data
         /// 访问 ToString 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitToString(MethodCallExpression m)
+        protected Expression VisitToString(MethodCallExpression m)
         {
             // => a.ID.ToString()
             Expression node = null;
