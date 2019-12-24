@@ -18,7 +18,7 @@ namespace TZM.XFramework
         private static readonly string _anonymousName = "<>h__TransparentIdentifier";
         private static Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);
         private static Func<string, bool> _isAnonymous = name => !string.IsNullOrEmpty(name) && name.StartsWith(_anonymousName, StringComparison.Ordinal);
-        private static MethodInfo _collectionItem = typeof(List<int>).GetMethod("get_Item");
+        private static MethodInfo _collectionItem = typeof(List<>).GetMethod("get_Item");
 
         /// <summary>
         /// 返回真表达式
@@ -41,29 +41,26 @@ namespace TZM.XFramework
         /// <summary>
         /// 拼接真表达式
         /// </summary>
-        public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> TExp1,
-            Expression<Func<T, bool>> TExp2) where T : class
+        public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right) where T : class
         {
-            if (TExp1 == null) return TExp2;
-            if (TExp2 == null) return TExp1;
+            if (left == null) return right;
+            if (right == null) return left;
 
-            var invokeExp = System.Linq.Expressions.Expression.Invoke(TExp2, TExp1.Parameters.Cast<System.Linq.Expressions.Expression>());
-            return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>
-                  (System.Linq.Expressions.Expression.AndAlso(TExp1.Body, invokeExp), TExp1.Parameters);
+            var expression = Expression.Invoke(right, left.Parameters.Cast<Expression>());
+            return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left.Body, expression), left.Parameters);
         }
 
         /// <summary>
         /// 拼接假表达式
         /// </summary>
-        public static Expression<Func<T, bool>> OrElse<T>(this Expression<Func<T, bool>> TExp1,
-            Expression<Func<T, bool>> TExp2) where T : class
+        public static Expression<Func<T, bool>> OrElse<T>(this Expression<Func<T, bool>> left,
+            Expression<Func<T, bool>> right) where T : class
         {
-            if (TExp1 == null) return TExp2;
-            if (TExp2 == null) return TExp1;
+            if (left == null) return right;
+            if (right == null) return left;
 
-            var invokeExp = System.Linq.Expressions.Expression.Invoke(TExp2, TExp1.Parameters.Cast<System.Linq.Expressions.Expression>());
-            return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>
-                  (System.Linq.Expressions.Expression.OrElse(TExp1.Body, invokeExp), TExp1.Parameters);
+            var expression = Expression.Invoke(right, left.Parameters.Cast<Expression>());
+            return Expression.Lambda<Func<T, bool>>(Expression.OrElse(left.Body, expression), left.Parameters);
         }
 
         /// <summary>

@@ -366,20 +366,20 @@ namespace TZM.XFramework.Data
             for (int i = 0; i < node.Arguments.Count; i++)
             {
                 Type newType = node.Type;
-                Expression expression = node.Arguments[i];
+                Expression argument = node.Arguments[i];
                 MemberInfo member = node.Members != null ? node.Members[i] : null;
                 if (member == null)
                 {
-                    var memberExpression = expression as MemberExpression;
+                    var memberExpression = argument as MemberExpression;
                     if (memberExpression != null) member = memberExpression.Member;
                 }
-                this.VisitWithoutRemark(x => this.VisitNewArgumentImpl(newType, member, expression));
+                this.VisitWithoutRemark(x => this.VisitNewArgumentImpl(newType, member, argument));
             }
 
             return node;
         }
 
-        // 遍历New表达式的参数集
+        // 访问 New 表达式中的参数
         private Expression VisitNewArgumentImpl(Type newType, MemberInfo member, Expression argument)
         {
             // 先添加当前字段的访问痕迹标记

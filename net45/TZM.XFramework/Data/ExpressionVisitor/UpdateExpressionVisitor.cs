@@ -1,4 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿
+using System;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace TZM.XFramework.Data
 {
@@ -24,37 +27,44 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问成员初始化表达式，如 => new App() {Id = p.Id}
+        /// 访问成员初始化表达式，如 => new App() { Id = p.Id }
         /// </summary>
         /// <param name="node">要访问的成员初始化表达式</param>
         /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.Bindings == null || node.Bindings.Count == 0)
-                throw new XFrameworkException("Update<T> at least update one member.");
+                throw new XFrameworkException("The Update<T> method requires at least one field to be updated.");
 
-            for (int index = 0; index < node.Bindings.Count; ++index)
+            for (int index = 0; index < node.Bindings.Count; index++)
             {
-                //MemberAssignment member = node.Bindings[index] as MemberAssignment;
-                //_builder.AppendMember("t0", member.Member.Name);
-                //_builder.Append(" = ");
+                MemberAssignment m = node.Bindings[index] as MemberAssignment;
+                _builder.AppendMember("t0", m.Member.Name);
+                _builder.Append(" = ");
 
-                //if (member.Expression.CanEvaluate())
-                //    _builder.Append(member.Expression.Evaluate().Value, member.Member);
-                //else
-                //    this.VisitWithoutRemark(x => base.Visit(member.Expression));
+                Type newType = node.Type;
+                this.VisitWithoutRemark(x => this.VisitMemberAssignmentImpl(newType, m));
 
-                //if (index < node.Bindings.Count - 1)
-                //{
-                //    _builder.Append(",");
-                //    _builder.AppendNewLine();
-                //}
+                if (index < node.Bindings.Count - 1)
+                {
+                    _builder.Append(",");
+                    _builder.AppendNewLine();
+                }
             }
             return node;
         }
 
+        // => Name = "Name" 
+        private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
+        {
+            // 先添加当前字段的访问痕迹标记
+            var member = m.Member;
+            _visitedMark.Add(m.Member, newType);
+            base.Visit(m.Expression);
+        }
+
         /// <summary>
-        /// 访问构造函数表达式，如 =>new  {Id = p.Id}}
+        /// 访问构造函数表达式，如 =>new  { Id = p.Id }
         /// </summary>
         /// <param name="node">构造函数调用的表达式</param>
         /// <returns></returns>
@@ -62,28 +72,36 @@ namespace TZM.XFramework.Data
         {
             // 匿名类的New
             if (node == null) return node;
-            if (node.Arguments == null || node.Arguments.Count == 0)
-                throw new XFrameworkException("Update<T> at least update one member.");
+            if (node.Arguments == null || node.Arguments.Count == 0 || node.Members.Count == 0)
+                throw new XFrameworkException("The Update<T> method requires at least one field to be updated.");
 
             for (int index = 0; index < node.Arguments.Count; index++)
             {
-                //var member = node.Members[index];
-                //_builder.AppendMember("t0", member.Name);
-                //_builder.Append(" = ");
+                var m = node.Members[index];
+                _builder.AppendMember("t0", m.Name);
+                _builder.Append(" = ");
 
-                //if (node.Arguments[index].CanEvaluate())
-                //    _builder.Append(node.Arguments[index].Evaluate().Value, member);
-                //else
-                //    base.Visit(node.Arguments[index]);
+                Type newType = node.Type;
+                MemberInfo member = node.Members[index];
+                Expression argument = node.Arguments[index];
+                this.VisitWithoutRemark(x => this.VisitNewArgumentImpl(newType, m, argument));
 
-                //if (index < node.Arguments.Count - 1)
-                //{
-                //    _builder.Append(',');
-                //    _builder.AppendNewLine();
-                //}
+                if (index < node.Arguments.Count - 1)
+                {
+                    _builder.Append(',');
+                    _builder.AppendNewLine();
+                }
             }
 
             return node;
+        }
+
+        // 访问 New 表达式中的参数
+        private Expression VisitNewArgumentImpl(Type newType, MemberInfo member, Expression argument)
+        {
+            // 先添加当前字段的访问痕迹标记
+            _visitedMark.Add(member, newType);
+            return base.Visit(argument);
         }
     }
 }

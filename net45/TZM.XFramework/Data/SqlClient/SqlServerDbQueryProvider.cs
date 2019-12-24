@@ -401,7 +401,7 @@ namespace TZM.XFramework.Data.SqlClient
                         if (curExpr.NodeType != ExpressionType.MemberAccess)
                             throw new XFrameworkException("ERR {0}: Only support MemberAccess expression.", dbQuery.EntityColumns[i]);
 
-                        MemberExpression member = curExpr as MemberExpression;
+                        var member = curExpr as MemberExpression;
                         string name = member.Member.Name;
                         memberAccessors[name] = typeRuntime.Members[name];
                     }
@@ -461,7 +461,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperCommand;
                 foreach (Column column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);

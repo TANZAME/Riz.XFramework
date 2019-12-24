@@ -238,8 +238,8 @@ namespace TZM.XFramework.Data
             if (isMethodCall)
             {
                 MethodCallExpression methodExpression = objExpression as MethodCallExpression;
-                bool isGetItem = methodExpression.IsGetListItem();
-                if (isGetItem) objExpression = methodExpression.Object;
+                bool isIndex = methodExpression.IsGetListItem();
+                if (isIndex) objExpression = methodExpression.Object;
             }
             // => b.Client.Address.AddressName
             this.VisitNavMember(objExpression, node.Member.Name);
