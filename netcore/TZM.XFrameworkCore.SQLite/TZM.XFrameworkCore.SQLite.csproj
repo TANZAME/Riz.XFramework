@@ -34,7 +34,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs" Link="Data\Infrastructure\SQLiteDatabase.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWidthRowId .cs" Link="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWithRowId .cs" Link="Data\Parsing\IWithRowId .cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\SQLiteDbQueryableInfo_Select.cs" Link="Data\Parsing\SQLiteDbQueryableInfo_Select.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />

@@ -54,8 +54,8 @@
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
       <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWidthRowId .cs">
-      <Link>Data\Parsing\IWidthRowId .cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\IWithRowId .cs">
+      <Link>Data\Parsing\IWithRowId .cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework.SQLite\Data\Parsing\SQLiteDbQueryableInfo_Select.cs">
       <Link>Data\Parsing\SQLiteDbQueryableInfo_Select.cs</Link>

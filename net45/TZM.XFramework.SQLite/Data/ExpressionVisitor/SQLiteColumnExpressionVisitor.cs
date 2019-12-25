@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         public override void Write(ISqlBuilder builder)
         {
             base.Write(builder);
-            if (_dbQuery is IWidthRowId)
+            if (_dbQuery is IWithRowId)
             {
                 if (_builder.Length == 0) _builder.Append(',');
                 _builder.AppendNewLine();

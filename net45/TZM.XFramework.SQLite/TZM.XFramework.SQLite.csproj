@@ -50,7 +50,7 @@
     <Compile Include="Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\SQLiteDatabase.cs" />
-    <Compile Include="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="Data\Parsing\IWithRowId .cs" />
     <Compile Include="Data\Parsing\SQLiteDbQueryableInfo_Select.cs" />
     <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="Data\SqlClient\SQLiteSqlBuilder.cs" />

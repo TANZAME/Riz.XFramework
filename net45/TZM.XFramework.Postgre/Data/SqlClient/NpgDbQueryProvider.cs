@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new NpgMapperCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new NpgMapperDbCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
 
                 var visitor = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Delete);
                 visitor.Write(cmd);
@@ -604,7 +604,7 @@ namespace TZM.XFramework.Data.SqlClient
                 var visitor = new NpgUpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd = new NpgMapperCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new NpgMapperDbCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.Query.HasMany };
 
                 var visitor_ = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Update);
                 visitor_.Write(cmd);

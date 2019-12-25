@@ -31,7 +31,7 @@ namespace TZM.XFramework.Data
         public override void Write(ISqlBuilder builder)
         {
             base.Write(builder);
-            if (_dbQuery is IWidthRowId)
+            if (_dbQuery is IWithRowId)
             {
                 if (_builder.Length == 0) _builder.Append(',');
                 _builder.AppendNewLine();
@@ -44,7 +44,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="type">实体类型</param>
         /// <param name="alias">表别名</param>
-        /// <param name="node">节点</param>
+        /// <param name="node">即将访问的节点</param>
         /// <returns></returns>
         protected override Expression VisitAllMember(Type type, string alias, Expression node = null)
         {

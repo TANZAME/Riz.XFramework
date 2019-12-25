@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data;
-using System.Collections.Generic;
+﻿
+using System;
 using System.Linq.Expressions;
 
 namespace TZM.XFramework.Data
@@ -8,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// Npg 含实体映射信息的SQL命令
     /// </summary>
-    public sealed class NpgMapperCommand : MapperDbCommand
+    public sealed class NpgMapperDbCommand : MapperDbCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;
@@ -48,13 +47,13 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="NpgMapperCommand" /> 的新实例
+        /// 实例化 <see cref="NpgMapperDbCommand" /> 的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="dbExpressionType">表达式类型</param>
         /// <param name="token">解析上下文参数</param>
-        public NpgMapperCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
+        public NpgMapperDbCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;

@@ -24,14 +24,14 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问成员初始化表达式，如 =>{new App() {Id = p.Id}}
+        /// 访问成员初始化表达式，如 => new App() { Id = p.Id }
         /// </summary>
         /// <param name="node">要访问的成员初始化表达式</param>
         /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             if (node.Bindings == null || node.Bindings.Count == 0)
-                throw new XFrameworkException("Update<T> at least update one member.");
+                throw new XFrameworkException("The Update<T> method requires at least one field to be updated.");
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {
@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 访问构造函数表达式，如 =>new  {Id = p.Id}}
+        /// 访问构造函数表达式，如 =>new  { Id = p.Id }
         /// </summary>
         /// <param name="node">构造函数调用的表达式</param>
         /// <returns></returns>
@@ -58,8 +58,8 @@ namespace TZM.XFramework.Data
         {
             // 匿名类的New
             if (node == null) return node;
-            if (node.Arguments == null || node.Arguments.Count == 0)
-                throw new XFrameworkException("Update<T> at least update one member.");
+            if (node.Arguments == null || node.Arguments.Count == 0 || node.Members.Count == 0)
+                throw new XFrameworkException("The Update<T> method requires at least one field to be updated.");
 
             for (int index = 0; index < node.Arguments.Count; index++)
             {

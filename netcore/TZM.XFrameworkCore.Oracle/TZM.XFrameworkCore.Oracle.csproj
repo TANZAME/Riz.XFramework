@@ -45,7 +45,7 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase.cs" Link="Data\Infrastructure\OracleDatabase.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Infrastructure\OracleDatabase45.cs" Link="Data\Infrastructure\OracleDatabase45.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Parsing\IWidthRowId .cs" Link="Data\Parsing\IWidthRowId .cs" />
+    <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Parsing\IWithRowId .cs" Link="Data\Parsing\IWithRowId .cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\Parsing\OracleDbQueryableInfo_Select.cs" Link="Data\Parsing\OracleDbQueryableInfo_Select.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleDbContext.cs" Link="Data\SqlClient\OracleDbContext.cs" />
