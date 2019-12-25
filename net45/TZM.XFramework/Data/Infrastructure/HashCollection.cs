@@ -31,7 +31,7 @@ namespace TZM.XFramework.Data
         public int Count { get { return _collection.Count; } }
 
         /// <summary>
-        /// 实例化<see cref="ColumnCollection"/>类的新实例
+        /// 实例化<see cref="DbColumnCollection"/>类的新实例
         /// </summary>
         public HashCollection()
         {

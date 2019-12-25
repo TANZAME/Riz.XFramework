@@ -329,14 +329,14 @@ namespace TZM.XFramework.Data
         }
 
         // 检查当前成员是否是1：N关系的导航属性
-        static bool IsHasMany(MemberInfo info)
+        static bool IsHasMany(MemberInfo member)
         {
-            if (info == null) return false;
+            if (member == null) return false;
 
             // 仅支持属性和字段***
             Type type = null;
-            if (info.MemberType == MemberTypes.Property) type = ((PropertyInfo)info).PropertyType;
-            else if (info.MemberType == MemberTypes.Field) type = ((FieldInfo)info).FieldType;
+            if (member.MemberType == MemberTypes.Property) type = ((PropertyInfo)member).PropertyType;
+            else if (member.MemberType == MemberTypes.Field) type = ((FieldInfo)member).FieldType;
             return type == null ? false : TypeUtils.IsCollectionType(type);
         }
     }

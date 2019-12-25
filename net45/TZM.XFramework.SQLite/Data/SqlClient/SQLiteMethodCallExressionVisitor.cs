@@ -448,13 +448,13 @@ namespace TZM.XFramework.Data.SqlClient
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = token.DbContext
-            } : null) as MapperCommand;
+            } : null) as MapperDbCommand;
 
             if (this.NotExpressions.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
-            if (((MapperCommand)cmd).WhereFragment.Length > 0)
+            if (((MapperDbCommand)cmd).WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");

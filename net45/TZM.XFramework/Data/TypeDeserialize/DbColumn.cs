@@ -4,7 +4,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 数据库字段与实体字段的列映射
     /// </summary>
-    public class Column
+    public class DbColumn
     {
         /// <summary>
         /// 列名

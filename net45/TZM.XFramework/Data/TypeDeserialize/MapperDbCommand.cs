@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令
     /// </summary>
-    public class MapperCommand : Command, IMapper
+    public class MapperDbCommand : Command, IMapper
     {
         private bool _haveManyNavigation = false;
         private bool _hasCombine = false;
@@ -57,7 +57,7 @@ namespace TZM.XFramework.Data
         /// 选择字段范围
         /// </summary>
         /// <remarks>INSERT 表达式可能用这些字段</remarks>
-        public ColumnCollection PickColumns { get; set; }
+        public DbColumnCollection PickColumns { get; set; }
 
         /// <summary>
         /// 选中字段的文本，给 Contains 表达式用
@@ -88,12 +88,12 @@ namespace TZM.XFramework.Data
         public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
 
         /// <summary>
-        /// 实例化 <see cref="MapperCommand"/> 类的新实例
+        /// 实例化 <see cref="MapperDbCommand"/> 类的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
-        public MapperCommand(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
+        public MapperDbCommand(IDbQueryProvider provider, TableAliasCache aliases, ResolveToken token)
             : base(string.Empty, token != null ? token.Parameters : null, System.Data.CommandType.Text)
         {
             _provider = provider;

@@ -122,7 +122,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
+            var cmd = (MapperDbCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -153,7 +153,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MapperDbCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
 
@@ -458,7 +458,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperCommand;
+                MapperDbCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperDbCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var column in cmd.PickColumns)
                 {
@@ -518,7 +518,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
 
                 // 解析查询用来确定是否需要嵌套
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperDbCommand;
                 if (token != null && token.Extendsions == null)
                 {
                     token.Extendsions = new Dictionary<string, object>();
@@ -539,7 +539,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
                     // 解析成 RowId IN 结构
-                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
+                    cmd = (MapperDbCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.Append("WHERE ");
                     builder.AppendMember("RowID");
                     builder.Append(" IN(");
@@ -673,7 +673,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 // 解析查询以确定是否需要嵌套
                 dbQuery.Query.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);
+                var cmd = (MapperDbCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);
 
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {

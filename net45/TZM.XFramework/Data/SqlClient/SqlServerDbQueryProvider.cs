@@ -461,8 +461,8 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperCommand;
-                foreach (Column column in cmd.PickColumns)
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperDbCommand;
+                foreach (DbColumn column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
                     if (i < cmd.PickColumns.Count - 1) builder.Append(',');

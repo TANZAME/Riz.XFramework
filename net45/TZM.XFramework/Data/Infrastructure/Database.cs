@@ -342,7 +342,7 @@ namespace TZM.XFramework.Data
         {
             Command command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as MapperCommand);
+            return this.Execute<T>(cmd, command as MapperDbCommand);
         }
 
         /// <summary>

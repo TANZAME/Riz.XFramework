@@ -532,7 +532,7 @@ namespace TZM.XFramework.Data
         /// <param name="sqlList">SQL 命令列表</param>
         /// <param name="func">执行命令的委托</param>
         /// <returns></returns>
-        protected virtual async Task<T> DoExecuteAsync<T>(List<Command> sqlList, Func<DbCommand, Task<T>> func)
+        protected virtual async Task<T> DoExecuteAsync<T>(List<Command> sqlList, Func<System.Data.Common.DbCommand, Task<T>> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -645,7 +645,7 @@ namespace TZM.XFramework.Data
         /// <param name="wasClosed">执行SQL命令后是否自动关闭连接</param>
         /// <param name="interceptException">指示外层是否捕获异常</param>
         /// <returns></returns>
-        protected virtual async Task<T> DoExecuteAsync<T>(IDbCommand command, Func<DbCommand, Task<T>> func, bool wasClosed, bool interceptException = true)
+        protected virtual async Task<T> DoExecuteAsync<T>(IDbCommand command, Func<System.Data.Common.DbCommand, Task<T>> func, bool wasClosed, bool interceptException = true)
         {
             T TResult = default(T);
 
@@ -664,7 +664,7 @@ namespace TZM.XFramework.Data
                 if (command.Connection.State != ConnectionState.Open) await ((DbConnection)command.Connection).OpenAsync();
 
                 if (interceptException) DbInterception.OnExecuting(command);
-                TResult = await func((DbCommand)command);
+                TResult = await func((System.Data.Common.DbCommand)command);
                 if (interceptException) DbInterception.OnExecuted(command);
             }
             catch (DbException e)

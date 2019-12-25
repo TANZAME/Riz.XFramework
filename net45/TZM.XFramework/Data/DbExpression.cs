@@ -24,20 +24,25 @@ namespace TZM.XFramework.Data
         /// </summary>
         public DbExpression()
             : this(DbExpressionType.None)
-        { }
-
-        /// <summary>
-        /// 实例化<see cref="DbExpression"/>类的新实例
-        /// </summary>
-        public DbExpression(DbExpressionType dbExpressionType, Expression exp = null)
         {
-            this.DbExpressionType = dbExpressionType;
-            if (exp != null) Expressions = new[] { exp };
         }
 
         /// <summary>
         /// 实例化<see cref="DbExpression"/>类的新实例
         /// </summary>
+        /// <param name="dbExpressionType">表达式类型</param>
+        /// <param name="expression">查询表达式</param>
+        public DbExpression(DbExpressionType dbExpressionType, Expression expression = null)
+        {
+            this.DbExpressionType = dbExpressionType;
+            if (expression != null) Expressions = new[] { expression };
+        }
+
+        /// <summary>
+        /// 实例化<see cref="DbExpression"/>类的新实例
+        /// </summary>
+        /// <param name="dbExpressionType">表达式类型</param>
+        /// <param name="expressions">查询表达式</param>
         public DbExpression(DbExpressionType dbExpressionType, Expression[] expressions)
         {
             this.DbExpressionType = dbExpressionType;

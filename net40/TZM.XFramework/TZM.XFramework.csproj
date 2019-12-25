@@ -344,20 +344,20 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerSqlBuilder.cs">
       <Link>Data\SqlClient\SqlServerSqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Column.cs">
-      <Link>Data\TypeDeserialize\Column.cs</Link>
-    </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\ColumnCollection.cs">
-      <Link>Data\TypeDeserialize\ColumnCollection.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
       <Link>Data\TypeDeserialize\Command.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumn.cs">
+      <Link>Data\TypeDeserialize\DbColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumnCollection.cs">
+      <Link>Data\TypeDeserialize\DbColumnCollection.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs">
       <Link>Data\TypeDeserialize\IMapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs">
-      <Link>Data\TypeDeserialize\MapperCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperDbCommand.cs">
+      <Link>Data\TypeDeserialize\MapperDbCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>

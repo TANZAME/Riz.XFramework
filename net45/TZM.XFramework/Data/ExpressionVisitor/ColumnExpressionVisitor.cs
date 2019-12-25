@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         private DbExpression _groupBy = null;
         private List<DbExpression> _include = null;
 
-        private ColumnCollection _pickColumns = null;
+        private DbColumnCollection _pickColumns = null;
         private NavigationCollection _navigations = null;
         private List<string> _navKeys = null;
         private int _startLength = 0;
@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 选中字段，Column 对应实体的原始属性
         /// </summary>
-        public ColumnCollection PickColumns
+        public DbColumnCollection PickColumns
         {
             get { return _pickColumns; }
         }
@@ -93,7 +93,7 @@ namespace TZM.XFramework.Data
             _groupBy = dbQuery.GroupBy;
             _include = dbQuery.Includes;
 
-            if (_pickColumns == null) _pickColumns = new ColumnCollection();
+            if (_pickColumns == null) _pickColumns = new DbColumnCollection();
             _navigations = new NavigationCollection();
             _navKeys = new List<string>(10);
         }

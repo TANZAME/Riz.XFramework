@@ -10,9 +10,11 @@ namespace TZM.XFramework
     /// </summary>  
     public class GZipHelper
     {
-        /// <summary>  
+        /// <summary>
         /// 压缩字符串  
-        /// </summary> 
+        /// </summary>
+        /// <param name="source">源字符串</param>
+        /// <returns></returns>
         public static string Compress(string source)
         {
             // get a stream  
@@ -48,14 +50,14 @@ namespace TZM.XFramework
             }
         }
 
-        /// <summary>  
+        /// <summary>
         /// 压缩字节  
-        /// </summary>  
-        /// <param name="bytes"></param>  
-        /// <returns></returns>  
+        /// </summary>
+        /// <param name="bytes">无符号字节数组</param>
+        /// <returns></returns>
         public static byte[] Compress(byte[] bytes)
         {
-            using (var stream = GZip<MemoryStream>(new MemoryStream(bytes), CompressionMode.Compress))
+            using (var stream = GZip(new MemoryStream(bytes), CompressionMode.Compress))
             {
                 return stream.ToArray();
             }
@@ -97,9 +99,11 @@ namespace TZM.XFramework
             }
         }
 
-        /// <summary>  
-        /// 解压字符串  
-        /// </summary>  
+        /// <summary>
+        /// 解压字符串 
+        /// </summary>
+        /// <param name="source">源字符串</param>
+        /// <returns></returns>
         public static string Decompress(string source)
         {
             // get a stream  
@@ -134,14 +138,14 @@ namespace TZM.XFramework
             }
         }
 
-        /// <summary>  
-        /// 解压字节  
-        /// </summary>  
-        /// <param name="bytes"></param>  
-        /// <returns></returns>  
+        /// <summary>
+        /// 解压字节 
+        /// </summary>
+        /// <param name="bytes">无符号字节数组</param>
+        /// <returns></returns>
         public static byte[] Decompress(byte[] bytes)
         {
-            using (var stream = GZip<MemoryStream>(new MemoryStream(bytes), CompressionMode.Decompress))
+            using (var stream = GZip(new MemoryStream(bytes), CompressionMode.Decompress))
             {
                 return stream.ToArray();
             }
@@ -185,13 +189,15 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 压缩流
+        /// 压缩/解压流
         /// </summary>
-        public static T GZip<T>(Stream stream, CompressionMode mode)
-            where T : Stream
+        /// <param name="stream">要压缩或解压缩的流</param>
+        /// <param name="mode">表示要采取的操作</param>
+        /// <returns></returns>
+        public static MemoryStream GZip(Stream stream, CompressionMode mode)
         {
             byte[] buffer = new byte[4096];
-            T ms = default(T);
+            var ms = new MemoryStream();
             using (Stream zip = new GZipStream(stream, mode))
             {
                 while (true)

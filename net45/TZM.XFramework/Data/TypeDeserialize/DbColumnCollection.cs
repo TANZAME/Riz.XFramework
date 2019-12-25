@@ -1,13 +1,10 @@
 ﻿
-using System.Collections;
-using System.Collections.Generic;
-
 namespace TZM.XFramework.Data
 {
     /// <summary>
     /// 选择列集合
     /// </summary>
-    public class ColumnCollection : HashCollection<Column>
+    public class DbColumnCollection : HashCollection<DbColumn>
     {
         /// <summary>
         /// 添加项，如果字段存在，则产生一个新名称
@@ -31,7 +28,7 @@ namespace TZM.XFramework.Data
                 dup = column.DupCount;
             }
 
-            this.Add(new Column
+            this.Add(new DbColumn
             {
                 Name = name,
                 NewName = newName,
@@ -43,7 +40,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 添加一个带有所提供的键和值的元素。
         /// </summary>
-        public void Add(Column column)
+        public void Add(DbColumn column)
         {
             base.Add(column.NewName, column);
         }

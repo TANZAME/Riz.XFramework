@@ -42,7 +42,7 @@ namespace TZM.XFramework.Data
             TypeDeserializer deserializer2 = null;
             TypeDeserializer deserializer3 = null;
 
-            Func<DbCommand, Task<object>> doExecute = async cmd =>
+            Func<System.Data.Common.DbCommand, Task<object>> doExecute = async cmd =>
             {
                 reader = await base.ExecuteReaderAsync(cmd);
                 do

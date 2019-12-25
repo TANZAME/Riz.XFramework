@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令，用于产生 WITH NOLOCK
     /// </summary>
-    internal class SqlServerMapperCommand : MapperCommand
+    internal class SqlServerMapperCommand : MapperDbCommand
     {
         private TableAliasCache _aliases = null;
         private SqlClient.SqlServerDbContext _context = null;
