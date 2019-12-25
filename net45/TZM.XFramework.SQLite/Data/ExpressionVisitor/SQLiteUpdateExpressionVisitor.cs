@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace TZM.XFramework.Data
 {
@@ -48,12 +49,14 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {
-                MemberAssignment m = node.Bindings[index] as MemberAssignment;
+                var m = node.Bindings[index] as MemberAssignment;
                 _builder.AppendMember(m.Member.Name);
                 _builder.Append(" = ");
 
-                Type newType = node.Type;
-                this.VisitWithoutRemark(x => this.VisitMemberAssignmentImpl(newType, m));
+                if (m.Expression.CanEvaluate())
+                    this.VisitWithoutRemark(x => this.VisitObjectMember(node.Type, m.Member, m.Expression.Evaluate()));
+                else
+                    this.VisitArgument(m.Expression);
 
                 if (index < node.Bindings.Count - 1)
                 {
@@ -62,15 +65,6 @@ namespace TZM.XFramework.Data
                 }
             }
             return node;
-        }
-
-        // => Name = "Name" 
-        private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
-        {
-            // 先添加当前字段的访问痕迹标记
-            var member = m.Member;
-            _visitedMark.Add(m.Member, newType);
-            base.Visit(m.Expression);
         }
 
         /// <summary>
@@ -87,14 +81,15 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Arguments.Count; index++)
             {
-                var member = node.Members[index];
-                _builder.AppendMember(member.Name);
+                var m = node.Members[index];
+                _builder.AppendMember(m.Name);
                 _builder.Append(" = ");
 
-                if (node.Arguments[index].CanEvaluate())
-                    _builder.Append(node.Arguments[index].Evaluate().Value, member);
+                if(node.Arguments[index].CanEvaluate())
+                    this.VisitWithoutRemark(x => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index].Evaluate()));
                 else
                     this.VisitArgument(node.Arguments[index]);
+                    
 
                 if (index < node.Arguments.Count - 1)
                 {
@@ -142,6 +137,14 @@ namespace TZM.XFramework.Data
             }
             _builder.Length -= 5;
             _builder.Append(')');
+        }
+
+        // 访问对象成员
+        private Expression VisitObjectMember(Type newType, MemberInfo member, Expression expression)
+        {
+            // 先添加当前字段的访问痕迹标记
+            _visitedMark.Add(member, newType);
+            return base.Visit(expression);
         }
     }
 }

@@ -133,13 +133,6 @@ namespace TZM.XFramework.Data.SqlClient
             //}
 
             return node;
-
-
-            //_builder.Append("CAST(");
-            //    _visitor.Visit(m.Object != null ? m.Object : m.Arguments[0]);
-            //    _builder.Append(" AS TEXT)");
-
-            //    return m;
         }
 
         /// <summary>
@@ -155,7 +148,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.Token, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -194,7 +187,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.Token, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -232,7 +225,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate(), _builder.Token, column);
+                string value = _dbValue.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.Token, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)

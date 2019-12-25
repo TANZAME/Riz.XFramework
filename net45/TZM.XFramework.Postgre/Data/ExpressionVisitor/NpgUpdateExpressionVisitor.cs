@@ -38,12 +38,12 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Bindings.Count; index++)
             {
-                MemberAssignment m = node.Bindings[index] as MemberAssignment;
+                var m = node.Bindings[index] as MemberAssignment;
                 _builder.AppendMember(m.Member.Name);
                 _builder.Append(" = ");
 
-                Type newType = node.Type;
-                this.VisitWithoutRemark(x => this.VisitMemberAssignmentImpl(newType, m));
+                // => Name = "Name" 
+                this.VisitWithoutRemark(x => this.VisitObjectMember(node.Type, m.Member, m.Expression));
 
                 if (index < node.Bindings.Count - 1)
                 {
@@ -52,15 +52,6 @@ namespace TZM.XFramework.Data
                 }
             }
             return node;
-        }
-
-        // => Name = "Name" 
-        private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
-        {
-            // 先添加当前字段的访问痕迹标记
-            var member = m.Member;
-            _visitedMark.Add(m.Member, newType);
-            base.Visit(m.Expression);
         }
 
         /// <summary>
@@ -81,10 +72,8 @@ namespace TZM.XFramework.Data
                 _builder.AppendMember(m.Name);
                 _builder.Append(" = ");
 
-                Type newType = node.Type;
-                MemberInfo member = node.Members[index];
-                Expression argument = node.Arguments[index];
-                this.VisitWithoutRemark(x => this.VisitNewArgumentImpl(newType, m, argument));
+                // => Name = "Name" 
+                this.VisitWithoutRemark(x => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index]));
 
                 if (index < node.Arguments.Count - 1)
                 {
@@ -96,12 +85,12 @@ namespace TZM.XFramework.Data
             return node;
         }
 
-        // 访问 New 表达式中的参数
-        private Expression VisitNewArgumentImpl(Type newType, MemberInfo member, Expression argument)
+        // 访问对象成员
+        private Expression VisitObjectMember(Type newType, MemberInfo member, Expression expression)
         {
             // 先添加当前字段的访问痕迹标记
             _visitedMark.Add(member, newType);
-            return base.Visit(argument);
+            return base.Visit(expression);
         }
     }
 }

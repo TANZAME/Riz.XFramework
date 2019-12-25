@@ -238,7 +238,7 @@ namespace TZM.XFramework.Data
             if (isMethodCall)
             {
                 MethodCallExpression methodExpression = objExpression as MethodCallExpression;
-                bool isIndex = methodExpression.IsGetListItem();
+                bool isIndex = methodExpression.IsCollectionIndex();
                 if (isIndex) objExpression = methodExpression.Object;
             }
             // => b.Client.Address.AddressName

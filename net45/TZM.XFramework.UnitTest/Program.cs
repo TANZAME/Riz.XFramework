@@ -16,7 +16,7 @@ namespace TZM.XFramework.UnitTest
         public static void Main(string[] args)
         {
             bool isDebug = true;
-            bool caseSensitive = true;
+            bool caseSensitive = false;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;

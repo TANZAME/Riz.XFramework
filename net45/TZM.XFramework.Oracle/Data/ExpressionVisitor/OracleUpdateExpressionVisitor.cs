@@ -35,10 +35,10 @@ namespace TZM.XFramework.Data
 
             for (int index = 0; index < node.Bindings.Count; ++index)
             {
-                MemberAssignment member = node.Bindings[index] as MemberAssignment;
-                _builder.AppendMember("t0", member.Member.Name);
+                var m = node.Bindings[index] as MemberAssignment;
+                _builder.AppendMember("t0", m.Member.Name);
                 _builder.Append(" = ");
-                _builder.AppendMember("t1", member.Member.Name);
+                _builder.AppendMember("t1", m.Member.Name);
 
                 if (index < node.Bindings.Count - 1)
                 {

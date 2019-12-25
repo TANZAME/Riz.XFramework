@@ -18,7 +18,6 @@ namespace TZM.XFramework
         private static readonly string _anonymousName = "<>h__TransparentIdentifier";
         private static Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);
         private static Func<string, bool> _isAnonymous = name => !string.IsNullOrEmpty(name) && name.StartsWith(_anonymousName, StringComparison.Ordinal);
-        private static MethodInfo _collectionItem = typeof(List<>).GetMethod("get_Item");
 
         /// <summary>
         /// 返回真表达式
@@ -93,8 +92,8 @@ namespace TZM.XFramework
                 // List<int>{0}[]
                 // => a.Accounts[0].Markets[0].MarketId
                 MethodCallExpression methodExpression = node as MethodCallExpression;
-                bool isGetItem = methodExpression.IsGetListItem();
-                if (isGetItem) node = methodExpression.Object;
+                bool isIndex = methodExpression.IsCollectionIndex();
+                if (isIndex) node = methodExpression.Object;
             }
 
             if (node.NodeType == ExpressionType.ListInit) return true;
@@ -121,7 +120,7 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public static bool IsGetListItem(this MethodCallExpression node)
+        public static bool IsCollectionIndex(this MethodCallExpression node)
         {
             if (node == null) return false;
             Expression objExpression = node.Object;

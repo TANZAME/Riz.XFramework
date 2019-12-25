@@ -493,8 +493,8 @@ namespace TZM.XFramework.Data
                 else if (myExpression.NodeType == ExpressionType.Call)
                 {
                     var methodExpression = myExpression as MethodCallExpression;
-                    bool isGetItem = methodExpression.IsGetListItem();
-                    if (isGetItem) myExpression = methodExpression.Object;
+                    bool isIndex = methodExpression.IsCollectionIndex();
+                    if (isIndex) myExpression = methodExpression.Object;
                 }
 
                 // 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
