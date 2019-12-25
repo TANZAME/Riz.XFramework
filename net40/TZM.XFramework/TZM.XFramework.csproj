@@ -104,11 +104,11 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\XmlHelper.cs">
       <Link>Common\Helper\XmlHelper.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\IContainer.cs">
-      <Link>Common\Ioc\IContainer.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Common\IoC\DefaultContainer.cs">
+      <Link>Common\IoC\DefaultContainer.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\XfwContainer.cs">
-      <Link>Common\Ioc\XfwContainer.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Common\IoC\IContainer.cs">
+      <Link>Common\IoC\IContainer.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Common\Mailer.cs">
       <Link>Common\Mailer.cs</Link>

@@ -148,7 +148,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             string alias0 = token != null && !string.IsNullOrEmpty(token.AliasPrefix) ? (token.AliasPrefix + "0") : "t0";
-            bool useSubQuery = dbQuery.HasDistinct || dbQuery.GroupBy != null || dbQuery.Skip > 0 || dbQuery.Take > 0;
+            bool useSubquery = dbQuery.HasDistinct || dbQuery.GroupBy != null || dbQuery.Skip > 0 || dbQuery.Take > 0;
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
@@ -161,7 +161,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套查询
 
-            if (useStatis && useSubQuery)
+            if (useStatis && useSubquery)
             {
                 // SELECT
                 jf.Append("SELECT ");
@@ -197,7 +197,7 @@ namespace TZM.XFramework.Data.SqlClient
                 jf.Append("SELECT 1 ");
             }
 
-            if (useStatis && !useSubQuery)
+            if (useStatis && !useSubquery)
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
@@ -345,7 +345,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             #region 嵌套查询
 
-            if (useStatis && useSubQuery)
+            if (useStatis && useSubquery)
             {
                 result.CombineFragments();
                 indent -= 1;

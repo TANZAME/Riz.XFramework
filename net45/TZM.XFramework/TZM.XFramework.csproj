@@ -79,7 +79,7 @@
     <Compile Include="Common\Helper\SecurityHelper.cs" />
     <Compile Include="Common\Helper\SerializeHelper.cs" />
     <Compile Include="Common\Helper\WebHelper .cs" />
-    <Compile Include="Common\IoC\XfwContainer.cs" />
+    <Compile Include="Common\IoC\DefaultContainer.cs" />
     <Compile Include="Common\IoC\IContainer.cs" />
     <Compile Include="Common\Mailer.cs" />
     <Compile Include="Common\Helper\WebHelper45.cs" />

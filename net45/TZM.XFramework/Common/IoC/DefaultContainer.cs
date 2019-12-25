@@ -7,7 +7,7 @@ namespace TZM.XFramework
     /// <summary>
     /// 默认 Ioc 容器
     /// </summary>
-    public sealed class XfwContainer : IContainer
+    public sealed class DefaultContainer : IContainer
     {
         /// <summary>
         /// 注册器
@@ -36,7 +36,7 @@ namespace TZM.XFramework
         /// <summary>
         /// 简单容器-默认实例
         /// </summary>
-        public static readonly IContainer Default = new XfwContainer();
+        public static readonly IContainer Default = new DefaultContainer();
 
         /// <summary>
         /// 向容器注册单例实例

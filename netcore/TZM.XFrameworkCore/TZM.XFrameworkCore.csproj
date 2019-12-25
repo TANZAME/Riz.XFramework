@@ -68,8 +68,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\WebHelper .cs" Link="Common\Helper\WebHelper .cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\WebHelper45.cs" Link="Common\Helper\WebHelper45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Helper\XmlHelper.cs" Link="Common\Helper\XmlHelper.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Common\IoC\DefaultContainer.cs" Link="Common\IoC\DefaultContainer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\IContainer.cs" Link="Common\IoC\IContainer.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Common\Ioc\XfwContainer.cs" Link="Common\IoC\XfwContainer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\ColumnAttribute.cs" Link="Data\Annotation\ColumnAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\ForeignKeyAttribute.cs" Link="Data\Annotation\ForeignKeyAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Annotation\TableAttribute.cs" Link="Data\Annotation\TableAttribute.cs" />
