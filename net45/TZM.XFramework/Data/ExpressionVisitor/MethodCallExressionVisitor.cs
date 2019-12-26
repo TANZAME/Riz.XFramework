@@ -20,11 +20,12 @@ namespace TZM.XFramework.Data
         private ExpressionVisitorBase _visitor = null;
         private MemberVisitedMark _visitedMark = null;
         private static HashSet<string> _removeVisitedMethods = null;
+        private List<MethodCallExpression> _notOperands = null;
 
         /// <summary>
         /// Not 运算符的方法
         /// </summary>
-        protected HashSet<MethodCallExpression> NotExpressions { get; private set; }
+        protected List<MethodCallExpression> NotOperands { get { return _notOperands; } }
 
         /// <summary>
         /// 运行时类成员
@@ -59,7 +60,6 @@ namespace TZM.XFramework.Data
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedMark;
             _dbValue = _provider.DbValue;
-            this.NotExpressions = new HashSet<MethodCallExpression>();
         }
 
         #endregion
@@ -203,10 +203,27 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
+            int count = _notOperands != null ? _notOperands.Count : 0;
             bool isCall = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
-            if (isCall) this.NotExpressions.Add((MethodCallExpression)node.Operand);
+            if (isCall)
+            {
+                if (_notOperands == null) _notOperands = new List<MethodCallExpression>();
+                _notOperands.Add((MethodCallExpression)node.Operand);
+            }
+
             _visitor.Visit(node.Operand);
-            if (this.NotExpressions.Count > 0) this.NotExpressions.Clear();
+
+            // 移除最新新增的 NOT 操作符
+            if (_notOperands != null && _notOperands.Count > count)
+            {
+                int qty = 0;
+                for (int i = _notOperands.Count - 1; i >= 0; i--)
+                {
+                    _notOperands.RemoveAt(i);
+                    qty += 1;
+                    if (_notOperands.Count - count <= qty) break;
+                }
+            }
             return node;
         }
 
@@ -1214,7 +1231,7 @@ namespace TZM.XFramework.Data
             if (m == null) return m;
 
             _visitor.Visit(m.Arguments[m.Arguments.Count - 1]);
-            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" IN(");
 
             Expression exp = m.Object != null ? m.Object : m.Arguments[0];
@@ -1273,7 +1290,7 @@ namespace TZM.XFramework.Data
                 DbContext = token.DbContext
             } : null) as MapperDbCommand;
 
-            if (this.NotExpressions.Contains(m)) _builder.Append("NOT ");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 
