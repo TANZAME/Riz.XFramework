@@ -8,7 +8,7 @@
     <owners>$author$</owners>
 	<license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/TANZAME/TZM.XFramework</projectUrl>
-	<iconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</iconUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
     <description>SQLite provider for TZM.XFramework.</description>
     <copyright>Copyright 2019</copyright>
     <tags>.NET SQLite Database Data O/RM ADO.NET</tags>
