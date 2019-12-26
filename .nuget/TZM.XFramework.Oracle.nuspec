@@ -14,16 +14,11 @@
     <tags>.NET Oracle Database Data O/RM ADO.NET</tags>
     <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
 	<dependencies>
-		<dependency id="TZM.XFramework" version="$version$" exclude="build,analyzers" />
-    </dependencies>
-    <references>
-      <group targetFramework=".NETFramework4.5">
+	  <group targetFramework=".NETFramework4.5">
+        <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
         <dependency id="Oracle.ManagedDataAccess" version="19.3.0" exclude="Build,Analyzers" />
-        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
       </group>
-    </references>
+    </dependencies>
+    <references />
   </metadata>
-  <files>
-	<file src="lib\Oracle.ManagedDataAccess.dll" target="lib\net45" />
-  </files>
 </package>

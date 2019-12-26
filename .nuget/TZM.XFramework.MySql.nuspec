@@ -15,8 +15,8 @@
     <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
 	<dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="MySqlConnector" version="0.44.1" exclude="Build,Analyzers" />
-        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
+        <dependency id="MySqlConnector" version="0.60.0" exclude="Build,Analyzers" />
+        <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

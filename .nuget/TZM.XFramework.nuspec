@@ -20,4 +20,9 @@
       <frameworkAssembly assemblyName="System.Net.Http"/>
     </frameworkAssemblies>
   </metadata>
+ <!--
+  <files>
+	<file src="lib\Oracle.ManagedDataAccess.dll" target="lib\net45" />
+  </files>
+  -->
 </package>

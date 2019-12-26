@@ -2,7 +2,7 @@
 :: 2. 填充api_key
 
 @echo off
-set api_key=oy2kk2ngquhrxcavn5zq5kowltsoisye7cbs23wd3bmtdq
+set api_key=
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
@@ -73,11 +73,11 @@ dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %s
 echo pack TZM.XFrameworkCore.SQLite
 dotnet pack --no-build --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj
 
-:: 批量推送包
-
+:: 批量推送包 
 for /R %cd% %%f in (*.nupkg) do ( 
+::echo=
+::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
 echo=
-dotnet nuget push %%f -k %api_key% -s %source_api_uri%
 )
 
 echo=

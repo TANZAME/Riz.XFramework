@@ -14,9 +14,9 @@
     <tags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</tags>
     <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
 	<dependencies>
+	  <group targetFramework=".NETFramework4.5">
         <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
         <dependency id="Npgsql" version="2.2.3" exclude="Build,Analyzers" />
-        <dependency id="TZM.XFramework" version="1.0.6" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
