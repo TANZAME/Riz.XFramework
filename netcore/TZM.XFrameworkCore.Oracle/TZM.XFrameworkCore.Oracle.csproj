@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>TANZAME</Authors>
@@ -7,30 +7,27 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>Oracle provider for TZM.XFrameworkCore.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.8.0</AssemblyVersion>
-    <Version>2.0.8</Version>
+    <AssemblyVersion>2.0.9.0</AssemblyVersion>
+    <Version>2.0.9.0</Version>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <FileVersion>2.0.8.0</FileVersion>
+    <FileVersion>2.0.9.0</FileVersion>
     <PackageTags>NET Core Oracle Database Data O/RM ADO.NET</PackageTags>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
     <OutputPath>bin\Debug</OutputPath>
     <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.Oracle.xml</DocumentationFile>
     <NoWarn />
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.Oracle.xml</DocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Data\ExpressionVisitor\.gitkeep" />
     <None Remove="Data\Infrastructure\.gitkeep" />
@@ -38,7 +35,6 @@
     <None Remove="Data\SqlClient\.gitkeep" />
     <None Remove="Data\TypeDeserialize\.gitkeep" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Annotation\OracleColumnAttribute.cs" Link="Annotation\OracleColumnAttribute.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" />
@@ -55,7 +51,6 @@
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\SqlClient\OracleSqlBuilder.cs" Link="Data\SqlClient\OracleSqlBuilder.cs" />
     <Compile Include="..\..\net45\TZM.XFramework.Oracle\Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" Link="Data\TypeDeserialize\OracleTypeDeserializerImpl.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Annotation\" />
     <Folder Include="Data\Infrastructure\" />
@@ -63,13 +58,10 @@
     <Folder Include="Data\SqlClient\" />
     <Folder Include="Data\TypeDeserialize\" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.6" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj" />
   </ItemGroup>
-
 </Project>

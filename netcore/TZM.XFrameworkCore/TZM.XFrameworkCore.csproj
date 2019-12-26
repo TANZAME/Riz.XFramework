@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>TANZAME</Authors>
@@ -7,9 +7,9 @@
     <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.8.0</AssemblyVersion>
-    <FileVersion>2.0.8.0</FileVersion>
-    <Version>2.0.8</Version>
+    <AssemblyVersion>2.0.9.0</AssemblyVersion>
+    <FileVersion>2.0.9.0</FileVersion>
+    <Version>2.0.9.0</Version>
     <Copyright>TANZAME</Copyright>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -19,26 +19,22 @@
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
     <PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>bin\Debug\netcoreapp3.1\TZM.XFrameworkCore.xml</DocumentationFile>
     <NoWarn />
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
     <DocumentationFile>bin\Release\netcoreapp3.1\TZM.XFrameworkCore.xml</DocumentationFile>
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Data\Other\**" />
     <EmbeddedResource Remove="Data\Other\**" />
     <None Remove="Data\Other\**" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="Caching\.gitkeep" />
     <None Remove="Common\Collection\.gitkeep" />
@@ -48,15 +44,12 @@
     <None Remove="Data\Infrastructure\.gitkeep" />
     <None Remove="Data\SqlClient\.gitkeep" />
   </ItemGroup>
-
   <ItemGroup>
-
     <Compile Include="..\..\net45\TZM.XFramework\Caching\ExpirationCache.cs" Link="Caching\ExpirationCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Caching\ICache.cs" Link="Caching\ICache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Caching\MemberInfoComparer.cs" Link="Caching\MemberInfoComparer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Caching\ReaderWriterCache.cs" Link="Caching\ReaderWriterCache.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Caching\SimpleCache.cs" Link="Caching\SimpleCache.cs" />
-
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\IPagedList.cs" Link="Common\Collection\IPagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Common.cs" Link="Common\Common.cs" />
@@ -157,9 +150,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerImpl.cs" Link="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
-
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Caching\" />
     <Compile Include="..\..\net45\TZM.XFramework\Common\Mailer.cs" Link="Common\Mailer.cs" />
@@ -171,15 +162,12 @@
     <Folder Include="Data\Infrastructure\" />
     <Folder Include="Data\Parsing\" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Common\Collection\" />
     <Folder Include="Common\IoC\" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
-
 </Project>
