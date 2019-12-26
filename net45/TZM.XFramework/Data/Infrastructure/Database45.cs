@@ -23,7 +23,7 @@ namespace TZM.XFramework.Data
         {
             if (_connection == null)
             {
-                _connection = this.DbProviderFactory.CreateConnection();
+                _connection = _provider.DbProviderFactory.CreateConnection();
                 _connection.ConnectionString = this.ConnectionString;
             }
             if (isOpen && _connection.State != ConnectionState.Open) await ((DbConnection)_connection).OpenAsync();

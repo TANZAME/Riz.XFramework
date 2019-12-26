@@ -22,10 +22,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="OracleDatabase"/> 类的新实例
         /// </summary>
-        /// <param name="providerFactory">数据源提供者</param>
+        /// <param name="provider">查询语义提供者</param>
         /// <param name="connectionString">数据库连接字符串</param>
-        public OracleDatabase(DbProviderFactory providerFactory, string connectionString)
-            : base(providerFactory, connectionString)
+        public OracleDatabase(IDbQueryProvider provider, string connectionString)
+            : base(provider, connectionString)
         {
         }
 
@@ -282,7 +282,7 @@ namespace TZM.XFramework.Data
             {
                 var parameters = cmd.Parameters == null
                     ? null
-                    : cmd.Parameters.ToList(x => (IDbDataParameter)this.DbProviderFactory.CreateParameter(x.ParameterName, x.Value, x.DbType, x.Size, x.Precision, x.Scale, x.Direction));
+                    : cmd.Parameters.ToList(x => (IDbDataParameter)base.CreateParameter(x.ParameterName, x.Value, x.DbType, x.Size, x.Precision, x.Scale, x.Direction));
                 var result = new Command(cmd.CommandText, parameters, cmd.CommandType);
                 return result;
             };

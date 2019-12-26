@@ -22,7 +22,7 @@ namespace TZM.XFramework.Data.SqlClient
         {
             get
             {
-                if (_database == null) _database = new SQLiteDatabase(this.Provider.DbProviderFactory, _connString)
+                if (_database == null) _database = new SQLiteDatabase(this.Provider, _connString)
                 {
                     CommandTimeout = _commandTimeout,
                     IsolationLevel = this.IsolationLevel

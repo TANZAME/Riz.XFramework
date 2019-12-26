@@ -36,12 +36,12 @@ namespace TZM.XFramework.Data
         string ParameterPrefix { get; }
 
         /// <summary>
-        /// 查询语义提供者
+        /// 表示一组方法，这些方法用于创建提供程序对数据源类的实现的实例。
         /// </summary>
         DbProviderFactory DbProviderFactory { get; }
 
         /// <summary>
-        /// SQL字段值生成器
+        /// SQL值片断生成器
         /// </summary>
         DbValue DbValue { get; }
 

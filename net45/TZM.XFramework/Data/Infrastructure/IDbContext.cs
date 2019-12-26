@@ -110,13 +110,16 @@ namespace TZM.XFramework.Data
         void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> source);
 
         /// <summary>
-        /// 附加查询项
+        /// 添加额外查询
         /// </summary>
-        void AddQuery(string query, params object[] args);
+        /// <param name="sql">SQL 命令</param>
+        /// <param name="args">参数列表</param>
+        void AddQuery(string sql, params object[] args);
 
         /// <summary>
-        /// 附加查询项
+        /// 添加额外查询
         /// </summary>
+        /// <param name="query">查询语义</param>
         void AddQuery(IDbQueryable query);
 
         /// <summary>

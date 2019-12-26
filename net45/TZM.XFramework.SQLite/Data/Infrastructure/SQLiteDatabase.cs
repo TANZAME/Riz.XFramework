@@ -27,10 +27,10 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="SQLiteDatabase"/> 类的新实例
         /// </summary>
-        /// <param name="providerFactory">数据源提供者</param>
+        /// <param name="provider">查询语义提供者</param>
         /// <param name="connectionString">数据库连接字符串</param>
-        public SQLiteDatabase(DbProviderFactory providerFactory, string connectionString)
-            : base(providerFactory, connectionString)
+        public SQLiteDatabase(IDbQueryProvider provider, string connectionString)
+            : base(provider, connectionString)
         {
         }
 

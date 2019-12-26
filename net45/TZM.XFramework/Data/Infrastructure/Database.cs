@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Data.Common;
 using System.Collections;
+using System.ComponentModel;
 using System.Collections.Generic;
 
 namespace TZM.XFramework.Data
@@ -18,7 +19,7 @@ namespace TZM.XFramework.Data
         // 批量执行SQL时每次执行命令条数
         private int _commandExecuteSize = 200;
         private string _connString = string.Empty;
-        private DbProviderFactory _dbProviderFactory = null;
+        private IDbQueryProvider _provider = null;
         private IDbConnection _connection = null;
         private IDbTransaction _transaction = null;
         // 如果不是外部调用BeginTransaction，则执行完命令后需要自动提交-释放事务
@@ -31,9 +32,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 数据源类提供者
         /// </summary>
-        public DbProviderFactory DbProviderFactory
+        public IDbQueryProvider Provider
         {
-            get { return _dbProviderFactory; }
+            get { return _provider; }
         }
 
         /// <summary>
@@ -92,12 +93,12 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="Database"/> 类的新实例
         /// </summary>
-        /// <param name="providerFactory">数据源提供者</param>
+        /// <param name="provider">查询语义提供者</param>
         /// <param name="connectionString">数据库连接字符串</param>
-        public Database(DbProviderFactory providerFactory, string connectionString)
+        public Database(IDbQueryProvider provider, string connectionString)
         {
             _connString = connectionString;
-            _dbProviderFactory = providerFactory;
+            _provider = provider;
         }
 
         #endregion
@@ -113,7 +114,7 @@ namespace TZM.XFramework.Data
         {
             if (_connection == null)
             {
-                _connection = this.DbProviderFactory.CreateConnection();
+                _connection = _provider.DbProviderFactory.CreateConnection();
                 _connection.ConnectionString = this.ConnectionString;
             }
             if (isOpen && _connection.State != ConnectionState.Open)
@@ -156,7 +157,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public IDbCommand CreateCommand(string commandText, CommandType? commandType = null, IEnumerable<IDbDataParameter> parameters = null)
         {
-            IDbCommand command = this.DbProviderFactory.CreateCommand();
+            IDbCommand command = _provider.DbProviderFactory.CreateCommand();
             command.CommandText = commandText;
             command.CommandTimeout = this.CommandTimeout != null ? this.CommandTimeout.Value : 300; // 5分钟
             if (commandType != null) command.CommandType = commandType.Value;
@@ -173,15 +174,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建命令参数
         /// </summary>
-        /// <returns></returns>
-        public virtual IDbDataParameter CreateParameter()
-        {
-            return this.DbProviderFactory.CreateParameter();
-        }
-
-        /// <summary>
-        /// 创建命令参数
-        /// </summary>
         /// <param name="name">参数名称</param>
         /// <param name="value">参数值</param>
         /// <param name="dbType">数据类型</param>
@@ -193,7 +185,12 @@ namespace TZM.XFramework.Data
         public virtual IDbDataParameter CreateParameter(string name, object value,
             DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
-            return this.DbProviderFactory.CreateParameter(name, value, dbType, size, precision, scale, direction);
+            string prefix = _provider.ParameterPrefix;
+            if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(name))
+            {
+                if (!name.StartsWith(prefix)) name = string.Format("{0}{1}", prefix, name);
+            }
+            return _provider.DbProviderFactory.CreateParameter(name, value, dbType, size, precision, scale, direction);
         }
 
         /// <summary>
@@ -216,6 +213,18 @@ namespace TZM.XFramework.Data
             IDbCommand command = this.CreateCommand(sql);
             return this.ExecuteNonQuery(command);
         }
+
+        ///// <summary>
+        ///// 执行 SQL 语句，并返回受影响的行数
+        ///// </summary>
+        ///// <param name="sql">SQL 命令</param>
+        ///// <param name="obj">命令参数</param>
+        //public int ExecuteNonQuery(string sql, object obj)
+        //{
+        //    var parameters = this.GetParameters(obj);
+        //    IDbCommand command = this.CreateCommand(sql, CommandType.Text, parameters);
+        //    return this.ExecuteNonQuery(command);
+        //}
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -920,6 +929,25 @@ namespace TZM.XFramework.Data
 
             return TResult;
         }
+
+        ///// <summary>
+        ///// 解析生成参数
+        ///// </summary>
+        ///// <param name="component">SQL 参数源</param>
+        ///// <returns></returns>
+        //protected IEnumerable<IDbDataParameter> GetParameters(object component)
+        //{
+        //    List<IDbDataParameter> result = null;
+        //    PropertyDescriptorCollection descriptors = TypeDescriptor.GetProperties(component);
+        //    foreach (PropertyDescriptor property in descriptors)
+        //    {
+        //        if (result == null) result = new List<IDbDataParameter>(descriptors.Count);
+        //        object value = property.GetValue(component);
+        //        result.Add(this.CreateParameter(property.Name, value));
+        //    }
+
+        //    return result;
+        //}
 
         #endregion
 

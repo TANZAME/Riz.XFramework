@@ -420,7 +420,7 @@ namespace TZM.XFramework.UnitTest
                         a.DemoByte == (byte)Model.State.Complete ||
                         a.DemoInt == (int)Model.State.Complete ||
                         a.DemoInt == (int)state ||
-                        (a.DemoName == "STATE" && a.DemoName == "REMARK"&& a.DemoName == _demoNameList[0]));               // OR 查询
+                        (a.DemoName == "STATE" && a.DemoName == "REMARK" && a.DemoName == _demoNameList[0]));               // OR 查询
 
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.ToString());
@@ -2437,7 +2437,7 @@ namespace TZM.XFramework.UnitTest
             IDbConnection connection = null;
             try
             {
-                connection = context.Database.DbProviderFactory.CreateConnection();
+                connection = context.Database.Provider.DbProviderFactory.CreateConnection();
                 connection.ConnectionString = context.Database.ConnectionString;
                 if (connection.State != ConnectionState.Open) connection.Open();
                 transaction2 = connection.BeginTransaction();

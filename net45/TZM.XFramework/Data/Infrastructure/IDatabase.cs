@@ -12,9 +12,9 @@ namespace TZM.XFramework.Data
     public partial interface IDatabase : IDisposable
     {
         /// <summary>
-        /// 数据源类的提供程序
+        /// 查询语义提供程序
         /// </summary>
-        DbProviderFactory DbProviderFactory { get; }
+        IDbQueryProvider Provider { get; }
 
         /// <summary>
         /// 数据库连接字符串
@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
         IsolationLevel? IsolationLevel { get; set; }
 
         /// <summary>
-        /// 实体转换映射委托生成器
+        /// 实体映射器
         /// </summary>
         TypeDeserializerImpl TypeDeserializerImpl { get; }
 
@@ -82,12 +82,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建命令参数
         /// </summary>
-        /// <returns></returns>
-        IDbDataParameter CreateParameter();
-
-        /// <summary>
-        /// 创建命令参数
-        /// </summary>
         /// <param name="name">参数名称</param>
         /// <param name="value">参数值</param>
         /// <param name="dbType">数据类型</param>
@@ -97,6 +91,8 @@ namespace TZM.XFramework.Data
         /// <param name="direction">方向</param>
         /// <returns></returns>
         IDbDataParameter CreateParameter(string name, object value, DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null);
+
+        #region 原生方法
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -109,6 +105,13 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sql">SQL 命令</param>
         int ExecuteNonQuery(string sql);
+
+        ///// <summary>
+        ///// 执行 SQL 语句，并返回受影响的行数
+        ///// </summary>
+        ///// <param name="sql">SQL 命令</param>
+        ///// <param name="obj">命令参数</param>
+        //int ExecuteNonQuery(string sql, object obj);
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -176,6 +179,10 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
         IDataReader ExecuteReader(IDbCommand command);
+
+        #endregion
+
+        #region 扩展方法
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -311,5 +318,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
         DataSet ExecuteDataSet(IDbCommand command);
+
+        #endregion
     }
 }

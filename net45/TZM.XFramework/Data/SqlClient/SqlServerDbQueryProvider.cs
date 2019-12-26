@@ -27,7 +27,7 @@ namespace TZM.XFramework.Data.SqlClient
         public override DbProviderFactory DbProviderFactory { get { return SqlClientFactory.Instance; } }
 
         /// <summary>
-        /// SQL字段值生成器
+        /// SQL值片断生成器
         /// </summary>
         public override DbValue DbValue { get { return SqlServerDbValue.Instance; } }
 

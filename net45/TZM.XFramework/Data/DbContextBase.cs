@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
         private readonly object _oLock = new object();
-        
+
         /// <summary>
         /// 查询语义集合
         /// </summary>
@@ -46,7 +46,7 @@ namespace TZM.XFramework.Data
         {
             get
             {
-                if (_database == null) _database = new Database(this.Provider.DbProviderFactory, _connString)
+                if (_database == null) _database = new Database(this.Provider, _connString)
                 {
                     CommandTimeout = _commandTimeout,
                     IsolationLevel = this.IsolationLevel
@@ -274,10 +274,12 @@ namespace TZM.XFramework.Data
             lock (this._oLock)
                 _dbQueryables.Add(source);
         }
-
+        
         /// <summary>
-        /// 附加查询项
+        /// 添加额外查询
         /// </summary>
+        /// <param name="sql">SQL 命令</param>
+        /// <param name="args">参数列表</param>
         public void AddQuery(string sql, params object[] args)
         {
             if (!string.IsNullOrEmpty(sql))
@@ -289,8 +291,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 附加查询项
+        /// 添加额外查询
         /// </summary>
+        /// <param name="query">查询语义</param>
         public void AddQuery(IDbQueryable query)
         {
             lock (this._oLock)
