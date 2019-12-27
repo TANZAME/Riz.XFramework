@@ -42,7 +42,7 @@ namespace TZM.XFramework.UnitTest
         {
             _databaseType = dbType;
             Query();
-            DbFunc();
+            DbFunction();
             Join();
             Insert();
             Update();
@@ -448,7 +448,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = DbFunction.RowNumber<long>(a.DemoCode, false)
+                    RowNumber = Data.DbFunction.RowNumber<long>(a.DemoCode, false)
                 });
             var reuslt1 = query1.ToList();
             Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
@@ -462,7 +462,7 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = DbFunction.PartitionRowNumber<long>(a.ClientId, a.AccountId, true)
+                RowNumber = Data.DbFunction.PartitionRowNumber<long>(a.ClientId, a.AccountId, true)
             });
             reuslt1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.ToString());
@@ -493,7 +493,7 @@ namespace TZM.XFramework.UnitTest
         }
 
         // 数据库函数支持
-        protected virtual void DbFunc()
+        protected virtual void DbFunction()
         {
             var context = _newContext();
             int m_byte = 16;
@@ -608,7 +608,7 @@ namespace TZM.XFramework.UnitTest
                 {
                     DemoId = a.DemoId,
                     Mod = a.DemoId % 2,
-                    Divide = DbFunction.Cast<decimal>(a.DemoId, "decimal") / 2,
+                    Divide = Data.DbFunction.Cast<decimal>(a.DemoId, "decimal") / 2,
                     Abs = Math.Abs(a.DemoDecimal),
                     Acos = Math.Acos(a.DemoId / 2.00),
                     Asin = Math.Asin(a.DemoId / 2.00),
@@ -657,6 +657,11 @@ namespace TZM.XFramework.UnitTest
 
             // 日期类型操作
             #region 条件
+
+            query = from a in context.GetTable<TDemo>()
+                    where a.DemoDate == DateTime.Now && !DateTime.IsLeapYear(2019)
+                    select a;
+            result = query.ToList();
 
             query = from a in context.GetTable<TDemo>()
                     where
@@ -1826,7 +1831,7 @@ namespace TZM.XFramework.UnitTest
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 2),
+                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 2),
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 3,
@@ -1856,7 +1861,7 @@ namespace TZM.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 1),
+                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 1),
                     ClientCode = "XFramework100+",
                     ClientName = "XFramework100+",
                     CloudServerId = 3,

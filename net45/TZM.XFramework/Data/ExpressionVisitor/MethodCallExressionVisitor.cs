@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
 
         static MethodCallExpressionVisitor()
         {
-            // 自身构成布尔表达式的，发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
+            // 1. 自身构成布尔表达式的 2. 发生类型改变的，一律不需要记录访问成员痕迹，否则会产生 DbType 不一致的问题
             _removeVisitedMethods = new HashSet<string>
             {
                 "ToString",
@@ -44,7 +44,8 @@ namespace TZM.XFramework.Data
                 "StartsWith",
                 "EndsWith",
                 "IsNullOrEmpty",
-                "IndexOf"
+                "IndexOf",
+                "IsLeapYear"
             };
         }
 
@@ -204,8 +205,8 @@ namespace TZM.XFramework.Data
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
             int count = _notOperands != null ? _notOperands.Count : 0;
-            bool isCall = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
-            if (isCall)
+            bool isNotMethod = node.NodeType == ExpressionType.Not && node.Operand.NodeType == ExpressionType.Call;
+            if (isNotMethod)
             {
                 if (_notOperands == null) _notOperands = new List<MethodCallExpression>();
                 _notOperands.Add((MethodCallExpression)node.Operand);
