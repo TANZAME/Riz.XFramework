@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStringContains(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -181,7 +181,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitStartsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -219,7 +219,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override Expression VisitEndsWith(MethodCallExpression m)
         {
             _visitor.Visit(m.Object);
-            if (this.NotExpressions.Contains(m)) _builder.Append(" NOT");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append(" NOT");
             _builder.Append(" LIKE ");
             if (m.Arguments[0].CanEvaluate())
             {
@@ -443,7 +443,7 @@ namespace TZM.XFramework.Data.SqlClient
                 DbContext = token.DbContext
             } : null) as MapperDbCommand;
 
-            if (this.NotExpressions.Contains(m)) _builder.Append("NOT ");
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
             _builder.Append(cmd.CommandText);
 

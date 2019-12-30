@@ -21,7 +21,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="method">方法元数据</param>
         public MethodAccessor(MethodInfo method)
-            :base(method)
+            : base(method)
         {
             _method = method;
         }
@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public override object Invoke(object target, params object[] parameters)
         {
-            if(_func== null) _func= MethodAccessor.Initialize(_method);
+            if (_func == null) _func = MethodAccessor.Initialize(_method);
             return _func(target, parameters);
         }
 
