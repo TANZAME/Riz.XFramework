@@ -793,6 +793,8 @@ namespace TZM.XFramework
                 // 创建请求
                 var request = WebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
+                // 默认连接最大数=2，如果没有全局设置，则需要设置并发连接数
+                if (ServicePointManager.DefaultConnectionLimit == 2) request.ServicePoint.ConnectionLimit = 65532;
                 if (configuration != null)
                 {
                     request.ContentLength = 0;
