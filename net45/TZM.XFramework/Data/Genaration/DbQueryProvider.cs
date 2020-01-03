@@ -253,12 +253,12 @@ namespace TZM.XFramework.Data
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
 
             // on a.Name equals b.Name 或 on new{ Name = a.Name,Id=a.Id } equals new { Name = b.Name,Id=b.Id }
-            LambdaExpression left = dbExpression.Expressions[1] as LambdaExpression;
-            LambdaExpression right = dbExpression.Expressions[2] as LambdaExpression;
+            var left = dbExpression.Expressions[1] as LambdaExpression;
+            var right = dbExpression.Expressions[2] as LambdaExpression;
             if (left.Body.NodeType == ExpressionType.New)
             {
-                NewExpression body1 = left.Body as NewExpression;
-                NewExpression body2 = right.Body as NewExpression;
+                var body1 = left.Body as NewExpression;
+                var body2 = right.Body as NewExpression;
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
                     aliases.GetTableAlias(body1.Arguments[index]);
@@ -272,8 +272,8 @@ namespace TZM.XFramework.Data
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
             {
-                MemberInitExpression body1 = left.Body as MemberInitExpression;
-                MemberInitExpression body2 = right.Body as MemberInitExpression;
+                var body1 = left.Body as MemberInitExpression;
+                var body2 = right.Body as MemberInitExpression;
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
                     aliases.GetTableAlias((body1.Bindings[index] as MemberAssignment).Expression);
@@ -297,10 +297,10 @@ namespace TZM.XFramework.Data
         // 获取 CROSS JOIN 子句关联表的的别名
         private void PrepareCrossAlias(DbExpression dbExpression, TableAliasCache aliases)
         {
-            LambdaExpression lambdaExp = dbExpression.Expressions[1] as LambdaExpression;
-            for (int index = 0; index < lambdaExp.Parameters.Count; ++index)
+            var lambda = dbExpression.Expressions[1] as LambdaExpression;
+            for (int index = 0; index < lambda.Parameters.Count; ++index)
             {
-                aliases.GetTableAlias(lambdaExp.Parameters[index]);
+                aliases.GetTableAlias(lambda.Parameters[index]);
             }
         }
 
