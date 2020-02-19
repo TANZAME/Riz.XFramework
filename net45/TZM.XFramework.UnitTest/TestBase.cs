@@ -41,13 +41,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            //Query();
-            //DbFunction();
-            //Join();
-            //Insert();
-            //Update();
-            //Delete();
-            //API();
+            Query();
+            DbFunction();
+            Join();
+            Insert();
+            Update();
+            Delete();
+            API();
             Rabbit();
         }
 
@@ -1009,7 +1009,7 @@ namespace TZM.XFramework.UnitTest
             query =
                 context
                 .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, x => new { x.CloudServerId, x.CloudServerCode });
+                .Include(a => a.CloudServer, x => new { Ok= _demoName, x.CloudServerId, x.CloudServerCode });
             result = query.ToList();
             query =
                 context

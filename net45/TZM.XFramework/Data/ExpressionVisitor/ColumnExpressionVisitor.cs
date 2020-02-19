@@ -251,23 +251,26 @@ namespace TZM.XFramework.Data
             else
             {
                 // Include 中选中的字段
-                Expression expr = pickExpression;
-                if (expr.NodeType == ExpressionType.Lambda) expr = (pickExpression as LambdaExpression).Body;
-                if (expr.NodeType == ExpressionType.New)
+                Expression expression = pickExpression;
+                if (expression.NodeType == ExpressionType.Lambda) expression = (pickExpression as LambdaExpression).Body;
+                if (expression.NodeType == ExpressionType.New)
                 {
-                    var newExpression = expr as NewExpression;
+                    var newExpression = expression as NewExpression;
                     for (int i = 0; i < newExpression.Arguments.Count; i++)
                     {
                         var memberExpression = newExpression.Arguments[i] as MemberExpression;
                         if (memberExpression == null) throw new XFrameworkException("MemberExpression required at the {0} arguments.", i);
 
-                        _builder.AppendMember(alias, memberExpression.Member.Name);
+                        if (memberExpression.CanEvaluate())
+                            base.Visit(memberExpression);
+                        else
+                            _builder.AppendMember(alias, memberExpression.Member.Name);
                         this.AddPickColumn(newExpression.Members != null ? newExpression.Members[i].Name : memberExpression.Member.Name);
                     }
                 }
-                else if (expr.NodeType == ExpressionType.MemberInit)
+                else if (expression.NodeType == ExpressionType.MemberInit)
                 {
-                    var initExpression = expr as MemberInitExpression;
+                    var initExpression = expression as MemberInitExpression;
                     for (int i = 0; i < initExpression.Bindings.Count; i++)
                     {
                         var binding = initExpression.Bindings[i] as MemberAssignment;
@@ -276,13 +279,16 @@ namespace TZM.XFramework.Data
                         var memberExpression = binding.Expression as MemberExpression;
                         if (memberExpression == null) throw new XFrameworkException("MemberExpression required at the {0} arguments.", i);
 
-                        _builder.AppendMember(alias, memberExpression.Member.Name);
+                        if (memberExpression.CanEvaluate())
+                            base.Visit(memberExpression);
+                        else
+                            _builder.AppendMember(alias, memberExpression.Member.Name);
                         this.AddPickColumn(binding.Member.Name);
                     }
                 }
                 else
                 {
-                    throw new NotSupportedException(string.Format("Include method not supporte {0}", expr.NodeType));
+                    throw new NotSupportedException(string.Format("Include method not supporte {0}", expression.NodeType));
                 }
             }
 
