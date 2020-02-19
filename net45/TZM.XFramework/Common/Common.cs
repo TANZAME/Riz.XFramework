@@ -250,6 +250,7 @@ namespace TZM.XFramework
                     {
                         navs.Add(m.Member.Name);
                         node = m.Expression;
+                        if (node.NodeType == ExpressionType.Call) node = (node as MethodCallExpression).Object;
                     }
                 }
             }
