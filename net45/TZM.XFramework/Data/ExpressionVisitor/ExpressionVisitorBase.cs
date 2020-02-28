@@ -352,15 +352,15 @@ namespace TZM.XFramework.Data
                 if (node.NodeType != ExpressionType.MemberAccess) break;
 
                 if (stack == null) stack = new Stack<KeyValuePair<string, MemberExpression>>();
-                var memberExpression = node as MemberExpression;
+                var member = node as MemberExpression;
 
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.Expression.Type);
+                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Member.Name);
                 if (attribute == null) break;
 
-                string key = memberExpression.GetKeyWidthoutAnonymous();
-                stack.Push(new KeyValuePair<string, MemberExpression>(key, memberExpression));
-                node = memberExpression.Expression;
+                string key = member.GetKeyWidthoutAnonymous();
+                stack.Push(new KeyValuePair<string, MemberExpression>(key, member));
+                node = member.Expression;
                 if (node.NodeType == ExpressionType.Call) node = (node as MethodCallExpression).Object;
             }
 
@@ -370,8 +370,8 @@ namespace TZM.XFramework.Data
                 {
                     KeyValuePair<string, MemberExpression> kvp = stack.Pop();
                     string key = kvp.Key;
-                    MemberExpression memberExpression = kvp.Value;
-                    Type type = memberExpression.Type;
+                    MemberExpression member = kvp.Value;
+                    Type type = member.Type;
                     if (type.IsGenericType) type = type.GetGenericArguments()[0];
 
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
@@ -505,16 +505,16 @@ namespace TZM.XFramework.Data
         {
             if (subExpression != null)
             {
-                UnaryExpression unaryExpression = subExpression as UnaryExpression;
-                if (unaryExpression != null) return this.UseBracket(expression, unaryExpression.Operand);
+                var unary = subExpression as UnaryExpression;
+                if (unary != null) return this.UseBracket(expression, unary.Operand);
 
-                InvocationExpression invokeExpression = subExpression as InvocationExpression;
-                if (invokeExpression != null) return this.UseBracket(expression, invokeExpression.Expression);
+                var invocation = subExpression as InvocationExpression;
+                if (invocation != null) return this.UseBracket(expression, invocation.Expression);
 
-                LambdaExpression lambdaExpression = subExpression as LambdaExpression;
-                if (lambdaExpression != null) return this.UseBracket(expression, lambdaExpression.Body);
+                var lambda = subExpression as LambdaExpression;
+                if (lambda != null) return this.UseBracket(expression, lambda.Body);
 
-                BinaryExpression b = subExpression as BinaryExpression;
+                var b = subExpression as BinaryExpression;
                 if (b != null)
                 {
                     if (expression.NodeType == ExpressionType.OrElse)
