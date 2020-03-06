@@ -60,7 +60,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// ~批次执行的SQL数量，默认200个查询语句
         /// </summary>
-        public int CommanExecuteSize { get { return _commandExecuteSize; } }
+        public int CommanExecuteSize
+        {
+            get { return _commandExecuteSize; }
+            set { _commandExecuteSize = value; }
+        }
 
         /// <summary>
         /// 当前连接会话

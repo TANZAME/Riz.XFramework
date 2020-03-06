@@ -39,7 +39,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 批次执行的SQL查询语句数量
         /// </summary>
-        int CommanExecuteSize { get; }
+        int CommanExecuteSize { get; set; }
 
         /// <summary>
         /// 获取当前连接会话
