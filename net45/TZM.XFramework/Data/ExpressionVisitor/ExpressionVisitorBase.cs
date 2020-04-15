@@ -30,7 +30,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员访问痕迹
         /// </summary>
-        protected MemberVisitedMark _visitedMark = null;
+        protected MemberVisitedStack _visitedStack = null;
 
         //防SQL注入字符
         //private static readonly Regex RegSystemThreats = 
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 成员访问痕迹
         /// </summary>
-        public MemberVisitedMark VisitedMark { get { return _visitedMark; } }
+        public MemberVisitedStack VisitedStack { get { return _visitedStack; } }
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace TZM.XFramework.Data
             _provider = provider;
             _aliases = aliases;
             _expression = expression;
-            _visitedMark = new MemberVisitedMark();
+            _visitedStack = new MemberVisitedStack();
             _navMembers = new Dictionary<string, MemberExpression>();
         }
 
@@ -181,7 +181,7 @@ namespace TZM.XFramework.Data
             //fix# char ~~，because expression tree converted char type 2 int.
             if (c != null && c.Value != null)
             {
-                var m = _visitedMark.Current;
+                var m = _visitedStack.Current;
                 bool isChar = m != null && (m.DataType == typeof(char) || m.DataType == typeof(char?)) && c.Type == typeof(int);
                 if (isChar)
                 {
@@ -190,7 +190,7 @@ namespace TZM.XFramework.Data
                 }
             }
 
-            _builder.Append(c.Value, _visitedMark.Current);
+            _builder.Append(c.Value, _visitedStack.Current);
             return c;
         }
 
@@ -225,7 +225,7 @@ namespace TZM.XFramework.Data
             }
 
             // 记录访问成员栈
-            _visitedMark.Add(node);
+            _visitedStack.Add(node);
 
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
@@ -275,9 +275,9 @@ namespace TZM.XFramework.Data
         /// <param name="visit">访问委托</param>
         protected void VisitWithoutRemark(Action<object> visit)
         {
-            int visitedQty = _visitedMark.Count;
+            int visitedQty = _visitedStack.Count;
             visit(null);
-            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            if (_visitedStack.Count != visitedQty) _visitedStack.Remove(_visitedStack.Count - visitedQty);
         }
 
         /// <summary>
@@ -287,9 +287,9 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Expression VisitWithoutRemark(Func<object, Expression> visit)
         {
-            int visitedQty = _visitedMark.Count;
+            int visitedQty = _visitedStack.Count;
             var newNode = visit(null);
-            if (_visitedMark.Count != visitedQty) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+            if (_visitedStack.Count != visitedQty) _visitedStack.Remove(_visitedStack.Count - visitedQty);
             return newNode;
         }
 

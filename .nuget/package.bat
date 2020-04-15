@@ -1,5 +1,7 @@
 :: 1. 编译release版本
 :: 2. 填充api_key
+:: 3. 批量推送包里面的注释去掉
+:: 4. 欢快地跑起来
 
 @echo off
 set api_key=

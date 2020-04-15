@@ -55,12 +55,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public virtual TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
+        protected virtual TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
 
         /// <summary>
         /// ~批次执行的SQL数量，默认200个查询语句
         /// </summary>
-        public int CommanExecuteSize { get { return _commandExecuteSize; } }
+        public int CommanExecuteSize
+        {
+            get { return _commandExecuteSize; }
+            set { _commandExecuteSize = value; }
+        }
 
         /// <summary>
         /// 当前连接会话
@@ -736,6 +740,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 实体转换映射委托生成器
+        /// </summary>
+        TypeDeserializerImpl IDatabase.TypeDeserializerImpl { get { return this.TypeDeserializerImpl; } }
+
+        /// <summary>
         /// 强制释放所有资源
         /// </summary>
         protected virtual void Dispose(bool disposing)
@@ -958,9 +967,9 @@ namespace TZM.XFramework.Data
         /// .NET的DataSet.Load方法，底层调用DataAdapter.Fill(DataTable[], IDataReader, int, int)
         /// Dapper想要返回DataSet，需要重写Load方法，不必传入DataTable[]，因为数组长度不确定
         /// </summary>
-        class XLoadAdapter : DataAdapter
+        class InternalLoadAdapter : DataAdapter
         {
-            public XLoadAdapter()
+            public InternalLoadAdapter()
             {
             }
 
@@ -977,7 +986,7 @@ namespace TZM.XFramework.Data
         {
             public override void Load(IDataReader reader, LoadOption loadOption, FillErrorEventHandler handler, params DataTable[] tables)
             {
-                XLoadAdapter adapter = new XLoadAdapter
+                InternalLoadAdapter adapter = new InternalLoadAdapter
                 {
                     FillLoadOption = loadOption,
                     MissingSchemaAction = MissingSchemaAction.AddWithKey

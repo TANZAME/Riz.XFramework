@@ -369,7 +369,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="TOuter">第一个序列中的元素的类型</typeparam>
         /// <typeparam name="TInner">第二个序列中的元素的类型</typeparam>
-        /// <typeparam name="TKey">http://192.168.13.19:81/zentao/bug-view-2373.html</typeparam>
+        /// <typeparam name="TKey">键选择器函数返回的键的类型</typeparam>
         /// <typeparam name="TResult">结果元素的类型</typeparam>
         /// <param name="outer">要联接的第一个序列</param>
         /// <param name="inner">要与第一个序列联接的序列</param>

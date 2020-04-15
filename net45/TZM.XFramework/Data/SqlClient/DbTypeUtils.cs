@@ -123,7 +123,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="m">将要检查的字段或属性成员</param>
         /// <returns></returns>
-        public static bool IsUnicode(MemberVisitedMark.VisitedMember m)
+        public static bool IsUnicode(MemberVisitedStack.VisitedMember m)
         {
             ColumnAttribute column = null;
             return DbTypeUtils.IsUnicode(m, out column);
@@ -135,7 +135,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="m">将要检查的字段或属性成员</param>
         /// <param name="column">字段或属性成员显示声明的列特性</param>
         /// <returns></returns>
-        public static bool IsUnicode(MemberVisitedMark.VisitedMember m, out ColumnAttribute column)
+        public static bool IsUnicode(MemberVisitedStack.VisitedMember m, out ColumnAttribute column)
         {
             column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
             return DbTypeUtils.IsUnicode(column == null ? null : column.DbType);

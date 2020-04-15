@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data.SqlClient
         private IDbQueryProvider _provider = null;
         private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
-        private MemberVisitedMark _visitedMark = null;
+        private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace TZM.XFramework.Data.SqlClient
             _provider = provider;
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
-            _visitedMark = _visitor.VisitedMark;
+            _visitedMark = _visitor.VisitedStack;
             _dbValue = _provider.DbValue;
         }
 

@@ -206,8 +206,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\JoinExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedMark.cs">
-      <Link>Data\ExpressionVisitor\MemberVisitedMark.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedStack.cs">
+      <Link>Data\ExpressionVisitor\MemberVisitedStack.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs">
       <Link>Data\ExpressionVisitor\MethodCallExressionVisitor.cs</Link>

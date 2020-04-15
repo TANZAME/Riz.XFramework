@@ -194,7 +194,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        public ISqlBuilder Append(object value, MemberVisitedMark.VisitedMember m)
+        public ISqlBuilder Append(object value, MemberVisitedStack.VisitedMember m)
         {
             var sql = _dbValue.GetSqlValue(value, _token, m);
             return this.Append(sql);

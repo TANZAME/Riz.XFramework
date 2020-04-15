@@ -88,7 +88,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
-        ISqlBuilder Append(object value, MemberVisitedMark.VisitedMember m);
+        ISqlBuilder Append(object value, MemberVisitedStack.VisitedMember m);
 
         /// <summary>
         /// 在此实例的结尾追加回车符
