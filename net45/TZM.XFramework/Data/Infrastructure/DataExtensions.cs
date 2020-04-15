@@ -10,6 +10,31 @@ namespace TZM.XFramework.Data
     /// </summary>
     public static class DataExtensions
     {
+
+        /// <summary>
+        /// 创建参数对象的新实例，并添加到 IDbCommand.Parameters 集合
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <param name="dbType"></param>
+        /// <param name="size"></param>
+        /// <param name="precision"></param>
+        /// <param name="scale"></param>
+        /// <param name="direction"></param>
+        public static IDbDataParameter CreateParameter(this IDbCommand cmd, string name, object value,
+            DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
+        {
+            IDbDataParameter parameter = cmd.CreateParameter();
+            parameter.ParameterName = name;
+            parameter.Value = value;
+            DataExtensions.FixParameter(parameter, value, dbType, size, precision, scale, direction);
+            cmd.Parameters.Add(parameter);
+
+            // 返回创建的参数
+            return parameter;
+        }
+
         /// <summary>
         /// 创建命令参数
         /// </summary>
@@ -28,7 +53,15 @@ namespace TZM.XFramework.Data
             IDbDataParameter parameter = providerFactory.CreateParameter();
             parameter.ParameterName = name;
             parameter.Value = value;
+            DataExtensions.FixParameter(parameter, value, dbType, size, precision, scale, direction);
 
+            // 返回创建的参数
+            return parameter;
+        }
+
+        // 赋值参数属性
+        static void FixParameter(IDbDataParameter parameter, object value, DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
+        {
             if (dbType != null) parameter.DbType = dbType.Value;
             if (size != null && (size.Value > 0 || size.Value == -1)) parameter.Size = size.Value;
             if (precision != null && precision.Value > 0) parameter.Precision = (byte)precision.Value;
@@ -54,9 +87,6 @@ namespace TZM.XFramework.Data
                     else parameter.Size = -1;
                 }
             }
-
-            // 返回创建的参数
-            return parameter;
         }
     }
 }
