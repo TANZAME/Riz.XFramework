@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class ConstructorAccessor
     {
-        private Func<object[], object> _func = null;
+        private Func<object[], object> _constructor = null;
         private ConstructorInfo _ctor = null;
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public object Invoke(params object[] parameters)
         {
-            _func = _func ?? ConstructorAccessor.Initialize(_ctor);
-            return _func(parameters);
+            _constructor = _constructor ?? ConstructorAccessor.Initialize(_ctor);
+            return _constructor(parameters);
         }
     }
 }

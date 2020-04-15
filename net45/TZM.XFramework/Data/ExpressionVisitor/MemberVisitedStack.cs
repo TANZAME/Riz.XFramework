@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 已访问成员栈，用于计算常量的数据库类型
     /// </summary>
-    public class MemberVisitedMark
+    public class MemberVisitedStack
     {
         private Stack<VisitedMember> _visitedMembers = null;
 

@@ -90,7 +90,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\GroupByExpressionVisitor.cs" Link="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\HavingExpressionVisitor.cs" Link="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs" Link="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedMark.cs" Link="Data\ExpressionVisitor\MemberVisitedMark.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MemberVisitedStack.cs" Link="Data\ExpressionVisitor\MemberVisitedStack.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs" Link="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />

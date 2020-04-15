@@ -89,7 +89,7 @@ namespace TZM.XFramework.Data
         private Expression VisitObjectMember(Type newType, MemberInfo member, Expression expression)
         {
             // 先添加当前字段的访问痕迹标记
-            _visitedMark.Add(member, newType);
+            _visitedStack.Add(member, newType);
             return base.Visit(expression);
         }
     }

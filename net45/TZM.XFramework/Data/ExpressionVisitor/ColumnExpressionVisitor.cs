@@ -301,7 +301,7 @@ namespace TZM.XFramework.Data
         private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
         {
             // 先添加当前字段的访问痕迹标记
-            _visitedMark.Add(m.Member, newType);
+            _visitedStack.Add(m.Member, newType);
 
             if (TypeUtils.IsPrimitive(m.Member))
             {
@@ -389,7 +389,7 @@ namespace TZM.XFramework.Data
         private Expression VisitNewArgumentImpl(Type newType, MemberInfo member, Expression argument)
         {
             // 先添加当前字段的访问痕迹标记
-            if (member != null) _visitedMark.Add(member, newType);
+            if (member != null) _visitedStack.Add(member, newType);
 
             if (argument.NodeType == ExpressionType.Parameter)
             {
@@ -400,7 +400,7 @@ namespace TZM.XFramework.Data
             else if (argument.CanEvaluate())
             {
                 //例： DateTime.Now
-                _builder.Append(argument.Evaluate().Value, _visitedMark.Current);
+                _builder.Append(argument.Evaluate().Value, _visitedStack.Current);
                 this.AddPickColumn(member.Name);
             }
             else if (argument.NodeType == ExpressionType.MemberAccess || argument.NodeType == ExpressionType.Call)

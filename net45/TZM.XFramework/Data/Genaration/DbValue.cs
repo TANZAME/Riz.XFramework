@@ -47,7 +47,7 @@ namespace TZM.XFramework.Data
         /// <param name="token">解析上下文</param>
         /// <param name="m">value 对应的成员</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ResolveToken token, MemberVisitedMark.VisitedMember m)
+        public string GetSqlValue(object value, ResolveToken token, MemberVisitedStack.VisitedMember m)
         {
             ColumnAttribute column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
             return this.GetSqlValue(value, token, column);

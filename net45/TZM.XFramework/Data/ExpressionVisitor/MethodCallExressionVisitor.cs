@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private DbValue _dbValue = null;
         private ExpressionVisitorBase _visitor = null;
-        private MemberVisitedMark _visitedMark = null;
+        private MemberVisitedStack _visitedStack = null;
         private static HashSet<string> _removeVisitedMethods = null;
         private List<MethodCallExpression> _notOperands = null;
 
@@ -59,7 +59,7 @@ namespace TZM.XFramework.Data
             _provider = provider;
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
-            _visitedMark = _visitor.VisitedMark;
+            _visitedStack = _visitor.VisitedStack;
             _dbValue = _provider.DbValue;
         }
 
@@ -75,7 +75,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Expression Visit(Expression node, MethodCall router)
         {
-            int visitedQty = _visitedMark.Count;
+            int visitedQty = _visitedStack.Count;
             Expression newNode = null;
 
             if (router == MethodCall.Coalesce)
@@ -92,7 +92,7 @@ namespace TZM.XFramework.Data
                 newNode = this.VisitUnary((UnaryExpression)node);
 
             // 自身已构成布尔表达式的则需要删除它本身所产生的访问链
-            if (_visitedMark.Count != visitedQty)
+            if (_visitedStack.Count != visitedQty)
             {
                 bool b = router != MethodCall.Unary;
                 if (b && router == MethodCall.MethodCall)
@@ -101,7 +101,7 @@ namespace TZM.XFramework.Data
                     b = _removeVisitedMethods.Contains(m.Method.Name);
                 }
 
-                if (b) _visitedMark.Remove(_visitedMark.Count - visitedQty);
+                if (b) _visitedStack.Remove(_visitedStack.Count - visitedQty);
             }
             return newNode;
         }
