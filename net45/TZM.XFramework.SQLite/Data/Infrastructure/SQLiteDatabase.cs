@@ -22,7 +22,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return SQLiteDeserializerImpl.Instance; } }
+        protected override TypeDeserializerImpl TypeDeserializerImpl { get { return SQLiteDeserializerImpl.Instance; } }
 
         /// <summary>
         /// 初始化 <see cref="SQLiteDatabase"/> 类的新实例

@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return OracleTypeDeserializerImpl.Instance; } }
+        protected override TypeDeserializerImpl TypeDeserializerImpl { get { return OracleTypeDeserializerImpl.Instance; } }
 
         /// <summary>
         /// 初始化 <see cref="OracleDatabase"/> 类的新实例
