@@ -1286,6 +1286,7 @@ namespace TZM.XFramework.Data
             subQuery.Parameterized = _builder.Parameterized;
             var cmd = subQuery.Resolve(_builder.Indent + 1, false, token != null ? new ResolveToken
             {
+                Parameterized = token.Parameterized,
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = token.DbContext

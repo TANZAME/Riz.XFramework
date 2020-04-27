@@ -9,6 +9,33 @@ namespace TZM.XFramework.Data
     /// </summary>
     public class ResolveToken
     {
+        private bool _parameterized = false;
+        private bool _hasSetParameterized = false;
+
+        /// <summary>
+        /// 获取或设置该查询是否需要参数化
+        /// </summary>
+        /// <remarks>
+        /// 批量插入数据不需要参数化
+        /// </remarks>
+        public bool Parameterized
+        {
+            get { return _parameterized; }
+            set
+            {
+                _parameterized = value;
+                _hasSetParameterized = true;
+            }
+        }
+
+        /// <summary>
+        /// Parameterized 属性是否已被设置
+        /// </summary>
+        public bool HasSetParameterized
+        {
+            get { return _hasSetParameterized; }
+        }
+
         /// <summary>
         /// 参数列表
         /// </summary>

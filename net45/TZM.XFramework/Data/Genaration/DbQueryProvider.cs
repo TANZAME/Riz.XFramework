@@ -80,7 +80,8 @@ namespace TZM.XFramework.Data
             // 参数化设置
             if (token == null) token = new ResolveToken();
             if (!dbQuery.HasSetParameterized) dbQuery.Parameterized = true;
-            if (dbQuery.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
+            if (!token.HasSetParameterized) token.Parameterized = dbQuery.Parameterized;
+            if (token.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
             if (token.DbContext == null) token.DbContext = dbQuery.DbContext;
 
             // 解析查询语义
