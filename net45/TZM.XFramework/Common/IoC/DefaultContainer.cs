@@ -69,7 +69,7 @@ namespace TZM.XFramework
         public T Resolve<T>() where T : class
         {
             Activator activator;
-            if (!_cache.TryGet(typeof(T), out activator)) 
+            if (!_cache.TryGet(typeof(T), out activator))
                 throw new XFrameworkException(typeof(T).FullName + " is not registered");
 
             if (activator.Instance != null) return (T)activator.Instance;
@@ -85,8 +85,16 @@ namespace TZM.XFramework
         /// </summary>
         public bool IsRegistered<T>() where T : class
         {
+            return this.IsRegistered(typeof(T));
+        }
+
+        /// <summary>
+        /// 返回指定类型是否已经在容器中
+        /// </summary>
+        public bool IsRegistered(Type type)
+        {
             Activator activator;
-            return _cache.TryGet(typeof(T), out activator);
+            return _cache.TryGet(type, out activator);
         }
     }
 }
