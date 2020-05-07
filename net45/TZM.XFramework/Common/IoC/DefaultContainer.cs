@@ -9,28 +9,6 @@ namespace TZM.XFramework
     /// </summary>
     public sealed class DefaultContainer : IContainer
     {
-        /// <summary>
-        /// 注册器
-        /// </summary>
-        class Activator
-        {
-            /// <summary>
-            /// 单例
-            /// </summary>
-            public object Instance { get; set; }
-
-            /// <summary>
-            /// 非单例
-            /// </summary>
-            public Func<object> Func { get; set; }
-
-            public Activator(object instance, Func<object> func)
-            {
-                this.Instance = instance;
-                this.Func = func;
-            }
-        }
-
         private static ICache<Type, Activator> _cache = new ReaderWriterCache<Type, Activator>(MemberInfoComparer<Type>.Default);
 
         /// <summary>
@@ -69,15 +47,32 @@ namespace TZM.XFramework
         public T Resolve<T>() where T : class
         {
             Activator activator;
-            if (!_cache.TryGet(typeof(T), out activator)) 
+            if (!_cache.TryGet(typeof(T), out activator))
                 throw new XFrameworkException(typeof(T).FullName + " is not registered");
 
             if (activator.Instance != null) return (T)activator.Instance;
 
-            Func<object> func = activator.Func;
+            Func<object> func = activator.Builder;
             if (func == null)
                 XFrameworkException.Throw(typeof(T).FullName + " is not registered");
             return (T)func();
+        }
+
+        /// <summary>
+        /// 从容器中解析指定类型
+        /// </summary>
+        public object Resolve(Type type)
+        {
+            Activator activator;
+            if (!_cache.TryGet(type, out activator))
+                throw new XFrameworkException(type.FullName + " is not registered");
+
+            if (activator.Instance != null) return activator.Instance;
+
+            Func<object> func = activator.Builder;
+            if (func == null)
+                XFrameworkException.Throw(type.FullName + " is not registered");
+            return func();
         }
 
         /// <summary>
@@ -85,8 +80,38 @@ namespace TZM.XFramework
         /// </summary>
         public bool IsRegistered<T>() where T : class
         {
+            return this.IsRegistered(typeof(T));
+        }
+
+        /// <summary>
+        /// 返回指定类型是否已经在容器中
+        /// </summary>
+        public bool IsRegistered(Type type)
+        {
             Activator activator;
-            return _cache.TryGet(typeof(T), out activator);
+            return _cache.TryGet(type, out activator);
+        }
+
+        /// <summary>
+        /// 注册器
+        /// </summary>
+        class Activator
+        {
+            /// <summary>
+            /// 单例
+            /// </summary>
+            public object Instance { get; set; }
+
+            /// <summary>
+            /// 非单例
+            /// </summary>
+            public Func<object> Builder { get; set; }
+
+            public Activator(object instance, Func<object> func)
+            {
+                this.Instance = instance;
+                this.Builder = func;
+            }
         }
     }
 }

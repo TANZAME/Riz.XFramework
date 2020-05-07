@@ -102,7 +102,7 @@ namespace TZM.XFramework.Data
             }
             else
             {
-                MemberExpression m = node as MemberExpression;
+                MemberExpression m = node.ReduceUnary() as MemberExpression;
                 string alias = aliases == null ? null : aliases.GetTableAlias(m);
                 this.AppendMember(alias, m.Member.Name);
                 return alias;

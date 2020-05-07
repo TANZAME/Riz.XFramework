@@ -26,5 +26,10 @@ namespace TZM.XFramework
         /// 从窗口中解析指定类型
         /// </summary>
         T Resolve<T>() where T : class;
+
+        /// <summary>
+        /// 从窗口中解析指定类型
+        /// </summary>
+        object Resolve(Type type);
     }
 }

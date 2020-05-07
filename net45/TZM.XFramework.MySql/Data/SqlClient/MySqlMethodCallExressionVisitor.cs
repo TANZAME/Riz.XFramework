@@ -770,6 +770,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool isDelete = token != null && token.Extendsions != null && token.Extendsions.ContainsKey("MySqlDelete");
             var cmd = subQuery.Resolve(_builder.Indent + 1, false, new ResolveToken
             {
+                Parameterized = token.Parameterized,
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = token.DbContext
