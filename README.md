@@ -1,7 +1,9 @@
 <p align="center">
   <img height="50" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200508142517icon_logo.png"/>
 </p>
-# TZM.XFramework
+<p align="center">
+  TZM.XFramework
+</p>
 
 #### 介绍
 一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。
