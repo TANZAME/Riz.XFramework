@@ -2,11 +2,10 @@
   <img height="100" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200509140030Cgp3O1eXACaAGPjjAAI1Ux2fNtk168.png"/>
 </p>
 
+TZM.XFramewrok 是一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。支持版本：.Net4.0 .Net4.5+ .Net Core3.0。
+
 [![NuGet](https://img.shields.io/nuget/vpre/TZM.XFramework.svg)](https://www.nuget.org/packages/TZM.XFramework)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/TZM.XFramework/blob/master/LICENSE.txt)
-
-## 介绍
-TZM.XFramewrok 是一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。支持版本：.Net4.0 .Net4.5+ .Net Core3.0。
 
 ## 亮点
 - 原生.NET语法，零学习成本
