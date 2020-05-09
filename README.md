@@ -4,7 +4,7 @@
 
 
 [![NuGet](https://img.shields.io/nuget/vpre/TZM.XFramework.svg)](https://www.nuget.org/packages/TZM.XFramework)
-[![GitHub license](https://img.shields.io/github/license/TANZAME/TZM.XFramework.svg)](https://github.com/TANZAME/TZM.XFramework/blob/master/LICENSE.txt)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/TZM.XFramework/blob/master/LICENSE.txt)
 
 ## 介绍
 一款基于基于.NET的轻量级高性能 ORM，保留原汁原味微软API，极其容易上手 。支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等等。
