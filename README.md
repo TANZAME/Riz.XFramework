@@ -20,7 +20,7 @@ TZM.XFramewrok 是一款基于基于.NET的轻量级高性能 ORM，保留原汁
 - 更多####
 
 ## 联系方式
-- Email: tian_naixiang@sina.com 
+- Email：tian_naixiang@sina.com 
 - 技术交流QQ群：816425449
 ***
 #### 快速开始
