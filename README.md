@@ -2,7 +2,7 @@
   <img height="100" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200509140030Cgp3O1eXACaAGPjjAAI1Ux2fNtk168.png"/>
 </p>
 
-TZM.XFramewrok 是一款基于基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API。支持 Fx 4.0+ 和 .NETCore3.0，支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等。
+TZM.XFramewrok 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API。支持 Fx 4.0+ 和 .NETCore3.0，支持批量增删改查，导航属性，链式查询（点标记）、查询表达式等。
 
 [![NuGet](https://img.shields.io/nuget/vpre/TZM.XFramework.svg)](https://www.nuget.org/packages/TZM.XFramework)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/TZM.XFramework/blob/master/LICENSE.txt)
