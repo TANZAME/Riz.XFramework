@@ -1,5 +1,5 @@
-<p align="center" style="margin-bottom:0px;">
-  <img height="150" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200509132726Cgp3O1eXACaAGPjjAAI1Ux2fNtk438.png"/>
+<p align="center">
+  <img height="100" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200509132726Cgp3O1eXACaAGPjjAAI1Ux2fNtk438.png"/>
 </p>
 
 ## 介绍
