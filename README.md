@@ -10,13 +10,13 @@ TZM.XFramewrok 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 ## 亮点
 - 原生.NET语法，零学习成本
 - 支持LINQ查询、拉姆达表达式
+- 支持丰富的表达式函数
 - 支持批量增删改查和多表关联更新
 - 支持 SqlServer、MySql、Postgre、Oracle
 - 支持无限级一对一、一对多导航属性
 - 实体字段类型不必与数据库的类型一致
-- 提供原生Ado.NET操作
+- 支持原生ADO.NET操作
 - 支持临时表、表变量操作
-- 更多####
 
 ## 联系方式
 - Email：tian_naixiang@sina.com 
