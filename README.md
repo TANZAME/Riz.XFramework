@@ -8,8 +8,8 @@ TZM.XFramewrok 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/TZM.XFramework/blob/master/LICENSE.txt)
 
 ## 亮点
-- 原生.NET语法，几乎零学习成本
-- 支持 Linq 查询、拉姆达表达式
+- [x]原生.NET语法，几乎零学习成本
+- []支持 Linq 查询、拉姆达表达式
 - 支持丰富的表达式函数
 - 支持批量增删改查和多表关联更新
 - 支持 SqlServer、MySql、Postgre、Oracle、SQLite 等多种数据库
