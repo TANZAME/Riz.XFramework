@@ -13,7 +13,7 @@ TZM.XFramewrok 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 - 支持丰富的表达式函数
 - 支持批量增删改查和多表关联更新
 - 支持 SqlServer、MySql、Postgre、Oracle
-- 支持Postgre、Oracle大小写敏感
+- 支持 Postgre、Oracle 大小写敏感
 - 支持无限级一对一、一对多导航属性和延迟加载
 - 支持不同字段类型之间的灵活映射
 - 支持原生ADO.NET操作
