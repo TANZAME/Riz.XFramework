@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 using TZM.XFramework.Data;
 using System.Data;
+using System.Reflection;
 
 namespace TZM.XFramework.UnitTest
 {
