@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 using System.Configuration;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Security.Cryptography;
 
 namespace TZM.XFramework
 {
@@ -408,6 +410,68 @@ namespace TZM.XFramework
         public static int Page(int rowCount, int pageSize)
         {
             return ~~((rowCount - 1) / pageSize) + 1;
+        }
+
+        /// <summary>
+        /// 根据IP地址转换为long类型
+        /// </summary>
+        /// <param name="address">ip地址</param>
+        /// <returns></returns>
+        public static long ConvertIpToInt64(string address)
+        {
+            if (string.IsNullOrEmpty(address)) return 0;
+
+            int index = address.LastIndexOf('/');
+            if (index > 0) address = address.Substring(0, index);
+
+            char[] separator = new char[] { '.' };
+            string[] items = address.Split(separator);
+            return long.Parse(items[0]) << 24
+                    | long.Parse(items[1]) << 16
+                    | long.Parse(items[2]) << 8
+                    | long.Parse(items[3]);
+        }
+
+        /// <summary>
+        /// 将 long 类型转为IP地址
+        /// </summary>
+        /// <param name="value">long 类型的地址</param>
+        /// <returns></returns>
+        public static string ConvertToIp(long value)
+        {
+            var builder = new StringBuilder();
+            builder.Append((value >> 24) & 0xFF).Append(".");
+            builder.Append((value >> 16) & 0xFF).Append(".");
+            builder.Append((value >> 8) & 0xFF).Append(".");
+            builder.Append(value & 0xFF);
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// 字符串转 64 位整数，默认使用 SHA 256
+        /// </summary>
+        /// <param name="text">来源字符串</param>
+        /// <returns></returns>
+        public static ulong ConvertHashToInt64(string text)
+        {
+            return Common.ConvertHashToInt64(SHA256.Create(), text);
+        }
+
+        /// <summary>
+        /// 字符串转 64 位整数
+        /// </summary>
+        /// <param name="hasher">哈希算法</param>
+        /// <param name="text">来源字符串</param>
+        /// <returns></returns>
+        public static ulong ConvertHashToInt64(HashAlgorithm hasher, string text)
+        {
+            using (hasher)
+            {
+                var bytes = hasher.ComputeHash(Encoding.Default.GetBytes(text));
+                return Enumerable.Range(0, bytes.Length / 8) //8 bytes in an 64 bit interger
+                    .Select(i => BitConverter.ToUInt64(bytes, i * 8))
+                    .Aggregate((x, y) => x ^ y);
+            }
         }
 
         #endregion
