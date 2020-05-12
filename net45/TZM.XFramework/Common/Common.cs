@@ -452,7 +452,7 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="text">来源字符串</param>
         /// <returns></returns>
-        public static ulong ConvertHashToInt64(string text)
+        public static long ConvertHashToInt64(string text)
         {
             return Common.ConvertHashToInt64(SHA256.Create(), text);
         }
@@ -463,13 +463,13 @@ namespace TZM.XFramework
         /// <param name="hasher">哈希算法</param>
         /// <param name="text">来源字符串</param>
         /// <returns></returns>
-        public static ulong ConvertHashToInt64(HashAlgorithm hasher, string text)
+        public static long ConvertHashToInt64(HashAlgorithm hasher, string text)
         {
             using (hasher)
             {
                 var bytes = hasher.ComputeHash(Encoding.Default.GetBytes(text));
                 return Enumerable.Range(0, bytes.Length / 8) //8 bytes in an 64 bit interger
-                    .Select(i => BitConverter.ToUInt64(bytes, i * 8))
+                    .Select(i => BitConverter.ToInt64(bytes, i * 8))
                     .Aggregate((x, y) => x ^ y);
             }
         }
