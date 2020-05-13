@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Collections;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace TZM.XFramework.Data
 {
@@ -210,11 +211,15 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
-        public int ExecuteNonQuery(string sql)
+        /// <param name="args">命令参数</param>
+        public int ExecuteNonQuery(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.ExecuteNonQuery(command);
         }
 
@@ -264,13 +269,17 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public object ExecuteScalar(string sql)
+        public object ExecuteScalar(string sql, params object[] args)
         {
-            IDbCommand cmd = this.CreateCommand(sql);
-            return this.ExecuteScalar(cmd);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
+            return this.ExecuteScalar(command);
         }
 
         /// <summary>
@@ -306,13 +315,17 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(string sql)
+        public IDataReader ExecuteReader(string sql, params object[] args)
         {
-            IDbCommand cmd = this.CreateCommand(sql);
-            return this.ExecuteReader(cmd);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
+            return this.ExecuteReader(command);
         }
 
         /// <summary>
@@ -337,12 +350,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">查询语句</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public T Execute<T>(string sql)
+        public T Execute<T>(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.Execute<T>(command);
         }
 
@@ -535,7 +552,7 @@ namespace TZM.XFramework.Data
 
                             break;
 
-                        #endregion
+                            #endregion
                     }
                 }
                 while (reader.NextResult());
@@ -552,13 +569,17 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public List<T> ExecuteList<T>(string sql)
+        public List<T> ExecuteList<T>(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.ExecuteList<T>(command);
         }
 
@@ -627,12 +648,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public DataTable ExecuteDataTable(string sql)
+        public DataTable ExecuteDataTable(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.ExecuteDataTable(command);
         }
 
@@ -686,12 +711,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public virtual DataSet ExecuteDataSet(string sql)
+        public virtual DataSet ExecuteDataSet(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.ExecuteDataSet(command);
         }
 
@@ -957,6 +986,35 @@ namespace TZM.XFramework.Data
 
         //    return result;
         //}
+
+        /// <summary>
+        /// 解析生成参数
+        /// </summary>
+        /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
+        /// <returns></returns>
+        protected IEnumerable<IDbDataParameter> GetParameters(string sql, params object[] args)
+        {
+            if (args == null || args.Length == 0) return null;
+            XFrameworkException.Check.NotNull(sql, "sql");
+
+            string pattern = string.Format("(?<ParameterName>{0}[0-9a-zA-Z_]+)", this.Provider.ParameterPrefix);
+            var matches = Regex.Matches(sql, pattern);
+            if (matches == null || matches.Count == 0) return null;
+            else
+            {
+                if (matches.Count != args.Length) throw new XFrameworkException("numers of parameter not match args number.");
+
+                var result = new List<IDbDataParameter>(matches.Count);
+                for (int i = 0; i < matches.Count; i++)
+                {
+                    var m = matches[i];
+                    var parameter = this.CreateParameter(m.Groups["ParameterName"].Value, args[i]);
+                    result.Add(parameter);
+                }
+                return result;
+            }
+        }
 
         #endregion
 

@@ -32,11 +32,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
-        public async Task<int> ExecuteNonQueryAsync(string sql)
+        /// <param name="args">命令参数</param>
+        /// <returns></returns>
+        public async Task<int> ExecuteNonQueryAsync(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteNonQueryAsync(command);
         }
 
@@ -63,12 +68,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<object> ExecuteScalarAsync(string sql)
+        public async Task<object> ExecuteScalarAsync(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteScalarAsync(command);
         }
 
@@ -94,12 +103,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<IDataReader> ExecuteReaderAsync(string sql)
+        public async Task<IDataReader> ExecuteReaderAsync(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteReaderAsync(command);
         }
 
@@ -125,12 +138,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(string sql)
+        public async Task<T> ExecuteAsync<T>(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteAsync<T>(command);
         }
 
@@ -350,13 +367,17 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<List<T>> ExecuteListAsync<T>(string sql)
+        public async Task<List<T>> ExecuteListAsync<T>(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteListAsync<T>(command);
         }
 
@@ -423,12 +444,16 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<DataTable> ExecuteDataTableAsync(string sql)
+        public async Task<DataTable> ExecuteDataTableAsync(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteDataTableAsync(command);
         }
 
@@ -483,10 +508,11 @@ namespace TZM.XFramework.Data
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public virtual async Task<DataSet> ExecuteDataSetAsync(string sql)
+        public virtual async Task<DataSet> ExecuteDataSetAsync(string sql, params object[] args)
         {
-            IDbCommand command = this.CreateCommand(sql);
+            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteDataSetAsync(command);
         }
 

@@ -102,9 +102,13 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
+        /// <param name="args">命令参数</param>
         /// <param name="sql">SQL 命令</param>
-        int ExecuteNonQuery(string sql);
+        int ExecuteNonQuery(string sql, params object[] args);
 
         ///// <summary>
         ///// 执行 SQL 语句，并返回受影响的行数
@@ -134,9 +138,13 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
-        object ExecuteScalar(string sql);
+        /// <param name="args">命令参数</param>
+        object ExecuteScalar(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -161,10 +169,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        IDataReader ExecuteReader(string sql);
+        IDataReader ExecuteReader(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -186,10 +198,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">查询语句</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        T Execute<T>(string sql);
+        T Execute<T>(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -241,10 +257,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">查询语句</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        List<T> ExecuteList<T>(string sql);
+        List<T> ExecuteList<T>(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回并返回单结果集集合
@@ -272,10 +292,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        DataTable ExecuteDataTable(string sql);
+        DataTable ExecuteDataTable(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -300,10 +324,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        DataSet ExecuteDataSet(string sql);
+        DataSet ExecuteDataSet(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象

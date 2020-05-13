@@ -188,12 +188,19 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public override async Task<DataSet> ExecuteDataSetAsync(string sql)
+        public override async Task<DataSet> ExecuteDataSetAsync(string sql, params object[] args)
         {
-            List<Command> myList = this.TrySeparate(sql, null, null);
+            var parameters = this.GetParameters(sql, args);
+            var cmd = base.CreateCommand(sql, parameters: parameters);
+
+            List<Command> myList = this.TrySeparate(sql, cmd.Parameters, null);
             if (myList == null)
                 return await base.ExecuteDataSetAsync(sql);
             else

@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Oracle.ManagedDataAccess.Client;
 
 namespace TZM.XFramework.Data
 {
@@ -206,12 +207,19 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public override DataSet ExecuteDataSet(string sql)
+        public override DataSet ExecuteDataSet(string sql, params object[] args)
         {
-            List<Command> myList = this.TrySeparate(sql, null, null);
+            var parameters = this.GetParameters(sql, args);
+            var cmd = base.CreateCommand(sql, parameters: parameters);
+
+            List<Command> myList = this.TrySeparate(sql, cmd.Parameters, null);
             if (myList == null)
                 return base.ExecuteDataSet(sql);
             else
@@ -359,26 +367,27 @@ namespace TZM.XFramework.Data
             string methodName = string.Empty;
             var myList = new List<Command>();
             string[] parts = commandText.Split(';');
-            var regex = new Regex(@"(?<ParameterName>:p\d+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            //var regex = new Regex(@"(?<ParameterName>:p\d+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            var regex = new Regex(@"(?<ParameterName>:[0-9a-zA-Z_]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
             // 创建新命令
             Func<string, bool, Command> GetCommand = (sql, isQuery) =>
-             {
-                 Command cmd = new Command(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"));
-                 if (srcParameters != null && srcParameters.Count > 0)
-                 {
-                     var myParameters = new List<IDbDataParameter>();
-                     MatchCollection matches = regex.Matches(cmd.CommandText);
-                     foreach (Match m in matches)
-                     {
-                         var p = (IDbDataParameter)srcParameters[m.Groups["ParameterName"].Value];
-                         myParameters.Add(p);
-                     }
-                     cmd.Parameters = myParameters;
-                 }
+            {
+                Command cmd = new Command(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"));
+                if (srcParameters != null && srcParameters.Count > 0)
+                {
+                    var myParameters = new List<IDbDataParameter>();
+                    MatchCollection matches = regex.Matches(cmd.CommandText);
+                    foreach (Match m in matches)
+                    {
+                        var p = (IDbDataParameter)srcParameters[m.Groups["ParameterName"].Value];
+                        myParameters.Add(p);
+                    }
+                    cmd.Parameters = myParameters;
+                }
 
-                 return cmd;
-             };
+                return cmd;
+            };
 
             // 只有一条 SQL 时也不用拆分
             if (parts.Length == 1) return null;
