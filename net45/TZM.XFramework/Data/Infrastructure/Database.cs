@@ -747,7 +747,7 @@ namespace TZM.XFramework.Data
             try
             {
                 reader = this.ExecuteReader(command);
-                result = new XDataSet();
+                result = new InternalDataSet();
                 result.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
             }
             finally
@@ -1040,7 +1040,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 扩展Load方法
         /// </summary>
-        class XDataSet : DataSet
+        class InternalDataSet : DataSet
         {
             public override void Load(IDataReader reader, LoadOption loadOption, FillErrorEventHandler handler, params DataTable[] tables)
             {

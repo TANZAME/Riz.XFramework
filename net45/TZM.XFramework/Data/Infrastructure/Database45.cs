@@ -539,7 +539,7 @@ namespace TZM.XFramework.Data
             try
             {
                 reader = await this.ExecuteReaderAsync(command);
-                result = new XDataSet();
+                result = new InternalDataSet();
                 result.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
             }
             finally
