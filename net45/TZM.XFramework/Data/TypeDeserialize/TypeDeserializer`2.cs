@@ -11,9 +11,9 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 单个实体反序列化，泛型版本
+    /// 单个实体反序列化，非泛型版本
     /// </summary>
-    internal class TypeDeserializer<T>
+    internal class TypeDeserializer_Internal
     {
         private IDatabase _database = null;
         private IDataRecord _reader = null;
@@ -30,6 +30,7 @@ namespace TZM.XFramework.Data
 
         private bool? _isPrimitive = null;
         private bool _isDynamic = false;
+        private Type _modelType = null;
         private TypeRuntimeInfo _typeRuntime = null;
 
         /// <summary>
@@ -38,7 +39,8 @@ namespace TZM.XFramework.Data
         /// <param name="database">DataReader</param>
         /// <param name="reader">DataReader</param>
         /// <param name="map">SQL 命令描述</param>
-        internal TypeDeserializer(IDatabase database, IDataReader reader, IMapper map)
+        /// <param name="modelType">单个实体类型</param>
+        internal TypeDeserializer_Internal(IDatabase database, IDataReader reader, IMapper map, Type modelType)
         {
             _map = map;
             _reader = reader;
@@ -46,8 +48,9 @@ namespace TZM.XFramework.Data
             _deserializerImpl = _database.TypeDeserializerImpl;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
             _manyNavigationKeys = new Dictionary<string, HashSet<string>>(8);
-            _isDynamic = typeof(T) == typeof(ExpandoObject) || typeof(T) == typeof(object);
-            _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            _modelType = modelType;
+            _isDynamic = _modelType == typeof(ExpandoObject) || _modelType == typeof(object);
+            _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(modelType);
         }
 
         /// <summary>
@@ -55,31 +58,32 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="prevModel">前一行数据</param>
         /// <param name="isThisLine">是否同一行数据</param>
-        internal T Deserialize(object prevModel, out bool isThisLine)
+        /// <returns></returns>
+        internal object Deserialize(object prevModel, out bool isThisLine)
         {
             isThisLine = false;
 
             #region 基元类型
 
-            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(typeof(T)) || _reader.GetName(0) == Constant.AUTOINCREMENTNAME;
+            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(_modelType) || _reader.GetName(0) == Constant.AUTOINCREMENTNAME;
             if (_isPrimitive.Value)
             {
-                if (_reader.IsDBNull(0)) return default(T);
+                if (_reader.IsDBNull(0)) return TypeUtils.GetNullValue(_modelType); //default(T);
 
                 var obj = _reader.GetValue(0);
-                if (obj.GetType() != typeof(T))
+                if (obj.GetType() != _modelType)
                 {
                     // fix#Nullable<T> issue
-                    if (!typeof(T).IsGenericType) obj = Convert.ChangeType(obj, typeof(T));
+                    if (!_modelType.IsGenericType) obj = Convert.ChangeType(obj, _modelType);
                     else
                     {
-                        Type g = typeof(T).GetGenericTypeDefinition();
-                        if (g != typeof(Nullable<>)) throw new NotSupportedException(string.Format("type {0} not suppored.", g.FullName));
-                        obj = Convert.ChangeType(obj, Nullable.GetUnderlyingType(typeof(T)));
+                        Type type2 = _modelType.GetGenericTypeDefinition();
+                        if (type2 != typeof(Nullable<>)) throw new NotSupportedException(string.Format("type {0} not suppored.", type2.FullName));
+                        obj = Convert.ChangeType(obj, Nullable.GetUnderlyingType(_modelType));
                     }
                 }
 
-                return (T)obj;
+                return obj;
             }
 
             #endregion
@@ -103,18 +107,18 @@ namespace TZM.XFramework.Data
 
             #region 实体类型
 
-            T model = default(T);
+            object model = null;
             if (_map == null || _map.Navigations == null || _map.Navigations.Count == 0)
             {
                 // 没有字段映射说明或者没有导航属性
-                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(typeof(T), _reader, _map != null ? _map.PickColumns : null, 0);
-                model = (T)_modelDeserializer(_reader);
+                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map != null ? _map.PickColumns : null, 0);
+                model = _modelDeserializer(_reader);
             }
             else
             {
                 // 第一层
-                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(typeof(T), _reader, _map.PickColumns, 0, _map.Navigations.MinIndex);
-                model = (T)_modelDeserializer(_reader);
+                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map.PickColumns, 0, _map.Navigations.MinIndex);
+                model = _modelDeserializer(_reader);
                 // 若有 1:n 的导航属性，判断当前行数据与上一行数据是否相同
                 if (prevModel != null && _map.HasMany)
                 {
@@ -154,7 +158,7 @@ namespace TZM.XFramework.Data
             if (string.IsNullOrEmpty(typeName)) typeName = type.Name;
 
             //foreach (var kvp in _map.Navigations)
-            foreach(var navigation in _map.Navigations)
+            foreach (var navigation in _map.Navigations)
             {
                 int start = -1;
                 int end = -1;
@@ -218,7 +222,7 @@ namespace TZM.XFramework.Data
                             // 判断如果属于同一个主表，则合并到上一行的当前明细列表
                             // 例：CRM_SaleOrder.Client.AccountList
                             string[] keys = keyName.Split('.');
-                            TypeRuntimeInfo curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+                            TypeRuntimeInfo curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_modelType);
                             Type curType = curTypeRuntime.Type;
                             MemberAccessorBase curAccessor = null;
                             object curModel = prevModel;
@@ -321,7 +325,6 @@ namespace TZM.XFramework.Data
                         }
                     }
 
-                    //if (navTypeRuntime.GenericTypeDefinition == typeof(List<>)) navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navTypeRuntime.GenericArguments[0]);
                     if (TypeUtils.IsCollectionType(navTypeRuntime.Type)) navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navTypeRuntime.GenericArguments[0]);
                     if (navTypeRuntime.NavMembers.Count > 0) Deserialize_Navigation(prevModel, navModel, keyName, isThisLine);
                 }
