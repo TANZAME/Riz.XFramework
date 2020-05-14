@@ -36,13 +36,13 @@ namespace TZM.XFramework.Data
         /// </summary>
         public T Deserialize2<T>()
         {
-            bool isThisLine = false;
-            object prevLine = null;
-            var type = typeof(T);
-            var modelType = type.GetGenericArguments()[0];
-            var method = type.GetMethod("Add");
-            var collection2 = new ConstructorAccessor(type.GetConstructors()[0]).Invoke();
-            MethodAccessor ma = new MethodAccessor(method);
+            //bool isThisLine = false;
+            //object prevLine = null;
+            //var type = typeof(T);
+            //var modelType = type.GetGenericArguments()[0];
+            //var method = type.GetMethod("Add");
+            //var collection2 = new ConstructorAccessor(type.GetConstructors()[0]).Invoke();
+            //MethodAccessor ma = new MethodAccessor(method);
             //TypeDeserializer_Internal deserializer2 = new TypeDeserializer_Internal(_database, _reader, _map, modelType);
 
             //while (_reader.Read())
@@ -59,7 +59,8 @@ namespace TZM.XFramework.Data
             //}
 
             // 返回结果
-            return (T)collection2;
+            //return (T)collection2;
+            return default(T);
         }
 
         /// <summary>
