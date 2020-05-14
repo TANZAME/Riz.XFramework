@@ -34,6 +34,40 @@ namespace TZM.XFramework.Data
         /// 适用于单一结果集的场景
         /// </para>
         /// </summary>
+        public T Deserialize2<T>()
+        {
+            bool isThisLine = false;
+            object prevLine = null;
+            var type = typeof(T);
+            var modelType = type.GetGenericArguments()[0];
+            var method = type.GetMethod("Add");
+            var collection2 = new ConstructorAccessor(type.GetConstructors()[0]).Invoke();
+            MethodAccessor ma = new MethodAccessor(method);
+            //TypeDeserializer_Internal deserializer2 = new TypeDeserializer_Internal(_database, _reader, _map, modelType);
+
+            //while (_reader.Read())
+            //{
+            //    object model = deserializer2.Deserialize(prevLine, out isThisLine);
+            //    //T model = deserializer.Deserialize(prevLine, out isThisLine);
+            //    if (!isThisLine)
+            //    {
+            //        //collection.Add(model);
+            //        //method.Invoke(collection2, new object[] { model });
+            //        ma.Invoke(collection2, model);
+            //        prevLine = model;
+            //    }
+            //}
+
+            // 返回结果
+            return (T)collection2;
+        }
+
+        /// <summary>
+        /// 反序列化实体集合
+        /// <para>
+        /// 适用于单一结果集的场景
+        /// </para>
+        /// </summary>
         public List<T> Deserialize<T>()
         {
             bool isThisLine = false;

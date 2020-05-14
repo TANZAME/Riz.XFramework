@@ -634,6 +634,7 @@ namespace TZM.XFramework.Data
             {
                 reader = this.ExecuteReader(command);
                 TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
+                //objList = deserializer.Deserialize2<List<T>>();
                 objList = deserializer.Deserialize<T>();
             }
             finally
