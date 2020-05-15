@@ -49,7 +49,7 @@ namespace TZM.XFramework.Data
         /// 异步执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        public async Task<int> ExecuteNonQueryAsync(List<Command> sqlList)
+        public async Task<int> ExecuteNonQueryAsync(List<RawCommand> sqlList)
         {
             int rowCount = 0;
             await this.DoExecuteAsync<int>(sqlList, async p => rowCount += await this.ExecuteNonQueryAsync(p));
@@ -86,7 +86,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public async Task<object> ExecuteScalarAsync(List<Command> sqlList)
+        public async Task<object> ExecuteScalarAsync(List<RawCommand> sqlList)
         {
             return await this.DoExecuteAsync<object>(sqlList, this.ExecuteScalarAsync);
         }
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public async Task<IDataReader> ExecuteReaderAsync(List<Command> sqlList)
+        public async Task<IDataReader> ExecuteReaderAsync(List<RawCommand> sqlList)
         {
             return await this.DoExecuteAsync<DbDataReader>(sqlList, async command => await this.ExecuteReaderAsync(command) as DbDataReader);
         }
@@ -145,7 +145,7 @@ namespace TZM.XFramework.Data
         /// <param name="sql">SQL 命令</param>
         /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(string sql, params object[] args)
+        public virtual async Task<T> ExecuteAsync<T>(string sql, params object[] args)
         {
             IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return await this.ExecuteAsync<T>(command);
@@ -156,9 +156,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query">SQL 命令</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(IDbQueryable<T> query)
+        public virtual async Task<T> ExecuteAsync<T>(IDbQueryable query)
         {
-            Command cmd = query.Resolve();
+            RawCommand cmd = query.Resolve();
             IDbCommand command = this.CreateCommand(cmd);
             return await this.ExecuteAsync<T>(command, cmd as IMapper);
         }
@@ -168,7 +168,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(List<Command> sqlList)
+        public virtual async Task<T> ExecuteAsync<T>(List<RawCommand> sqlList)
         {
             return await this.DoExecuteAsync<T>(sqlList, async p => await this.ExecuteAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
         }
@@ -176,7 +176,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        public async Task<T> ExecuteAsync<T>(List<Command> sqlList, Func<IDbCommand, Task<T>> func)
+        public virtual async Task<T> ExecuteAsync<T>(List<RawCommand> sqlList, Func<IDbCommand, Task<T>> func)
         {
             return await this.DoExecuteAsync<T>(sqlList, func);
         }
@@ -186,7 +186,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public async Task<T> ExecuteAsync<T>(IDbCommand command)
+        public virtual async Task<T> ExecuteAsync<T>(IDbCommand command)
         {
             return await this.ExecuteAsync<T>(command, null);
         }
@@ -201,15 +201,12 @@ namespace TZM.XFramework.Data
         protected virtual async Task<T> ExecuteAsync<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
-            IDbConnection conn = null;
+            T result = default(T);
 
             try
             {
                 reader = await this.ExecuteReaderAsync(command);
-                conn = command != null ? command.Connection : null;
-                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
-                List<T> result = await deserializer.DeserializeAsync<T>();
-                return result.FirstOrDefault();
+                result = this.GetResult<T>(reader, map);
             }
             finally
             {
@@ -217,6 +214,8 @@ namespace TZM.XFramework.Data
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
+
+            return result;
         }
 
         /// <summary>
@@ -224,9 +223,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
-        public virtual async Task<Tuple<List<T1>, List<T2>>> ExecuteMultipleAsync<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
+        public virtual async Task<Tuple<List<T1>, List<T2>>> ExecuteAsync<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
         {
-            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
+            List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
                async p => await this.ExecuteMultipleAsync<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
@@ -238,9 +237,9 @@ namespace TZM.XFramework.Data
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
         /// <param name="query3">SQL 命令</param>
-        public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>>> ExecuteMultipleAsync<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
+        public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>>> ExecuteAsync<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
         {
-            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
+            List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
                 async p => await this.ExecuteMultipleAsync<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
@@ -257,7 +256,7 @@ namespace TZM.XFramework.Data
         /// <typeparam name="T6">第六个列表的元素类型</typeparam>
         /// <typeparam name="T7">第七个列表的元素类型</typeparam>
         /// <param name="command">SQL 命令</param>
-        public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
+        public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
             return await this.ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
@@ -310,43 +309,43 @@ namespace TZM.XFramework.Data
 
                         case 1:
                             if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q1 = await deserializer1.DeserializeAsync<T1>();
+                            q1 = deserializer1.Deserialize<List<T1>>();
 
                             break;
 
                         case 2:
                             if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q2 = await deserializer2.DeserializeAsync<T2>();
+                            q2 = deserializer2.Deserialize<List<T2>>();
 
                             break;
 
                         case 3:
                             if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q3 = await deserializer3.DeserializeAsync<T3>();
+                            q3 = deserializer3.Deserialize<List<T3>>();
 
                             break;
 
                         case 4:
                             if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q4 = await deserializer4.DeserializeAsync<T4>();
+                            q4 = deserializer4.Deserialize<List<T4>>();
 
                             break;
 
                         case 5:
                             if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q5 = await deserializer5.DeserializeAsync<T5>();
+                            q5 = deserializer5.Deserialize<List<T5>>();
 
                             break;
 
                         case 6:
                             if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q6 = await deserializer6.DeserializeAsync<T6>();
+                            q6 = deserializer6.Deserialize<List<T6>>();
 
                             break;
 
                         case 7:
                             if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q7 = await deserializer7.DeserializeAsync<T7>();
+                            q7 = deserializer7.Deserialize<List<T7>>();
 
                             break;
 
@@ -366,199 +365,13 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public async Task<List<T>> ExecuteListAsync<T>(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return await this.ExecuteListAsync<T>(command);
-        }
-
-        /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<List<T>> ExecuteListAsync<T>(IDbQueryable<T> query)
-        {
-            Command cmd = query.Resolve();
-            IDbCommand command = this.CreateCommand(cmd.CommandText, cmd.CommandType, cmd.Parameters);
-            return await this.ExecuteListAsync<T>(command, cmd as IMapper);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<List<T>> ExecuteListAsync<T>(List<Command> sqlList)
-        {
-            return await this.DoExecuteAsync<List<T>>(sqlList, async p => await this.ExecuteListAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
-        }
-
-        /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<List<T>> ExecuteListAsync<T>(IDbCommand command)
-        {
-            return await this.ExecuteListAsync<T>(command, null);
-        }
-
-        /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="command">SQL 命令</param>
-        /// <param name="map">命令定义对象，用于解析实体的外键</param>
-        /// <returns></returns>
-        protected virtual async Task<List<T>> ExecuteListAsync<T>(IDbCommand command, IMapper map)
-        {
-            IDataReader reader = null;
-            List<T> objList = new List<T>();
-
-            try
-            {
-                reader = await this.ExecuteReaderAsync(command);
-                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
-                objList = await deserializer.DeserializeAsync<T>();
-            }
-            finally
-            {
-                if (command != null) command.Dispose();
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
-            return objList;
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public async Task<DataTable> ExecuteDataTableAsync(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return await this.ExecuteDataTableAsync(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<DataTable> ExecuteDataTableAsync(IDbQueryable query)
-        {
-            Command cmd = query.Resolve();
-            IDbCommand command = this.CreateCommand(cmd);
-            return await this.ExecuteDataTableAsync(command);
-        }
-
-        /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<DataTable> ExecuteDataTableAsync(List<Command> sqlList)
-        {
-            return await this.DoExecuteAsync<DataTable>(sqlList, this.ExecuteDataTableAsync);
-        }
-
-        /// <summary>
-        /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public async Task<DataTable> ExecuteDataTableAsync(IDbCommand command)
-        {
-            IDataReader reader = null;
-            DataTable result = null;
-
-            try
-            {
-                reader = await this.ExecuteReaderAsync(command);
-                result = new DataTable();
-                result.Load(reader);
-            }
-            finally
-            {
-                if (command != null) command.Dispose();
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public virtual async Task<DataSet> ExecuteDataSetAsync(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return await this.ExecuteDataSetAsync(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public virtual async Task<DataSet> ExecuteDataSetAsync(List<Command> sqlList)
-        {
-            return await this.DoExecuteAsync<DataSet>(sqlList, this.ExecuteDataSetAsync);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public virtual async Task<DataSet> ExecuteDataSetAsync(IDbCommand command)
-        {
-            IDataReader reader = null;
-            DataSet result = null;
-
-            try
-            {
-                reader = await this.ExecuteReaderAsync(command);
-                result = new InternalDataSet();
-                result.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
-            }
-            finally
-            {
-                if (command != null) command.Dispose();
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
-            return result;
-        }
-
-        /// <summary>
         /// 执行 SQL 命令
         /// </summary>
         /// <typeparam name="T">返回的元素类型</typeparam>
         /// <param name="sqlList">SQL 命令列表</param>
         /// <param name="func">执行命令的委托</param>
         /// <returns></returns>
-        protected virtual async Task<T> DoExecuteAsync<T>(List<Command> sqlList, Func<System.Data.Common.DbCommand, Task<T>> func)
+        protected virtual async Task<T> DoExecuteAsync<T>(List<RawCommand> sqlList, Func<System.Data.Common.DbCommand, Task<T>> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -569,14 +382,14 @@ namespace TZM.XFramework.Data
             {
                 #region 命令分组
 
-                var queue = new Queue<List<Command>>(8);
+                var queue = new Queue<List<RawCommand>>(8);
                 if (sqlList.Any(x => x == null || (x.Parameters != null && x.Parameters.Count > 0)))
                 {
                     // 参数化分批
                     if (!sqlList.Any(x => x == null)) queue.Enqueue(sqlList);
                     else
                     {
-                        var myList = new List<Command>(8);
+                        var myList = new List<RawCommand>(8);
                         foreach (var cmd in sqlList)
                         {
                             if (cmd != null) myList.Add(cmd);
@@ -584,7 +397,7 @@ namespace TZM.XFramework.Data
                             {
                                 queue.Enqueue(myList);
                                 myList = null;
-                                myList = new List<Command>(8);
+                                myList = new List<RawCommand>(8);
                             }
                         }
                         // 剩下部分

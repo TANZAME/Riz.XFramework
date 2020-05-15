@@ -34,9 +34,9 @@ namespace TZM.XFramework.Data
         /// <param name="to">目标类型</param>
         /// <param name="via">来源类型</param>
         /// <returns></returns>
-        protected override bool ConvertBoxExtendsion(ILGenerator il, Type from, Type to, Type via)
+        protected override bool ConvertBoxExtension(ILGenerator il, Type from, Type to, Type via)
         {
-            bool isExecuted = base.ConvertBoxExtendsion(il, from, to, via);
+            bool isExecuted = base.ConvertBoxExtension(il, from, to, via);
             if (isExecuted) return isExecuted;
 
             bool isTimezone = from == typeof(string) && (to == typeof(DateTimeOffset) || to == typeof(DateTimeOffset?));

@@ -139,17 +139,18 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMapperCommand.cs" Link="Data\SqlClient\SqlServerMapperCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" Link="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerSqlBuilder.cs" Link="Data\SqlClient\SqlServerSqlBuilder.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs" Link="Data\TypeDeserialize\Command.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumn.cs" Link="Data\TypeDeserialize\DbColumn.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumnCollection.cs" Link="Data\TypeDeserialize\DbColumnCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs" Link="Data\TypeDeserialize\IMapper.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperDbCommand.cs" Link="Data\TypeDeserialize\MapperDbCommand.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs" Link="Data\TypeDeserialize\MapperCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs" Link="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs" Link="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\RawCommand.cs" Link="Data\TypeDeserialize\RawCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializerImpl.cs" Link="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`2.cs" Link="Data\TypeDeserialize\TypeDeserializer`2.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Caching\" />

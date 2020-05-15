@@ -2,6 +2,7 @@
 using System.Data;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace TZM.XFramework.Data
 {
@@ -34,32 +35,54 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建查询
         /// </summary>
-        public IDbQueryable<TResult> CreateQuery<TResult>(DbExpressionType dbExpressionType, System.Linq.Expressions.Expression expression = null)
+        public IDbQueryable<TSource> CreateQuery<TSource>(DbExpressionType dbExpressionType, System.Linq.Expressions.Expression expression = null)
         {
-            return this.CreateQuery<TResult>(new DbExpression(dbExpressionType, expression));
+            return this.CreateQuery<TSource>(new DbExpression(dbExpressionType, expression));
         }
 
         /// <summary>
         /// 创建查询
         /// </summary>
-        public IDbQueryable<TResult> CreateQuery<TResult>(DbExpression dbExpression = null)
+        public IDbQueryable<TSource> CreateQuery<TSource>(DbExpression dbExpression = null)
         {
             List<DbExpression> collection = new List<DbExpression>(this.DbExpressions.Count + (dbExpression != null ? 1 : 0));
             collection.AddRange(this.DbExpressions);
             if (dbExpression != null) collection.Add(dbExpression);
 
-            IDbQueryable<TResult> query = new DbQueryable<TResult>(this.DbContext, collection);
+            IDbQueryable<TSource> query = new DbQueryable<TSource>(this.DbContext, collection);
             return query;
         }
 
         /// <summary>
         /// 解析成 SQL 命令
         /// </summary>
-        public override Command Resolve()
+        public override RawCommand Resolve()
         {
             var cmd = this.Provider.Resolve(this, 0, true, null);
             return cmd;
         }
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        /// <returns></returns>
+        public override TResult Execute<TResult>()
+        {
+            return this.DbContext.Database.Execute<TResult>(this);
+        }
+
+#if !net40
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        /// <returns></returns>
+        public override async Task<TResult> ExecuteAsync<TResult>()
+        {
+            return await this.DbContext.Database.ExecuteAsync<TResult>(this);
+        }
+
+#endif
 
         /// <summary>
         /// 解析成 SQL 命令
@@ -68,7 +91,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public override Command Resolve(int indent, bool isOuter, ResolveToken token)
+        public override RawCommand Resolve(int indent, bool isOuter, ResolveToken token)
         {
             var cmd = this.Provider.Resolve(this, indent, isOuter, token);
             return cmd;

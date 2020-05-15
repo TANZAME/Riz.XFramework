@@ -63,37 +63,35 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public Func<IDataRecord, object> GetTypeDeserializer(Type type, IDataRecord reader, DbColumnCollection columns = null, int start = 0, int? end = null)
         {
-            // specify a new assembly name
+            //// specify a new assembly name
             //var assemblyName = new AssemblyName("TZM.Deserialize");
 
-            // create assembly builder
+            //// create assembly builder
             //var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
 
-            // create module builder
+            //// create module builder
             //var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName.Name + ".dll", true);
 
-            // create type builder for a class
+            //// create type builder for a class
             //var typeBuilder = moduleBuilder.DefineType("TZM.Deserialize.Deserializer", TypeAttributes.Public);
 
-            // create method builder
+            //// create method builder
             //var methodBuilder = typeBuilder.DefineMethod("GetModel",
-            //  MethodAttributes.Public | MethodAttributes.Static,
-            //  typeof(object),
-            //  new Type[] { typeof(IDataRecord) });
+            //              MethodAttributes.Public | MethodAttributes.Static,
+            //              typeof(object),
+            //              new Type[] { typeof(IDataRecord)
+            //    });
 
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             DynamicMethod method = new DynamicMethod(string.Format("Deserialize{0}", Guid.NewGuid()), typeof(object), new Type[] { typeof(IDataRecord) }, true);
             //ILGenerator il = methodBuilder.GetILGenerator();
             ILGenerator il = method.GetILGenerator();
 
-            il.DeclareLocal(typeof(int));
-            il.DeclareLocal(type);
-            il.DeclareLocal(typeof(object));
+            il.DeclareLocal(typeof(int));       // [0] int index
+            il.DeclareLocal(type);              // [1] {type}
 
             il.Emit(OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Stloc_0);
-            //il.Emit(OpCodes.Ldnull);
-            //il.Emit(OpCodes.Stloc_2);
 
             // 有参构造函数
             ConstructorInfo specializedConstructor = null;
@@ -111,7 +109,7 @@ namespace TZM.XFramework.Data
                 {
                     // 如果不是匿名类或者只有无参构造函数，则new一个对象
                     il.Emit(OpCodes.Newobj, ctor);
-                    il.Emit(OpCodes.Stloc_1);
+                    il.Emit(OpCodes.Stloc_1);   // [1] {type}=new {type}
                 }
 
             }
@@ -139,8 +137,6 @@ namespace TZM.XFramework.Data
                 // 本地变量赋值
                 il.Emit(OpCodes.Ldc_I4, index); // [target][index]
                 il.Emit(OpCodes.Stloc_0);       // [target]
-                il.Emit(OpCodes.Ldnull);        // [target][null]
-                il.Emit(OpCodes.Stloc_2);       // [target]
 
                 // 如果导航属性分割列=DbNull，那么此导航属性赋空值
                 if (memberName == Constant.NAVIGATIONSPLITONNAME)
@@ -177,14 +173,6 @@ namespace TZM.XFramework.Data
                 if (getFieldValue.DeclaringType != typeof(IDataRecord)) il.Emit(OpCodes.Castclass, getFieldValue.DeclaringType); // (SqlDataReader)IDataReader
                 il.Emit(OpCodes.Ldc_I4, index);                 // stack is now [target][target][reader][index]
                 il.Emit(OpCodes.Callvirt, getFieldValue);       // stack is now [target][target][value-or-object]
-
-                //// =>object = value，记录当前处理的值
-                //// 除了string类型之外，其它的都需要要装箱，这里会有性能损失，100w笔记录大概会损失0.8s~
-                //bool useBoxed = getFieldValue != _getValue && myFieldType != typeof(string);
-                //il.Emit(OpCodes.Dup);                           // stack is now [target][target][value-or-object][value-or-object]
-                //if (useBoxed) il.Emit(OpCodes.Box, myFieldType);// stack is now [target][target][value-or-object][value-as-object]
-                //else il.Emit(OpCodes.Castclass, typeof(object));// stack is now [target][target][value][value-as-object]
-                //il.Emit(OpCodes.Stloc_2);                       // stack is now [target][target][value-or-object]
 
                 if (memberType == typeof(char) || memberType == typeof(char?))
                 {
@@ -299,7 +287,6 @@ namespace TZM.XFramework.Data
             il.MarkLabel(finishLabel);
             il.BeginCatchBlock(typeof(Exception));  // stack is Exception
             il.Emit(OpCodes.Ldloc_0);   // stack is Exception, index
-            il.Emit(OpCodes.Ldloc_2);   // stack is Exception, index, value
             il.Emit(OpCodes.Ldarg_0);   // stack is Exception, index, reader
             il.EmitCall(OpCodes.Call, _throwException, null);
             il.EndExceptionBlock();
@@ -311,11 +298,6 @@ namespace TZM.XFramework.Data
             //typeBuilder.CreateType();
             //// save assembly
             //assemblyBuilder.Save(assemblyName.Name + ".dll");
-
-            ////// set entry point for this assembly for exe
-            ////assemblyBuilder.SetEntryPoint( helloKittyClassType.GetMethod("SayHelloMethod"));
-            ////// save assembly
-            ////assemblyBuilder.Save("Kitty.exe");
 
             return (Func<IDataRecord, object>)method.CreateDelegate(typeof(Func<IDataRecord, object>));
         }
@@ -391,7 +373,7 @@ namespace TZM.XFramework.Data
                 il.Emit(OpCodes.Box, from);
                 il.Emit(OpCodes.Callvirt, _toString);
             }
-            else if (this.ConvertBoxExtendsion(il, from, to, via))
+            else if (this.ConvertBoxExtension(il, from, to, via))
             {
             }
             else
@@ -472,7 +454,7 @@ namespace TZM.XFramework.Data
         /// <param name="to">目标类型</param>
         /// <param name="via">拆箱类型</param>
         /// <returns></returns>
-        protected virtual bool ConvertBoxExtendsion(ILGenerator il, Type from, Type to, Type via)
+        protected virtual bool ConvertBoxExtension(ILGenerator il, Type from, Type to, Type via)
         {
             // 内置 Guid 扩展 #######
 
@@ -535,20 +517,12 @@ namespace TZM.XFramework.Data
             return s[0];
         }
 
-        static void ThrowDataException(Exception ex, int index, object val, IDataRecord reader)
+        static void ThrowDataException(Exception ex, int index, IDataRecord reader)
         {
             Exception newException;
 
             string name = "(n/a)", value = "(n/a)";
             if (reader != null && index >= 0 && index < reader.FieldCount) name = reader.GetName(index);
-            if (val == null || val is DBNull)
-            {
-                value = "<null>";
-            }
-            else
-            {
-                value = System.Convert.ToString(val) + " - " + Type.GetTypeCode(val.GetType());
-            }
 
             newException = new DataException(string.Format("Error parsing column {0} ({1}={2})", index, name, value), ex);
             throw newException;

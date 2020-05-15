@@ -3,11 +3,12 @@ using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System;
 
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// <see cref="IDataReader"/> 转实体映射
+    /// <see cref="IDataReader"/> 转实体映射入口
     /// </summary>
     public partial class TypeDeserializer
     {
@@ -28,95 +29,69 @@ namespace TZM.XFramework.Data
             _database = database;
         }
 
+
         /// <summary>
         /// 反序列化实体集合
-        /// <para>
-        /// 适用于单一结果集的场景
-        /// </para>
         /// </summary>
-        public T Deserialize2<T>()
+        public T Deserialize<T>()
         {
-            //bool isThisLine = false;
-            //object prevLine = null;
-            //var type = typeof(T);
-            //var modelType = type.GetGenericArguments()[0];
-            //var method = type.GetMethod("Add");
-            //var collection2 = new ConstructorAccessor(type.GetConstructors()[0]).Invoke();
-            //MethodAccessor ma = new MethodAccessor(method);
-            //TypeDeserializer_Internal deserializer2 = new TypeDeserializer_Internal(_database, _reader, _map, modelType);
-
-            //while (_reader.Read())
-            //{
-            //    object model = deserializer2.Deserialize(prevLine, out isThisLine);
-            //    //T model = deserializer.Deserialize(prevLine, out isThisLine);
-            //    if (!isThisLine)
-            //    {
-            //        //collection.Add(model);
-            //        //method.Invoke(collection2, new object[] { model });
-            //        ma.Invoke(collection2, model);
-            //        prevLine = model;
-            //    }
-            //}
-
-            // 返回结果
-            //return (T)collection2;
-            return default(T);
+            if (TypeUtils.IsCollectionType(typeof(T)))
+                return this.DeserializeCollection<T>();
+            else
+                return this.DeserializeSingle<T>();
         }
 
-        /// <summary>
-        /// 反序列化实体集合
-        /// <para>
-        /// 适用于单一结果集的场景
-        /// </para>
-        /// </summary>
-        public List<T> Deserialize<T>()
+        // 反序列化单个实体
+        T DeserializeSingle<T>()
         {
-            bool isThisLine = false;
             object prevLine = null;
-            List<T> collection = new List<T>();
+            bool isThisLine = false;
+            T result = default(T);
+            int index = 0;
+            TypeDeserializer_Internal deserializer = new TypeDeserializer_Internal(_database, _reader, _map, typeof(T));
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_database, _reader, _map);
             while (_reader.Read())
             {
-                T model = deserializer.Deserialize(prevLine, out isThisLine);
+                object model = deserializer.Deserialize(prevLine, out isThisLine);
                 if (!isThisLine)
                 {
-                    collection.Add(model);
                     prevLine = model;
+                    if (index != 0) break;
+                    else
+                    {
+                        result = (T)model;
+                        index += 1;
+                    }
                 }
             }
 
-            // 返回结果
-            return collection;
+            return result;
         }
 
-#if !net40
-
-        /// <summary>
-        /// 异步反序列化实体集合
-        /// </summary>
-        public async Task<List<T>> DeserializeAsync<T>()
+        // 反序列化实体集合
+        T DeserializeCollection<T>()
         {
-            bool isThisLine = false;
             object prevLine = null;
-            List<T> collection = new List<T>();
+            bool isThisLine = false;
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
+            var modelType = typeRuntime.GenericArguments[0];
+            var member = typeRuntime.GetMember("Add");
+            var collection = typeRuntime.Constructor.Invoke();
+            TypeDeserializer_Internal deserializer = new TypeDeserializer_Internal(_database, _reader, _map, modelType);
 
-            TypeDeserializer<T> deserializer = new TypeDeserializer<T>(_database, _reader, _map);
-            while (await (_reader as DbDataReader).ReadAsync())
+            while (_reader.Read())
             {
-                T model = deserializer.Deserialize(prevLine, out isThisLine);
+                object model = deserializer.Deserialize(prevLine, out isThisLine);
                 if (!isThisLine)
                 {
-                    collection.Add(model);
                     prevLine = model;
+                    member.Invoke(collection, model);
                 }
             }
 
             // 返回结果
-            return collection;
+            return (T)collection;
         }
-
-#endif
 
         /// <summary>
         /// 反序列化实体集合
@@ -130,8 +105,8 @@ namespace TZM.XFramework.Data
             object prevLine = null;
             List<T> collection = null;
             identitys = null;
-            TypeDeserializer<T> deserializer = null;
-            TypeDeserializer<int> deserializer2 = null;
+            TypeDeserializer_Internal deserializer = null;
+            TypeDeserializer_Internal deserializer2 = null;
             bool isAutoIncrement = false;
             bool readedName = false;
 
@@ -147,20 +122,20 @@ namespace TZM.XFramework.Data
                 if (isAutoIncrement)
                 {
                     // 输出自增列
-                    if (deserializer2 == null) deserializer2 = new TypeDeserializer<int>(_database, _reader, null);
+                    if (deserializer2 == null) deserializer2 = new TypeDeserializer_Internal(_database, _reader, null, typeof(int));
                     if (identitys == null) identitys = new List<int>(1);
-                    int model = deserializer2.Deserialize(prevLine, out isThisLine);
-                    identitys.Add(model);
+                    object model = deserializer2.Deserialize(prevLine, out isThisLine);
+                    identitys.Add((int)model);
                 }
                 else
                 {
                     // 输出指定类型实体
-                    if (deserializer == null) deserializer = new TypeDeserializer<T>(_database, _reader, _map);
-                    T model = deserializer.Deserialize(prevLine, out isThisLine);
+                    if (deserializer == null) deserializer = new TypeDeserializer_Internal(_database, _reader, _map, typeof(T));
+                    object model = deserializer.Deserialize(prevLine, out isThisLine);
                     if (!isThisLine)
                     {
                         if (collection == null) collection = new List<T>();
-                        collection.Add(model);
+                        collection.Add((T)model);
                         prevLine = model;
                     }
                 }

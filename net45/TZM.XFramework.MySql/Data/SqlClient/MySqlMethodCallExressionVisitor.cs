@@ -774,7 +774,7 @@ namespace TZM.XFramework.Data.SqlClient
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = token.DbContext
-            }) as MapperDbCommand;
+            }) as MapperCommand;
 
             if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");

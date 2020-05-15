@@ -13,6 +13,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 单个实体反序列化，泛型版本
     /// </summary>
+    [Obsolete]
     internal class TypeDeserializer<T>
     {
         private IDatabase _database = null;

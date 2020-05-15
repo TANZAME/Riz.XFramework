@@ -12,11 +12,11 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 构造一个 <see cref="IDbQueryable"/> 对象，该对象可计算指定表达式树所表示的查询
         /// </summary>
-        IDbQueryable<TResult> CreateQuery<TResult>(DbExpressionType dbExpressionType, Expression expression = null);
+        IDbQueryable<TSource> CreateQuery<TSource>(DbExpressionType dbExpressionType, Expression expression = null);
 
         /// <summary>
         /// 构造一个 <see cref="IDbQueryable"/> 对象，该对象可计算指定表达式树所表示的查询
         /// </summary>
-        IDbQueryable<TResult> CreateQuery<TResult>(DbExpression exp = null);
+        IDbQueryable<TSource> CreateQuery<TSource>(DbExpression exp = null);
     }
 }

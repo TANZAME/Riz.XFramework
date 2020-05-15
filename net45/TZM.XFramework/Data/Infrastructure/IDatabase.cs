@@ -68,7 +68,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="cmd">命令描述</param>
         /// <returns></returns>
-        IDbCommand CreateCommand(Command cmd);
+        IDbCommand CreateCommand(RawCommand cmd);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        int ExecuteNonQuery(List<Command> sqlList);
+        int ExecuteNonQuery(List<RawCommand> sqlList);
 
         /// <summary>
         /// 执行 SQL 语句，并返回受影响的行数
@@ -151,7 +151,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        object ExecuteScalar(List<Command> sqlList);
+        object ExecuteScalar(List<RawCommand> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -183,7 +183,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        IDataReader ExecuteReader(List<Command> sqlList);
+        IDataReader ExecuteReader(List<RawCommand> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -212,7 +212,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query">查询语句</param>
         /// <returns></returns>
-        T Execute<T>(IDbQueryable<T> query);
+        T Execute<T>(IDbQueryable query);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -220,12 +220,12 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        T Execute<T>(List<Command> sqlList);
+        T Execute<T>(List<RawCommand> sqlList);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        T Execute<T>(List<Command> sqlList, Func<IDbCommand, T> func);
+        T Execute<T>(List<RawCommand> sqlList, Func<IDbCommand, T> func);
 
         /// <summary>
         /// 执行SQL 语句，并返回单个实体对象
@@ -239,7 +239,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
-        Tuple<List<T1>, List<T2>> ExecuteMultiple<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2);
+        Tuple<List<T1>, List<T2>> Execute<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2);
 
         /// <summary>
         /// 执行 SQL 语句，并返回两个实体集合
@@ -247,105 +247,13 @@ namespace TZM.XFramework.Data
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
         /// <param name="query3">SQL 命令</param>
-        Tuple<List<T1>, List<T2>, List<T3>> ExecuteMultiple<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3);
+        Tuple<List<T1>, List<T2>, List<T3>> Execute<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3);
 
         /// <summary>
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
         /// <param name="command">SQL 命令</param>
-        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">查询语句</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        List<T> ExecuteList<T>(string sql, params object[] args);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        List<T> ExecuteList<T>(IDbQueryable<T> query);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        List<T> ExecuteList<T>(List<Command> sqlList);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        List<T> ExecuteList<T>(IDbCommand command);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        DataTable ExecuteDataTable(string sql, params object[] args);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        DataTable ExecuteDataTable(IDbQueryable query);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        DataTable ExecuteDataTable(List<Command> sqlList);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        DataTable ExecuteDataTable(IDbCommand command);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        DataSet ExecuteDataSet(string sql, params object[] args);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        DataSet ExecuteDataSet(List<Command> sqlList);
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        DataSet ExecuteDataSet(IDbCommand command);
+        Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command);
 
         #endregion
     }

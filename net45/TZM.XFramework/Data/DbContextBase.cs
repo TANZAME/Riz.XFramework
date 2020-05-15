@@ -314,7 +314,7 @@ namespace TZM.XFramework.Data
 
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -361,7 +361,7 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
             List<int> identitys = new List<int>();
             IDataReader reader = null;
 
@@ -413,7 +413,7 @@ namespace TZM.XFramework.Data
             List<T> q1 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -473,7 +473,7 @@ namespace TZM.XFramework.Data
             List<T2> q2 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
             List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
 
             Func<IDbCommand, object> doExecute = cmd =>

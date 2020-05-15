@@ -42,13 +42,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            //Query();
-            //DbFunction();
-            //Join();
-            //Insert();
-            //Update();
-            //Delete();
-            //API();
+            Query();
+            DbFunction();
+            Join();
+            Insert();
+            Update();
+            Delete();
+            API();
             Rabbit();
         }
 
@@ -133,7 +133,7 @@ namespace TZM.XFramework.UnitTest
             //WHERE t0.[DemoId] <= 10
 
             var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
-            if (!this.CaseSensitive) result5 = context.Database.ExecuteList<dynamic>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
+            if (!this.CaseSensitive) result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
@@ -473,22 +473,23 @@ namespace TZM.XFramework.UnitTest
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
-            var result3 = context.Database.ExecuteDataTable(query);
+            var result3 = query.Execute<DataTable>(); //context.Database.ExecuteDataTable(query);
 #if !net40
             query = from a in context.GetTable<TDemo>()
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
-            result3 = context.Database.ExecuteDataTableAsync(query).Result;
+            result3 = query.ExecuteAsync<DataTable>().Result; //context.Database.ExecuteDataTableAsync(query).Result;
 #endif
             // DataSet
-            var cmd = query.Resolve();
-            List<Command> sqlList = new List<Command> { cmd, cmd, cmd };
-            var result4 = context.Database.ExecuteDataSet(sqlList);
+            //var cmd = query.Resolve();
+            List<RawCommand> sqlList = context.Provider.Resolve(new List<object> { query, query, query }); //new List<RawCommand> { cmd, cmd, cmd };
+            var result4 = context.Database.Execute<DataSet>(sqlList);
 #if !net40
-            cmd = query.Resolve();
-            sqlList = new List<Command> { cmd, cmd, cmd };
-            result4 = context.Database.ExecuteDataSetAsync(sqlList).Result;
+            ////cmd = query.Resolve();
+            //sqlList = new List<RawCommand> { cmd, cmd, cmd };
+            sqlList = context.Provider.Resolve(new List<object> { query, query, query });
+            result4 = context.Database.ExecuteAsync<DataSet>(sqlList).Result;
 #endif
 
         }
@@ -976,6 +977,8 @@ namespace TZM.XFramework.UnitTest
                     ClientCode = a.ClientCode
                 };
             result = query.ToList();
+            var single = query.FirstOrDefault();
+
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -1010,7 +1013,7 @@ namespace TZM.XFramework.UnitTest
             query =
                 context
                 .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, x => new { Ok= _demoName, x.CloudServerId, x.CloudServerCode });
+                .Include(a => a.CloudServer, x => new { Ok = _demoName, x.CloudServerId, x.CloudServerCode });
             result = query.ToList();
             query =
                 context
@@ -2366,7 +2369,7 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
-            var tuple = context.Database.ExecuteMultiple<int, int>(query3, query4);
+            var tuple = context.Database.Execute<int, int>(query3, query4);
 
             query3 =
                from a in context.GetTable<Model.Client>()
@@ -2380,7 +2383,7 @@ namespace TZM.XFramework.UnitTest
                  from a in context.GetTable<Model.Client>()
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 7;
-            var tuple2 = context.Database.ExecuteMultiple<int, int, int>(query3, query4, query5);
+            var tuple2 = context.Database.Execute<int, int, int>(query3, query4, query5);
 #if !net40
             query3 =
                from a in context.GetTable<Model.Client>()
@@ -2390,7 +2393,7 @@ namespace TZM.XFramework.UnitTest
                 from a in context.GetTable<Model.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
-            tuple = context.Database.ExecuteMultipleAsync<int, int>(query3, query4).Result;
+            tuple = context.Database.ExecuteAsync<int, int>(query3, query4).Result;
 
             query3 =
                from a in context.GetTable<Model.Client>()
@@ -2404,7 +2407,7 @@ namespace TZM.XFramework.UnitTest
                  from a in context.GetTable<Model.Client>()
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 6;
-            tuple2 = context.Database.ExecuteMultipleAsync<int, int, int>(query3, query4, query4).Result;
+            tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
 #endif
 
             // 事务1. 上下文独立事务

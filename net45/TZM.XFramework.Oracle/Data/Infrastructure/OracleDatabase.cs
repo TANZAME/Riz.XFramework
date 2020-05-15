@@ -35,9 +35,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
-        public override Tuple<List<T1>, List<T2>> ExecuteMultiple<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
+        public override Tuple<List<T1>, List<T2>> Execute<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
         {
-            var result = this.ExecuteMultiple<T1, T2, None>(query1, query2, null);
+            var result = this.Execute<T1, T2, None>(query1, query2, null);
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -47,13 +47,13 @@ namespace TZM.XFramework.Data
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
         /// <param name="query3">SQL 命令</param>
-        public override Tuple<List<T1>, List<T2>, List<T3>> ExecuteMultiple<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
+        public override Tuple<List<T1>, List<T2>, List<T3>> Execute<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
         {
             List<T1> q1 = null;
             List<T2> q2 = null;
             List<T3> q3 = null;
             IDataReader reader = null;
-            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
+            List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
 
             TypeDeserializer deserializer1 = null;
@@ -68,17 +68,17 @@ namespace TZM.XFramework.Data
                     if (q1 == null)
                     {
                         deserializer1 = new TypeDeserializer(this, reader, maps.Count > 0 ? maps[0] : null);
-                        q1 = deserializer1.Deserialize<T1>();
+                        q1 = deserializer1.Deserialize<List<T1>>();
                     }
                     else if (q2 == null)
                     {
                         deserializer2 = new TypeDeserializer(this, reader, maps.Count > 1 ? maps[1] : null);
-                        q2 = deserializer2.Deserialize<T2>();
+                        q2 = deserializer2.Deserialize<List<T2>>();
                     }
                     else if (q3 == null)
                     {
                         deserializer3 = new TypeDeserializer(this, reader, maps.Count > 2 ? maps[2] : null);
-                        q3 = deserializer3.Deserialize<T3>();
+                        q3 = deserializer3.Deserialize<List<T3>>();
                     }
                 }
                 while (reader.NextResult());
@@ -103,9 +103,9 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
         /// <param name="command">SQL 命令</param>
-        public override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
+        public override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
-            return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(command);
+            return this.Execute<T1, T2, T3, T4, T5, T6, T7>(command);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
+        protected override Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             List<T1> q1 = null;
             List<T2> q2 = null;
@@ -131,8 +131,8 @@ namespace TZM.XFramework.Data
             List<T6> q6 = null;
             List<T7> q7 = null;
             IDataReader reader = null;
-            List<Command> myList = this.TrySeparate(command.CommandText, command.Parameters, command.CommandType);
-            if (myList == null) q1 = this.ExecuteList<T1>(command, maps != null && maps.Count > 0 ? maps[0] : null);
+            List<RawCommand> myList = this.ParseCommand(command.CommandText, command.Parameters, command.CommandType);
+            if (myList == null) q1 = this.Execute<List<T1>>(command, maps != null && maps.Count > 0 ? maps[0] : null);
             else
             {
                 TypeDeserializer deserializer1 = null;
@@ -151,37 +151,37 @@ namespace TZM.XFramework.Data
                         if (q1 == null)
                         {
                             deserializer1 = new TypeDeserializer(this, reader, maps != null && maps.Count > 0 ? maps[0] : null);
-                            q1 = deserializer1.Deserialize<T1>();
+                            q1 = deserializer1.Deserialize<List<T1>>();
                         }
                         else if (q2 == null)
                         {
                             deserializer2 = new TypeDeserializer(this, reader, maps != null && maps.Count > 1 ? maps[1] : null);
-                            q2 = deserializer2.Deserialize<T2>();
+                            q2 = deserializer2.Deserialize<List<T2>>();
                         }
                         else if (q3 == null)
                         {
                             deserializer3 = new TypeDeserializer(this, reader, maps != null && maps.Count > 2 ? maps[2] : null);
-                            q3 = deserializer3.Deserialize<T3>();
+                            q3 = deserializer3.Deserialize<List<T3>>();
                         }
                         else if (q4 == null)
                         {
                             deserializer4 = new TypeDeserializer(this, reader, maps != null && maps.Count > 3 ? maps[3] : null);
-                            q4 = deserializer4.Deserialize<T4>();
+                            q4 = deserializer4.Deserialize<List<T4>>();
                         }
                         else if (q5 == null)
                         {
                             deserializer5 = new TypeDeserializer(this, reader, maps != null && maps.Count > 4 ? maps[4] : null);
-                            q5 = deserializer5.Deserialize<T5>();
+                            q5 = deserializer5.Deserialize<List<T5>>();
                         }
                         else if (q6 == null)
                         {
                             deserializer6 = new TypeDeserializer(this, reader, maps != null && maps.Count > 5 ? maps[5] : null);
-                            q6 = deserializer6.Deserialize<T6>();
+                            q6 = deserializer6.Deserialize<List<T6>>();
                         }
                         else if (q7 == null)
                         {
                             deserializer7 = new TypeDeserializer(this, reader, maps != null && maps.Count > 6 ? maps[6] : null);
-                            q7 = deserializer7.Deserialize<T7>();
+                            q7 = deserializer7.Deserialize<List<T7>>();
                         }
                     }
                     while (reader.NextResult());
@@ -206,92 +206,71 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
+        /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
+        /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public override DataSet ExecuteDataSet(string sql, params object[] args)
+        public override T Execute<T>(List<RawCommand> sqlList)
         {
-            var parameters = this.GetParameters(sql, args);
-            var cmd = base.CreateCommand(sql, parameters: parameters);
+            if (typeof(T) != typeof(DataSet)) return base.Execute<T>(sqlList);
 
-            List<Command> myList = this.TrySeparate(sql, cmd.Parameters, null);
+            // 返回 DataSet
+            List<RawCommand> myList = this.ParseCommand(sqlList);
             if (myList == null)
-                return base.ExecuteDataSet(sql);
+                return base.Execute<T>(sqlList);
             else
-                return this.ExecuteDataSet(myList, false);
+                return (T)(object)this.Execute(sqlList);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public override DataSet ExecuteDataSet(List<Command> sqlList)
-        {
-            return this.ExecuteDataSet(sqlList, true);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// 执行SQL 语句，并返回单个实体对象
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public override DataSet ExecuteDataSet(IDbCommand command)
+        public override T Execute<T>(IDbCommand command)
         {
-            List<Command> myList = this.TrySeparate(command.CommandText, command.Parameters, command.CommandType);
+            if (typeof(T) != typeof(DataSet)) return base.Execute<T>(command);
+
+            // 返回 DataSet
+            List<RawCommand> myList = this.ParseCommand(command.CommandText,command.Parameters, command.CommandType);
             if (myList == null)
-                return base.ExecuteDataSet(command);
+                return base.Execute<T>(command);
             else
-                return this.ExecuteDataSet(myList, false);
+                return (T)(object)this.Execute(myList);
         }
 
-        //  执行SQL 语句，并返回DataSet对象
-        DataSet ExecuteDataSet(List<Command> sqlList, bool useSeperate)
+        DataSet Execute(List<RawCommand> sqlList)
         {
             int index = 0;
             var result = new DataSet();
-            IDataReader reader = null;
-            List<Command> myList = useSeperate ? this.Separate(sqlList) : sqlList;
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
-                DataTable table = this.ExecuteDataTable(cmd);
+                DataTable table = base.Execute<DataTable>(cmd);
                 table.TableName = string.Format("TALBE{0}", index);
                 index += 1;
                 result.Tables.Add(table);
                 return null;
             };
 
-            try
-            {
-                base.DoExecute<object>(myList, doExecute);
-                return result;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-            }
+            base.DoExecute<object>(sqlList, doExecute);
+            return result;
         }
 
         // 拆分脚本命令
-        List<Command> Separate(List<Command> sqlList)
+        List<RawCommand> ParseCommand(List<RawCommand> sqlList)
         {
             // 重新组合脚本，把 SELECT 和 UPDATE/DELETE 等分开来
             bool haveBegin = false;
-            var myList = new List<Command>();
+            var myList = new List<RawCommand>();
 
             // 创建新命令
-            Func<Command, Command> GetCommand = cmd =>
+            Func<RawCommand, RawCommand> newCommand = cmd =>
             {
                 var parameters = cmd.Parameters == null
                     ? null
                     : cmd.Parameters.ToList(x => (IDbDataParameter)base.CreateParameter(x.ParameterName, x.Value, x.DbType, x.Size, x.Precision, x.Scale, x.Direction));
-                var result = new Command(cmd.CommandText, parameters, cmd.CommandType);
+                var result = new RawCommand(cmd.CommandText, parameters, cmd.CommandType);
                 return result;
             };
 
@@ -305,13 +284,13 @@ namespace TZM.XFramework.Data
 
                 string methodName = string.Empty;
                 if (sql.Length > 6) methodName = sql.Substring(0, 6).Trim().ToUpper();
-                if (cmd is MapperDbCommand || methodName == "SELECT")
+                if (cmd is MapperCommand || methodName == "SELECT")
                 {
                     // 查询单独执行
                     if (myList.Count > 0 && (i - 1) >= 0 && myList[myList.Count - 1] != null) myList.Add(null);
 
                     // 创建新命令
-                    Command @new = GetCommand(cmd);
+                    RawCommand @new = newCommand(cmd);
                     myList.Add(@new);
                     myList.Add(null);
                 }
@@ -320,12 +299,12 @@ namespace TZM.XFramework.Data
                     // 增删改
                     if (!haveBegin)
                     {
-                        myList.Add(new Command("BEGIN"));
+                        myList.Add(new RawCommand("BEGIN"));
                         haveBegin = true;
                     }
 
                     // 创建新命令
-                    Command @new = GetCommand(cmd);
+                    RawCommand @new = newCommand(cmd);
                     myList.Add(@new);
 
                     // 检查下一条是否是选择语句
@@ -344,43 +323,43 @@ namespace TZM.XFramework.Data
                     {
                         if (haveBegin)
                         {
-                            myList.Add(new Command("END;"));
+                            myList.Add(new RawCommand("END;"));
                             haveBegin = false;
                             myList.Add(null);
                         }
                     }
                 }
 
-                if (haveBegin && i == sqlList.Count - 1) myList.Add(new Command("END;"));
+                if (haveBegin && i == sqlList.Count - 1) myList.Add(new RawCommand("END;"));
             }
 
             return myList;
         }
 
         // 拆分脚本命令
-        List<Command> TrySeparate(string commandText, IDataParameterCollection srcParameters, CommandType? commandType)
+        List<RawCommand> ParseCommand(string commandText, IDataParameterCollection collection, CommandType? commandType)
         {
             // 存储过程不需要拆分
             if (commandType != null && commandType.Value == CommandType.StoredProcedure) return null;
 
             bool haveBegin = false;
             string methodName = string.Empty;
-            var myList = new List<Command>();
+            var myList = new List<RawCommand>();
             string[] parts = commandText.Split(';');
             //var regex = new Regex(@"(?<ParameterName>:p\d+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             var regex = new Regex(@"(?<ParameterName>:[0-9a-zA-Z_]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
             // 创建新命令
-            Func<string, bool, Command> GetCommand = (sql, isQuery) =>
+            Func<string, bool, RawCommand> newCommand = (sql, isQuery) =>
             {
-                Command cmd = new Command(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"));
-                if (srcParameters != null && srcParameters.Count > 0)
+                RawCommand cmd = new RawCommand(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"));
+                if (collection != null && collection.Count > 0)
                 {
                     var myParameters = new List<IDbDataParameter>();
                     MatchCollection matches = regex.Matches(cmd.CommandText);
                     foreach (Match m in matches)
                     {
-                        var p = (IDbDataParameter)srcParameters[m.Groups["ParameterName"].Value];
+                        var p = (IDbDataParameter)collection[m.Groups["ParameterName"].Value];
                         myParameters.Add(p);
                     }
                     cmd.Parameters = myParameters;
@@ -410,7 +389,7 @@ namespace TZM.XFramework.Data
                     if (myList.Count > 0 && (i - 1) >= 0 && myList[myList.Count - 1] != null) myList.Add(null);
 
                     // 创建新命令
-                    Command cmd = GetCommand(sql, true);
+                    RawCommand cmd = newCommand(sql, true);
                     myList.Add(cmd);
                     myList.Add(null);
                 }
@@ -419,12 +398,12 @@ namespace TZM.XFramework.Data
                     // 增删改
                     if (!haveBegin)
                     {
-                        myList.Add(new Command("BEGIN"));
+                        myList.Add(new RawCommand("BEGIN"));
                         haveBegin = true;
                     }
 
                     // 创建新命令
-                    Command cmd = GetCommand(sql, false);
+                    RawCommand cmd = newCommand(sql, false);
                     myList.Add(cmd);
 
                     // 检查下一条是否是选择语句
@@ -442,14 +421,14 @@ namespace TZM.XFramework.Data
                     {
                         if (haveBegin)
                         {
-                            myList.Add(new Command("END;"));
+                            myList.Add(new RawCommand("END;"));
                             haveBegin = false;
                             myList.Add(null);
                         }
                     }
                 }
 
-                if (haveBegin && i == parts.Length - 1) myList.Add(new Command("END;"));
+                if (haveBegin && i == parts.Length - 1) myList.Add(new RawCommand("END;"));
             }
 
             return myList;

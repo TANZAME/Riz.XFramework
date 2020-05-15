@@ -344,9 +344,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerSqlBuilder.cs">
       <Link>Data\SqlClient\SqlServerSqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Command.cs">
-      <Link>Data\TypeDeserialize\Command.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumn.cs">
       <Link>Data\TypeDeserialize\DbColumn.cs</Link>
     </Compile>
@@ -356,8 +353,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs">
       <Link>Data\TypeDeserialize\IMapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperDbCommand.cs">
-      <Link>Data\TypeDeserialize\MapperDbCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs">
+      <Link>Data\TypeDeserialize\MapperCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>
@@ -368,6 +365,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\RawCommand.cs">
+      <Link>Data\TypeDeserialize\RawCommand.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer.cs</Link>
     </Compile>
@@ -376,6 +376,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs">
       <Link>Data\TypeDeserialize\TypeDeserializer`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer`2.cs">
+      <Link>Data\TypeDeserialize\TypeDeserializer`2.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>

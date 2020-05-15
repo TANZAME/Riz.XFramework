@@ -1290,7 +1290,7 @@ namespace TZM.XFramework.Data
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = token.DbContext
-            } : null) as MapperDbCommand;
+            } : null) as MapperCommand;
 
             if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
