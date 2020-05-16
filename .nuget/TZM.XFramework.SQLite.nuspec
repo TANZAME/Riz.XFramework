@@ -14,14 +14,14 @@
     <tags>.NET SQLite Database Data O/RM ADO.NET</tags>
     <repository type="git" url="https://github.com/TANZAME/TZM.XFramework" />
 	<dependencies>
-      <group>
+      <group targetFramework=".NETFramework4.5">
         <dependency id="TZM.XFramework" version="$version$" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <references>
       <group targetFramework=".NETFramework4.5">
-        <reference file="TZM.XFramework.SQLite.dll" />
         <reference file="System.Data.SQLite.dll" />
+        <reference file="TZM.XFramework.SQLite.dll" />
       </group>
     </references>
   </metadata>
