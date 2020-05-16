@@ -197,39 +197,46 @@ namespace TZM.XFramework.Data
         #region 扩展方法
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// <para>
         /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
         /// </para>
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sql">查询语句</param>
         /// <param name="args">命令参数</param>
         /// <returns></returns>
         T Execute<T>(string sql, params object[] args);
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="query">查询语句</param>
         /// <returns></returns>
         T Execute<T>(IDbQueryable query);
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
-        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         T Execute<T>(List<RawCommand> sqlList);
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        T Execute<T>(List<RawCommand> sqlList, Func<IDbCommand, T> func);
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
+        /// <param name="sqlList">查询语句</param>
+        /// <param name="action">执行SQL命令动作</param>
+        /// <returns></returns>
+        T Execute<T>(List<RawCommand> sqlList, Func<IDbCommand, T> action);
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
         T Execute<T>(IDbCommand command);

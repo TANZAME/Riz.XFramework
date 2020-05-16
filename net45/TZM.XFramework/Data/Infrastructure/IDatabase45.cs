@@ -92,39 +92,46 @@ namespace TZM.XFramework.Data
         Task<IDataReader> ExecuteReaderAsync(IDbCommand command);
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// <para>
         /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
         /// </para>
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sql">SQL 命令</param>
         /// <param name="args">命令参数</param>
         /// <returns></returns>
         Task<T> ExecuteAsync<T>(string sql, params object[] args);
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="query">SQL 命令</param>
         /// <returns></returns>
         Task<T> ExecuteAsync<T>(IDbQueryable query);
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         Task<T> ExecuteAsync<T>(List<RawCommand> sqlList);
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        Task<T> ExecuteAsync<T>(List<RawCommand> sqlList, Func<IDbCommand, Task<T>> func);
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
+        /// <param name="sqlList">查询语句</param>
+        /// <param name="action">执行SQL命令动作</param>
+        /// <returns></returns>
+        Task<T> ExecuteAsync<T>(List<RawCommand> sqlList, Func<IDbCommand, Task<T>> action);
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
         Task<T> ExecuteAsync<T>(IDbCommand command);

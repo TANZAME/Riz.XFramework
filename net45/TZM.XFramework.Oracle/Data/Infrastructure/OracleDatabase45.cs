@@ -187,7 +187,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
@@ -204,7 +204,7 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>

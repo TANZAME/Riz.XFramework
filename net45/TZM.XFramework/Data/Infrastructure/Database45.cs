@@ -137,11 +137,12 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// <para>
         /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
         /// </para>
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sql">SQL 命令</param>
         /// <param name="args">命令参数</param>
         /// <returns></returns>
@@ -152,8 +153,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 异步执行SQL 语句，并返回单个实体对象
+        /// 异步执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="query">SQL 命令</param>
         /// <returns></returns>
         public virtual async Task<T> ExecuteAsync<T>(IDbQueryable query)
@@ -164,8 +166,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         public virtual async Task<T> ExecuteAsync<T>(List<RawCommand> sqlList)
@@ -174,16 +177,21 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        public virtual async Task<T> ExecuteAsync<T>(List<RawCommand> sqlList, Func<IDbCommand, Task<T>> func)
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
+        /// <param name="sqlList">查询语句</param>
+        /// <param name="action">执行SQL命令动作</param>
+        /// <returns></returns>
+        public virtual async Task<T> ExecuteAsync<T>(List<RawCommand> sqlList, Func<IDbCommand, Task<T>> action)
         {
-            return await this.DoExecuteAsync<T>(sqlList, func);
+            return await this.DoExecuteAsync<T>(sqlList, action);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
         public virtual async Task<T> ExecuteAsync<T>(IDbCommand command)
@@ -192,9 +200,9 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">连接到数据源时执行的 SQL 语句</param>
         /// <param name="map">实体映射描述</param>
         /// <returns></returns>
