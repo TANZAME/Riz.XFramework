@@ -119,15 +119,15 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="isOuter">指示是最外层查询</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
+        protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperDbCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
+            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
-        Command ResolveSelectCommandImpl(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
+        RawCommand ResolveSelectCommandImpl(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -152,7 +152,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperDbCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             ISqlBuilder sf = null;
@@ -380,7 +380,7 @@ namespace TZM.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd = this.ResolveSelectCommandImpl(dbQuery.Unions[index], indent, isOuter, token);
+                    RawCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Unions[index], indent, isOuter, token);
                     jf.Append(cmd.CommandText);
                 }
             }
@@ -444,7 +444,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
+        protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             TableAliasCache aliases = new TableAliasCache();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
@@ -527,7 +527,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperDbCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, true, token) as MapperDbCommand;
+                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, true, token) as MapperCommand;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
@@ -541,7 +541,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             if (dbQuery.Bulk == null || dbQuery.Bulk.IsEndPos) builder.Append(';');
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         /// <summary>
@@ -550,7 +550,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
+        protected override RawCommand ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -585,7 +585,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new MapperDbCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
                 if (token != null && token.Extendsions == null)
                 {
                     token.Extendsions = new Dictionary<string, object>();
@@ -603,7 +603,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         /// <summary>
@@ -612,7 +612,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
+        protected override RawCommand ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -677,7 +677,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd = new MapperDbCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 visitor = new JoinExpressionVisitor(this, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);
@@ -695,7 +695,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
     }
 }

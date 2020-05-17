@@ -54,9 +54,9 @@ namespace TZM.XFramework.Data
 #if net40
 
         // 自定义类型转换
-        protected override bool ConvertBoxExtendsion(ILGenerator il, Type from, Type to, Type via)
+        protected override bool ConvertBoxExtension(ILGenerator il, Type from, Type to, Type via)
         {
-            bool isExecuted = base.ConvertBoxExtendsion(il, from, to, via);
+            bool isExecuted = base.ConvertBoxExtension(il, from, to, via);
             if (isExecuted) return isExecuted;
 
             bool isTimezone = from == typeof(OracleTimeStampTZ) && (to == typeof(DateTimeOffset) || to == typeof(DateTimeOffset?));

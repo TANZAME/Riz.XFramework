@@ -62,7 +62,7 @@ namespace TZM.XFramework.Data
         /// 创建 SQL 命令
         /// </summary>
         /// <param name="dbQueryable">查询 语句</param>
-        public Command Resolve<T>(IDbQueryable<T> dbQueryable)
+        public RawCommand Resolve<T>(IDbQueryable<T> dbQueryable)
         {
             return this.Resolve(dbQueryable, 0, true, null);
         }
@@ -75,14 +75,19 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public Command Resolve<T>(IDbQueryable<T> dbQuery, int indent, bool isOuter, ResolveToken token)
+        public RawCommand Resolve<T>(IDbQueryable<T> dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 参数化设置
-            if (token == null) token = new ResolveToken();
-            if (!dbQuery.HasSetParameterized) dbQuery.Parameterized = true;
-            if (!token.HasSetParameterized) token.Parameterized = dbQuery.Parameterized;
-            if (token.Parameterized && token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
-            if (token.DbContext == null) token.DbContext = dbQuery.DbContext;
+            if (token == null) 
+                token = new ResolveToken();
+            if (!dbQuery.HasSetParameterized) 
+                dbQuery.Parameterized = true;
+            if (!token.HasSetParameterized) 
+                token.Parameterized = dbQuery.Parameterized;
+            if (token.Parameterized && token.Parameters == null) 
+                token.Parameters = new List<IDbDataParameter>(8);
+            if (token.DbContext == null) 
+                token.DbContext = dbQuery.DbContext;
 
             // 解析查询语义
             IDbQueryableInfo result = DbQueryParser.Parse<T>(dbQuery);
@@ -110,9 +115,9 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
         /// <returns></returns>
-        public virtual List<Command> Resolve(List<object> dbQueryables)
+        public virtual List<RawCommand> Resolve(List<object> dbQueryables)
         {
-            List<Command> sqlList = new List<Command>();
+            List<RawCommand> sqlList = new List<RawCommand>();
             ResolveToken token = null;
 
             foreach (var obj in dbQueryables)
@@ -149,7 +154,7 @@ namespace TZM.XFramework.Data
                     string sql = rawSql.CommandText;
                     if (args != null && args.Length > 0) sql = string.Format(sql, args);
 
-                    var cmd2 = new Command(sql, token.Parameters, CommandType.Text);
+                    var cmd2 = new RawCommand(sql, token.Parameters, CommandType.Text);
                     sqlList.Add(cmd2);
                     if (cmd2.Parameters != null && cmd2.Parameters.Count > 1000)
                     {
@@ -162,7 +167,7 @@ namespace TZM.XFramework.Data
                 else if (obj is string)
                 {
                     string sql = obj.ToString();
-                    sqlList.Add(new Command(sql));
+                    sqlList.Add(new RawCommand(sql));
                 }
                 else
                 {
@@ -200,7 +205,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">指示是最外层查询</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token);
+        protected abstract RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token);
 
         /// <summary>
         /// 创建 INSRT 命令
@@ -208,7 +213,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token);
+        protected abstract RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token);
 
         /// <summary>
         /// 创建 DELETE 命令
@@ -216,7 +221,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token);
+        protected abstract RawCommand ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token);
 
         /// <summary>
         /// 创建 UPDATE 命令
@@ -224,7 +229,7 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected abstract Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token);
+        protected abstract RawCommand ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token);
 
         /// <summary>
         /// 生成关联子句所表示的别名列表
@@ -310,7 +315,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令列表 </param>
         /// <param name="bulkList">批量查询语义列表</param>
-        protected void ResolveBulk(List<Command> sqlList, List<IDbQueryable> bulkList)
+        protected void ResolveBulk(List<RawCommand> sqlList, List<IDbQueryable> bulkList)
         {
             // SQL 只能接收1000个
             int pageSize = 1000;
@@ -328,11 +333,11 @@ namespace TZM.XFramework.Data
                     query.Parameterized = false;
                     query.Bulk = new BulkInsertInfo { OnlyValue = i != 1, IsEndPos = i == count };
 
-                    Command cmd = query.Resolve();
+                    RawCommand cmd = query.Resolve();
                     builder.Append(cmd.CommandText);
                 }
 
-                if (builder.Length > 0) sqlList.Add(new Command(builder.ToString()));
+                if (builder.Length > 0) sqlList.Add(new RawCommand(builder.ToString()));
             }
         }
 

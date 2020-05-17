@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// Npg 含实体映射信息的SQL命令
     /// </summary>
-    public sealed class NpgMapperDbCommand : MapperDbCommand
+    public sealed class NpgMapperDbCommand : MapperCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;

@@ -314,7 +314,7 @@ namespace TZM.XFramework.Data
 
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -361,9 +361,9 @@ namespace TZM.XFramework.Data
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
-            List<int> identitys = new List<int>();
             IDataReader reader = null;
+            List<int> identitys = new List<int>();
+            List<RawCommand> sqlList = this.Resolve();
 
             try
             {
@@ -385,7 +385,7 @@ namespace TZM.XFramework.Data
                     return null;
                 };
 
-                await this.Database.ExecuteAsync<object>(sqlList, func);
+                await ((Database)this.Database).ExecuteAsync<object>(sqlList, func);
                 this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
@@ -413,7 +413,7 @@ namespace TZM.XFramework.Data
             List<T> q1 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Resolve();
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
@@ -473,7 +473,7 @@ namespace TZM.XFramework.Data
             List<T2> q2 = null;
             IDataReader reader = null;
             List<int> identitys = null;
-            List<Command> sqlList = this.Provider.Resolve(_dbQueryables);
+            List<RawCommand> sqlList = this.Resolve();
             List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
 
             Func<IDbCommand, object> doExecute = cmd =>
@@ -548,6 +548,14 @@ namespace TZM.XFramework.Data
         {
             DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
             return query;
+        }
+
+        /// <summary>
+        /// 解析 SQL 命令
+        /// </summary>
+        public List<RawCommand> Resolve()
+        {
+            return this.Provider.Resolve(this._dbQueryables);
         }
 
         /// <summary>

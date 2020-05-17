@@ -129,7 +129,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="isOuter">指示是最外层查询</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
+        protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -241,7 +241,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 子查询
                 jf.Append('(');
-                Command cmd = this.ResolveSelectCommand(dbQuery.Subquery, indent + 1, false, token);
+                RawCommand cmd = this.ResolveSelectCommand(dbQuery.Subquery, indent + 1, false, token);
                 jf.Append(cmd.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -347,7 +347,7 @@ namespace TZM.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd = this.ResolveSelectCommand(dbQuery.Unions[index], indent, isOuter, token);
+                    RawCommand cmd = this.ResolveSelectCommand(dbQuery.Unions[index], indent, isOuter, token);
                     jf.Append(cmd.CommandText);
                 }
             }
@@ -377,7 +377,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
+        protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             TableAliasCache aliases = new TableAliasCache();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
@@ -461,7 +461,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperDbCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperCommand;
                 foreach (DbColumn column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
@@ -474,7 +474,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(cmd.CommandText);
             }
 
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         /// <summary>
@@ -483,7 +483,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
+        protected override RawCommand ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
             var context = (SqlServerDbContext)token.DbContext;
             ISqlBuilder builder = this.CreateSqlBuilder(token);
@@ -531,7 +531,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(cmd.CommandText);
             }
 
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         /// <summary>
@@ -540,7 +540,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
+        protected override RawCommand ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             var context = (SqlServerDbContext)token.DbContext;
             ISqlBuilder builder = this.CreateSqlBuilder(token);
@@ -628,7 +628,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(cmd.CommandText);
             }
 
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
     }
 }

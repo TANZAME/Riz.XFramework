@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         public static bool Any<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             IDbQueryable<bool> query = source.CreateQuery<bool>(DbExpressionType.Any, predicate);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<bool>();
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace TZM.XFramework.Data
         public static int Count<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             IDbQueryable<int> query = source.CreateQuery<int>(DbExpressionType.Count, predicate);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<int>();
         }
 
         /// <summary>
@@ -100,6 +100,31 @@ namespace TZM.XFramework.Data
         }
 
 #if !net40
+
+        /// <summary>
+        /// 确定序列是否包含任何元素
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <returns>如果源序列中存在元素通过了指定谓词中的测试，则为 true；否则为 false</returns>
+        public static async Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source)
+        {
+            return await source.AnyAsync(null);
+        }
+
+        /// <summary>
+        /// 确定序列是否包含任何元素
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <returns></returns>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns>如果源序列中存在元素通过了指定谓词中的测试，则为 true；否则为 false</returns>
+        public static async Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            IDbQueryable<bool> query = source.CreateQuery<bool>(DbExpressionType.Any, predicate);
+            return await query.ExecuteAsync<bool>();
+        }
 
         /// <summary>
         /// 返回序列中的元素数量
@@ -123,7 +148,7 @@ namespace TZM.XFramework.Data
         public static async Task<int> CountAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             IDbQueryable<int> query = source.CreateQuery<int>(DbExpressionType.Count, predicate);
-            return await query.DbContext.Database.ExecuteAsync(query);
+            return await query.ExecuteAsync<int>();
         }
 
         /// <summary>
@@ -161,7 +186,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static async Task<List<TSource>> ToListAsync<TSource>(this IDbQueryable<TSource> source)
         {
-            return await source.DbContext.Database.ExecuteListAsync(source);
+            return await source.DbContext.Database.ExecuteAsync<List<TSource>>(source);  //.ExecuteListAsync(source);
         }
 
         /// <summary>
@@ -186,7 +211,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static async Task<DataTable> ToDataTableAsync<TSource>(this IDbQueryable<TSource> source)
         {
-            return await source.DbContext.Database.ExecuteDataTableAsync(source);
+            return await source.ExecuteAsync<DataTable>();
         }
 
         /// <summary>
@@ -276,7 +301,7 @@ namespace TZM.XFramework.Data
         public static async Task<TSource> FirstOrDefaultAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate = null)
         {
             IDbQueryable<TSource> query = source.CreateQuery<TSource>(DbExpressionType.FirstOrDefault, predicate);
-            return await query.DbContext.Database.ExecuteAsync(query);
+            return await query.ExecuteAsync<TSource>();
         }
 
         /// <summary>
@@ -287,7 +312,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static async Task<DataSet> ToDataSetAsync<TSource>(this IDbQueryable<TSource> source)
         {
-            return await source.DbContext.Database.ExecuteDataSetAsync(new List<Command> { source.Resolve() });
+            return await source.ExecuteAsync<DataSet>();
         }
 
 #endif
@@ -361,7 +386,7 @@ namespace TZM.XFramework.Data
         public static TSource FirstOrDefault<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate = null)
         {
             IDbQueryable<TSource> query = source.CreateQuery<TSource>(DbExpressionType.FirstOrDefault, predicate);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<TSource>();
         }
 
         /// <summary>
@@ -448,7 +473,7 @@ namespace TZM.XFramework.Data
         public static TResult Max<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
             IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Max, keySelector);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<TResult>();
         }
 
         /// <summary>
@@ -462,7 +487,7 @@ namespace TZM.XFramework.Data
         public static TResult Min<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
             IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Min, keySelector);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<TResult>();
         }
 
         /// <summary>
@@ -476,7 +501,7 @@ namespace TZM.XFramework.Data
         public static TResult Average<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
             IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Average, keySelector);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<TResult>();
         }
 
         /// <summary>
@@ -490,7 +515,7 @@ namespace TZM.XFramework.Data
         public static TResult Sum<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
             IDbQueryable<TResult> query = source.CreateQuery<TResult>(DbExpressionType.Sum, keySelector);
-            return query.DbContext.Database.Execute(query);
+            return query.Execute<TResult>();
         }
 
         /// <summary>
@@ -502,6 +527,23 @@ namespace TZM.XFramework.Data
         /// <param name="keySelector">用于从元素中提取键的函数</param>
         /// <returns></returns>
         public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
+        }
+
+        /// <summary>
+        ///  根据键按升序对序列的元素排序
+        ///  <para>
+        ///  示例： query = query.Where(predicate).OrderBy&lt;MapRuleOption, MapRuleOptionDetail, int&gt;((a, b) => b.UserId != null ? b.Sequence : a.Sequence);
+        ///  </para>
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 的元素类型</typeparam>
+        /// <typeparam name="TKey">keySelector 返回的键的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> OrderBy<TSource, TSource2, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TKey>> keySelector)
         {
             return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
         }
@@ -710,7 +752,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static List<TSource> ToList<TSource>(this IDbQueryable<TSource> source)
         {
-            return source.DbContext.Database.ExecuteList(source);
+            return source.Execute<List<TSource>>();
         }
 
         /// <summary>
@@ -735,7 +777,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static DataTable ToDataTable<TSource>(this IDbQueryable<TSource> source)
         {
-            return source.DbContext.Database.ExecuteDataTable(source);
+            return source.Execute<DataTable>();
         }
 
         /// <summary>
@@ -746,7 +788,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public static DataSet ToDataSet<TSource>(this IDbQueryable<TSource> source)
         {
-            return source.DbContext.Database.ExecuteDataSet(new List<Command> { source.Resolve() });
+            return source.Execute<DataSet>();
         }
 
         /// <summary>

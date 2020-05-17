@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace TZM.XFramework.Data
 {
@@ -84,7 +85,23 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 解析成 SQL 命令
         /// </summary>
-        public abstract Command Resolve();
+        public abstract RawCommand Resolve();
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        /// <returns></returns>
+        public abstract TResult Execute<TResult>();
+
+#if !net40
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<TResult> ExecuteAsync<TResult>();
+
+#endif
 
         /// <summary>
         /// 解析成 SQL 命令
@@ -93,7 +110,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        public abstract Command Resolve(int indent, bool isOuter, ResolveToken token);
+        public abstract RawCommand Resolve(int indent, bool isOuter, ResolveToken token);
 
         /// <summary>
         /// 解析查询语义

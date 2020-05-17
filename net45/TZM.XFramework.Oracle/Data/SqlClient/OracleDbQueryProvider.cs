@@ -121,11 +121,11 @@ namespace TZM.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
         /// <returns></returns>
-        public override List<Command> Resolve(List<object> dbQueryables)
+        public override List<RawCommand> Resolve(List<object> dbQueryables)
         {
             bool haveBegin = false;
             ResolveToken token = null;
-            List<Command> sqlList = new List<Command>();
+            List<RawCommand> sqlList = new List<RawCommand>();
 
             for (int i = 0; i < dbQueryables.Count; i++)
             {
@@ -140,7 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
-                    if (cmd2 is MapperDbCommand)
+                    if (cmd2 is MapperCommand)
                     {
                         // 查询单独执行
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
@@ -155,7 +155,7 @@ namespace TZM.XFramework.Data.SqlClient
                         // 增删改
                         if (!haveBegin)
                         {
-                            sqlList.Add(new Command("BEGIN"));
+                            sqlList.Add(new RawCommand("BEGIN"));
                             haveBegin = true;
                         }
                         sqlList.Add(cmd2);
@@ -164,7 +164,7 @@ namespace TZM.XFramework.Data.SqlClient
                             // 1000个参数，就要重新分批
                             if (haveBegin)
                             {
-                                sqlList.Add(new Command("END;"));
+                                sqlList.Add(new RawCommand("END;"));
                                 haveBegin = false;
                                 sqlList.Add(null);
                             }
@@ -201,7 +201,7 @@ namespace TZM.XFramework.Data.SqlClient
                             {
                                 if (haveBegin)
                                 {
-                                    sqlList.Add(new Command("END;"));
+                                    sqlList.Add(new RawCommand("END;"));
                                     haveBegin = false;
                                     sqlList.Add(null);
                                 }
@@ -236,7 +236,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
 
-                    var cmd2 = new Command(sql, token.Parameters, CommandType.Text);
+                    var cmd2 = new RawCommand(sql, token.Parameters, CommandType.Text);
                     sqlList.Add(cmd2);
 
                     if (methodName == "SELECT")
@@ -251,7 +251,7 @@ namespace TZM.XFramework.Data.SqlClient
                         // 1000个参数，就要重新分批
                         if (haveBegin)
                         {
-                            sqlList.Add(new Command("END;"));
+                            sqlList.Add(new RawCommand("END;"));
                             sqlList.Add(null);
                             haveBegin = false;
                         }
@@ -263,7 +263,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     if (!haveBegin)
                     {
-                        sqlList.Add(new Command("BEGIN"));
+                        sqlList.Add(new RawCommand("BEGIN"));
                         haveBegin = true;
                     }
                     // 解析批量插入操作
@@ -271,7 +271,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (bulkList != null && bulkList.Count > 0) this.ResolveBulk(sqlList, bulkList);
                 }
 
-                if (haveBegin && i == dbQueryables.Count - 1) sqlList.Add(new Command("END;"));
+                if (haveBegin && i == dbQueryables.Count - 1) sqlList.Add(new RawCommand("END;"));
             }
 
             return sqlList;
@@ -285,7 +285,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="isOuter">指示是最外层查询</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
+        protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -310,7 +310,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperDbCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             (jf as OracleSqlBuilder).UseQuote = isOuter;
@@ -453,7 +453,7 @@ namespace TZM.XFramework.Data.SqlClient
             {
                 // 子查询
                 jf.Append('(');
-                Command cmd = this.ResolveSelectCommand(dbQuery.Subquery, indent + 1, false, token);
+                RawCommand cmd = this.ResolveSelectCommand(dbQuery.Subquery, indent + 1, false, token);
                 jf.Append(cmd.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -538,7 +538,7 @@ namespace TZM.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    Command cmd2 = this.ResolveSelectCommand(dbQuery.Unions[index], indent, isOuter, token);
+                    RawCommand cmd2 = this.ResolveSelectCommand(dbQuery.Unions[index], indent, isOuter, token);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -619,7 +619,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
+        protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             TableAliasCache aliases = new TableAliasCache();
@@ -756,7 +756,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperDbCommand cmd = this.ResolveSelectCommand(dbQuery.Query, 0, false, token) as MapperDbCommand;
+                MapperCommand cmd = this.ResolveSelectCommand(dbQuery.Query, 0, false, token) as MapperCommand;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.Name);
@@ -770,7 +770,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append(';');
             }
 
-            var result = new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            var result = new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
             return result;
         }
 
@@ -780,7 +780,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
+        protected override RawCommand ResolveDeleteCommand<T>(IDbQueryableInfo_Delete dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -815,7 +815,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 // 解析查询用来确定是否需要嵌套
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperDbCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperCommand;
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
                     // 最外层仅选择 RowID 列
@@ -830,7 +830,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
                     // 解析成 RowId IN 结构
-                    cmd = (MapperDbCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
+                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.Append("WHERE t0.RowId IN(");
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(')');
@@ -847,7 +847,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
 
         /// <summary>
@@ -856,7 +856,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected override Command ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
+        protected override RawCommand ResolveUpdateCommand<T>(IDbQueryableInfo_Update dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
@@ -969,7 +969,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 // 解析查询以确定是否需要嵌套
                 dbQuery.Query.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperDbCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);//, token);
+                var cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);//, token);
 
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
@@ -985,7 +985,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendNewLine(" t0");
                     builder.Append("USING (");
 
-                    cmd = (MapperDbCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
+                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(") t1 ON (");
                     foreach (var m in typeRuntime.KeyMembers)
@@ -1019,7 +1019,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
 
             builder.Append(';');
-            return new Command(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
+            return new RawCommand(builder.ToString(), builder.Token != null ? builder.Token.Parameters : null, System.Data.CommandType.Text);
         }
     }
 }

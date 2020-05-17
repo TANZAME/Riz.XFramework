@@ -148,7 +148,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="cmd">命令描述</param>
         /// <returns></returns>
-        public IDbCommand CreateCommand(Command cmd)
+        public IDbCommand CreateCommand(RawCommand cmd)
         {
             return this.CreateCommand(cmd.CommandText, cmd.CommandType, cmd.Parameters);
         }
@@ -239,7 +239,7 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回受影响的行数
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
-        public int ExecuteNonQuery(List<Command> sqlList)
+        public int ExecuteNonQuery(List<RawCommand> sqlList)
         {
             int rowCount = 0;
             this.DoExecute<int>(sqlList, p => rowCount += this.ExecuteNonQuery(p));
@@ -287,7 +287,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(List<Command> sqlList)
+        public object ExecuteScalar(List<RawCommand> sqlList)
         {
             return this.DoExecute<object>(sqlList, this.ExecuteScalar);
         }
@@ -333,7 +333,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(List<Command> sqlList)
+        public IDataReader ExecuteReader(List<RawCommand> sqlList)
         {
             return this.DoExecute<IDataReader>(sqlList, this.ExecuteReader);
         }
@@ -349,77 +349,84 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// <para>
         /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
         /// </para>
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sql">查询语句</param>
         /// <param name="args">命令参数</param>
         /// <returns></returns>
-        public T Execute<T>(string sql, params object[] args)
+        public virtual T Execute<T>(string sql, params object[] args)
         {
             IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
             return this.Execute<T>(command);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="query">查询语句</param>
         /// <returns></returns>
-        public T Execute<T>(IDbQueryable<T> query)
+        public virtual T Execute<T>(IDbQueryable query)
         {
-            Command command = query.Resolve();
+            RawCommand command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as MapperDbCommand);
+            return this.Execute<T>(cmd, command as IMapper);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public T Execute<T>(List<Command> sqlList)
+        public virtual T Execute<T>(List<RawCommand> sqlList)
         {
             return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        public T Execute<T>(List<Command> sqlList, Func<IDbCommand, T> func)
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
+        /// <param name="sqlList">查询语句</param>
+        /// <param name="action">执行SQL命令动作</param>
+        /// <returns></returns>
+        public virtual T Execute<T>(List<RawCommand> sqlList, Func<IDbCommand, T> action)
         {
-            return this.DoExecute<T>(sqlList, func);
+            return this.DoExecute<T>(sqlList, action);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public T Execute<T>(IDbCommand command)
+        public virtual T Execute<T>(IDbCommand command)
         {
             return this.Execute<T>(command, null);
         }
 
         /// <summary>
-        /// 执行SQL 语句，并返回单个实体对象
+        /// 执行SQL 语句，并返回由 T 指定的对象
         /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="command"></param>
-        /// <param name="map"></param>
+        /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
+        /// <param name="command">SQL 命令</param>
+        /// <param name="map">实体映射描述</param>
         /// <returns></returns>
         protected virtual T Execute<T>(IDbCommand command, IMapper map)
         {
             IDataReader reader = null;
+            T result = default(T);
 
             try
             {
                 reader = this.ExecuteReader(command);
-                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
-                List<T> result = deserializer.Deserialize<T>();
-                return result.FirstOrDefault();
+                result = this.GetResult<T>(reader, map);
             }
             finally
             {
@@ -427,6 +434,32 @@ namespace TZM.XFramework.Data
                 if (reader != null) reader.Dispose();
                 this.InternalDispose();
             }
+
+            return result;
+        }
+
+        // datareader 转实体
+        T GetResult<T>(IDataReader reader, IMapper map)
+        {
+            T result = default(T);
+            if (typeof(T) == typeof(DataTable))
+            {
+                DataTable table = new DataTable();
+                table.Load(reader);
+                result = (T)(object)table;
+            }
+            else if (typeof(T) == typeof(DataSet))
+            {
+                InternalDataSet data = new InternalDataSet();
+                data.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
+                result = (T)(object)data;
+            }
+            else
+            {
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
+                result = deserializer.Deserialize<T>();
+            }
+            return result;
         }
 
         /// <summary>
@@ -434,11 +467,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
-        public virtual Tuple<List<T1>, List<T2>> ExecuteMultiple<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
+        public virtual Tuple<List<T1>, List<T2>> Execute<T1, T2>(IDbQueryable<T1> query1, IDbQueryable<T2> query2)
         {
-            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
+            List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.ExecuteMultiple<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
+                p => this.Execute<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -448,11 +481,11 @@ namespace TZM.XFramework.Data
         /// <param name="query1">SQL 命令</param>
         /// <param name="query2">SQL 命令</param>
         /// <param name="query3">SQL 命令</param>
-        public virtual Tuple<List<T1>, List<T2>, List<T3>> ExecuteMultiple<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
+        public virtual Tuple<List<T1>, List<T2>, List<T3>> Execute<T1, T2, T3>(IDbQueryable<T1> query1, IDbQueryable<T2> query2, IDbQueryable<T3> query3)
         {
-            List<Command> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
+            List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.ExecuteMultiple<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
+                p => this.Execute<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -460,9 +493,9 @@ namespace TZM.XFramework.Data
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
         /// <param name="command">SQL 命令</param>
-        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
+        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
-            return this.ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(command, null);
+            return this.Execute<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
 
         /// <summary>
@@ -478,7 +511,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> ExecuteMultiple<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
+        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;
@@ -512,43 +545,43 @@ namespace TZM.XFramework.Data
 
                         case 1:
                             if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q1 = deserializer1.Deserialize<T1>();
+                            q1 = deserializer1.Deserialize<List<T1>>();
 
                             break;
 
                         case 2:
                             if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q2 = deserializer2.Deserialize<T2>();
+                            q2 = deserializer2.Deserialize<List<T2>>();
 
                             break;
 
                         case 3:
                             if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q3 = deserializer3.Deserialize<T3>();
+                            q3 = deserializer3.Deserialize<List<T3>>();
 
                             break;
 
                         case 4:
                             if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q4 = deserializer4.Deserialize<T4>();
+                            q4 = deserializer4.Deserialize<List<T4>>();
 
                             break;
 
                         case 5:
                             if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q5 = deserializer5.Deserialize<T5>();
+                            q5 = deserializer5.Deserialize<List<T5>>();
 
                             break;
 
                         case 6:
                             if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q6 = deserializer6.Deserialize<T6>();
+                            q6 = deserializer6.Deserialize<List<T6>>();
 
                             break;
 
                         case 7:
                             if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
-                            q7 = deserializer7.Deserialize<T7>();
+                            q7 = deserializer7.Deserialize<List<T7>>();
 
                             break;
 
@@ -565,200 +598,6 @@ namespace TZM.XFramework.Data
             }
 
             return new Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>(q1 ?? new List<T1>(), q2 ?? new List<T2>(), q3 ?? new List<T3>(), q4 ?? new List<T4>(), q5 ?? new List<T5>(), q6 ?? new List<T6>(), q7 ?? new List<T7>());
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public List<T> ExecuteList<T>(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return this.ExecuteList<T>(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        public List<T> ExecuteList<T>(IDbQueryable<T> query)
-        {
-            Command cmd = query.Resolve();
-            IDbCommand command = this.CreateCommand(cmd);
-            return this.ExecuteList<T>(command, cmd as IMapper);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回并返回单结果集集合
-        /// <para>使用第一个 <see cref="IMapper"/> 做为实体反序列化描述</para>
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public List<T> ExecuteList<T>(List<Command> sqlList)
-        {
-            return this.DoExecute<List<T>>(sqlList, p => this.ExecuteList<T>(p, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public List<T> ExecuteList<T>(IDbCommand command)
-        {
-            return this.ExecuteList<T>(command, null);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="IEnumerable"/> 对象
-        /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="command">SQL 命令</param>
-        /// <param name="map">实体映射描述</param>
-        /// <returns></returns>
-        protected virtual List<T> ExecuteList<T>(IDbCommand command, IMapper map)
-        {
-            IDataReader reader = null;
-            List<T> objList = new List<T>();
-
-            try
-            {
-                reader = this.ExecuteReader(command);
-                TypeDeserializer deserializer = new TypeDeserializer(this, reader, map);
-                //objList = deserializer.Deserialize2<List<T>>();
-                objList = deserializer.Deserialize<T>();
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-                if (command != null) command.Dispose();
-                this.InternalDispose();
-            }
-
-            return objList;
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public DataTable ExecuteDataTable(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return this.ExecuteDataTable(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="query">SQL 命令</param>
-        /// <returns></returns>
-        public DataTable ExecuteDataTable(IDbQueryable query)
-        {
-            Command cmd = query.Resolve();
-            IDbCommand command = this.CreateCommand(cmd);
-            return this.ExecuteDataTable(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public DataTable ExecuteDataTable(List<Command> sqlList)
-        {
-            return this.DoExecute<DataTable>(sqlList, this.ExecuteDataTable);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataTable"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public DataTable ExecuteDataTable(IDbCommand command)
-        {
-            IDataReader reader = null;
-            DataTable result = null;
-
-            try
-            {
-                reader = this.ExecuteReader(command);
-                result = new DataTable();
-                result.Load(reader);
-            }
-            finally
-            {
-                if (command != null) command.Dispose();
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
-        /// </para>
-        /// </summary>
-        /// <param name="sql">SQL 命令</param>
-        /// <param name="args">命令参数</param>
-        /// <returns></returns>
-        public virtual DataSet ExecuteDataSet(string sql, params object[] args)
-        {
-            IDbCommand command = this.CreateCommand(sql, parameters: this.GetParameters(sql, args));
-            return this.ExecuteDataSet(command);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="sqlList">SQL 命令</param>
-        /// <returns></returns>
-        public virtual DataSet ExecuteDataSet(List<Command> sqlList)
-        {
-            return this.DoExecute<DataSet>(sqlList, this.ExecuteDataSet);
-        }
-
-        /// <summary>
-        /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
-        /// </summary>
-        /// <param name="command">SQL 命令</param>
-        /// <returns></returns>
-        public virtual DataSet ExecuteDataSet(IDbCommand command)
-        {
-            IDataReader reader = null;
-            DataSet result = null;
-
-            try
-            {
-                reader = this.ExecuteReader(command);
-                result = new InternalDataSet();
-                result.Load(reader, LoadOption.OverwriteChanges, null, new DataTable[] { });
-            }
-            finally
-            {
-                if (command != null) command.Dispose();
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -822,7 +661,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 执行 SQL 命令
         /// </summary>
-        protected virtual T DoExecute<T>(List<Command> sqlList, Func<IDbCommand, T> func)
+        protected virtual T DoExecute<T>(List<RawCommand> sqlList, Func<IDbCommand, T> func)
         {
             if (sqlList == null || sqlList.Count == 0) return default(T);
 
@@ -833,14 +672,14 @@ namespace TZM.XFramework.Data
             {
                 #region 命令分组
 
-                var queue = new Queue<List<Command>>(8);
+                var queue = new Queue<List<RawCommand>>(8);
                 if (sqlList.Any(x => x == null || (x.Parameters != null && x.Parameters.Count > 0)))
                 {
                     // 参数化分批
                     if (!sqlList.Any(x => x == null)) queue.Enqueue(sqlList);
                     else
                     {
-                        var myList = new List<Command>(8);
+                        var myList = new List<RawCommand>(8);
                         foreach (var cmd in sqlList)
                         {
                             if (cmd != null) myList.Add(cmd);
@@ -848,7 +687,7 @@ namespace TZM.XFramework.Data
                             {
                                 queue.Enqueue(myList);
                                 myList = null;
-                                myList = new List<Command>(8);
+                                myList = new List<RawCommand>(8);
                             }
                         }
                         // 剩下部分

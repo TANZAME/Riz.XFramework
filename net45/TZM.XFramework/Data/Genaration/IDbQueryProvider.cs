@@ -49,14 +49,14 @@ namespace TZM.XFramework.Data
         /// 解析 SQL 命令
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
-        List<Command> Resolve(List<object> dbQueryables);
+        List<RawCommand> Resolve(List<object> dbQueryables);
 
 
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
         /// <param name="dbQueryable">查询语句</param>
-        Command Resolve<T>(IDbQueryable<T> dbQueryable);
+        RawCommand Resolve<T>(IDbQueryable<T> dbQueryable);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -66,7 +66,7 @@ namespace TZM.XFramework.Data
         /// <param name="isOuter">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="token">解析上下文参数</param>
         /// <returns></returns>
-        Command Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token);
+        RawCommand Resolve<T>(IDbQueryable<T> dbQueryable, int indent, bool isOuter, ResolveToken token);
 
         /// <summary>
         /// 创建 SQL 构造器

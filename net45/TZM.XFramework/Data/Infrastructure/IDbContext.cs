@@ -150,5 +150,10 @@ namespace TZM.XFramework.Data
         /// 返回特定类型的对象的集合，其中类型由 T 参数定义
         /// </summary>
         IDbQueryable<T> GetTable<T>();
+
+        /// <summary>
+        /// 解析 SQL 命令
+        /// </summary>
+        List<RawCommand> Resolve();
     }
 }

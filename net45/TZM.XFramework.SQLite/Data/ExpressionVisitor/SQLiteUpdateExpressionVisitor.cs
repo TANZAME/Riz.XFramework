@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// SQL 命令解析器
         /// </summary>
-        internal Func<IDbQueryableInfo_Select, int, bool, ResolveToken, Command> ParseCommand { get; set; }
+        internal Func<IDbQueryableInfo_Select, int, bool, ResolveToken, RawCommand> ParseCommand { get; set; }
 
         /// <summary>
         /// 初始化 <see cref="SQLiteUpdateExpressionVisitor"/> 类的新实例
@@ -115,12 +115,12 @@ namespace TZM.XFramework.Data
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = _builder.Token.DbContext
-            }) as MapperDbCommand;
+            }) as MapperCommand;
 
             _builder.Append('(');
             _builder.Append(cmd2.CommandText.Trim());
 
-            if (((MapperDbCommand)cmd2).WhereFragment.Length > 0)
+            if (((MapperCommand)cmd2).WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");
