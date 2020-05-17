@@ -24,7 +24,7 @@ TZM.XFramewrok 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 
 ## 联系方式
 - Email：tian_naixiang@sina.com 
-- 技术交流QQ群：816425449
+- .NET技术交流QQ群：816425449
 ***
 #### 快速开始
 - ###### 安装

@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 using TZM.XFramework.Data;
 using System.Data;
+using System.Reflection;
 
 namespace TZM.XFramework.UnitTest
 {
@@ -41,13 +42,13 @@ namespace TZM.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
-            Query();
-            DbFunction();
-            Join();
-            Insert();
-            Update();
-            Delete();
-            API();
+            //Query();
+            //DbFunction();
+            //Join();
+            //Insert();
+            //Update();
+            //Delete();
+            //API();
             Rabbit();
         }
 

@@ -274,9 +274,12 @@ namespace TZM.XFramework.Data
             lock (this._oLock)
                 _dbQueryables.Add(source);
         }
-        
+
         /// <summary>
         /// 添加额外查询
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition={0}
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
         /// <param name="args">参数列表</param>

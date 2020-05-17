@@ -20,9 +20,13 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
-        Task<int> ExecuteNonQueryAsync(string sql);
+        /// <param name="args">命令参数</param>
+        Task<int> ExecuteNonQueryAsync(string sql, params object[] args);
 
         /// <summary>
         /// 异步执行 SQL 语句，并返回受影响的行数
@@ -39,10 +43,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<object> ExecuteScalarAsync(string sql);
+        Task<object> ExecuteScalarAsync(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -60,10 +68,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<IDataReader> ExecuteReaderAsync(string sql);
+        Task<IDataReader> ExecuteReaderAsync(string sql, params object[] args);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -81,10 +93,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<T> ExecuteAsync<T>(string sql);
+        Task<T> ExecuteAsync<T>(string sql, params object[] args);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回单个实体对象
@@ -115,10 +131,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回并返回单结果集集合
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<List<T>> ExecuteListAsync<T>(string sql);
+        Task<List<T>> ExecuteListAsync<T>(string sql, params object[] args);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回并返回单结果集集合
@@ -166,10 +186,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<DataTable> ExecuteDataTableAsync(string sql);
+        Task<DataTable> ExecuteDataTableAsync(string sql, params object[] args);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="DataTable"/> 对象
@@ -194,10 +218,14 @@ namespace TZM.XFramework.Data
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition=@Condition
+        /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
+        /// <param name="args">命令参数</param>
         /// <returns></returns>
-        Task<DataSet> ExecuteDataSetAsync(string sql);
+        Task<DataSet> ExecuteDataSetAsync(string sql, params object[] args);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="DataSet"/> 对象

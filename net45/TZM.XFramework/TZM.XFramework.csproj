@@ -86,6 +86,7 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
+    <Compile Include="Data\DbContextFactory.cs" />
     <Compile Include="Data\Emit\MemberAccessorCollection.cs" />
     <Compile Include="Data\Genaration\RawSql.cs" />
     <Compile Include="Data\Genaration\ResolveToken.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Data\DbFunction.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
+    <Compile Include="Data\TypeDeserialize\TypeDeserializer`2.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
     <Compile Include="Data\SqlClient\SqlServerDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
