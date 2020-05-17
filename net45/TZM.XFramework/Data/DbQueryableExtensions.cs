@@ -532,6 +532,23 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        ///  根据键按升序对序列的元素排序
+        ///  <para>
+        ///  示例： query = query.Where(predicate).OrderBy&lt;MapRuleOption, MapRuleOptionDetail, int&gt;((a, b) => b.UserId != null ? b.Sequence : a.Sequence);
+        ///  </para>
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 的元素类型</typeparam>
+        /// <typeparam name="TKey">keySelector 返回的键的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> OrderBy<TSource, TSource2, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TKey>> keySelector)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
+        }
+
+        /// <summary>
         ///  根据键按给定顺序对序列的元素排序
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
