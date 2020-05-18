@@ -62,14 +62,15 @@ namespace TZM.XFramework.UnitTest
                 DatabaseType myDatabaseType = item;
                 if (!string.IsNullOrEmpty(s)) myDatabaseType = databaseType;
 
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                fileName = baseDirectory + @"\Log_" + myDatabaseType + ".sql";
+                if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
+
                 var obj = Activator.CreateInstance(null, string.Format("TZM.XFramework.UnitTest.{0}.{0}Test", myDatabaseType));
                 test = (ITest)(obj.Unwrap());
                 test.IsDebug = isDebug;
                 test.CaseSensitive = caseSensitive;
 
-                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                fileName = baseDirectory + @"\Log_" + myDatabaseType + ".sql";
-                if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
                 if (test != null)
                 {

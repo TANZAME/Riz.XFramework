@@ -39,6 +39,46 @@ namespace TZM.XFramework.UnitTest.Oracle
         {
             var context = _newContext();
 
+
+            //var result2 = context.GetTable<Oracle.OracleModel.vwOracleDemo>().ToList();
+
+            //DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
+            //DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            //string text = "大概就600个字符串";
+            //var demos = new List<OracleModel.vwOracleDemo>();
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    OracleModel.vwOracleDemo d = new OracleModel.vwOracleDemo
+            //    {
+            //        DemoCode = "viewDemo",
+            //        DemoName = "viewDemo",
+            //        DemoBoolean = true,
+            //        DemoChar = 'A',
+            //        DemoNChar = 'B',
+            //        DemoByte = 64,
+            //        DemoDate = DateTime.Now,
+            //        DemoDateTime = DateTime.Now,
+            //        DemoDateTime2 = DateTime.Now,
+            //        DemoDecimal = 64,
+            //        DemoDouble = 64,
+            //        DemoFloat = 64,
+            //        DemoGuid = Guid.NewGuid(),
+            //        DemoShort = 64,
+            //        DemoInt = 64,
+            //        DemoLong = 64,
+            //        DemoTime_Nullable = new TimeSpan(-9, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+            //        DemoDatetimeOffset_Nullable = sDateOffset,
+            //        DemoTimestamp_Nullable = DateTime.Now,
+            //        DemoText_Nullable = "TEXT 类型",
+            //        DemoNText_Nullable = "NTEXT 类型",
+            //        DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+            //        DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+            //    };
+            //    demos.Add(d);
+            //}
+            //context.Insert<OracleModel.vwOracleDemo>(demos);
+            //context.SubmitChanges();
+
             // 构造函数
             var query =
                  from a in context.GetTable<OracleModel.OracleDemo>()

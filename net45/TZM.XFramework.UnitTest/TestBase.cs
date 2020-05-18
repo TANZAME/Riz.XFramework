@@ -1970,6 +1970,8 @@ namespace TZM.XFramework.UnitTest
             context.Insert<Model.Client>(clients);
             context.SubmitChanges();
             Debug.Assert(context.GetTable<Model.Client>().Max(x => x.ClientId) == maxClientId);
+
+
         }
 
         // 更新记录
