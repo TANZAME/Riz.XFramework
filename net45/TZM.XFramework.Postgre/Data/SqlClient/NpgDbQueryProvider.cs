@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
+            var cmd = (MappingCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -150,7 +150,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             (jf as NpgSqlBuilder).UseQuote = isOuter;
@@ -458,7 +458,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperCommand;
+                MappingCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MappingCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var column in cmd.PickColumns)
                 {

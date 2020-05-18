@@ -374,7 +374,7 @@ namespace TZM.XFramework.Data
         {
             RawCommand command = query.Resolve();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as IMapper);
+            return this.Execute<T>(cmd, command as IMapping);
         }
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual T Execute<T>(List<RawCommand> sqlList)
         {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapper) as IMapper));
+            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapping) as IMapping));
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="map">实体映射描述</param>
         /// <returns></returns>
-        protected virtual T Execute<T>(IDbCommand command, IMapper map)
+        protected virtual T Execute<T>(IDbCommand command, IMapping map)
         {
             IDataReader reader = null;
             T result = default(T);
@@ -439,7 +439,7 @@ namespace TZM.XFramework.Data
         }
 
         // datareader 转实体
-        T GetResult<T>(IDataReader reader, IMapper map)
+        T GetResult<T>(IDataReader reader, IMapping map)
         {
             T result = default(T);
             if (typeof(T) == typeof(DataTable))
@@ -471,7 +471,7 @@ namespace TZM.XFramework.Data
         {
             List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.Execute<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
+                p => this.Execute<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -485,7 +485,7 @@ namespace TZM.XFramework.Data
         {
             List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.Execute<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapper)));
+                p => this.Execute<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -511,7 +511,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
+        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;

@@ -350,11 +350,11 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumnCollection.cs">
       <Link>Data\TypeDeserialize\DbColumnCollection.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapper.cs">
-      <Link>Data\TypeDeserialize\IMapper.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
+      <Link>Data\TypeDeserialize\IMapping.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MapperCommand.cs">
-      <Link>Data\TypeDeserialize\MapperCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs">
+      <Link>Data\TypeDeserialize\MappingCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
       <Link>Data\TypeDeserialize\Navigation.cs</Link>

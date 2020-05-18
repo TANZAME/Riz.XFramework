@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
     {
         private IDatabase _database = null;
         private IDataRecord _reader = null;
-        private IMapper _map = null;
+        private IMapping _map = null;
         private TypeDeserializerImpl _deserializerImpl = null;
         // 所有反序列化器
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
@@ -40,7 +40,7 @@ namespace TZM.XFramework.Data
         /// <param name="reader">DataReader</param>
         /// <param name="map">SQL 命令描述</param>
         /// <param name="modelType">单个实体类型</param>
-        internal TypeDeserializer_Internal(IDatabase database, IDataReader reader, IMapper map, Type modelType)
+        internal TypeDeserializer_Internal(IDatabase database, IDataReader reader, IMapping map, Type modelType)
         {
             _map = map;
             _reader = reader;

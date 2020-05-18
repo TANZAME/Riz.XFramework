@@ -4,7 +4,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 实体映射描述
     /// </summary>
-    public interface IMapper
+    public interface IMapping
     {
         /// <summary>
         /// 选择字段范围

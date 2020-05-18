@@ -474,7 +474,7 @@ namespace TZM.XFramework.Data
             IDataReader reader = null;
             List<int> identitys = null;
             List<RawCommand> sqlList = this.Resolve();
-            List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {

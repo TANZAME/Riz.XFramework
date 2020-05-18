@@ -153,10 +153,10 @@
     <Compile Include="Data\SqlClient\SqlServerDbValue.cs" />
     <Compile Include="Data\TypeDeserialize\DbColumn.cs" />
     <Compile Include="Data\TypeDeserialize\DbColumnCollection.cs" />
-    <Compile Include="Data\TypeDeserialize\IMapper.cs" />
+    <Compile Include="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="Data\TypeDeserialize\Navigation.cs" />
     <Compile Include="Data\TypeDeserialize\RawCommand.cs" />
-    <Compile Include="Data\TypeDeserialize\MapperCommand.cs" />
+    <Compile Include="Data\TypeDeserialize\MappingCommand.cs" />
     <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />
