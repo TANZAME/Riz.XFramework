@@ -534,16 +534,34 @@ namespace TZM.XFramework.Data
         /// <summary>
         ///  根据键按升序对序列的元素排序
         ///  <para>
-        ///  示例： query = query.Where(predicate).OrderBy&lt;MapRuleOption, MapRuleOptionDetail, int&gt;((a, b) => b.UserId != null ? b.Sequence : a.Sequence);
+        ///  示例： source = source.Where(predicate).OrderBy&lt;TSource, TSource2, int&gt;((a, b) => b.UserId != null ? b.Sequence : a.Sequence);
         ///  </para>
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
-        /// <typeparam name="TSource2">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
         /// <typeparam name="TKey">keySelector 返回的键的类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">用于从元素中提取键的函数</param>
         /// <returns></returns>
         public static IDbQueryable<TSource> OrderBy<TSource, TSource2, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TKey>> keySelector)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
+        }
+
+        /// <summary>
+        ///  根据键按升序对序列的元素排序
+        ///  <para>
+        ///  示例： source = source.Where(predicate).OrderBy&lt;TSource, TSource2, TSource3, int&gt;((a, b, c) => b.UserId != null ? b.Sequence : a.Sequence);
+        ///  </para>
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TKey">keySelector 返回的键的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> OrderBy<TSource, TSource2, TSource3, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource2, TKey>> keySelector)
         {
             return source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
         }
@@ -715,6 +733,99 @@ namespace TZM.XFramework.Data
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
         public static IDbQueryable<TSource> Where<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource6">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, bool>> predicate)
+        {
+            return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource6">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource7">source 中的关联语义的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7, bool>> predicate)
         {
             return source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
         }
