@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 数据上下文，表示 Xfw 框架的主入口点
+    /// 数据上下文，框架的主入口点，非线程安全
     /// </summary>
     public partial interface IDbContext
     {

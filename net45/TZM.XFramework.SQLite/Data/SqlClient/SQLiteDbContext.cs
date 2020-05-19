@@ -2,7 +2,7 @@
 namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// 数据上下文，表示 Xfw 框架的主入口点
+    /// 数据上下文，框架的主入口点，非线程安全
     /// </summary>
     public class SQLiteDbContext : DbContextBase
     {

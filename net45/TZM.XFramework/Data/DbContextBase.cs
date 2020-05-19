@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 数据上下文基类入口
+    /// 数据上下文，框架的主入口点，非线程安全
     /// </summary>
     public abstract partial class DbContextBase : IDbContext
     {
