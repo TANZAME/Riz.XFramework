@@ -28,27 +28,27 @@ namespace TZM.XFramework
         public static string AuthorizeScheme = "Basic";
 
         /// <summary>
-        /// 日期格式
+        /// 日期格式（yyyy-MM-dd）
         /// </summary>
         public static string DateFormat = "yyyy-MM-dd";
 
         /// <summary>
-        /// 时间格式
+        /// 时间格式（yyyy-MM-dd HH:mm）
         /// </summary>
         public static string TimeFormat = "yyyy-MM-dd HH:mm";
 
         /// <summary>
-        /// 长时间格式
+        /// 长时间格式（yyyy-MM-dd HH:mm:ss）
         /// </summary>
         public static string LongTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary>
-        /// 金额格式
+        /// 金额格式（0.00）
         /// </summary>
         public static string MoneyFormat = "0.00";
 
         /// <summary>
-        /// 系统本地最小时间
+        /// 系统本地最小时间（1970-01-01）
         /// </summary>
         public static DateTime MinDate = new DateTime(1970, 1, 1, 0, 0, 0);
 
@@ -107,7 +107,7 @@ namespace TZM.XFramework
         /// <param name="sourceTimeZoneId">源时区，空或者 Local 表示本地时间（常用 UTC，Local，Pacific Standard Time）</param>
         /// <param name="dayPart">时间戳单位（秒/毫秒/计时周期）</param>
         /// <returns></returns>
-        public static long ConvertToTimeStamp(DateTime source, string sourceTimeZoneId = null, DatePart dayPart = DatePart.Millisecond)
+        public static long ConvertToTimestamp(DateTime source, string sourceTimeZoneId = null, DatePart dayPart = DatePart.Millisecond)
         {
             // 转至UTC时区
             if (sourceTimeZoneId != "UTC") source = Common.ConvertDateTime(source, sourceTimeZoneId, "UTC");
@@ -232,9 +232,9 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 根据表达式取得属性名称
+        /// 获取访问字段或者属性的表达式的字符串表达形式
         /// </summary>
-        public static string Name<T>(Expression<Func<T, object>> lambda)
+        public static string MemberText<T>(Expression<Func<T, object>> lambda)
         {
             var navs = new List<string>();
             Expression node = (lambda as LambdaExpression).Body;
@@ -437,7 +437,7 @@ namespace TZM.XFramework
         /// </summary>
         /// <param name="value">long 类型的地址</param>
         /// <returns></returns>
-        public static string ConvertToIp(long value)
+        public static string ConvertInt64ToIp(long value)
         {
             var builder = new StringBuilder();
             builder.Append((value >> 24) & 0xFF).Append(".");
@@ -458,7 +458,7 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// 字符串转 64 位整数
+        /// 使用指定哈希算法将字符串转 64 位整数
         /// </summary>
         /// <param name="hasher">哈希算法</param>
         /// <param name="text">来源字符串</param>
