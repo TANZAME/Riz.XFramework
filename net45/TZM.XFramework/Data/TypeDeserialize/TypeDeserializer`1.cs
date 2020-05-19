@@ -62,7 +62,7 @@ namespace TZM.XFramework.Data
 
             #region 基元类型
 
-            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(typeof(T)) || _reader.GetName(0) == Constant.AUTOINCREMENTNAME;
+            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(typeof(T)) || _reader.GetName(0) == Constant.AUTO_INCREMENT_NAME;
             if (_isPrimitive.Value)
             {
                 if (_reader.IsDBNull(0)) return default(T);

@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append(';');
                     builder.AppendNewLine();
                     builder.Append("SELECT LAST_INSERT_ID()");
-                    builder.AppendAs(Constant.AUTOINCREMENTNAME);
+                    builder.AppendAs(Constant.AUTO_INCREMENT_NAME);
                 }
             }
             else if (dbQuery.Query != null)

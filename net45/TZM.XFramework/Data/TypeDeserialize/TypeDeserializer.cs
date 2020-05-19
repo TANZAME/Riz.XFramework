@@ -115,7 +115,7 @@ namespace TZM.XFramework.Data
             {
                 if (!isAutoIncrement && !readedName)
                 {
-                    isAutoIncrement = _reader.GetName(0) == Constant.AUTOINCREMENTNAME;
+                    isAutoIncrement = _reader.GetName(0) == Constant.AUTO_INCREMENT_NAME;
                     readedName = true;
                 }
 

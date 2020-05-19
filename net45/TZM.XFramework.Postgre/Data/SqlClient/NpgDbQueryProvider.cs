@@ -447,7 +447,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendFormat("SELECT CURRVAL('{2}{0}_{1}_seq{2}')", typeRuntime.TableName, typeRuntime.Identity.Member.Name, caseSensitive ? "\"" : string.Empty);
                     builder.Append(" AS ");
                     builder.Append(this.QuotePrefix);
-                    builder.Append(Constant.AUTOINCREMENTNAME);
+                    builder.Append(Constant.AUTO_INCREMENT_NAME);
                     builder.Append(this.QuoteSuffix);
                 }
             }

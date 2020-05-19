@@ -447,7 +447,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendFormat("SELECT LAST_INSERT_ROWID()");
                     builder.Append(" AS ");
                     builder.Append(this.QuotePrefix);
-                    builder.Append(Constant.AUTOINCREMENTNAME);
+                    builder.Append(Constant.AUTO_INCREMENT_NAME);
                     builder.Append(this.QuoteSuffix);
                 }
             }

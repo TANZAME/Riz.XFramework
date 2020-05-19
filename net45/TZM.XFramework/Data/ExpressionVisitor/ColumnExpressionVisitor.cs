@@ -150,7 +150,7 @@ namespace TZM.XFramework.Data
                 // 例：a=>1
                 base.Visit(lambda.Body.Evaluate());
                 // 选择字段
-                string newName = _pickColumns.Add(Constant.CONSTANTNAME);
+                string newName = _pickColumns.Add(Constant.CONSTANT_COLUMN_NAME);
                 // 添加字段别名
                 _builder.AppendAs(newName);
                 return node;
@@ -174,7 +174,7 @@ namespace TZM.XFramework.Data
                 if (_pickColumns.Count == 0)
                 {
                     // 选择字段
-                    string newName = _pickColumns.Add(Constant.CONSTANTNAME);
+                    string newName = _pickColumns.Add(Constant.CONSTANT_COLUMN_NAME);
                     // 添加字段别名
                     _builder.AppendAs(newName);
                 }
@@ -603,7 +603,7 @@ namespace TZM.XFramework.Data
             _builder.Append(" END");
 
             // 选择字段
-            string newName = _pickColumns.Add(Constant.NAVIGATIONSPLITONNAME);
+            string newName = _pickColumns.Add(Constant.NAVIGATION_SPLITON_NAME);
             //_builder.Append(caseWhen);
             _builder.AppendAs(newName);
             _builder.Append(',');

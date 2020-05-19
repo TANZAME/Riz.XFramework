@@ -451,7 +451,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     builder.AppendNewLine();
                     builder.Append("SELECT SCOPE_IDENTITY()");
-                    builder.AppendAs(Constant.AUTOINCREMENTNAME);
+                    builder.AppendAs(Constant.AUTO_INCREMENT_NAME);
                 }
             }
             else if (dbQuery.Query != null)
