@@ -8,9 +8,6 @@ namespace TZM.XFramework.UnitTest
 {
     public class Program
     {
-        // 包还原失败参考
-        // https://docs.microsoft.com/zh-cn/nuget/consume-packages/package-restore-troubleshooting#missing
-
         [MTAThread]
         //[STAThread]
         public static void Main(string[] args)
