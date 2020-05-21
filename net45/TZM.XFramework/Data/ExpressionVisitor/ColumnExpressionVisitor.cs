@@ -215,8 +215,8 @@ namespace TZM.XFramework.Data
             if (node.Visitable())
             {
                 // 例： Client = a.Client.CloudServer
-                // fix issue# Join 表达式显式指定导航属性时时，alias 为空
-                // fix issue# 多个导航属性时 AppendNullColumn 只解析当前表达式的
+                // Fix issue# Join 表达式显式指定导航属性时时，alias 为空
+                // Fix issue# 多个导航属性时 AppendNullColumn 只解析当前表达式的
                 int index = 0;
                 int num = this.NavMembers != null ? this.NavMembers.Count : 0;
                 alias = this.VisitNavMember(node);
@@ -332,7 +332,7 @@ namespace TZM.XFramework.Data
                 var nav = new Navigation(keyName, m.Member);
                 if (!_navigations.Contains(keyName))
                 {
-                    // fix issue# spliton 列占一个位
+                    // Fix issue# spliton 列占一个位
                     nav.StartIndex = _pickColumns.Count;
                     nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
                     _navigations.Add(keyName, nav);
@@ -577,7 +577,7 @@ namespace TZM.XFramework.Data
                     keyName = memberExpression.GetKeyWidthoutAnonymous(true);
                     if (!_navigations.Contains(keyName))
                     {
-                        // fix issue# SplitOn 列占一个位
+                        // Fix issue# SplitOn 列占一个位
                         var nav = new Navigation(keyName, memberExpression.Member);
                         nav.StartIndex = i == 0 ? _pickColumns.Count : -1;
                         nav.FieldCount = i == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;

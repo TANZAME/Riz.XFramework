@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
         {
             if (!_hasCombine)
             {
-                this.AppendNavigation();
+                this.ResoveNavMember();
                 this.JoinFragment
                     .AppendNewLine()
                     .Append("WHERE ")
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 添加导航属性关联
         /// </summary>
-        protected override void AppendNavigation()
+        protected override void ResoveNavMember()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 

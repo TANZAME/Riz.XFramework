@@ -127,7 +127,7 @@ namespace TZM.XFramework.Data
                         isThisLine = isThisLine && value1.Equals(value2);
                         if (!isThisLine)
                         {
-                            // fix issue#换行时清空上一行的导航键缓存
+                            // Fix issue#换行时清空上一行的导航键缓存
                             _manyNavigationKeys.Clear();
                             break;
                         }
@@ -267,7 +267,7 @@ namespace TZM.XFramework.Data
                                 bool isAny = false;
                                 if (_map.Navigations.Count > 1)
                                 {
-                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Member));
+                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsManyNavigation(x.Member));
                                     if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
                                         if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();
@@ -330,7 +330,7 @@ namespace TZM.XFramework.Data
         }
 
         // 检查当前成员是否是1：N关系的导航属性
-        static bool IsHasMany(MemberInfo member)
+        static bool IsManyNavigation(MemberInfo member)
         {
             if (member == null) return false;
 

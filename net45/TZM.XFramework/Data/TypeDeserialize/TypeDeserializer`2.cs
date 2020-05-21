@@ -130,7 +130,7 @@ namespace TZM.XFramework.Data
                         isThisLine = isThisLine && value1.Equals(value2);
                         if (!isThisLine)
                         {
-                            // fix issue#换行时清空上一行的导航键缓存
+                            // Fix issue#换行时清空上一行的导航键缓存
                             _manyNavigationKeys.Clear();
                             break;
                         }

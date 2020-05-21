@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
         }
 
         // 添加导航属性关联
-        protected override void AppendNavigation()
+        protected override void ResoveNavMember()
         {
             if (base.NavMembers == null || base.NavMembers.Count == 0) return;
 

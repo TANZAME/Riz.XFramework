@@ -559,7 +559,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.Column != null && column.DbType is SqlDbType && (SqlDbType)column.DbType == SqlDbType.Timestamp) continue; // 行版本号
                     if (m.ForeignKey != null) continue;

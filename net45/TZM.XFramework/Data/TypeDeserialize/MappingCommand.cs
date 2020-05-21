@@ -34,7 +34,7 @@ namespace TZM.XFramework.Data
         {
             if (!_hasCombine)
             {
-                this.AppendNavigation();
+                this.ResoveNavMember();
                 _joinFragment.Append(_whereFragment);
                 _hasCombine = true;
             }
@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 添加导航属性关联
         /// </summary>
-        protected virtual void AppendNavigation()
+        protected virtual void ResoveNavMember()
         {
             if (this._navMembers == null || this._navMembers.Count == 0) return;
 

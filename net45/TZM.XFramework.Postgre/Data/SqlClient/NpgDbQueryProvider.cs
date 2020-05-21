@@ -558,7 +558,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.ForeignKey != null) continue;
                     if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;

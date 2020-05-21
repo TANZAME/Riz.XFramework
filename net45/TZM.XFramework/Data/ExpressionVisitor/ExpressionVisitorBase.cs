@@ -395,7 +395,7 @@ namespace TZM.XFramework.Data
                 _builder.AppendMember(alias, memberName);
             }
 
-            // fix issue# Join 表达式显式指定导航属性时时，alias 为空
+            // Fix issue# Join 表达式显式指定导航属性时时，alias 为空
             return alias;
         }
 

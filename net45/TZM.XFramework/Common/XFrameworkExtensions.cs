@@ -253,7 +253,7 @@ namespace TZM.XFramework
         /// <summary>
         /// 取剔除掉系统动态生成前缀后的表达式
         /// </summary>
-        public static string GetKeyWidthoutAnonymous(this MemberExpression node, bool isDesciptor = false)
+        public static string GetKeyWidthoutAnonymous(this MemberExpression node, bool isDescriptor = false)
         {
             List<string> segs = new List<string>();
             segs.Add(node.Member.Name);
@@ -270,7 +270,7 @@ namespace TZM.XFramework
             }
 
             // 如果读取
-            if (expression.NodeType == ExpressionType.Parameter) segs.Add(isDesciptor ? expression.Type.Name : (expression as ParameterExpression).Name);
+            if (expression.NodeType == ExpressionType.Parameter) segs.Add(isDescriptor ? expression.Type.Name : (expression as ParameterExpression).Name);
             else if (expression.NodeType == ExpressionType.MemberAccess) segs.Add((expression as MemberExpression).Member.Name);
 
             segs.Reverse();
