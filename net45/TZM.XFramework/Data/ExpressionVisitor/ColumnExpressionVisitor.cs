@@ -288,7 +288,7 @@ namespace TZM.XFramework.Data
                 }
                 else
                 {
-                    throw new NotSupportedException(string.Format("Include method not supporte {0}", expression.NodeType));
+                    throw new NotSupportedException(string.Format("Include method not support {0}", expression.NodeType));
                 }
             }
 

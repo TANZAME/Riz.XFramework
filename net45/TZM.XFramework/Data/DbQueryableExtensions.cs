@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -432,7 +432,7 @@ namespace TZM.XFramework.Data
         /// <typeparam name="TProperty">外键类型</typeparam>
         /// <param name="source">主表</param>
         /// <param name="path">外键</param>
-        /// <param name="keySelector">选择字段</param>
+        /// <param name="keySelector">选择字段，例如：x => x.FieldName。其中 Lambda 的 参数 x 可以任意指定，它不参与表别名解析</param>
         /// <returns></returns>
         public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> keySelector)
         {
