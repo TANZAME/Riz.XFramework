@@ -415,28 +415,46 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 指示查询应该包含外键
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TProperty"></typeparam>
+        /// <typeparam name="TSource">主表类型</typeparam>
+        /// <typeparam name="TProperty">外键类型</typeparam>
         /// <param name="source"></param>
         /// <param name="path">要在查询结果中返回的相关对象列表</param>
         /// <returns></returns>
-        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path)
+        public static IDbQueryable<TSource> Include<TSource, TProperty>(this IDbQueryable<TSource> source, Expression<Func<TSource, TProperty>> path)
         {
-            return source.CreateQuery<TResult>(DbExpressionType.Include, path);
+            return source.CreateQuery<TSource>(DbExpressionType.Include, path);
         }
 
         /// <summary>
         /// 指示查询应该包含外键
         /// </summary>
-        /// <typeparam name="TResult">主表类型</typeparam>
+        /// <typeparam name="TSource">主表类型</typeparam>
         /// <typeparam name="TProperty">外键类型</typeparam>
+        /// <typeparam name="TResult">外键的结果元素</typeparam>
         /// <param name="source">主表</param>
         /// <param name="path">外键</param>
         /// <param name="keySelector">选择字段，例如：x => x.FieldName。其中 Lambda 的 参数 x 可以任意指定，它不参与表别名解析</param>
         /// <returns></returns>
-        public static IDbQueryable<TResult> Include<TResult, TProperty>(this IDbQueryable<TResult> source, Expression<Func<TResult, TProperty>> path, Expression<Func<TProperty, object>> keySelector)
+        public static IDbQueryable<TSource> Include<TSource, TProperty, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TProperty>> path, Expression<Func<TProperty, TResult>> keySelector)
         {
-            return source.CreateQuery<TResult>(new DbExpression(DbExpressionType.Include, new Expression[] { path, keySelector }));
+            return source.CreateQuery<TSource>(new DbExpression(DbExpressionType.Include, new Expression[] { path, keySelector }));
+        }
+
+        /// <summary>
+        /// 指示查询应该包含外键
+        /// </summary>
+        /// <typeparam name="TSource">主表类型</typeparam>
+        /// <typeparam name="TProperty">外键类型</typeparam>
+        /// <typeparam name="TResult">外键的结果元素</typeparam>
+        /// <param name="source">主表</param>
+        /// <param name="path">外键</param>
+        /// <param name="keySelector">选择字段，例如：x => x.FieldName。其中 Lambda 的 参数 x 可以任意指定，它不参与表别名解析</param>
+        /// <param name="navFilter">从表的过滤条件。注意这里的表达式不能含有诸如 a=> a.Nav.FieldName == value 这种有导航属性的过滤谓词。</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Include<TSource, TProperty, TResult>(this IDbQueryable<TSource> source,
+            Expression<Func<TSource, TProperty>> path, Expression<Func<TProperty, TResult>> keySelector, Expression<Func<TProperty, bool>> navFilter)
+        {
+            return source.CreateQuery<TSource>(new DbExpression(DbExpressionType.Include, new Expression[] { path, keySelector, navFilter }));
         }
 
         /// <summary>

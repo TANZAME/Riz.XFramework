@@ -221,7 +221,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor2.PickColumns;
                     result.PickColumnText = visitor2.PickColumnText;
-                    result.Navigations = visitor2.Navigations;
+                    result.PickNavDescriptors = visitor2.PickNavDescriptors;
                     result.AddNavMembers(visitor2.NavMembers);
                 }
 

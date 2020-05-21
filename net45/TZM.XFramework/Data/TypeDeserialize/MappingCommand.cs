@@ -65,15 +65,18 @@ namespace TZM.XFramework.Data
         public string PickColumnText { get; set; }
 
         /// <summary>
-        /// 导航属性描述集合
+        /// 选中的导航属性描述集合
         /// <para>
         /// 用于实体与 <see cref="IDataRecord"/> 做映射
         /// </para>
         /// </summary>
-        public NavigationCollection Navigations { get; set; }
+        public NavDescriptorCollection PickNavDescriptors { get; set; }
 
         /// <summary>
         /// 导航属性表达式集合
+        /// <para>
+        /// 来源于：SELECT、JOIN、WHERE 各个片断
+        /// </para>
         /// </summary>
         public virtual IDictionary<string, MemberExpression> NavMembers { get { return _navMembers; } }
 

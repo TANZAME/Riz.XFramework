@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 导航属性描述集合
     /// </summary>
-    public class NavigationCollection : HashCollection<Navigation>
+    public class NavDescriptorCollection : HashCollection<NavDescriptor>
     {
         private int? _minIndex;
         /// <summary>
@@ -18,7 +18,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在集合中添加一个带有所提供的键和值的元素
         /// </summary>
-        public override void Add(string key, Navigation nav)
+        public override void Add(string key, NavDescriptor nav)
         {
             base.Add(key, nav);
             if (nav != null && nav.FieldCount != 0)

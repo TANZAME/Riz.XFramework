@@ -108,7 +108,7 @@ namespace TZM.XFramework.Data
             #region 实体类型
 
             object model = null;
-            if (_map == null || _map.Navigations == null || _map.Navigations.Count == 0)
+            if (_map == null || _map.PickNavDescriptors == null || _map.PickNavDescriptors.Count == 0)
             {
                 // 没有字段映射说明或者没有导航属性
                 if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map != null ? _map.PickColumns : null, 0);
@@ -117,7 +117,7 @@ namespace TZM.XFramework.Data
             else
             {
                 // 第一层
-                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map.PickColumns, 0, _map.Navigations.MinIndex);
+                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map.PickColumns, 0, _map.PickNavDescriptors.MinIndex);
                 model = _modelDeserializer(_reader);
                 // 若有 1:n 的导航属性，判断当前行数据与上一行数据是否相同
                 if (prevModel != null && _map.HasMany)
@@ -158,7 +158,7 @@ namespace TZM.XFramework.Data
             if (string.IsNullOrEmpty(typeName)) typeName = type.Name;
 
             //foreach (var kvp in _map.Navigations)
-            foreach (var navigation in _map.Navigations)
+            foreach (var navigation in _map.PickNavDescriptors)
             {
                 int start = -1;
                 int end = -1;
@@ -171,10 +171,10 @@ namespace TZM.XFramework.Data
                 string keyName = typeName + "." + navigation.Name;
                 if (keyName != navigation.KeyName) continue;
 
-                var navAccessor = typeRuntime.GetMember(navigation.Name);
-                if (navAccessor == null) continue;
+                var navMember = typeRuntime.GetMember(navigation.Name);
+                if (navMember == null) continue;
 
-                Type navType = navAccessor.DataType;
+                Type navType = navMember.DataType;
                 Func<IDataRecord, object> deserializer = null;
                 TypeRuntimeInfo navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navType);
                 object navCollection = null;
@@ -182,7 +182,7 @@ namespace TZM.XFramework.Data
                 if (TypeUtils.IsCollectionType(navType))
                 {
                     // 1：n关系，导航属性为 List<T>
-                    navCollection = navAccessor.Invoke(model);
+                    navCollection = navMember.Invoke(model);
                     if (navCollection == null)
                     {
                         // new 一个列表类型，如果导航属性定义为接口，则默认使用List<T>来实例化
@@ -190,7 +190,7 @@ namespace TZM.XFramework.Data
                             ? TypeRuntimeInfoCache.GetRuntimeInfo(typeof(List<>).MakeGenericType(navTypeRuntime.GenericArguments[0]))
                             : navTypeRuntime;
                         navCollection = navTypeRuntime2.Constructor.Invoke();
-                        navAccessor.Invoke(model, navCollection);
+                        navMember.Invoke(model, navCollection);
                     }
                 }
 
@@ -207,7 +207,7 @@ namespace TZM.XFramework.Data
                     if (navCollection == null)
                     {
                         // 非集合型导航属性
-                        navAccessor.Invoke(model, navModel);
+                        navMember.Invoke(model, navModel);
                         //
                         //
                         // 
@@ -268,9 +268,9 @@ namespace TZM.XFramework.Data
 
 
                                 bool isAny = false;
-                                if (_map.Navigations.Count > 1)
+                                if (_map.PickNavDescriptors.Count > 1)
                                 {
-                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.Navigations.Count(x => IsHasMany(x.Member));
+                                    if (_manyNavigationNumber == null) _manyNavigationNumber = _map.PickNavDescriptors.Count(x => IsHasMany(x.Member));
                                     if (_manyNavigationNumber != null && _manyNavigationNumber.Value > 1)
                                     {
                                         if (!_manyNavigationKeys.ContainsKey(keyName)) _manyNavigationKeys[keyName] = new HashSet<string>();

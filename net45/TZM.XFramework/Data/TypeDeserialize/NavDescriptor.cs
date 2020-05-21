@@ -5,12 +5,12 @@ using System.Reflection;
 namespace TZM.XFramework.Data
 {
     /// <summary>
-    /// 导航属性描述信息
+    /// 导航属性描述信息，用于字段-实体映射
     /// <para>
     /// 包括：导航属性名称以及在<see cref="IDataRecord"/>中的索引范围
     /// </para>
     /// </summary>
-    public class Navigation
+    public class NavDescriptor
     {
         /// <summary>
         /// 导航属性名称
@@ -52,9 +52,9 @@ namespace TZM.XFramework.Data
         public int FieldCount { get; set; }
 
         /// <summary>
-        /// 实例化<see cref="Navigation"/>类的新实例
+        /// 实例化<see cref="NavDescriptor"/>类的新实例
         /// </summary>
-        public Navigation(string keyName, MemberInfo member)
+        public NavDescriptor(string keyName, MemberInfo member)
         {
             _keyName = keyName;
             _navMember = member;

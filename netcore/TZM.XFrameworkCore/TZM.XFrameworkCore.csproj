@@ -143,8 +143,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumnCollection.cs" Link="Data\TypeDeserialize\DbColumnCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs" Link="Data\TypeDeserialize\IMapping.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs" Link="Data\TypeDeserialize\MappingCommand.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs" Link="Data\TypeDeserialize\Navigation.cs" />
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs" Link="Data\TypeDeserialize\NavigationCollection.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavDescriptor.cs" Link="Data\TypeDeserialize\NavDescriptor.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavDescriptorCollection.cs" Link="Data\TypeDeserialize\NavDescriptorCollection.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\RawCommand.cs" Link="Data\TypeDeserialize\RawCommand.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />

@@ -220,7 +220,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
-                    result.Navigations = visitor_.Navigations;
+                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
                     result.AddNavMembers(visitor_.NavMembers);
                 }
 

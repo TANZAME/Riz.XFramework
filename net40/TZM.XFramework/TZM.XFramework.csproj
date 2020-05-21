@@ -356,11 +356,11 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\MappingCommand.cs">
       <Link>Data\TypeDeserialize\MappingCommand.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\Navigation.cs">
-      <Link>Data\TypeDeserialize\Navigation.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavDescriptor.cs">
+      <Link>Data\TypeDeserialize\NavDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavigationCollection.cs">
-      <Link>Data\TypeDeserialize\NavigationCollection.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavDescriptorCollection.cs">
+      <Link>Data\TypeDeserialize\NavDescriptorCollection.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>

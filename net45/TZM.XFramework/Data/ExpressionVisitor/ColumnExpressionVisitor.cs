@@ -20,8 +20,8 @@ namespace TZM.XFramework.Data
         private List<DbExpression> _include = null;
 
         private DbColumnCollection _pickColumns = null;
-        private NavigationCollection _navigations = null;
-        private List<string> _navKeys = null;
+        private NavDescriptorCollection _navDescriptors = null;
+        private List<string> _navDescriptorKeys = null;
         private int _startLength = 0;
         private string _pickColumnText = null;
 
@@ -56,14 +56,15 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 导航属性描述信息
+        /// 选中的导航属性描述信息
         /// <para>
         /// 从 <see cref="IDataReader"/> 到实体的映射需要使用这些信息来给导航属性赋值
         /// </para>
         /// </summary>
-        public NavigationCollection Navigations
+        /// <remarks>只有选择语义才需要字段-实体映射描述。所以 Navigations</remarks>
+        public NavDescriptorCollection PickNavDescriptors
         {
-            get { return _navigations; }
+            get { return _navDescriptors; }
         }
 
         static ColumnExpressionVisitor()
@@ -94,8 +95,8 @@ namespace TZM.XFramework.Data
             _include = dbQuery.Includes;
 
             if (_pickColumns == null) _pickColumns = new DbColumnCollection();
-            _navigations = new NavigationCollection();
-            _navKeys = new List<string>(10);
+            _navDescriptors = new NavDescriptorCollection();
+            _navDescriptorKeys = new List<string>(10);
         }
 
         /// <summary>
@@ -189,8 +190,8 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            if (_navKeys.Count == 0)
-                _navKeys.Add(node.Type.Name);
+            if (_navDescriptorKeys.Count == 0)
+                _navDescriptorKeys.Add(node.Type.Name);
 
             // New 表达式
             if (node.NewExpression != null)
@@ -326,17 +327,17 @@ namespace TZM.XFramework.Data
                 }
 
                 // 生成导航属性描述集合，以类名.属性名做为键值
-                int n = _navKeys.Count;
-                string keyName = _navKeys.Count > 0 ? _navKeys[_navKeys.Count - 1] : string.Empty;
+                int n = _navDescriptorKeys.Count;
+                string keyName = _navDescriptorKeys.Count > 0 ? _navDescriptorKeys[_navDescriptorKeys.Count - 1] : string.Empty;
                 keyName = !string.IsNullOrEmpty(keyName) ? keyName + "." + m.Member.Name : m.Member.Name;
-                var nav = new Navigation(keyName, m.Member);
-                if (!_navigations.Contains(keyName))
+                var nav = new NavDescriptor(keyName, m.Member);
+                if (!_navDescriptors.Contains(keyName))
                 {
                     // Fix issue# spliton 列占一个位
                     nav.StartIndex = _pickColumns.Count;
                     nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
-                    _navigations.Add(keyName, nav);
-                    _navKeys.Add(keyName);
+                    _navDescriptors.Add(keyName, nav);
+                    _navDescriptorKeys.Add(keyName);
                 }
 
                 // 1.不显式指定导航属性，例：a.Client.ClientList
@@ -347,7 +348,7 @@ namespace TZM.XFramework.Data
 
                 // 恢复访问链
                 // 在访问导航属性时可能是 Client.CloudServer，这时要恢复为 Client，以保证能访问 Client 的下一个导航属性
-                if (_navKeys.Count != n) _navKeys.RemoveAt(_navKeys.Count - 1);
+                if (_navDescriptorKeys.Count != n) _navDescriptorKeys.RemoveAt(_navDescriptorKeys.Count - 1);
             }
         }
 
@@ -575,13 +576,13 @@ namespace TZM.XFramework.Data
                     if (memberExpression == null) continue;
 
                     keyName = memberExpression.GetKeyWidthoutAnonymous(true);
-                    if (!_navigations.Contains(keyName))
+                    if (!_navDescriptors.Contains(keyName))
                     {
                         // Fix issue# SplitOn 列占一个位
-                        var nav = new Navigation(keyName, memberExpression.Member);
+                        var nav = new NavDescriptor(keyName, memberExpression.Member);
                         nav.StartIndex = i == 0 ? _pickColumns.Count : -1;
                         nav.FieldCount = i == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
-                        _navigations.Add(keyName, nav);
+                        _navDescriptors.Add(keyName, nav);
                     }
                 }
 

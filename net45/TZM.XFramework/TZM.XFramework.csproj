@@ -155,10 +155,11 @@
     <Compile Include="Data\TypeDeserialize\DbColumn.cs" />
     <Compile Include="Data\TypeDeserialize\DbColumnCollection.cs" />
     <Compile Include="Data\TypeDeserialize\IMapping.cs" />
-    <Compile Include="Data\TypeDeserialize\Navigation.cs" />
+    <Compile Include="Data\TypeDeserialize\NavMember.cs" />
+    <Compile Include="Data\TypeDeserialize\NavDescriptor.cs" />
     <Compile Include="Data\TypeDeserialize\RawCommand.cs" />
     <Compile Include="Data\TypeDeserialize\MappingCommand.cs" />
-    <Compile Include="Data\TypeDeserialize\NavigationCollection.cs" />
+    <Compile Include="Data\TypeDeserialize\NavDescriptorCollection.cs" />
     <Compile Include="Data\TypeDeserialize\None.cs" />
     <Compile Include="Data\DbFunction.cs" />
     <Compile Include="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
