@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     /// 包括：导航属性名称以及在<see cref="IDataRecord"/>中的索引范围
     /// </para>
     /// </summary>
-    public class NavDescriptor
+    public class NavDescriptor : IKey
     {
         /// <summary>
         /// 导航属性名称
@@ -23,11 +23,11 @@ namespace TZM.XFramework.Data
             }
         }
 
-        private string _keyName;
+        private string _keyId;
         /// <summary>
         /// 全名称
         /// </summary>
-        public string KeyName { get { return _keyName; } }
+        public string KeyId { get { return _keyId; } }
 
         private MemberInfo _navMember = null;
         /// <summary>
@@ -54,9 +54,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 实例化<see cref="NavDescriptor"/>类的新实例
         /// </summary>
-        public NavDescriptor(string keyName, MemberInfo member)
+        public NavDescriptor(string keyId, MemberInfo member)
         {
-            _keyName = keyName;
+            _keyId = keyId;
             _navMember = member;
         }
     }

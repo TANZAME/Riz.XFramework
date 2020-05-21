@@ -111,7 +111,7 @@ namespace TZM.XFramework.Data
         ///  根据指定键值取导航属性对应的表别名
         /// </summary>
         /// <param name="key">键值</param>
-        public string GetNavigationTableAlias(string key)
+        public string GetNavTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
             return this._alias_Navigations.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + (this._alias_Navigations.Count + _holdQty).ToString());

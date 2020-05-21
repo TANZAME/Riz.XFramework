@@ -153,7 +153,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             var context = (SqlServerDbContext)token.DbContext;
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
 
@@ -519,7 +519,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);
@@ -616,7 +616,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);

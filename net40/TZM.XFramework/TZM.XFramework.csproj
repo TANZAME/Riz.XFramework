@@ -212,6 +212,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs">
       <Link>Data\ExpressionVisitor\MethodCallExressionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs">
       <Link>Data\ExpressionVisitor\OrderByExpressionVisitor.cs</Link>
     </Compile>
@@ -269,8 +272,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Enumerator.cs">
       <Link>Data\Infrastructure\Enumerator.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\HashCollection.cs">
-      <Link>Data\Infrastructure\HashCollection.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\HashCollection`1.cs">
+      <Link>Data\Infrastructure\HashCollection`1.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDatabase.cs">
       <Link>Data\Infrastructure\IDatabase.cs</Link>
@@ -286,6 +289,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
       <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IKey.cs">
+      <Link>Data\Infrastructure\IKey.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo.cs">
       <Link>Data\Parsing\DbQueryableInfo.cs</Link>
@@ -335,8 +341,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerJoinExpressionVisitor.cs">
       <Link>Data\SqlClient\SqlServerJoinExpressionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMapperCommand.cs">
-      <Link>Data\SqlClient\SqlServerMapperCommand.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMappingCommand.cs">
+      <Link>Data\SqlClient\SqlServerMappingCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\SqlClient\SqlServerMethodCallExressionVisitor.cs">
       <Link>Data\SqlClient\SqlServerMethodCallExressionVisitor.cs</Link>
@@ -361,6 +367,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavDescriptorCollection.cs">
       <Link>Data\TypeDeserialize\NavDescriptorCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\NavMember.cs">
+      <Link>Data\TypeDeserialize\NavMember.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\None.cs">
       <Link>Data\TypeDeserialize\None.cs</Link>

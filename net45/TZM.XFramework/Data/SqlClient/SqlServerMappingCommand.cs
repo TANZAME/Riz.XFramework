@@ -7,19 +7,19 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令，用于产生 WITH NOLOCK
     /// </summary>
-    internal class SqlServerMapperCommand : MappingCommand
+    internal class SqlServerMappingCommand : MappingCommand
     {
         private TableAliasCache _aliases = null;
         private SqlClient.SqlServerDbContext _context = null;
         private SqlClient.SqlServerDbQueryProvider _provider = null;
 
         /// <summary>
-        /// 实例化 <see cref="SqlServerMapperCommand"/> 类的新实例
+        /// 实例化 <see cref="SqlServerMappingCommand"/> 类的新实例
         /// </summary>
         /// <param name="context">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
-        public SqlServerMapperCommand(SqlClient.SqlServerDbContext context, TableAliasCache aliases, ResolveToken token)
+        public SqlServerMappingCommand(SqlClient.SqlServerDbContext context, TableAliasCache aliases, ResolveToken token)
             : base(context.Provider, aliases, token)
         {
             _aliases = aliases;
@@ -36,10 +36,10 @@ namespace TZM.XFramework.Data
             if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
             //开始产生LEFT JOIN 子句
             ISqlBuilder builder = this.JoinFragment;
-            foreach (var kvp in base.NavMembers)
+            foreach (var nav in base.NavMembers)
             {
-                string key = kvp.Key;
-                MemberExpression m = kvp.Value;
+                string key = nav.KeyId;
+                MemberExpression m = nav.Expression;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
                 ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
@@ -64,13 +64,13 @@ namespace TZM.XFramework.Data
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
-                        if (base.NavMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliases.GetNavigationTableAlias(innerKey);
+                        if (base.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
+                        innerAlias = _aliases.GetNavTableAlias(innerKey);
                     }
                 }
 
                 string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
-                string alias2 = _aliases.GetNavigationTableAlias(outerKey);
+                string alias2 = _aliases.GetNavTableAlias(outerKey);
 
 
                 builder.AppendNewLine();
@@ -101,6 +101,13 @@ namespace TZM.XFramework.Data
                     builder.AppendMember(attribute.OuterKeys[i]);
 
                     if (i < attribute.InnerKeys.Length - 1) builder.Append(" AND ");
+                }
+
+                if (nav.Predicate != null)
+                {
+                    string alias = _aliases.GetNavTableAlias(nav.KeyId);
+                    var visitor = new NavPredicateExpressionVisitor(_provider, _aliases, nav.Predicate, alias);
+                    visitor.Write(builder);
                 }
             }
         }

@@ -208,7 +208,7 @@ namespace TZM.XFramework.Data
         }
 
         // => Client = a.Client.CloudServer
-        private Expression VisitNavigation(MemberExpression node, bool visitNavigation, Expression pickExpression = null)
+        private Expression VisitNavigation(MemberExpression node, bool visitNavigation, Expression pickExpression = null, Expression predicate = null)
         {
             string alias = string.Empty;
             Type type = node.Type;
@@ -224,14 +224,15 @@ namespace TZM.XFramework.Data
 
                 if (num != this.NavMembers.Count)
                 {
-                    foreach (var kvp in NavMembers)
+                    foreach (var nav in this.NavMembers)
                     {
                         index += 1;
-                        if (index < NavMembers.Count && index > num) alias = _aliases.GetNavigationTableAlias(kvp.Key);
+                        if (index < this.NavMembers.Count && index > num) alias = _aliases.GetNavTableAlias(nav.KeyId);
                         else
                         {
-                            alias = _aliases.GetNavigationTableAlias(kvp.Key);
-                            type = kvp.Value.Type;
+                            alias = _aliases.GetNavTableAlias(nav.KeyId);
+                            type = nav.Expression.Type;
+                            if (index == this.NavMembers.Count) nav.Predicate = predicate;
                         }
                     }
                 }
@@ -328,16 +329,16 @@ namespace TZM.XFramework.Data
 
                 // 生成导航属性描述集合，以类名.属性名做为键值
                 int n = _navDescriptorKeys.Count;
-                string keyName = _navDescriptorKeys.Count > 0 ? _navDescriptorKeys[_navDescriptorKeys.Count - 1] : string.Empty;
-                keyName = !string.IsNullOrEmpty(keyName) ? keyName + "." + m.Member.Name : m.Member.Name;
-                var nav = new NavDescriptor(keyName, m.Member);
-                if (!_navDescriptors.Contains(keyName))
+                string keyId = _navDescriptorKeys.Count > 0 ? _navDescriptorKeys[_navDescriptorKeys.Count - 1] : string.Empty;
+                keyId = !string.IsNullOrEmpty(keyId) ? keyId + "." + m.Member.Name : m.Member.Name;
+                var nav = new NavDescriptor(keyId, m.Member);
+                if (!_navDescriptors.Contains(keyId))
                 {
                     // Fix issue# spliton 列占一个位
                     nav.StartIndex = _pickColumns.Count;
                     nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
-                    _navDescriptors.Add(keyName, nav);
-                    _navDescriptorKeys.Add(keyName);
+                    _navDescriptors.Add(nav);
+                    _navDescriptorKeys.Add(keyId);
                 }
 
                 // 1.不显式指定导航属性，例：a.Client.ClientList
@@ -541,6 +542,7 @@ namespace TZM.XFramework.Data
             {
                 Expression navExpression = dbExpression.Expressions[0];
                 Expression pickExpression = dbExpression.Expressions.Length > 1 ? dbExpression.Expressions[1] : null;
+                Expression predicateExpression = dbExpression.Expressions.Length > 2 ? dbExpression.Expressions[2] : null;
                 if (navExpression == null) continue;
 
                 if (navExpression.NodeType == ExpressionType.Lambda) navExpression = (navExpression as LambdaExpression).Body;
@@ -568,25 +570,25 @@ namespace TZM.XFramework.Data
                 }
 
                 // 生成导航属性描述信息
-                string keyName = string.Empty;
+                string keyId = string.Empty;
                 for (int i = chain.Count - 1; i >= 0; i--)
                 {
                     Expression expression = chain[i];
                     memberExpression = expression as MemberExpression;
                     if (memberExpression == null) continue;
 
-                    keyName = memberExpression.GetKeyWidthoutAnonymous(true);
-                    if (!_navDescriptors.Contains(keyName))
+                    keyId = memberExpression.GetKeyWidthoutAnonymous(true);
+                    if (!_navDescriptors.Contains(keyId))
                     {
                         // Fix issue# SplitOn 列占一个位
-                        var nav = new NavDescriptor(keyName, memberExpression.Member);
+                        var nav = new NavDescriptor(keyId, memberExpression.Member);
                         nav.StartIndex = i == 0 ? _pickColumns.Count : -1;
                         nav.FieldCount = i == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
-                        _navDescriptors.Add(keyName, nav);
+                        _navDescriptors.Add(nav);
                     }
                 }
 
-                this.VisitNavigation(memberExpression, true, pickExpression);
+                this.VisitNavigation(memberExpression, true, pickExpression, predicateExpression);
             }
         }
 

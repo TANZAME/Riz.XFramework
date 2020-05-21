@@ -166,7 +166,7 @@ namespace TZM.XFramework.Data
                 }
 
                 string keyName = typeName + "." + navigation.Name;
-                if (keyName != navigation.KeyName) continue;
+                if (keyName != navigation.KeyId) continue;
 
                 var navAccessor = typeRuntime.GetMember(navigation.Name);
                 if (navAccessor == null) continue;

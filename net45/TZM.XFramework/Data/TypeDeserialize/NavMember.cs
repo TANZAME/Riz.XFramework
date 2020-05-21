@@ -8,16 +8,15 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 导航属性
     /// </summary>
-    public class NavMember
+    public class NavMember : IKey
     {
-        private string _keyName;
+        private string _keyId;
         private MemberExpression _expression;
-        private Expression _predicate;
 
         /// <summary>
-        /// 全名称
+        /// 唯一键
         /// </summary>
-        public string KeyName { get { return _keyName; } }
+        public string KeyId { get { return _keyId; } }
 
         /// <summary>
         /// 访问属性或字段的表达式
@@ -27,7 +26,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 筛选谓词（在 LEFT JOIN 片断中使用，其它地方忽略）
         /// </summary>
-        public Expression Predicate { get { return _predicate; } }
+        public Expression Predicate { get; set; }
 
         /// <summary>
         /// 实例化 <see cref="NavMember"/> 类的新实例
@@ -35,21 +34,9 @@ namespace TZM.XFramework.Data
         /// <param name="key">导航属性唯一键</param>
         /// <param name="expression">字段表达式</param>
         public NavMember(string key, MemberExpression expression)
-            : this(key, expression, null)
         {
-        }
-
-        /// <summary>
-        /// 实例化 <see cref="NavMember"/> 类的新实例
-        /// </summary>
-        /// <param name="key">导航属性唯一键</param>
-        /// <param name="expression">字段表达式</param>
-        /// <param name="predicate">筛选谓词</param>
-        public NavMember(string key, MemberExpression expression, Expression predicate)
-        {
-            this._keyName = key;
+            this._keyId = key;
             this._expression = expression;
-            this._predicate = predicate;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace TZM.XFramework.Data
         private ISqlBuilder _whereFragment = null;
         private TableAliasCache _aliases = null;
         private IDbQueryProvider _provider = null;
-        private IDictionary<string, MemberExpression> _navMembers = null;
+        private HashCollection<NavMember> _navMembers = null;
 
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性
@@ -78,7 +78,7 @@ namespace TZM.XFramework.Data
         /// 来源于：SELECT、JOIN、WHERE 各个片断
         /// </para>
         /// </summary>
-        public virtual IDictionary<string, MemberExpression> NavMembers { get { return _navMembers; } }
+        public virtual HashCollection<NavMember> NavMembers { get { return _navMembers; } }
 
         /// <summary>
         /// JOIN（含） 之前的片断
@@ -101,7 +101,7 @@ namespace TZM.XFramework.Data
         {
             _provider = provider;
             _aliases = aliases;
-            _navMembers = new Dictionary<string, MemberExpression>();
+            _navMembers = new HashCollection<NavMember>();
 
             _joinFragment = provider.CreateSqlBuilder(token);
             _whereFragment = provider.CreateSqlBuilder(token);
@@ -110,13 +110,13 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 合并外键
         /// </summary>
-        public void AddNavMembers(IDictionary<string, MemberExpression> navMembers)
+        public void AddNavMembers(HashCollection<NavMember> navMembers)
         {
             if (navMembers != null && navMembers.Count > 0)
             {
-                foreach (var kvp in navMembers)
+                foreach (var nav in navMembers)
                 {
-                    if (!_navMembers.ContainsKey(kvp.Key)) _navMembers.Add(kvp);
+                    if (!_navMembers.Contains(nav.KeyId)) _navMembers.Add(nav);
                 }
             }
         }
@@ -132,10 +132,10 @@ namespace TZM.XFramework.Data
             if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
             //开始产生LEFT JOIN 子句
             ISqlBuilder builder = this.JoinFragment;
-            foreach (var kvp in _navMembers)
+            foreach (var nav in _navMembers)
             {
-                string key = kvp.Key;
-                MemberExpression m = kvp.Value;
+                string key = nav.KeyId;
+                MemberExpression m = nav.Expression;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
                 ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
@@ -160,13 +160,13 @@ namespace TZM.XFramework.Data
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
-                        if (_navMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliases.GetNavigationTableAlias(innerKey);
+                        if (_navMembers.Contains(keyLeft)) innerKey = keyLeft;
+                        innerAlias = _aliases.GetNavTableAlias(innerKey);
                     }
                 }
 
                 string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
-                string alias2 = _aliases.GetNavigationTableAlias(outerKey);
+                string alias2 = _aliases.GetNavTableAlias(outerKey);
 
 
                 builder.AppendNewLine();
@@ -189,6 +189,13 @@ namespace TZM.XFramework.Data
                     builder.AppendMember(attribute.OuterKeys[i]);
 
                     if (i < attribute.InnerKeys.Length - 1) builder.Append(" AND ");
+                }
+
+                if (nav.Predicate != null)
+                {
+                    string alias = _aliases.GetNavTableAlias(nav.KeyId);
+                    var visitor = new NavPredicateExpressionVisitor(_provider, _aliases, nav.Predicate, alias);
+                    visitor.Write(builder);
                 }
             }
         }

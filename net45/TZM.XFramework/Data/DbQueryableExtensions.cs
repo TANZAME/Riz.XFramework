@@ -448,8 +448,12 @@ namespace TZM.XFramework.Data
         /// <typeparam name="TResult">外键的结果元素</typeparam>
         /// <param name="source">主表</param>
         /// <param name="path">外键</param>
-        /// <param name="keySelector">选择字段，例如：x => x.FieldName。其中 Lambda 的 参数 x 可以任意指定，它不参与表别名解析</param>
-        /// <param name="navFilter">从表的过滤条件。注意这里的表达式不能含有诸如 a=> a.Nav.FieldName == value 这种有导航属性的过滤谓词。</param>
+        /// <param name="keySelector">选择字段，例如：x => x.FieldName。其中 Lambda 的 参数 x 可以任意指定，它不参与表别名解析。指定 null 表示选择所有字段</param>
+        /// <param name="navFilter">
+        /// 从表的过滤条件。注意这里的表达式不能含有诸如 a=> a.Nav.FieldName == value 这种有导航属性的过滤谓词。
+        /// 解析的 SQL 会直接拼接在 On 后面，如 ON a.FieldName = b.FieldName AND navFilter。
+        /// 如果想拼在 WHERE 后面，请使用 IDbQueryable.Where(a=>a.Nav.FieldName == condition) 语法。
+        /// </param>
         /// <returns></returns>
         public static IDbQueryable<TSource> Include<TSource, TProperty, TResult>(this IDbQueryable<TSource> source,
             Expression<Func<TSource, TProperty>> path, Expression<Func<TProperty, TResult>> keySelector, Expression<Func<TProperty, bool>> navFilter)

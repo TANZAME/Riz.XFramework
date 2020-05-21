@@ -1031,12 +1031,35 @@ namespace TZM.XFramework.UnitTest
                 {
                     CloudServerId = x.CloudServerId,
                     CloudServerCode = x.CloudServerCode
+                }, x => x.CloudServerCode.Contains("188") && true);
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
                 })
                 .Include(a => a.Accounts, x => new Model.ClientAccount
                 {
                     AccountId = x[0].AccountId,
                     AccountCode = x[0].AccountCode,
                 });
+            result = query.ToList();
+            query =
+                context
+                .GetTable<Model.Client>()
+                .Include(a => a.CloudServer, x => new Model.CloudServer
+                {
+                    CloudServerId = x.CloudServerId,
+                    CloudServerCode = x.CloudServerCode
+                })
+                .Include(a => a.Accounts, x => new Model.ClientAccount
+                {
+                    AccountId = x[0].AccountId,
+                    AccountCode = x[0].AccountCode,
+                }, x => x[0].AccountName.Contains("2"));
             result = query.ToList();
 
             query =
@@ -1074,7 +1097,7 @@ namespace TZM.XFramework.UnitTest
             from a in context
                 .GetTable<Model.Client>()
                 .Include(a => a.Accounts)
-                .Include(a => a.Accounts[0].Markets)
+                //.Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
             where a.ClientId > 0
             orderby a.ClientId

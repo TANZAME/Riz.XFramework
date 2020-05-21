@@ -169,7 +169,7 @@ namespace TZM.XFramework.Data
                 }
 
                 string keyName = typeName + "." + navigation.Name;
-                if (keyName != navigation.KeyName) continue;
+                if (keyName != navigation.KeyId) continue;
 
                 var navMember = typeRuntime.GetMember(navigation.Name);
                 if (navMember == null) continue;
