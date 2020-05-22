@@ -12,7 +12,8 @@ namespace TZM.XFramework
     public static class MetadataTypesRegister
     {
         /// <summary>
-        /// 注册类型元数据描述类
+        /// 注册类型元数据描述类 
+        /// 常用于使用 System.ComponentModel.DataAnnotations.Validator 进行数据验证时批量注入 MetadataTypes
         /// </summary>
         public static void Register(Assembly assembly)
         {
@@ -23,7 +24,7 @@ namespace TZM.XFramework
                 {
                     MetadataTypeAttribute m = attr as MetadataTypeAttribute;
                     if (m != null)
-                    {
+                    {                        
                         TypeDescriptor.AddProviderTransparent(
                         new AssociatedMetadataTypeTypeDescriptionProvider(type, m.MetadataClassType), type);
                     }

@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 定义数据库连接会话
     /// </summary>
-    public partial interface IDatabase : IDisposable
+    public partial interface IDatabase : IDisposable, IKey
     {
         /// <summary>
         /// 查询语义提供程序

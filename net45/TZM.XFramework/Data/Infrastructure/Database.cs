@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 数据库操作对象
     /// </summary>
-    public partial class Database : IDatabase, IDisposable
+    public partial class Database : IDatabase, IKey, IDisposable
     {
         #region 私有字段
 
@@ -29,6 +29,11 @@ namespace TZM.XFramework.Data
         #endregion
 
         #region 公开属性
+
+        /// <summary>
+        /// 唯一键
+        /// </summary>
+        string IKey.KeyId { get { return this.ConnectionString; } }
 
         /// <summary>
         /// 数据源类提供者

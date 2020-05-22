@@ -93,7 +93,8 @@
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
     <Compile Include="Data\Genaration\DbValue.cs" />
     <Compile Include="Data\Infrastructure\IKey.cs" />
-    <Compile Include="Data\Infrastructure\DbConnectionConfiguration.cs" />
+    <Compile Include="Data\Infrastructure\LoadingBalanceProvider.cs" />
+    <Compile Include="Data\Infrastructure\ReplicaConfiguration.cs" />
     <Compile Include="Data\Infrastructure\DataExtensions.cs" />
     <Compile Include="Data\Infrastructure\Enumerator.cs" />
     <Compile Include="Data\Infrastructure\HashCollection`1.cs" />
