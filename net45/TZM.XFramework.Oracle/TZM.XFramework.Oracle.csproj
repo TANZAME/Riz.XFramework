@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotation\OracleColumnAttribute.cs" />
+    <Compile Include="Annotation\OracleTableAttribute.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleColumnExpressionVisitor.cs" />
     <Compile Include="Data\ExpressionVisitor\OracleUpdateExpressionVisitor.cs" />
     <Compile Include="Data\Infrastructure\OracleDatabase45.cs" />
