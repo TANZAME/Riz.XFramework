@@ -342,7 +342,7 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         protected virtual MemberAccessorCollection Initialize(Type type)
         {
-            // fix issue#多线程下导致 FieldCount 不正确
+            // Fix issue#多线程下导致 FieldCount 不正确
             // 单个实例只初始化一次
 
             //Fixed issue#匿名类的属性不可写

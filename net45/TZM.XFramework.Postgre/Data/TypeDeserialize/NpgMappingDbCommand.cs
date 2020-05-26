@@ -7,7 +7,7 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// Npg 含实体映射信息的SQL命令
     /// </summary>
-    public sealed class NpgMapperDbCommand : MapperCommand
+    public sealed class NpgMappingDbCommand : MappingCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;
@@ -32,7 +32,7 @@ namespace TZM.XFramework.Data
         {
             if (!_hasCombine)
             {
-                this.AppendNavigation();
+                this.ResoveNavMember();
                 this.JoinFragment
                     .AppendNewLine()
                     .Append("WHERE ")
@@ -47,13 +47,13 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="NpgMapperDbCommand" /> 的新实例
+        /// 实例化 <see cref="NpgMappingDbCommand" /> 的新实例
         /// </summary>
         /// <param name="provider">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="dbExpressionType">表达式类型</param>
         /// <param name="token">解析上下文参数</param>
-        public NpgMapperDbCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
+        public NpgMappingDbCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;
@@ -69,7 +69,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 添加导航属性关联
         /// </summary>
-        protected override void AppendNavigation()
+        protected override void ResoveNavMember()
         {
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 
@@ -90,11 +90,11 @@ namespace TZM.XFramework.Data
                 jf.AppendNewLine();
             }
 
-            foreach (var kvp in this.NavMembers)
+            foreach (var nav in this.NavMembers)
             {
                 index++;
-                string key = kvp.Key;
-                MemberExpression m = kvp.Value;
+                string key = nav.KeyId;
+                MemberExpression m = nav.Expression;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
                 ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
@@ -119,13 +119,13 @@ namespace TZM.XFramework.Data
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
-                        if (this.NavMembers.ContainsKey(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliases.GetNavigationTableAlias(innerKey);
+                        if (this.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
+                        innerAlias = _aliases.GetNavTableAlias(innerKey);
                     }
                 }
 
                 string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliases.GetTableAlias(innerKey);
-                string alias2 = _aliases.GetNavigationTableAlias(outerKey);
+                string alias2 = _aliases.GetNavTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
                 if (_aliases.HoldQty > 1 || index > 0) jf.Append(_pad);
@@ -147,6 +147,13 @@ namespace TZM.XFramework.Data
                     _onPhrase.Append(alias2);
                     _onPhrase.Append('.');
                     _onPhrase.AppendMember(attribute.OuterKeys[i]);
+                }
+
+                if (nav.Predicate != null)
+                {
+                    string alias = _aliases.GetNavTableAlias(nav.KeyId);
+                    var visitor = new NavPredicateExpressionVisitor(_provider, _aliases, nav.Predicate, alias);
+                    visitor.Write(_onPhrase);
                 }
 
                 if (index < this.NavMembers.Count - 1)

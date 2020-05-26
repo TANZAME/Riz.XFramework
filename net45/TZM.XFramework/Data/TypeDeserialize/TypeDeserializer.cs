@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
     {
         private IDatabase _database = null;
         private IDataReader _reader = null;
-        private IMapper _map = null;
+        private IMapping _map = null;
 
         /// <summary>
         /// 实体化 <see cref="TypeDeserializer"/> 类的新实例
@@ -22,7 +22,7 @@ namespace TZM.XFramework.Data
         /// <param name="database">DataReader</param>
         /// <param name="reader">DataReader</param>
         /// <param name="map">命令描述对象，用于解析实体的外键</param>
-        public TypeDeserializer(IDatabase database, IDataReader reader, IMapper map)
+        public TypeDeserializer(IDatabase database, IDataReader reader, IMapping map)
         {
             _map = map;
             _reader = reader;
@@ -115,7 +115,7 @@ namespace TZM.XFramework.Data
             {
                 if (!isAutoIncrement && !readedName)
                 {
-                    isAutoIncrement = _reader.GetName(0) == Constant.AUTOINCREMENTNAME;
+                    isAutoIncrement = _reader.GetName(0) == Constant.AUTO_INCREMENT_NAME;
                     readedName = true;
                 }
 

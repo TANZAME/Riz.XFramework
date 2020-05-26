@@ -14,14 +14,14 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 创建参数对象的新实例，并添加到 IDbCommand.Parameters 集合
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="dbType"></param>
-        /// <param name="size"></param>
-        /// <param name="precision"></param>
-        /// <param name="scale"></param>
-        /// <param name="direction"></param>
+        /// <param name="cmd">SQL 命令</param>
+        /// <param name="name">参数名称</param>
+        /// <param name="value">参数值</param>
+        /// <param name="dbType">数据类型</param>
+        /// <param name="size">参数大小</param>
+        /// <param name="precision">精度</param>
+        /// <param name="scale">小数位</param>
+        /// <param name="direction">方向</param>
         public static IDbDataParameter CreateParameter(this IDbCommand cmd, string name, object value,
             DbType? dbType = null, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {

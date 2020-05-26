@@ -9,16 +9,16 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性分隔符
         /// </summary>
-        public const string NAVIGATIONSPLITONNAME = "XfwNavSplitOn__";
+        public const string NAVIGATION_SPLITON_NAME = "XfwNavSplitOn__";
 
         /// <summary>
         /// 自增长列名
         /// </summary>
-        public const string AUTOINCREMENTNAME = "XfwAutoIncrement__";
+        public const string AUTO_INCREMENT_NAME = "XfwAutoIncrement__";
 
         /// <summary>
         /// 常量列名
         /// </summary>
-        public const string CONSTANTNAME = "XfwConstant__";
+        public const string CONSTANT_COLUMN_NAME = "XfwConstant__";
     }
 }

@@ -121,7 +121,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
+            var cmd = (MappingCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -152,7 +152,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             ISqlBuilder sf = null;
@@ -226,7 +226,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
-                    result.Navigations = visitor_.Navigations;
+                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
                     result.AddNavMembers(visitor_.NavMembers);
 
                     if (sf != null)
@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append(';');
                     builder.AppendNewLine();
                     builder.Append("SELECT LAST_INSERT_ID()");
-                    builder.AppendAs(Constant.AUTOINCREMENTNAME);
+                    builder.AppendAs(Constant.AUTO_INCREMENT_NAME);
                 }
             }
             else if (dbQuery.Query != null)
@@ -527,7 +527,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, true, token) as MapperCommand;
+                MappingCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, true, token) as MappingCommand;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
@@ -585,7 +585,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new MappingCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
                 if (token != null && token.Extendsions == null)
                 {
                     token.Extendsions = new Dictionary<string, object>();
@@ -632,7 +632,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.ForeignKey != null) continue;
                     if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
@@ -677,7 +677,7 @@ namespace TZM.XFramework.Data.SqlClient
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 ExpressionVisitorBase visitor = null;
 
-                var cmd = new MapperCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new MappingCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 visitor = new JoinExpressionVisitor(this, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);

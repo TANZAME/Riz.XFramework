@@ -15,7 +15,7 @@ namespace TZM.XFramework.Data
         private IDbQueryProvider _provider = null;
         private TableAliasCache _aliases = null;
         private Expression _expression = null;
-        private IDictionary<string, MemberExpression> _navMembers = null;
+        private HashCollection<NavMember> _navMembers = null;
 
         /// <summary>
         /// SQL 构造器
@@ -61,7 +61,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 导航属性表达式列表
         /// </summary>
-        public IDictionary<string, MemberExpression> NavMembers
+        public HashCollection<NavMember> NavMembers
         {
             get { return _navMembers; }
         }
@@ -87,7 +87,7 @@ namespace TZM.XFramework.Data
             _aliases = aliases;
             _expression = expression;
             _visitedStack = new MemberVisitedStack();
-            _navMembers = new Dictionary<string, MemberExpression>();
+            _navMembers = new HashCollection<NavMember>();
         }
 
         #endregion
@@ -345,13 +345,13 @@ namespace TZM.XFramework.Data
         {
             // 表达式 => b.Client.Address.AddressName
             Expression node = expression;
-            Stack<KeyValuePair<string, MemberExpression>> stack = null;
+            Stack<NavMember> stack = null;
             string alias = string.Empty;
             while (node != null && node.Visitable())
             {
                 if (node.NodeType != ExpressionType.MemberAccess) break;
 
-                if (stack == null) stack = new Stack<KeyValuePair<string, MemberExpression>>();
+                if (stack == null) stack = new Stack<NavMember>();
                 var member = node as MemberExpression;
 
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.Expression.Type);
@@ -359,7 +359,7 @@ namespace TZM.XFramework.Data
                 if (attribute == null) break;
 
                 string key = member.GetKeyWidthoutAnonymous();
-                stack.Push(new KeyValuePair<string, MemberExpression>(key, member));
+                stack.Push(new NavMember(key, member));
                 node = member.Expression;
                 if (node.NodeType == ExpressionType.Call) node = (node as MethodCallExpression).Object;
             }
@@ -368,10 +368,8 @@ namespace TZM.XFramework.Data
             {
                 while (stack != null && stack.Count > 0)
                 {
-                    KeyValuePair<string, MemberExpression> kvp = stack.Pop();
-                    string key = kvp.Key;
-                    MemberExpression member = kvp.Value;
-                    Type type = member.Type;
+                    NavMember nav = stack.Pop();
+                    Type type = nav.Expression.Type;
                     if (type.IsGenericType) type = type.GetGenericArguments()[0];
 
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
@@ -380,8 +378,8 @@ namespace TZM.XFramework.Data
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，则使用导航属性别名
-                        alias = _aliases.GetNavigationTableAlias(key);
-                        if (!_navMembers.ContainsKey(kvp.Key)) _navMembers.Add(kvp);
+                        alias = _aliases.GetNavTableAlias(nav.KeyId);
+                        if (!_navMembers.Contains(nav.KeyId)) _navMembers.Add(nav);
                     }
 
                     // 例： a.Client.ClientId
@@ -395,7 +393,7 @@ namespace TZM.XFramework.Data
                 _builder.AppendMember(alias, memberName);
             }
 
-            // fix issue# Join 表达式显式指定导航属性时时，alias 为空
+            // Fix issue# Join 表达式显式指定导航属性时时，alias 为空
             return alias;
         }
 

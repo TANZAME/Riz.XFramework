@@ -115,12 +115,12 @@ namespace TZM.XFramework.Data
                 Parameters = token.Parameters,
                 AliasPrefix = "s",
                 DbContext = _builder.Token.DbContext
-            }) as MapperCommand;
+            }) as MappingCommand;
 
             _builder.Append('(');
             _builder.Append(cmd2.CommandText.Trim());
 
-            if (((MapperCommand)cmd2).WhereFragment.Length > 0)
+            if (((MappingCommand)cmd2).WhereFragment.Length > 0)
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");

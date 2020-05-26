@@ -153,7 +153,7 @@ namespace TZM.XFramework.Data.SqlClient
 
             var context = (SqlServerDbContext)token.DbContext;
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
 
@@ -223,7 +223,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
-                    result.Navigations = visitor_.Navigations;
+                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
                     result.AddNavMembers(visitor_.NavMembers);
                 }
 
@@ -451,7 +451,7 @@ namespace TZM.XFramework.Data.SqlClient
                 {
                     builder.AppendNewLine();
                     builder.Append("SELECT SCOPE_IDENTITY()");
-                    builder.AppendAs(Constant.AUTOINCREMENTNAME);
+                    builder.AppendAs(Constant.AUTO_INCREMENT_NAME);
                 }
             }
             else if (dbQuery.Query != null)
@@ -461,7 +461,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MapperCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 0, true, token) as MappingCommand;
                 foreach (DbColumn column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
@@ -519,7 +519,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);
@@ -559,7 +559,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.Column != null && column.DbType is SqlDbType && (SqlDbType)column.DbType == SqlDbType.Timestamp) continue; // 行版本号
                     if (m.ForeignKey != null) continue;
@@ -616,7 +616,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
-                var cmd = new SqlServerMapperCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Query.Joins);
                 visitor.Write(cmd.JoinFragment);

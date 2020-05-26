@@ -36,13 +36,5 @@ namespace TZM.XFramework.Data
             });
             return newName;
         }
-
-        /// <summary>
-        /// 添加一个带有所提供的键和值的元素。
-        /// </summary>
-        public void Add(DbColumn column)
-        {
-            base.Add(column.NewName, column);
-        }
     }
 }

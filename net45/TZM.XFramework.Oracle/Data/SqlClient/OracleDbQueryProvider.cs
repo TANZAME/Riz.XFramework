@@ -140,7 +140,7 @@ namespace TZM.XFramework.Data.SqlClient
                     if (token.Parameters == null) token.Parameters = new List<IDbDataParameter>(8);
 
                     var cmd2 = dbQueryable.Resolve(0, true, token);
-                    if (cmd2 is MapperCommand)
+                    if (cmd2 is MappingCommand)
                     {
                         // 查询单独执行
                         if (sqlList.Count > 0 && (i - 1) >= 0 && sqlList[sqlList.Count - 1] != null) sqlList.Add(null);
@@ -310,7 +310,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             (jf as OracleSqlBuilder).UseQuote = isOuter;
@@ -383,7 +383,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
-                    result.Navigations = visitor_.Navigations;
+                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
                     result.AddNavMembers(visitor_.NavMembers);
 
                     // 分页，产生两层嵌套
@@ -756,7 +756,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommand(dbQuery.Query, 0, false, token) as MapperCommand;
+                MappingCommand cmd = this.ResolveSelectCommand(dbQuery.Query, 0, false, token) as MappingCommand;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.Name);
@@ -815,7 +815,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 // 解析查询用来确定是否需要嵌套
-                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MapperCommand;
+                var cmd = this.ResolveSelectCommand(dbQuery.Query, 1, false, null) as MappingCommand;
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
                     // 最外层仅选择 RowID 列
@@ -830,7 +830,7 @@ namespace TZM.XFramework.Data.SqlClient
                     }
 
                     // 解析成 RowId IN 结构
-                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
+                    cmd = (MappingCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.Append("WHERE t0.RowId IN(");
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(')');
@@ -877,7 +877,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.ForeignKey != null) continue;
                     if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
@@ -969,7 +969,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                 // 解析查询以确定是否需要嵌套
                 dbQuery.Query.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);//, token);
+                var cmd = (MappingCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, null);//, token);
 
                 if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || dbQuery.Query.Joins.Count > 0)
                 {
@@ -985,7 +985,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendNewLine(" t0");
                     builder.Append("USING (");
 
-                    cmd = (MapperCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
+                    cmd = (MappingCommand)this.ResolveSelectCommand(dbQuery.Query, 1, false, token);
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(") t1 ON (");
                     foreach (var m in typeRuntime.KeyMembers)

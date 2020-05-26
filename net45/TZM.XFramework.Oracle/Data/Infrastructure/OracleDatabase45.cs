@@ -36,7 +36,7 @@ namespace TZM.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
-            List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;
@@ -102,7 +102,7 @@ namespace TZM.XFramework.Data
         /// <typeparam name="T7">第七个列表的元素类型</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述集合</param>
-        protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapper> maps = null)
+        protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
         {
             List<T1> q1 = null;
             List<T2> q2 = null;

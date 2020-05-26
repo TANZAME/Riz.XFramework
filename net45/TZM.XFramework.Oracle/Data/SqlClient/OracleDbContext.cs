@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TZM.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// 数据上下文，表示 Xfw 框架的主入口点
+    /// 数据上下文，框架的主入口点，非线程安全
     /// </summary>
     public class OracleDbContext : DbContextBase
     {
@@ -208,7 +208,7 @@ namespace TZM.XFramework.Data.SqlClient
             IDataReader reader = null;
             List<int> identitys = null;
             List<RawCommand> sqlList = this.Resolve();
-            List<IMapper> maps = sqlList.ToList(x => x as IMapper, x => x is IMapper);
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {

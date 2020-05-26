@@ -119,7 +119,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveSelectCommand(IDbQueryableInfo_Select dbQuery, int indent, bool isOuter, ResolveToken token)
         {
-            var cmd = (MapperCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
+            var cmd = (MappingCommand)this.ResolveSelectCommandImpl(dbQuery, indent, isOuter, token);
             cmd.CombineFragments();
             if (isOuter) cmd.JoinFragment.Append(';');
             return cmd;
@@ -150,7 +150,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
-            var result = new MapperCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
+            var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
             (jf as NpgSqlBuilder).UseQuote = isOuter;
@@ -220,7 +220,7 @@ namespace TZM.XFramework.Data.SqlClient
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
-                    result.Navigations = visitor_.Navigations;
+                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
                     result.AddNavMembers(visitor_.NavMembers);
                 }
 
@@ -447,7 +447,7 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.AppendFormat("SELECT CURRVAL('{2}{0}_{1}_seq{2}')", typeRuntime.TableName, typeRuntime.Identity.Member.Name, caseSensitive ? "\"" : string.Empty);
                     builder.Append(" AS ");
                     builder.Append(this.QuotePrefix);
-                    builder.Append(Constant.AUTOINCREMENTNAME);
+                    builder.Append(Constant.AUTO_INCREMENT_NAME);
                     builder.Append(this.QuoteSuffix);
                 }
             }
@@ -458,7 +458,7 @@ namespace TZM.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 int i = 0;
-                MapperCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MapperCommand;
+                MappingCommand cmd = this.ResolveSelectCommandImpl(dbQuery.Query, 0, false, token) as MappingCommand;
                 //for (int i = 0; i < seg.Columns.Count; i++)
                 foreach (var column in cmd.PickColumns)
                 {
@@ -517,7 +517,7 @@ namespace TZM.XFramework.Data.SqlClient
             else if (dbQuery.Query != null)
             {
                 TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
-                var cmd = new NpgMapperDbCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new NpgMappingDbCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
 
                 var visitor = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Delete);
                 visitor.Write(cmd);
@@ -558,7 +558,7 @@ namespace TZM.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.Members)
                 {
                     var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // fix issue# 自增列同时又是主键
+                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
                     if (column != null && column.NoMapped) continue;
                     if (m.ForeignKey != null) continue;
                     if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
@@ -604,7 +604,7 @@ namespace TZM.XFramework.Data.SqlClient
                 var visitor = new NpgUpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);
 
-                var cmd = new NpgMapperDbCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.Query.HasMany };
+                var cmd = new NpgMappingDbCommand(this, aliases, DbExpressionType.Update, token) { HasMany = dbQuery.Query.HasMany };
 
                 var visitor_ = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Update);
                 visitor_.Write(cmd);

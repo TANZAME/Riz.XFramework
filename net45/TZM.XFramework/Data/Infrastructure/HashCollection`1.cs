@@ -11,14 +11,14 @@ namespace TZM.XFramework.Data
     /// 哈希集合，内部是一个 string 键的字典。
     /// 适用于 value 有一个 string 属性，用于省掉字典的 keyvalue 写法
     /// </summary>
-    public class HashCollection<T> : IEnumerable<T>
+    public class HashCollection<T> : IEnumerable<T> where T : class, IKey
     {
         private IDictionary<string, T> _collection = null;
 
         /// <summary>
         /// 根据键值获取对应元素
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">键</param>
         /// <returns></returns>
         public T this[string key]
         {
@@ -61,9 +61,9 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 在集合中添加一个带有所提供的键和值的元素
         /// </summary>
-        public virtual void Add(string key, T value)
+        public virtual void Add(T value)
         {
-            _collection.Add(key, value);
+            _collection.Add(value.KeyId, value);
         }
 
         /// <summary>
@@ -72,6 +72,15 @@ namespace TZM.XFramework.Data
         public bool Contains(string key)
         {
             return _collection.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// 确定是否包含具有指定键的元素
+        /// </summary>
+        public bool Contains(T value)
+        {
+            XFrameworkException.Check.NotNull(value, "value");
+            return _collection.ContainsKey(value.KeyId);
         }
 
         /// <summary>

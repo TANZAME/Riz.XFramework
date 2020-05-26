@@ -139,7 +139,7 @@ namespace TZM.XFramework.Data
                 il.Emit(OpCodes.Stloc_0);       // [target]
 
                 // 如果导航属性分割列=DbNull，那么此导航属性赋空值
-                if (memberName == Constant.NAVIGATIONSPLITONNAME)
+                if (memberName == Constant.NAVIGATION_SPLITON_NAME)
                 {
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldc_I4, index);
