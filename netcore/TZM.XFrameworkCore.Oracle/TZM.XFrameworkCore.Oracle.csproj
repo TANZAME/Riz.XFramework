@@ -7,12 +7,12 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>Oracle provider for TZM.XFrameworkCore.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.1.0</AssemblyVersion>
-    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.1</AssemblyVersion>
+    <Version>2.1.1</Version>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <FileVersion>2.1.0</FileVersion>
+    <FileVersion>2.1.1</FileVersion>
     <PackageTags>NET Core Oracle Database Data O/RM ADO.NET</PackageTags>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
