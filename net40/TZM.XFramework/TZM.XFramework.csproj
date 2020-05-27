@@ -290,9 +290,6 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
       <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IKey.cs">
-      <Link>Data\Infrastructure\IKey.cs</Link>
-    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo.cs">
       <Link>Data\Parsing\DbQueryableInfo.cs</Link>
     </Compile>
@@ -355,6 +352,9 @@
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\DbColumnCollection.cs">
       <Link>Data\TypeDeserialize\DbColumnCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IKey.cs">
+      <Link>Data\TypeDeserialize\IKey.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\TypeDeserialize\IMapping.cs">
       <Link>Data\TypeDeserialize\IMapping.cs</Link>
