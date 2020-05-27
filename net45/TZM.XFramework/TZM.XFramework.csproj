@@ -74,6 +74,7 @@
     <Compile Include="Common\Helper\PhoneticizeHelper.cs" />
     <Compile Include="Common\Helper\RegexHelper.cs" />
     <Compile Include="Common\Helper\XmlHelper.cs" />
+    <Compile Include="Common\KeepAlive.cs" />
     <Compile Include="Common\MetadataTypesRegister.cs" />
     <Compile Include="Common\Common.cs" />
     <Compile Include="Common\Helper\SecurityHelper.cs" />
