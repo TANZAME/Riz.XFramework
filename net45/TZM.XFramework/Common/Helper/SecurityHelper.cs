@@ -130,7 +130,7 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// CRC16校验
+        /// CRC16校验 CRC-CCITT (XModem)
         /// </summary>
         /// <param name="source">源字符串</param>
         /// <returns></returns>
@@ -141,7 +141,7 @@ namespace TZM.XFramework
         }
 
         /// <summary>
-        /// CRC16校验
+        /// CRC16校验 CRC-CCITT (XModem)
         /// </summary>
         /// <param name="bytes">需要校验的字节组</param>
         /// <param name="length">总共需要校验的长度</param>
