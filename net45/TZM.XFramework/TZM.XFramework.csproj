@@ -93,6 +93,7 @@
     <Compile Include="Data\Genaration\ResolveToken.cs" />
     <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
     <Compile Include="Data\Genaration\DbValue.cs" />
+    <Compile Include="Data\Infrastructure\ILoadingBalanceProvider.cs" />
     <Compile Include="Data\TypeDeserialize\IKey.cs" />
     <Compile Include="Data\Infrastructure\LoadingBalanceProvider.cs" />
     <Compile Include="Data\Infrastructure\ReplicaConfiguration.cs" />
