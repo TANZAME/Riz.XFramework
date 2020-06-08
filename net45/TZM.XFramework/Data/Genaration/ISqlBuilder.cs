@@ -42,7 +42,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名</param>
         /// <param name="expression">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        string AppendMember(TableAliasCache aliases, Expression expression);
+        string AppendMember(TableAlias aliases, Expression expression);
 
         /// <summary>
         /// 追加列名
@@ -50,7 +50,7 @@ namespace TZM.XFramework.Data
         /// <param name="expression">列名表达式</param>
         /// <param name="aliases">表别名</param>
         /// <returns>返回解析到的表别名</returns>
-        Expression AppendMember(Expression expression, TableAliasCache aliases);
+        Expression AppendMember(Expression expression, TableAlias aliases);
 
         /// <summary>
         /// 追加列名

@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     public class UpdateExpressionVisitor : ExpressionVisitorBase
     {
         private IDbQueryProvider _provider = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
 
         /// <summary>
         /// 初始化 <see cref="UpdateExpressionVisitor"/> 类的新实例
@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="expression">要访问的表达式</param>
-        public UpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
+        public UpdateExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, Expression expression)
             : base(provider, aliases, expression)
         {
             _provider = provider;

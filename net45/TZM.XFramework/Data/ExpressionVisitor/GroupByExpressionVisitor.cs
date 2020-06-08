@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="groupBy">GROUP BY 子句</param>
-        public GroupByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression groupBy)
+        public GroupByExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, DbExpression groupBy)
             : base(provider, aliases, groupBy != null ? groupBy.Expressions[0] : null)
         {
 

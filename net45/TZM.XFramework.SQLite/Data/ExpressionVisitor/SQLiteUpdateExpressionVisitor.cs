@@ -28,7 +28,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名集合</param>
         /// <param name="dbQuery">更新语义</param>
         /// <param name="alias">指定的表达式别名</param>
-        internal SQLiteUpdateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Update dbQuery, string alias)
+        internal SQLiteUpdateExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, IDbQueryableInfo_Update dbQuery, string alias)
             : base(provider, aliases, dbQuery.Expression)
         {
             _alias = alias;

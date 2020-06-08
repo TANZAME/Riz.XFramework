@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名集合</param>
         /// <param name="predicate">要访问的表达式</param>
         /// <param name="alias">指定的表别名</param>
-        public NavPredicateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, Expression predicate, string alias)
+        public NavPredicateExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, Expression predicate, string alias)
             : base(provider, aliases, predicate)
         {
             _expression = base.Expression;

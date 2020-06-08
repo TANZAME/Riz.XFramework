@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     public class AggregateExpressionVisitor : ExpressionVisitorBase
     {
         private IDbQueryProvider _provider = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private DbExpression _aggregate = null;
         private DbExpression _groupBy = null;
         private static IDictionary<DbExpressionType, string> _aggregateMethods = null;
@@ -42,7 +42,7 @@ namespace TZM.XFramework.Data
         /// <param name="aggregate">聚合函数表达式</param>
         /// <param name="groupBy">Group by 子句</param>
         /// <param name="alias">指定的别名</param>
-        public AggregateExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
+        public AggregateExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
             : base(provider, aliases, aggregate.Expressions != null ? aggregate.Expressions[0] : null)
         {
             _provider = provider;

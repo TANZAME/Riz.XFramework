@@ -152,6 +152,19 @@ namespace TZM.XFramework.Data
         IDbQueryable<T> GetTable<T>();
 
         /// <summary>
+        /// 返回特定类型的对象的集合，其中类型由 T 参数定义
+        /// <para>
+        /// 适用场景：
+        /// 多个导航属性类型一致，用此重载可解决 a.Navigation.Property 的表别名定位问题
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">元素类型</typeparam>
+        /// <typeparam name="TProperty">导航属性类型</typeparam>
+        /// <param name="path">导航属性，注意在一组上下文中第一个 GetTable 的这个参数将被自动忽略</param>
+        /// <returns></returns>
+        IDbQueryable<TProperty> GetTable<T, TProperty>(Expression<Func<T, TProperty>> path);
+
+        /// <summary>
         /// 解析 SQL 命令
         /// </summary>
         List<RawCommand> Resolve();

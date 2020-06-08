@@ -151,7 +151,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useSubquery = dbQuery.HasDistinct || dbQuery.GroupBy != null || dbQuery.Skip > 0 || dbQuery.Take > 0;
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            TableAlias aliases = this.PrepareTableAlias(dbQuery, token);
             var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -446,7 +446,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache();
+            TableAlias aliases = new TableAlias();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -584,7 +584,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Query != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 var cmd = new MappingCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };
                 if (token != null && token.Extendsions == null)
                 {
@@ -674,7 +674,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 ExpressionVisitorBase visitor = null;
 
                 var cmd = new MappingCommand(this, aliases, token) { HasMany = dbQuery.Query.HasMany };

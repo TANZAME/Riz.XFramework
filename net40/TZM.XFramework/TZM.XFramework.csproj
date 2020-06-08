@@ -248,8 +248,8 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\SqlBuilder.cs">
       <Link>Data\Genaration\SqlBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAliasCache.cs">
-      <Link>Data\Genaration\TableAliasCache.cs</Link>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\Genaration\TableAlias.cs">
+      <Link>Data\Genaration\TableAlias.cs</Link>
     </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\Constant.cs">
       <Link>Data\Infrastructure\Constant.cs</Link>

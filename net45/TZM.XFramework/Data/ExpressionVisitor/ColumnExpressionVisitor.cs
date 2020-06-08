@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
     {
         private static IDictionary<DbExpressionType, string> _aggregateMethods = null;
         private IDbQueryProvider _provider = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private IDbQueryableInfo_Select _dbQuery = null;
         private DbExpression _groupBy = null;
         private List<DbExpression> _include = null;
@@ -85,7 +85,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="dbQuery">查询语义</param>
-        public ColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select dbQuery)
+        public ColumnExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, IDbQueryableInfo_Select dbQuery)
             : base(provider, aliases, dbQuery.Select.Expressions != null ? dbQuery.Select.Expressions[0] : null)
         {
             _provider = provider;

@@ -87,7 +87,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名</param>
         /// <param name="node">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        public string AppendMember(TableAliasCache aliases, Expression node)
+        public string AppendMember(TableAlias aliases, Expression node)
         {
             Expression expression = node;
             LambdaExpression lambdaExpression = expression as LambdaExpression;
@@ -115,7 +115,7 @@ namespace TZM.XFramework.Data
         /// <param name="expression">列名表达式</param>
         /// <param name="aliases">表别名</param>
         /// <returns>返回解析到的表别名</returns>
-        public Expression AppendMember(Expression expression, TableAliasCache aliases)
+        public Expression AppendMember(Expression expression, TableAlias aliases)
         {
             this.AppendMember(aliases, expression);
             return expression;

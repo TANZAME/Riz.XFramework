@@ -149,7 +149,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            TableAlias aliases = this.PrepareTableAlias(dbQuery, token);
             var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -372,7 +372,7 @@ namespace TZM.XFramework.Data.SqlClient
         protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
             ISqlBuilder builder = this.CreateSqlBuilder(token);
-            TableAliasCache aliases = new TableAliasCache();
+            TableAlias aliases = new TableAlias();
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             var caseSensitive = token != null && token.DbContext != null ? ((NpgDbContext)token.DbContext).CaseSensitive : false;
 
@@ -516,7 +516,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Query != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 var cmd = new NpgMappingDbCommand(this, aliases, DbExpressionType.Delete, token) { HasMany = dbQuery.Query.HasMany };
 
                 var visitor = new NpgJoinExpressionVisitor(this, aliases, dbQuery.Query.Joins, DbExpressionType.Delete);
@@ -600,7 +600,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 var visitor = new NpgUpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);
 

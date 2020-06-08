@@ -172,7 +172,7 @@
     <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
     <Compile Include="Data\SqlClient\SqlServerDbQueryProvider.cs" />
     <Compile Include="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
-    <Compile Include="Data\Genaration\TableAliasCache.cs" />
+    <Compile Include="Data\Genaration\TableAlias.cs" />
     <Compile Include="Data\Infrastructure\Database45.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Emit\FieldAccessor.cs" />

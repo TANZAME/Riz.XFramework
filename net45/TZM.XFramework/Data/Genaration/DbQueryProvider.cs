@@ -78,15 +78,15 @@ namespace TZM.XFramework.Data
         public RawCommand Resolve<T>(IDbQueryable<T> dbQuery, int indent, bool isOuter, ResolveToken token)
         {
             // 参数化设置
-            if (token == null) 
+            if (token == null)
                 token = new ResolveToken();
-            if (!dbQuery.HasSetParameterized) 
+            if (!dbQuery.HasSetParameterized)
                 dbQuery.Parameterized = true;
-            if (!token.HasSetParameterized) 
+            if (!token.HasSetParameterized)
                 token.Parameterized = dbQuery.Parameterized;
-            if (token.Parameterized && token.Parameters == null) 
+            if (token.Parameterized && token.Parameters == null)
                 token.Parameters = new List<IDbDataParameter>(8);
-            if (token.DbContext == null) 
+            if (token.DbContext == null)
                 token.DbContext = dbQuery.DbContext;
 
             // 解析查询语义
@@ -237,9 +237,9 @@ namespace TZM.XFramework.Data
         /// <param name="dbQuery">查询语义</param>
         /// <param name="token">解析上下文</param>
         /// <returns></returns>
-        protected TableAliasCache PrepareTableAlias(IDbQueryableInfo_Select dbQuery, ResolveToken token)
+        protected TableAlias PrepareTableAlias(IDbQueryableInfo_Select dbQuery, ResolveToken token)
         {
-            var aliases = new TableAliasCache((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.AliasPrefix : null);
+            var aliases = new TableAlias((dbQuery.Joins != null ? dbQuery.Joins.Count : 0) + 1, token != null ? token.AliasPrefix : null);
             foreach (DbExpression exp in dbQuery.Joins)
             {
                 // [INNER/LEFT JOIN]
@@ -253,10 +253,11 @@ namespace TZM.XFramework.Data
         }
 
         // 获取 LEFT JOIN / INNER JOIN 子句关联表的的别名
-        private void PrepareJoinAlias(DbExpression dbExpression, TableAliasCache aliases)
+        private void PrepareJoinAlias(DbExpression dbExpression, TableAlias aliases)
         {
             Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
+            string outerAlias = null;
 
             // on a.Name equals b.Name 或 on new{ Name = a.Name,Id=a.Id } equals new { Name = b.Name,Id=b.Id }
             var left = dbExpression.Expressions[1] as LambdaExpression;
@@ -272,8 +273,9 @@ namespace TZM.XFramework.Data
                 for (int index = 0; index < body2.Arguments.Count; ++index)
                 {
                     string alias = aliases.GetTableAlias(body2.Arguments[index]);
+                    outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    aliases.AddOrUpdateJoinTableAlias(name, alias);
+                    aliases.AddJoinTableAlias(name, alias);
                 }
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
@@ -287,21 +289,41 @@ namespace TZM.XFramework.Data
                 for (int index = 0; index < body2.Bindings.Count; ++index)
                 {
                     string alias = aliases.GetTableAlias((body2.Bindings[index] as MemberAssignment).Expression);
+                    outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    aliases.AddOrUpdateJoinTableAlias(name, alias);
+                    aliases.AddJoinTableAlias(name, alias);
                 }
             }
             else
             {
                 aliases.GetTableAlias(dbExpression.Expressions[1]);
                 string alias = aliases.GetTableAlias(dbExpression.Expressions[2]);
+                outerAlias = alias;
                 // 记录显示指定的LEFT JOIN 表别名
-                aliases.AddOrUpdateJoinTableAlias(name, alias);
+                aliases.AddJoinTableAlias(name, alias);
+            }
+
+            // 由 GetTable 重载指定的导航属性表别名
+            if (dbExpression.Expressions.Length > 4)
+            {
+                if (string.IsNullOrEmpty(outerAlias) || outerAlias == TableAlias.ALIASNULL)
+                {
+                    var lambda = dbExpression.Expressions[3] as LambdaExpression;
+                    string alias = aliases.GetTableAlias(lambda.Parameters[1]);
+                    outerAlias = alias;
+                    // 记录显示指定的LEFT JOIN 表别名
+                    aliases.AddJoinTableAlias(name, alias);
+                }
+
+                var member = (dbExpression.Expressions[4] as LambdaExpression).Body as MemberExpression;
+                string keyId = member.GetKeyWidthoutAnonymous();
+                // 记录GetTable<,>(path)指定的表别名
+                aliases.AddGetTableAlias(keyId, outerAlias);
             }
         }
 
         // 获取 CROSS JOIN 子句关联表的的别名
-        private void PrepareCrossAlias(DbExpression dbExpression, TableAliasCache aliases)
+        private void PrepareCrossAlias(DbExpression dbExpression, TableAlias aliases)
         {
             var lambda = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambda.Parameters.Count; ++index)

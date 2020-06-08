@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     public class JoinExpressionVisitor : ExpressionVisitorBase
     {
         private List<DbExpression> _joins = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private IDbQueryProvider _provider = null;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="joins">JOIN 子句</param>
-        public JoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> joins)
+        public JoinExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, List<DbExpression> joins)
             : base(provider, aliases, null)
         {
             _joins = joins;
@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAlias aliases)
         {
             builder.Append(' ');
             IDbQueryable dbQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
@@ -129,7 +129,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
+        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAlias aliases)
         {
             var lambdaExp = exp.Expressions[1] as LambdaExpression;
             Type type = lambdaExp.Parameters[1].Type;
