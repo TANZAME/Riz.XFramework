@@ -155,7 +155,7 @@ namespace TZM.XFramework.Data
         /// 返回特定类型的对象的集合，其中类型由 T 参数定义
         /// <para>
         /// 适用场景：
-        /// 多个导航属性类型一致，用此重载可解决 a.Navigation.Property 的表别名定位问题
+        /// 多个导航属性类型相同，用此重载可解决 a.Navigation.Property 的表别名定位问题
         /// </para>
         /// </summary>
         /// <typeparam name="T">元素类型</typeparam>
