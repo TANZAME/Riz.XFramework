@@ -20,5 +20,10 @@ namespace TZM.XFramework.Data
         /// 常量列名
         /// </summary>
         public const string CONSTANT_COLUMN_NAME = "XfwConstant__";
+
+        /// <summary>
+        /// 外键指定常量字段前缀
+        /// </summary>
+        public const string CONSTANT_FOREIGNKEY = "{CONST}";
     }
 }

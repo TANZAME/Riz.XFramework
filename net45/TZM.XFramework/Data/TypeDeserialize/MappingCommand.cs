@@ -2,6 +2,7 @@
 using System.Data;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace TZM.XFramework.Data
 {
@@ -180,13 +181,23 @@ namespace TZM.XFramework.Data
                 builder.Append(" ON ");
                 for (int i = 0; i < attribute.InnerKeys.Length; i++)
                 {
-                    builder.Append(alias1);
-                    builder.Append('.');
-                    builder.AppendMember(attribute.InnerKeys[i]);
+                    if (attribute.InnerKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) builder.Append(attribute.InnerKeys[i].Substring(7));
+                    else
+                    {
+                        builder.Append(alias1);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.InnerKeys[i]);
+                    }
+
                     builder.Append(" = ");
-                    builder.Append(alias2);
-                    builder.Append('.');
-                    builder.AppendMember(attribute.OuterKeys[i]);
+
+                    if (attribute.OuterKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) builder.Append(attribute.OuterKeys[i].Substring(7));
+                    else
+                    {
+                        builder.Append(alias2);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.OuterKeys[i]);
+                    }
 
                     if (i < attribute.InnerKeys.Length - 1) builder.Append(" AND ");
                 }

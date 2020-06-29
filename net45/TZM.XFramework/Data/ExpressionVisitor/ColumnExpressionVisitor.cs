@@ -597,7 +597,7 @@ namespace TZM.XFramework.Data
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
             var fkAttribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Name);
-            string keyName = fkAttribute.OuterKeys[0];
+            string keyName = fkAttribute.OuterKeys.FirstOrDefault(a => !a.StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal));
 
             _builder.Append("CASE WHEN ");
             _builder.AppendMember(alias, keyName);

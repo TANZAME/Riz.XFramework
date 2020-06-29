@@ -140,13 +140,23 @@ namespace TZM.XFramework.Data
                 if (_onPhrase.Length > 0) _onPhrase.Append(" AND ");
                 for (int i = 0; i < attribute.InnerKeys.Length; i++)
                 {
-                    _onPhrase.Append(alias1);
-                    _onPhrase.Append('.');
-                    _onPhrase.AppendMember(attribute.InnerKeys[i]);
+                    if (attribute.InnerKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) _onPhrase.Append(attribute.InnerKeys[i].Substring(7));
+                    else
+                    {
+                        _onPhrase.Append(alias1);
+                        _onPhrase.Append('.');
+                        _onPhrase.AppendMember(attribute.InnerKeys[i]);
+                    }
+
                     _onPhrase.Append(" = ");
-                    _onPhrase.Append(alias2);
-                    _onPhrase.Append('.');
-                    _onPhrase.AppendMember(attribute.OuterKeys[i]);
+
+                    if (attribute.OuterKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) _onPhrase.Append(attribute.OuterKeys[i].Substring(7));
+                    else
+                    {
+                        _onPhrase.Append(alias2);
+                        _onPhrase.Append('.');
+                        _onPhrase.AppendMember(attribute.OuterKeys[i]);
+                    }
                 }
 
                 if (nav.Predicate != null)
