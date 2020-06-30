@@ -635,7 +635,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf);
         }
 
         /// <summary>
@@ -669,7 +669,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf);
         }
 
         /// <summary>
@@ -703,7 +703,7 @@ namespace TZM.XFramework
 
             var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf != null ? conf.Deserializer : null);
+            return WebHelper.ReadAsResult<T>(response, conf);
         }
 
         /// <summary>
@@ -846,12 +846,15 @@ namespace TZM.XFramework
         }
 
         // 从响应流中读取响应为实体
-        static T ReadAsResult<T>(HttpWebResponse response, Func<string, T> deserializer = null)
+        static T ReadAsResult<T>(HttpWebResponse response, HttpConfiguration configuration)
         {
             Stream stream = null;
             try
             {
-                Encoding encoding = !string.IsNullOrEmpty(response.CharacterSet) ? Encoding.GetEncoding(response.CharacterSet) : null;
+                var conf = configuration as HttpConfiguration<T>;
+                var deserializer = conf != null ? conf.Deserializer : null;
+                Encoding encoding = configuration.Encoding;
+                if (encoding == null) encoding = !string.IsNullOrEmpty(response.CharacterSet) ? Encoding.GetEncoding(response.CharacterSet) : null;
                 stream = response.GetResponseStream();
                 return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
             }
