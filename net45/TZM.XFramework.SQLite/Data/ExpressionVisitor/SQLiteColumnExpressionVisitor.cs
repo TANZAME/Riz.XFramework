@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="dbQuery">查询语义</param>
-        public SQLiteColumnExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, IDbQueryableInfo_Select dbQuery)
+        public SQLiteColumnExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, IDbQueryableInfo_Select dbQuery)
             : base(provider, aliases, dbQuery)
         {
             _dbQuery = dbQuery;

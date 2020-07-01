@@ -124,7 +124,23 @@ namespace TZM.XFramework.Data
                     case DbExpressionType.GroupJoin:
                     case DbExpressionType.GroupRightJoin:
                         select = item.Expressions[3];
-                        joins.Add(item);
+
+                        var j = item;
+
+                        // GetTable 的参数
+                        var inner = (j.Expressions[0] as ConstantExpression).Value as IDbQueryable;
+                        if (inner.DbExpressions.Count == 1 &&
+                            inner.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable &&
+                            inner.DbExpressions[0].Expressions.Length == 2)
+                        {
+                            var expressions = new Expression[item.Expressions.Length + 1];
+                            Array.Copy(item.Expressions, expressions, item.Expressions.Length);
+                            expressions[expressions.Length - 1] = inner.DbExpressions[0].Expressions[1];
+                            j = new DbExpression(item.DbExpressionType, expressions);
+                        }
+                        joins.Add(j);
+
+
                         continue;
 
                     case DbExpressionType.OrderBy:

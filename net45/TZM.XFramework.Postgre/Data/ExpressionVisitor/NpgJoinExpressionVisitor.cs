@@ -10,7 +10,7 @@ namespace TZM.XFramework.Data
     public class NpgJoinExpressionVisitor : JoinExpressionVisitor
     {
         private List<DbExpression> _qJoin = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private IDbQueryProvider _provider = null;
         private bool usedKeyword = false;
         private readonly string _keywordName = string.Empty;
@@ -24,7 +24,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名集合</param>
         /// <param name="joins">JOIN 子句</param>
         /// <param name="dbExpressionType">表达式类型</param>
-        public NpgJoinExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> joins, DbExpressionType dbExpressionType)
+        public NpgJoinExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, List<DbExpression> joins, DbExpressionType dbExpressionType)
             : base(provider, aliases, joins)
         {
             _qJoin = joins;
@@ -63,7 +63,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression, TableAlias aliases)
         {
             IDbQueryable sQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (!usedKeyword)
@@ -142,7 +142,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder jf, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendCrossJoin(ISqlBuilder jf, DbExpression dbExpression, TableAlias aliases)
         {
             if (!usedKeyword)
             {

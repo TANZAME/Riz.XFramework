@@ -9,7 +9,7 @@ namespace TZM.XFramework.Data
     /// </summary>
     internal class SqlServerMappingCommand : MappingCommand
     {
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private SqlClient.SqlServerDbContext _context = null;
         private SqlClient.SqlServerDbQueryProvider _provider = null;
 
@@ -19,7 +19,7 @@ namespace TZM.XFramework.Data
         /// <param name="context">数据查询提供者</param>
         /// <param name="aliases">别名</param>
         /// <param name="token">解析上下文参数</param>
-        public SqlServerMappingCommand(SqlClient.SqlServerDbContext context, TableAliasCache aliases, ResolveToken token)
+        public SqlServerMappingCommand(SqlClient.SqlServerDbContext context, TableAlias aliases, ResolveToken token)
             : base(context.Provider, aliases, token)
         {
             _aliases = aliases;
@@ -33,7 +33,7 @@ namespace TZM.XFramework.Data
             if (base.NavMembers == null || base.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
+            if (this.HasMany) _aliases = new TableAlias(_aliases.HoldQty);
             //开始产生LEFT JOIN 子句
             ISqlBuilder builder = this.JoinFragment;
             foreach (var nav in base.NavMembers)
@@ -92,13 +92,23 @@ namespace TZM.XFramework.Data
                 builder.Append(" ON ");
                 for (int i = 0; i < attribute.InnerKeys.Length; i++)
                 {
-                    builder.Append(alias1);
-                    builder.Append('.');
-                    builder.AppendMember(attribute.InnerKeys[i]);
+                    if (attribute.InnerKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) builder.Append(attribute.InnerKeys[i].Substring(7));
+                    else
+                    {
+                        builder.Append(alias1);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.InnerKeys[i]);
+                    }
+
                     builder.Append(" = ");
-                    builder.Append(alias2);
-                    builder.Append('.');
-                    builder.AppendMember(attribute.OuterKeys[i]);
+
+                    if (attribute.OuterKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) builder.Append(attribute.OuterKeys[i].Substring(7));
+                    else
+                    {
+                        builder.Append(alias2);
+                        builder.Append('.');
+                        builder.AppendMember(attribute.OuterKeys[i]);
+                    }
 
                     if (i < attribute.InnerKeys.Length - 1) builder.Append(" AND ");
                 }

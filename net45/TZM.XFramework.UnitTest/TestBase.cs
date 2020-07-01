@@ -922,6 +922,12 @@ namespace TZM.XFramework.UnitTest
                 .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
                 .Where(a => a.ClientId > 0);
             result = query.ToList();
+            query =
+                from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.Client, Model.CloudServer>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId
+                where a.ClientId > 0
+                select a;
+            result = query.ToList();
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],

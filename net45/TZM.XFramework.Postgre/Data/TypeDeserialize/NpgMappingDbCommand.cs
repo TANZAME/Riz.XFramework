@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private IDbQueryProvider _provider = null;
         private readonly string _keywordName = string.Empty;
         private DbExpressionType _dbExpressionType = DbExpressionType.None;
@@ -53,7 +53,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">别名</param>
         /// <param name="dbExpressionType">表达式类型</param>
         /// <param name="token">解析上下文参数</param>
-        public NpgMappingDbCommand(IDbQueryProvider provider, TableAliasCache aliases, DbExpressionType dbExpressionType, ResolveToken token)
+        public NpgMappingDbCommand(IDbQueryProvider provider, TableAlias aliases, DbExpressionType dbExpressionType, ResolveToken token)
             : base(provider, aliases, token)
         {
             _provider = provider;
@@ -74,7 +74,7 @@ namespace TZM.XFramework.Data
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliases = new TableAliasCache(_aliases.HoldQty);
+            if (this.HasMany) _aliases = new TableAlias(_aliases.HoldQty);
             //开始产生 USING 子句
             ISqlBuilder jf = this.JoinFragment;
             int index = -1;
@@ -140,13 +140,23 @@ namespace TZM.XFramework.Data
                 if (_onPhrase.Length > 0) _onPhrase.Append(" AND ");
                 for (int i = 0; i < attribute.InnerKeys.Length; i++)
                 {
-                    _onPhrase.Append(alias1);
-                    _onPhrase.Append('.');
-                    _onPhrase.AppendMember(attribute.InnerKeys[i]);
+                    if (attribute.InnerKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) _onPhrase.Append(attribute.InnerKeys[i].Substring(7));
+                    else
+                    {
+                        _onPhrase.Append(alias1);
+                        _onPhrase.Append('.');
+                        _onPhrase.AppendMember(attribute.InnerKeys[i]);
+                    }
+
                     _onPhrase.Append(" = ");
-                    _onPhrase.Append(alias2);
-                    _onPhrase.Append('.');
-                    _onPhrase.AppendMember(attribute.OuterKeys[i]);
+
+                    if (attribute.OuterKeys[i].StartsWith(Constant.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) _onPhrase.Append(attribute.OuterKeys[i].Substring(7));
+                    else
+                    {
+                        _onPhrase.Append(alias2);
+                        _onPhrase.Append('.');
+                        _onPhrase.AppendMember(attribute.OuterKeys[i]);
+                    }
                 }
 
                 if (nav.Predicate != null)

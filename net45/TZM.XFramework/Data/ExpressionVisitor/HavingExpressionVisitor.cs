@@ -8,7 +8,7 @@ namespace TZM.XFramework.Data
     public class HavingExpressionVisitor : ExpressionVisitorBase
     {
         private DbExpression _groupBy = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
 
         /// <summary>
         /// 初始化 <see cref="HavingExpressionVisitor"/> 类的新实例
@@ -17,7 +17,7 @@ namespace TZM.XFramework.Data
         /// <param name="aliases">表别名集合</param>
         /// <param name="having">HAVING 子句</param>
         /// <param name="groupBy">GROUP BY 子句</param>
-        public HavingExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression having, DbExpression groupBy)
+        public HavingExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, DbExpression having, DbExpression groupBy)
             : base(provider, aliases, having != null && having.Expressions != null ? having.Expressions[0] : null)
         {
             _groupBy = groupBy;

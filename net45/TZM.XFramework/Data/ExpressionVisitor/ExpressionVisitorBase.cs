@@ -13,7 +13,7 @@ namespace TZM.XFramework.Data
         #region 私有字段
 
         private IDbQueryProvider _provider = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private Expression _expression = null;
         private HashCollection<NavMember> _navMembers = null;
 
@@ -81,7 +81,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="expression">将访问的表达式</param>
-        public ExpressionVisitorBase(IDbQueryProvider provider, TableAliasCache aliases, Expression expression)
+        public ExpressionVisitorBase(IDbQueryProvider provider, TableAlias aliases, Expression expression)
         {
             _provider = provider;
             _aliases = aliases;
@@ -373,8 +373,13 @@ namespace TZM.XFramework.Data
                     if (type.IsGenericType) type = type.GetGenericArguments()[0];
 
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                    // 检查查询表达式是否显示指定该表关联
-                    alias = _aliases.GetJoinTableAlias(typeRuntime.TableName);
+                    // 检查表达式是否由 GetTable<,>(path) 显式指定过别名
+                    alias = _aliases.GetGetTableAlias(nav.KeyId);
+                    if (string.IsNullOrEmpty(alias))
+                    {
+                        // 如果没有，检查查询表达式是否显示指定该表关联
+                        alias = _aliases.GetJoinTableAlias(typeRuntime.TableName);
+                    }
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，则使用导航属性别名

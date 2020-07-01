@@ -152,7 +152,7 @@ namespace TZM.XFramework.Data.SqlClient
             // 导航属性如果使用嵌套，除非有 TOP 或者 OFFSET 子句，否则不能用ORDER BY
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
-            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            TableAlias aliases = this.PrepareTableAlias(dbQuery, token);
             var result = new MappingCommand(this, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -373,7 +373,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache();
+            TableAlias aliases = new TableAlias();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -548,7 +548,7 @@ namespace TZM.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                    TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                     ExpressionVisitorBase visitor = null;
 
                     visitor = new JoinExpressionVisitor(this, aliases, dbQuery.Query.Joins);
@@ -693,7 +693,7 @@ namespace TZM.XFramework.Data.SqlClient
                 else
                 {
                     // 直接 SQL 的 UPDATE 语法
-                    TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                    TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                     var visitor = new SQLiteUpdateExpressionVisitor(this, aliases, dbQuery, null);
                     visitor.ParseCommand = this.ResolveSelectCommand;
                     visitor.Write(builder);

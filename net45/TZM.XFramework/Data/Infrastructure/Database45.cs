@@ -235,7 +235,7 @@ namespace TZM.XFramework.Data
         {
             List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-               async p => await this.ExecuteMultipleAsync<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
+               async p => await this.ExecuteAsync<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -249,7 +249,7 @@ namespace TZM.XFramework.Data
         {
             List<RawCommand> sqlList = query1.Provider.Resolve(new List<object> { query1, query2, query3 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                async p => await this.ExecuteMultipleAsync<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
+                async p => await this.ExecuteAsync<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapping)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -266,7 +266,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         public virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
         {
-            return await this.ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(command, null);
+            return await this.ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(command, null);
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace TZM.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteMultipleAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
+        protected virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapping> maps = null)
         {
             IDataReader reader = null;
             IDbConnection conn = null;

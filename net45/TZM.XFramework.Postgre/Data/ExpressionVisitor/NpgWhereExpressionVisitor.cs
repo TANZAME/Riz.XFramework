@@ -14,7 +14,7 @@ namespace TZM.XFramework.Data
         /// <param name="provider">查询语义提供者</param>
         /// <param name="aliases">表别名集合</param>
         /// <param name="dbExpression">要访问的表达式</param>
-        public NpgWhereExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, DbExpression dbExpression)
+        public NpgWhereExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, DbExpression dbExpression)
             : base(provider, aliases, dbExpression)
         {
             _expression = dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null;

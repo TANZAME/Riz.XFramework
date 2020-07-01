@@ -12,14 +12,14 @@ namespace TZM.XFramework.Data
     internal class SqlServerJoinExpressionVisitor : JoinExpressionVisitor
     {
         private List<DbExpression> _joins = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private SqlClient.SqlServerDbContext _context = null;
         private SqlClient.SqlServerDbQueryProvider _provider = null;
 
         /// <summary>
         /// 初始化 <see cref="SqlServerJoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        internal SqlServerJoinExpressionVisitor(SqlClient.SqlServerDbContext context, TableAliasCache aliases, List<DbExpression> joins)
+        internal SqlServerJoinExpressionVisitor(SqlClient.SqlServerDbContext context, TableAlias aliases, List<DbExpression> joins)
             : base(context.Provider, aliases, joins)
         {
             _joins = joins;
@@ -58,7 +58,7 @@ namespace TZM.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAliasCache aliases)
+        private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, TableAlias aliases)
         {
             bool withNoLock = false;
             builder.Append(' ');
@@ -138,7 +138,7 @@ namespace TZM.XFramework.Data
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAliasCache aliases)
+        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, TableAlias aliases)
         {
             var lambdaExp = exp.Expressions[1] as LambdaExpression;
             Type type = lambdaExp.Parameters[1].Type;

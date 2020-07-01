@@ -11,7 +11,7 @@ namespace TZM.XFramework.Data
     {
         private List<DbExpression> _orderBy = null;
         private DbExpression _groupBy = null;
-        private TableAliasCache _aliases = null;
+        private TableAlias _aliases = null;
         private string _alias = null;
         private IDbQueryProvider _provider = null;
 
@@ -23,7 +23,7 @@ namespace TZM.XFramework.Data
         /// <param name="orderBy">ORDER BY 子句</param>
         /// <param name="groupBy">GROUP BY 子句</param>
         /// <param name="alias">指定的表别名</param>
-        public OrderByExpressionVisitor(IDbQueryProvider provider, TableAliasCache aliases, List<DbExpression> orderBy, DbExpression groupBy = null, string alias = null)
+        public OrderByExpressionVisitor(IDbQueryProvider provider, TableAlias aliases, List<DbExpression> orderBy, DbExpression groupBy = null, string alias = null)
             : base(provider, aliases, null)
         {
             _orderBy = orderBy;

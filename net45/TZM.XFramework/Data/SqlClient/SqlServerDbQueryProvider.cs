@@ -152,7 +152,7 @@ namespace TZM.XFramework.Data.SqlClient
             bool useOrderBy = (!useStatis || dbQuery.Skip > 0) && !dbQuery.HasAny && (!dbQuery.IsParsedByMany || (dbQuery.Skip > 0 || dbQuery.Take > 0));
 
             var context = (SqlServerDbContext)token.DbContext;
-            TableAliasCache aliases = this.PrepareTableAlias(dbQuery, token);
+            TableAlias aliases = this.PrepareTableAlias(dbQuery, token);
             var result = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.HasMany };
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -379,7 +379,7 @@ namespace TZM.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override RawCommand ResolveInsertCommand<T>(IDbQueryableInfo_Insert dbQuery, ResolveToken token)
         {
-            TableAliasCache aliases = new TableAliasCache();
+            TableAlias aliases = new TableAlias();
             ISqlBuilder builder = this.CreateSqlBuilder(token);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -518,7 +518,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Query != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 var cmd = new SqlServerMappingCommand(context, aliases, token) { HasMany = dbQuery.Query.HasMany };
 
                 ExpressionVisitorBase visitor = new SqlServerJoinExpressionVisitor(context, aliases, dbQuery.Query.Joins);
@@ -606,7 +606,7 @@ namespace TZM.XFramework.Data.SqlClient
             }
             else if (dbQuery.Expression != null)
             {
-                TableAliasCache aliases = this.PrepareTableAlias(dbQuery.Query, token);
+                TableAlias aliases = this.PrepareTableAlias(dbQuery.Query, token);
                 ExpressionVisitorBase visitor = null;
                 visitor = new UpdateExpressionVisitor(this, aliases, dbQuery.Expression);
                 visitor.Write(builder);

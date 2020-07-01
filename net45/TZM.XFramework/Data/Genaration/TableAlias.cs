@@ -6,10 +6,10 @@ namespace TZM.XFramework.Data
     /// <summary>
     /// 表别名缓存项
     /// </summary>
-    public class TableAliasCache
+    public class TableAlias
     {
         // 1.表别名缓存项（包含显示指定的和导航属性产生的）
-        private readonly ICache<string, string> _aliases = new SimpleCache<string, string>();
+        private readonly ICache<string, string> _alias = new SimpleCache<string, string>();
 
         // 2.导航属性产生的别名列表，这些别名没有在查询表达式显式地声明 存储为：访问链<a.Company.Address>：别名(tn)
         // 此缓存作用相当于占位符，给没有显式声明的<***>导航属性分配表别名
@@ -31,11 +31,19 @@ namespace TZM.XFramework.Data
         // CloudServer：t{x} 将被存储起来，在解析 a.CloudServer.CloudServerId 时表别名就会使用 t{x}
         private readonly ICache<string, string> _alias_Joins = new SimpleCache<string, string>();
 
+        // 4.GetTable<,>(path) 指定导航属性对应的表别名
+        private readonly ICache<string, string> _alias_GetTables = new SimpleCache<string, string>();
+
         // FROM 和 JOIN 表达式总数
         // 在这个计数的基础上再分配导航属性关联的表别名
         private int _holdQty = 0;
         // 别名前缀
         private string _aliasPrefix = null;
+
+        /// <summary>
+        /// 空别名名称
+        /// </summary>
+        public const string ALIASNULL = "AliasNull";
 
         /// <summary>
         /// FROM和JOIN子句显式指定的别名数量
@@ -46,29 +54,29 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// 实例化 <see cref="TableAlias"/> 类的新实例
         /// </summary>
-        public TableAliasCache()
+        public TableAlias()
             : this(0)
         {
 
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// 实例化 <see cref="TableAlias"/> 类的新实例
         /// </summary>
         /// <param name="holdQty">FROM 和 JOIN 表达式所占有的总数</param>
-        public TableAliasCache(int holdQty)
+        public TableAlias(int holdQty)
             : this(holdQty, null)
         {
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasCache"/> 类的新实例
+        /// 实例化 <see cref="TableAlias"/> 类的新实例
         /// </summary>
         /// <param name="holdQty">FROM 和 JOIN 子句显式指定的别名数量</param>
         /// <param name="aliasPrefix">显式指定别名，用于内嵌的 exists 解析</param>
-        public TableAliasCache(int holdQty, string aliasPrefix)
+        public TableAlias(int holdQty, string aliasPrefix)
         {
             _holdQty = holdQty;
             _aliasPrefix = aliasPrefix;
@@ -92,7 +100,7 @@ namespace TZM.XFramework.Data
             // p.t
             // <>h__TransparentIdentifier0.p.Id
             XFrameworkException.Check.NotNull(expression, "expression");
-            string key = TableAliasCache.GetTableAliasKey(expression);
+            string key = TableAlias.GetTableAliasKey(expression);
             return this.GetTableAlias(key);
         }
 
@@ -103,8 +111,8 @@ namespace TZM.XFramework.Data
         public string GetTableAlias(string key)
         {
             return !string.IsNullOrEmpty(key) 
-                ? this._aliases.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + this._aliases.Count.ToString()) 
-                : "XFramework";
+                ? this._alias.GetOrAdd(key, k => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + this._alias.Count.ToString()) 
+                : ALIASNULL;
         }
 
         /// <summary>
@@ -114,20 +122,8 @@ namespace TZM.XFramework.Data
         public string GetNavTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
-            return this._alias_Navigations.GetOrAdd(key, x => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + (this._alias_Navigations.Count + _holdQty).ToString());
-        }
-
-        /// <summary>
-        /// 建立 表名/表别名 键值对
-        /// 由查询表达式中显示指定的 左/内关联提供
-        /// </summary>
-        /// <param name="name">表名</param>
-        /// <param name="alias">别名（t0,t1）</param>
-        /// <returns></returns>
-        public string AddOrUpdateJoinTableAlias(string name, string alias)
-        {
-            XFrameworkException.Check.NotNull(name, "name");
-            return alias == "XFramework" ? alias : this._alias_Joins.AddOrUpdate(name, x => alias, x => alias);
+            return this._alias_Navigations.GetOrAdd(key, 
+                k => (!string.IsNullOrEmpty(_aliasPrefix) ? _aliasPrefix : "t") + (this._alias_Navigations.Count + _holdQty).ToString());
         }
 
         /// <summary>
@@ -140,6 +136,42 @@ namespace TZM.XFramework.Data
             string alias = string.Empty;
             this._alias_Joins.TryGet(name, out alias);
             return alias;
+        }
+
+        /// <summary>
+        /// 建立 表名/表别名 键值对
+        /// 由查询表达式中显示指定的 左/内关联提供
+        /// </summary>
+        /// <param name="name">表名</param>
+        /// <param name="alias">别名（t0,t1）</param>
+        /// <returns></returns>
+        public string AddJoinTableAlias(string name, string alias)
+        {
+            XFrameworkException.Check.NotNull(name, "name");
+            return alias == ALIASNULL ? alias : this._alias_Joins.AddOrUpdate(name, k => alias, k => alias);
+        }
+
+        /// <summary>
+        /// 根据 GetTable&lt;,&gt;(path) 指定导航属性取对应表别名
+        /// </summary>
+        /// <param name="key">键值</param>
+        public string GetGetTableAlias(string key)
+        {
+            string alias = string.Empty;
+            this._alias_GetTables.TryGet(key, out alias);
+            return alias;
+        }
+
+        /// <summary>
+        /// 添加由 GetTable&lt;,&gt;(path) 指定的导航属性所对应的表名称
+        /// </summary>
+        /// <param name="key">键值</param>
+        /// <param name="alias">别名（t0,t1）</param>
+        /// <returns></returns>
+        public string AddGetTableAlias(string key, string alias)
+        {
+            XFrameworkException.Check.NotNull(key, "key");
+            return alias == ALIASNULL ? alias : this._alias_GetTables.AddOrUpdate(key, k => alias, k => alias);
         }
 
         private static string GetTableAliasKey(Expression exp)
@@ -164,9 +196,9 @@ namespace TZM.XFramework.Data
             // t.t.a
             // t.a.Id
             var member = expression as MemberExpression;
-            if (member == null) return TableAliasCache.GetTableAliasKey(expression);
+            if (member == null) return TableAlias.GetTableAliasKey(expression);
 
-            if (member.Visitable()) return TableAliasCache.GetTableAliasKey(member.Expression);
+            if (member.Visitable()) return TableAlias.GetTableAliasKey(member.Expression);
 
             return member.Member.Name;
         }
