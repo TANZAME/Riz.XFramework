@@ -15,11 +15,11 @@ namespace TZM.XFramework.Data
         /// </summary>
         internal static IDbQueryableInfo Parse<TElement>(IDbQueryable<TElement> source)
         {
-            return DbQueryParser.Parse(source, 0);
+            return DbQueryParser.Parse(source, typeof(TElement), 0);
         }
 
         // 解析查询语义
-        static IDbQueryableInfo Parse<TElement>(IDbQueryable<TElement> source, int startIndex)
+        static IDbQueryableInfo Parse(IDbQueryable source, Type elmentType, int startIndex)
         {
             // 目的：将query 转换成增/删/改/查
             // 1、from a in context.GetTable<T>() select a 此时query里面可能没有SELECT 表达式
@@ -77,8 +77,9 @@ namespace TZM.XFramework.Data
                         continue;
 
                     case DbExpressionType.Union:
-                        var uQuery = (item.Expressions[0] as ConstantExpression).Value as IDbQueryable<TElement>;
-                        var u = DbQueryParser.Parse(uQuery);
+                        var constExpression = item.Expressions[0] as ConstantExpression;
+                        var uQuery = constExpression.Value as IDbQueryable;
+                        var u = DbQueryParser.Parse(uQuery, constExpression.Type.GetGenericArguments()[0], 0);
                         unions.Add((IDbQueryableInfo_Select)u);
 
                         // 如果下一个不是 union，就使用嵌套
@@ -201,7 +202,7 @@ namespace TZM.XFramework.Data
 
             // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关聚合函数，则默认选择 FromEntityType 的所有字段
             bool @zero = insert == null && delete == null && update == null && select == null && aggregate == null;
-            if (@zero) select = Expression.Constant(fromType ?? typeof(TElement));
+            if (@zero) select = Expression.Constant(fromType ?? elmentType);
 
             IDbQueryableInfo_Select result_Query = new DbQueryableInfo_Select();
             result_Query.FromType = fromType;
@@ -282,7 +283,8 @@ namespace TZM.XFramework.Data
             // 解析嵌套查询
             if (outerIndex != null)
             {
-                var outQuery = DbQueryParser.Parse<TElement>(source, outerIndex.Value);
+                // todo => elementType ???
+                var outQuery = DbQueryParser.Parse(source, elmentType, outerIndex.Value);
                 var result_Insert = outQuery as DbQueryableInfo_Insert;
                 var result_Update = outQuery as DbQueryableInfo_Update;
                 var result_Delete = outQuery as DbQueryableInfo_Delete;
