@@ -126,6 +126,7 @@ namespace TZM.XFramework.Data
         /// </summary>
         public static bool IsCollectionType(Type type)
         {
+            //typeof(IList<>).GetTypeInfo()
             //type.GetGenericTypeDefinition();
             if (!type.IsGenericType) return false;
 
@@ -135,6 +136,7 @@ namespace TZM.XFramework.Data
             //if (type == typeof(List<>)) return true;
             //else if (type == typeof(IList<>)) return true;
             else return typeof(IList<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(IList<>).FullName) != null;
+
         }
 
         /// <summary>
