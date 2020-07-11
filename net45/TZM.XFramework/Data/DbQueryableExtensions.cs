@@ -610,14 +610,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
-        /// <param name="sort">排序说明，例：User.UserName ASC </param>
+        /// <param name="sortText">排序说明，例：User.UserName ASC </param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string sort)
+        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string sortText)
         {
-            if (string.IsNullOrEmpty(sort)) return source;
+            if (string.IsNullOrEmpty(sortText)) return source;
 
             // a.Product.BuyDate ASC
-            string[] syntaxes = sort.Split(' ');
+            string[] syntaxes = sortText.Split(' ');
             string[] segs = syntaxes[0].Split('.');
             if (segs.Length <= 1) return source;
 
