@@ -633,6 +633,23 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
+        /// 根据键按给定顺序对序列的元素排序
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="sortTexts">排序说明，例：User.UserName ASC</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, IEnumerable<string> sortTexts)
+        {
+            IDbQueryable<TSource> result = source;
+            foreach (var text in sortTexts)
+            {
+                result = result.OrderBy(text);
+            }
+            return result;
+        }
+
+        /// <summary>
         ///  根据键按降序对序列的元素排序
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
