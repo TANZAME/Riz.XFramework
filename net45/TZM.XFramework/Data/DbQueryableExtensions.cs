@@ -595,12 +595,12 @@ namespace TZM.XFramework.Data
         /// <typeparam name="TKey">keySelector 返回的键的类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">用于从元素中提取键的函数</param>
-        /// <param name="ordering">排序，ASC 或者 DESC</param>
+        /// <param name="order">排序，ASC 或者 DESC</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, string ordering)
+        public static IDbQueryable<TSource> OrderBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, string order)
         {
-            if (string.IsNullOrEmpty(ordering)) ordering = "ASC";
-            DbExpressionType t = ordering == "ASC" ? DbExpressionType.OrderBy : DbExpressionType.OrderByDescending;
+            if (string.IsNullOrEmpty(order)) order = "ASC";
+            DbExpressionType t = order == "ASC" ? DbExpressionType.OrderBy : DbExpressionType.OrderByDescending;
 
             return source.CreateQuery<TSource>(t, keySelector);
         }
@@ -610,14 +610,14 @@ namespace TZM.XFramework.Data
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
-        /// <param name="ordering">排序，ASC 或者 DESC</param>
+        /// <param name="sort">排序说明，例：User.UserName ASC </param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string ordering)
+        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, string sort)
         {
-            if (string.IsNullOrEmpty(ordering)) return source;
+            if (string.IsNullOrEmpty(sort)) return source;
 
             // a.Product.BuyDate ASC
-            string[] syntaxes = ordering.Split(' ');
+            string[] syntaxes = sort.Split(' ');
             string[] segs = syntaxes[0].Split('.');
             if (segs.Length <= 1) return source;
 
