@@ -23,7 +23,7 @@ namespace TZM.XFramework.Data
         private int? _commandTimeout = null;
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
-        private readonly object _oLock = new object();
+        //private readonly object _oLock = new object();
 
         /// <summary>
         /// 查询语义集合
@@ -140,8 +140,8 @@ namespace TZM.XFramework.Data
             IDbQueryable<T> query = this.GetTable<T>();
             query = query.CreateQuery<T>(DbExpressionType.Insert, Expression.Constant(TEntity));
 
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -170,8 +170,8 @@ namespace TZM.XFramework.Data
                 bulkList.Add(query);
             }
 
-            lock (this._oLock)
-                _dbQueryables.Add(bulkList);
+            //lock (this._oLock)
+            _dbQueryables.Add(bulkList);
         }
 
         /// <summary>
@@ -180,8 +180,8 @@ namespace TZM.XFramework.Data
         public virtual void Insert<T>(IDbQueryable<T> query)
         {
             query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Insert));
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace TZM.XFramework.Data
             IDbQueryable<T> query = this.GetTable<T>();
             query = query.CreateQuery<T>(DbExpressionType.Delete, Expression.Constant(TEntity));
 
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -211,8 +211,8 @@ namespace TZM.XFramework.Data
         public void Delete<T>(IDbQueryable<T> query)
         {
             query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Delete));
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -271,8 +271,8 @@ namespace TZM.XFramework.Data
         protected void Update<T>(Expression updateExpression, IDbQueryable<T> source)
         {
             source = source.CreateQuery<T>(new DbExpression(DbExpressionType.Update, updateExpression));
-            lock (this._oLock)
-                _dbQueryables.Add(source);
+            //lock (this._oLock)
+            _dbQueryables.Add(source);
         }
 
         /// <summary>
@@ -288,8 +288,8 @@ namespace TZM.XFramework.Data
             if (!string.IsNullOrEmpty(sql))
             {
                 var query = new RawSql(sql, args);
-                lock (this._oLock)
-                    _dbQueryables.Add(query);
+                //lock (this._oLock)
+                _dbQueryables.Add(query);
             }
         }
 
@@ -299,8 +299,8 @@ namespace TZM.XFramework.Data
         /// <param name="query">查询语义</param>
         public void AddQuery(IDbQueryable query)
         {
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -593,7 +593,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected void InternalDispose()
         {
-            lock (this._oLock) this._dbQueryables.Clear();
+            //lock (this._oLock) 
+            this._dbQueryables.Clear();
         }
 
         #endregion
