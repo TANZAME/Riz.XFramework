@@ -133,8 +133,10 @@ namespace TZM.XFramework.Data
         #region 公开方法
 
         /// <summary>
-        /// 新增记录
+        /// 将给定实体添加到基础上下文中，当调用 SaveChanges 时，会将该实体插入到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="TEntity">要添加的实体</param>
         public virtual void Insert<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
@@ -145,18 +147,20 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将给定实体集合添加到基础上下文中，当调用 SaveChanges 时，会将该实体插入到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="collection">要添加的实体集合</param>
         public virtual void Insert<T>(IEnumerable<T> collection)
         {
             this.Insert<T>(collection, null);
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将给定实体集合添加到基础上下文中，当调用 SaveChanges 时，会将该实体插入到数据库中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection">批量插入列表</param>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="collection">要添加的实体集合</param>
         /// <param name="entityColumns">指定插入的列</param>
         public virtual void Insert<T>(IEnumerable<T> collection, IList<Expression> entityColumns)
         {
@@ -175,8 +179,17 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SaveChanges 时，会将该实体插入到数据库中
+        /// <para>
+        /// 实用场景：
+        /// Insert Into Table1(Field1,Field2)
+        /// Select xx1 AS Field1,xx2 AS Field2
+        /// From Table2 a
+        /// Join Table2 b ON xx=xx
+        /// </para>
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="query">要添加的实体查询语义</param>
         public virtual void Insert<T>(IDbQueryable<T> query)
         {
             query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Insert));
@@ -185,8 +198,10 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 删除记录
+        /// 删除给定实体，当调用 SaveChanges 时，会将该实体从数据库中删除
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="TEntity">要删除的实体</param>
         public void Delete<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
@@ -197,8 +212,10 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 删除记录
+        /// 基于谓词批量删除实体，当调用 SaveChanges 时，会将该实体从数据库中删除
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         public void Delete<T>(Expression<Func<T, bool>> predicate)
         {
             IDbQueryable<T> query = this.GetTable<T>();
@@ -244,7 +261,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> source)
+        public virtual void Update<T, T1>(Expression<Func<T, T1, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
@@ -252,7 +269,7 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> source)
+        public virtual void Update<T, T1, T2>(Expression<Func<T, T1, T2, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
@@ -260,7 +277,39 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 更新记录
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> source)
+        public virtual void Update<T, T1, T2, T3>(Expression<Func<T, T1, T2, T3, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
@@ -399,10 +448,12 @@ namespace TZM.XFramework.Data
 #endif
 
         /// <summary>
-        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一个查询语义对应的实体序列。
         /// </summary>
         /// <typeparam name="T">T</typeparam>
-        /// <param name="result">提交更改并查询数据</param>
+        /// <param name="result">通过 AddQuery 添加的第一个查询语义对应的实体序列</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T>(out List<T> result)
         {
@@ -414,11 +465,12 @@ namespace TZM.XFramework.Data
             IDataReader reader = null;
             List<int> identitys = null;
             List<RawCommand> sqlList = this.Resolve();
+            List<IMapping> maps = sqlList.ToList(x => x as IMapping, x => x is IMapping);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {
                 reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
+                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, maps.Count > 0 ? maps[0] : null);
                 do
                 {
                     List<int> autoIncrements = null;
@@ -455,12 +507,14 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一个和第二个查询语义对应的实体序列。
         /// </summary>
-        /// <typeparam name="T1">T</typeparam>
-        /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">结果集合</param>
-        /// <param name="result2">结果集合</param>
+        /// <typeparam name="T1">要返回的元素类型</typeparam>
+        /// <typeparam name="T2">要返回的元素类型</typeparam>
+        /// <param name="result1">第一个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result2">第二个通过 AddQuery 添加的查询语义对应的实体序列</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {
@@ -544,6 +598,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 返回特定类型的对象的集合，其中类型由 T 参数定义
         /// </summary>
+        /// <typeparam name="T">对象的基类型</typeparam>
+        /// <returns></returns>
         public IDbQueryable<T> GetTable<T>()
         {
             DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
