@@ -127,12 +127,12 @@ namespace TZM.XFramework.Data
                     object model = deserializer2.Deserialize(prevLine, out isThisLine);
                     identitys.Add((int)model);
                 }
-                else 
+                else
                 {
+                    // 输出指定类型实体
                     if (typeof(T) == typeof(None)) collection = new List<T>(0);
                     else
                     {
-                        // 输出指定类型实体
                         if (deserializer == null) deserializer = new TypeDeserializer_Internal(_database, _reader, _map, typeof(T));
                         object model = deserializer.Deserialize(prevLine, out isThisLine);
                         if (!isThisLine)
