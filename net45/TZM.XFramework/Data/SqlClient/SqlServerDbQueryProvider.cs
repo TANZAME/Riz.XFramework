@@ -437,6 +437,15 @@ namespace TZM.XFramework.Data.SqlClient
                     builder.Append('(');
                     builder.Append(seg_Columns);
                     builder.Append(')');
+
+                    if (dbQuery.Bulk != null && typeRuntime.Identity != null)
+                    {
+                        builder.AppendNewLine();
+                        builder.Append("OUTPUT INSERTED.");
+                        builder.AppendMember(typeRuntime.Identity.Name);
+                        builder.AppendAs(Constant.AUTO_INCREMENT_NAME);
+                    }
+
                     builder.AppendNewLine();
                     builder.AppendTab();
                     builder.Append("VALUES");
