@@ -900,33 +900,25 @@ namespace TZM.XFramework.Data
             int index = -1;
             foreach (var obj in dbQueryables)
             {
-                var dbQuery_s = obj as IDbQueryable;
-                var bulkList = obj as List<IDbQueryable>;
-                if (dbQuery_s == null && bulkList == null) continue;
+                var dbQuery = obj as IDbQueryable;
+                if (dbQuery == null) continue;
+                else if (dbQuery.DbExpressions == null) continue;
+                else if (dbQuery.DbExpressions.Count == 0) continue;
 
-                if (dbQuery_s != null)
-                    bulkList = new List<IDbQueryable> { dbQuery_s };
+                var dbExpression = dbQuery.DbExpressions.FirstOrDefault(x => x.DbExpressionType == DbExpressionType.Insert);
+                if (dbExpression == null) continue;
+                else if (dbExpression.Expressions == null) continue;
+                else if (dbExpression.Expressions[0].NodeType != ExpressionType.Constant) continue;
 
-                foreach (var dbQuery in bulkList)
+                var entity = (dbExpression.Expressions[0] as ConstantExpression).Value;
+                if (entity != null)
                 {
-                    if (dbQuery.DbExpressions == null) continue;
-                    else if (dbQuery.DbExpressions.Count == 0) continue;
-
-                    var dbExpression = dbQuery.DbExpressions.FirstOrDefault(x => x.DbExpressionType == DbExpressionType.Insert);
-                    if (dbExpression == null) continue;
-                    else if (dbExpression.Expressions == null) continue;
-                    else if (dbExpression.Expressions[0].NodeType != ExpressionType.Constant) continue;
-
-                    var entity = (dbExpression.Expressions[0] as ConstantExpression).Value;
-                    if (entity != null)
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entity.GetType());
+                    if (typeRuntime.Identity != null)
                     {
-                        var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entity.GetType());
-                        if (typeRuntime.Identity != null)
-                        {
-                            index += 1;
-                            var identity = identitys[index];
-                            typeRuntime.Identity.Invoke(entity, identity);
-                        }
+                        index += 1;
+                        var identity = identitys[index];
+                        typeRuntime.Identity.Invoke(entity, identity);
                     }
                 }
             }

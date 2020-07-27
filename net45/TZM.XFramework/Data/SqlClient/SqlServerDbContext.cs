@@ -1,7 +1,8 @@
 ﻿
-
+using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace TZM.XFramework.Data.SqlClient
@@ -11,6 +12,21 @@ namespace TZM.XFramework.Data.SqlClient
     /// </summary>
     public class SqlServerDbContext : DbContextBase
     {
+        private string _version = null;
+
+        /// <summary>
+        /// 数据库版本号
+        /// </summary>
+        public string Version
+        {
+            get
+            {
+                if (_version == null)
+                    _version = this.Database.Execute<string>("SELECT SERVERPROPERTY('ProductVersion')");
+                return _version;
+            }
+        }
+
         /// <summary>
         /// 无阻塞 WITH(NOLOCK)
         /// </summary>
@@ -49,6 +65,50 @@ namespace TZM.XFramework.Data.SqlClient
         public SqlServerDbContext(string connString, int? commandTimeout)
             : base(connString, commandTimeout)
         {
+        }
+
+        /// <summary>
+        /// 更新自增列
+        /// </summary>
+        /// <param name="dbQueryables">查询语义集合</param>
+        /// <param name="identitys">自动ID</param>
+        protected override void SetIdentityValue(List<object> dbQueryables, List<int> identitys)
+        {
+            if (identitys == null || identitys.Count == 0) return;
+
+            int index = -1;
+            foreach (var obj in dbQueryables)
+            {
+                var dbQuery_s = obj as IDbQueryable;
+                var bulkList = obj as List<IDbQueryable>;
+                if (dbQuery_s == null && bulkList == null) continue;
+
+                if (dbQuery_s != null)
+                    bulkList = new List<IDbQueryable> { dbQuery_s };
+
+                foreach (var dbQuery in bulkList)
+                {
+                    if (dbQuery.DbExpressions == null) continue;
+                    else if (dbQuery.DbExpressions.Count == 0) continue;
+
+                    var dbExpression = dbQuery.DbExpressions.FirstOrDefault(x => x.DbExpressionType == DbExpressionType.Insert);
+                    if (dbExpression == null) continue;
+                    else if (dbExpression.Expressions == null) continue;
+                    else if (dbExpression.Expressions[0].NodeType != ExpressionType.Constant) continue;
+
+                    var entity = (dbExpression.Expressions[0] as ConstantExpression).Value;
+                    if (entity != null)
+                    {
+                        var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entity.GetType());
+                        if (typeRuntime.Identity != null)
+                        {
+                            index += 1;
+                            var identity = identitys[index];
+                            typeRuntime.Identity.Invoke(entity, identity);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
