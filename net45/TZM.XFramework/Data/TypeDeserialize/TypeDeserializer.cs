@@ -130,13 +130,17 @@ namespace TZM.XFramework.Data
                 else
                 {
                     // 输出指定类型实体
-                    if (deserializer == null) deserializer = new TypeDeserializer_Internal(_database, _reader, _map, typeof(T));
-                    object model = deserializer.Deserialize(prevLine, out isThisLine);
-                    if (!isThisLine)
+                    if (typeof(T) == typeof(None)) collection = new List<T>(0);
+                    else
                     {
-                        if (collection == null) collection = new List<T>();
-                        collection.Add((T)model);
-                        prevLine = model;
+                        if (deserializer == null) deserializer = new TypeDeserializer_Internal(_database, _reader, _map, typeof(T));
+                        object model = deserializer.Deserialize(prevLine, out isThisLine);
+                        if (!isThisLine)
+                        {
+                            if (collection == null) collection = new List<T>();
+                            collection.Add((T)model);
+                            prevLine = model;
+                        }
                     }
                 }
             }

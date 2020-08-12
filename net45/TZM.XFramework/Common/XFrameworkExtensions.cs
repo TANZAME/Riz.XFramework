@@ -45,7 +45,7 @@ namespace TZM.XFramework
             if (left == null) return right;
             if (right == null) return left;
 
-            var expression = Expression.Invoke(right, left.Parameters.Cast<Expression>());
+            var expression = Expression.Invoke(right, left.Parameters);
             return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left.Body, expression), left.Parameters);
         }
 
@@ -58,7 +58,7 @@ namespace TZM.XFramework
             if (left == null) return right;
             if (right == null) return left;
 
-            var expression = Expression.Invoke(right, left.Parameters.Cast<Expression>());
+            var expression = Expression.Invoke(right, left.Parameters);
             return Expression.Lambda<Func<T, bool>>(Expression.OrElse(left.Body, expression), left.Parameters);
         }
 

@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Collections.Generic;
 using TZM.XFramework.Data;
 using TZM.XFramework.Data.SqlClient;
+using System.Linq;
 
 namespace TZM.XFramework.UnitTest.SqlServer
 {
@@ -100,47 +101,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
 #endif
             string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
-            // 批量增加
-            // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<SqlServerModel.SqlServerDemo>();
-            for (int i = 0; i < 5; i++)
-            {
-                SqlServerModel.SqlServerDemo d = new SqlServerModel.SqlServerDemo
-                {
-                    DemoCode = "D0000001",
-                    DemoName = "N0000001",
-                    DemoBoolean = true,
-                    DemoChar = 'A',
-                    DemoNChar = 'B',
-                    DemoByte = 127,
-                    DemoDate = DateTime.Now,
-                    DemoDateTime = DateTime.Now,
-                    DemoDateTime2 = DateTime.Now,
-                    DemoDecimal = 64,
-                    DemoDouble = 64,
-                    DemoFloat = 64,
-                    DemoGuid = Guid.NewGuid(),
-                    DemoShort = 64,
-                    DemoInt = 64,
-                    DemoLong = 64,
-                    DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                    DemoDatetimeOffset_Nullable = sDateOffset,
-                    DemoText_Nullable = "TEXT 类型",
-                    DemoNText_Nullable = "NTEXT 类型",
-                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
-                };
-                demos.Add(d);
-            }
-            context.Insert<SqlServerModel.SqlServerDemo>(demos);
-            context.SubmitChanges();
-            var myList = context
-                .GetTable<SqlServerModel.SqlServerDemo>()
-                .OrderByDescending(x => x.DemoId)
-                .Take(5).ToList();
-            Debug.Assert(myList[0].DemVarBinary_s == text);
-
-            // byte[]
+            // 单个插入
             var demo = new SqlServerModel.SqlServerDemo
             {
                 DemoCode = "D0000001",
@@ -176,6 +137,92 @@ namespace TZM.XFramework.UnitTest.SqlServer
                 .Where(x => x.DemoId == demo.DemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();
+
+            // 批量增加
+            // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
+            var models = new List<SqlServerModel.SqlServerDemo>();
+            for (int i = 0; i < 5; i++)
+            {
+                SqlServerModel.SqlServerDemo d = new SqlServerModel.SqlServerDemo
+                {
+                    DemoCode = string.Format("D000000{0}", i + 1),
+                    DemoName = string.Format("N000000{0}", i + 1),
+                    DemoBoolean = true,
+                    DemoChar = 'A',
+                    DemoNChar = 'B',
+                    DemoByte = 127,
+                    DemoDate = DateTime.Now,
+                    DemoDateTime = DateTime.Now,
+                    DemoDateTime2 = DateTime.Now,
+                    DemoDecimal = 64,
+                    DemoDouble = 64,
+                    DemoFloat = 64,
+                    DemoGuid = Guid.NewGuid(),
+                    DemoShort = 64,
+                    DemoInt = 64,
+                    DemoLong = 64,
+                    DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                    DemoDatetimeOffset_Nullable = sDateOffset,
+                    DemoText_Nullable = "TEXT 类型",
+                    DemoNText_Nullable = "NTEXT 类型",
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+                };
+                models.Add(d);
+            }
+            // 批量插入
+            context.Insert<SqlServerModel.SqlServerDemo>(models);
+            // 写入数据的同时再查出数据
+            var query1 = context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .Where(a => a.DemoId > 2)
+                .OrderBy(a => a.DemoId)
+                .Take(20);
+            context.AddQuery(query1);
+            // 单个插入
+            var demo1 = new SqlServerModel.SqlServerDemo
+            {
+                DemoCode = "D0000006",
+                DemoName = "N0000006",
+                DemoBoolean = true,
+                DemoChar = 'A',
+                DemoNChar = 'B',
+                DemoByte = 128,
+                DemoDate = DateTime.Now,
+                DemoDateTime = DateTime.Now,
+                DemoDateTime2 = DateTime.Now,
+                DemoDecimal = 64,
+                DemoDouble = 64,
+                DemoFloat = 64,
+                DemoGuid = Guid.NewGuid(),
+                DemoShort = 64,
+                DemoInt = 64,
+                DemoLong = 64,
+                DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
+                DemoText_Nullable = "TEXT 类型",
+                DemoNText_Nullable = "NTEXT 类型",
+                DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+            };
+            context.Insert(demo1);
+            context.Insert(demo1);
+            // 提交修改并查出数据
+            List<SqlServerModel.SqlServerDemo> result1 = null;
+            context.SubmitChanges(out result1);
+
+            // 断言
+            var myList = context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .OrderByDescending(a => a.DemoId)
+                .Take(7)
+                .OrderBy(a => a.DemoId)
+                .ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
+            Debug.Assert(myList[0].DemoId == demo.DemoId + 1);
+            Debug.Assert(myList[6].DemoId == demo.DemoId + 7);
+
+
 
             context.Delete<Model.Client>(x => x.ClientId >= 2000);
             context.SubmitChanges();

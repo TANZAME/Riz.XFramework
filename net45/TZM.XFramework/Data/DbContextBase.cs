@@ -23,7 +23,7 @@ namespace TZM.XFramework.Data
         private int? _commandTimeout = null;
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
-        private readonly object _oLock = new object();
+        //private readonly object _oLock = new object();
 
         /// <summary>
         /// 查询语义集合
@@ -133,30 +133,34 @@ namespace TZM.XFramework.Data
         #region 公开方法
 
         /// <summary>
-        /// 新增记录
+        /// 将给定实体添加到基础上下文中，当调用 SubmitChanges 时，会将该实体插入到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="TEntity">要添加的实体</param>
         public virtual void Insert<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
             query = query.CreateQuery<T>(DbExpressionType.Insert, Expression.Constant(TEntity));
 
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将给定实体集合添加到基础上下文中，当调用 SubmitChanges 时，会将该实体插入到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="collection">要添加的实体集合</param>
         public virtual void Insert<T>(IEnumerable<T> collection)
         {
             this.Insert<T>(collection, null);
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将给定实体集合添加到基础上下文中，当调用 SubmitChanges 时，会将该实体插入到数据库中
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection">批量插入列表</param>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="collection">要添加的实体集合</param>
         /// <param name="entityColumns">指定插入的列</param>
         public virtual void Insert<T>(IEnumerable<T> collection, IList<Expression> entityColumns)
         {
@@ -170,35 +174,48 @@ namespace TZM.XFramework.Data
                 bulkList.Add(query);
             }
 
-            lock (this._oLock)
-                _dbQueryables.Add(bulkList);
+            //lock (this._oLock)
+            _dbQueryables.Add(bulkList);
         }
 
         /// <summary>
-        /// 批量新增记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将该实体插入到数据库中
+        /// <para>
+        /// 实用场景：
+        /// Insert Into Table1(Field1,Field2)
+        /// Select xx1 AS Field1,xx2 AS Field2
+        /// From Table2 a
+        /// Join Table2 b ON xx=xx
+        /// </para>
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="query">要添加的实体查询语义</param>
         public virtual void Insert<T>(IDbQueryable<T> query)
         {
             query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Insert));
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
-        /// 删除记录
+        /// 将给定实体从基础上下文中删除，当调用 SubmitChanges 时，会将该实体从数据库中删除
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="TEntity">要删除的实体</param>
         public void Delete<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
             query = query.CreateQuery<T>(DbExpressionType.Delete, Expression.Constant(TEntity));
 
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
-        /// 删除记录
+        /// 基于谓词批量将给定实体从基础上下文中删除，当调用 SubmitChanges 时，会将每一个满足条件的实体从数据库中删除
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         public void Delete<T>(Expression<Func<T, bool>> predicate)
         {
             IDbQueryable<T> query = this.GetTable<T>();
@@ -206,18 +223,28 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 删除记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体从数据库中删除
+        /// <para>
+        /// 实用场景：
+        /// Delete a 
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
         /// </summary>
-        public void Delete<T>(IDbQueryable<T> query)
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="source">要删除的实体查询语义</param>
+        public void Delete<T>(IDbQueryable<T> source)
         {
-            query = query.CreateQuery<T>(new DbExpression(DbExpressionType.Delete));
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            source = source.CreateQuery<T>(new DbExpression(DbExpressionType.Delete));
+            //lock (this._oLock)
+            _dbQueryables.Add(source);
         }
 
         /// <summary>
-        /// 更新记录
+        /// 将给定实体更新到基础上下文中，当调用 SubmitChanges 时，会将该实体更新到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="TEntity">要添加的实体</param>
         public void Update<T>(T TEntity)
         {
             IDbQueryable<T> source = this.GetTable<T>();
@@ -225,8 +252,11 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 更新记录
+        /// 基于谓词批量更新到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         public virtual void Update<T>(Expression<Func<T, object>> updateExpression, Expression<Func<T, bool>> predicate)
         {
             IDbQueryable<T> source = this.GetTable<T>();
@@ -234,33 +264,193 @@ namespace TZM.XFramework.Data
         }
 
         /// <summary>
-        /// 更新记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景：
+        /// UPDATE a SET a.Field1=xxx
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
         /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
         public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
-        /// 更新记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
         /// </summary>
-        public virtual void Update<T, TSource>(Expression<Func<T, TSource, object>> updateExpression, IDbQueryable<T> source)
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1>(Expression<Func<T, T1, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
-        /// 更新记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2>(Expression<Func<T, TSource1, TSource2, object>> updateExpression, IDbQueryable<T> source)
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2>(Expression<Func<T, T1, T2, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
 
         /// <summary>
-        /// 更新记录
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
         /// </summary>
-        public virtual void Update<T, TSource1, TSource2, TSource3>(Expression<Func<T, TSource1, TSource2, TSource3, object>> updateExpression, IDbQueryable<T> source)
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <typeparam name="T3">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2, T3>(Expression<Func<T, T1, T2, T3, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <typeparam name="T3">其它实体类型</typeparam>
+        /// <typeparam name="T4">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <typeparam name="T3">其它实体类型</typeparam>
+        /// <typeparam name="T4">其它实体类型</typeparam>
+        /// <typeparam name="T5">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <typeparam name="T3">其它实体类型</typeparam>
+        /// <typeparam name="T4">其它实体类型</typeparam>
+        /// <typeparam name="T5">其它实体类型</typeparam>
+        /// <typeparam name="T6">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source)
+        {
+            this.Update<T>((Expression)updateExpression, source);
+        }
+
+        /// <summary>
+        /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
+        /// <para>
+        /// 实用场景，将其它表的字段更新回目标表中
+        /// UPDATE a SET a.Field1=b.Field
+        /// From Table1
+        /// Join Table2 b ON xx=xx
+        /// </para>
+        /// <para>
+        /// 使用示例：
+        /// context.Update&lt;T,T1&gt;((a,b)=>new { a.Field1=b.Field1 },query)
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">给定实体的类型</typeparam>
+        /// <typeparam name="T1">其它实体类型</typeparam>
+        /// <typeparam name="T2">其它实体类型</typeparam>
+        /// <typeparam name="T3">其它实体类型</typeparam>
+        /// <typeparam name="T4">其它实体类型</typeparam>
+        /// <typeparam name="T5">其它实体类型</typeparam>
+        /// <typeparam name="T6">其它实体类型</typeparam>
+        /// <typeparam name="T7">其它实体类型</typeparam>
+        /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
+        /// <param name="source">要更新的实体查询语义</param>
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source)
         {
             this.Update<T>((Expression)updateExpression, source);
         }
@@ -271,8 +461,8 @@ namespace TZM.XFramework.Data
         protected void Update<T>(Expression updateExpression, IDbQueryable<T> source)
         {
             source = source.CreateQuery<T>(new DbExpression(DbExpressionType.Update, updateExpression));
-            lock (this._oLock)
-                _dbQueryables.Add(source);
+            //lock (this._oLock)
+            _dbQueryables.Add(source);
         }
 
         /// <summary>
@@ -288,8 +478,8 @@ namespace TZM.XFramework.Data
             if (!string.IsNullOrEmpty(sql))
             {
                 var query = new RawSql(sql, args);
-                lock (this._oLock)
-                    _dbQueryables.Add(query);
+                //lock (this._oLock)
+                _dbQueryables.Add(query);
             }
         }
 
@@ -299,8 +489,8 @@ namespace TZM.XFramework.Data
         /// <param name="query">查询语义</param>
         public void AddQuery(IDbQueryable query)
         {
-            lock (this._oLock)
-                _dbQueryables.Add(query);
+            //lock (this._oLock)
+            _dbQueryables.Add(query);
         }
 
         /// <summary>
@@ -309,45 +499,14 @@ namespace TZM.XFramework.Data
         /// <returns></returns>
         public virtual int SubmitChanges()
         {
-            int rowCount = _dbQueryables.Count;
-            if (rowCount == 0) return 0;
-
-            IDataReader reader = null;
-            List<int> identitys = null;
-            List<RawCommand> sqlList = this.Provider.Resolve(_dbQueryables);
-
-            Func<IDbCommand, object> doExecute = cmd =>
-            {
-                reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
-                do
-                {
-                    List<int> autoIncrements = null;
-                    deserializer.Deserialize<object>(out autoIncrements);
-                    if (autoIncrements != null && autoIncrements.Count > 0)
-                    {
-                        if (identitys == null) identitys = new List<int>();
-                        identitys.AddRange(autoIncrements);
-                    }
-                }
-                while (reader.NextResult());
-
-                // 释放当前的reader
-                if (reader != null) reader.Dispose();
-                return null;
-            };
-
-            try
-            {
-                this.Database.Execute<object>(sqlList, doExecute);
-                this.SetIdentityValue(_dbQueryables, identitys);
-                return rowCount;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
+            List<None> result1 = null;
+            List<None> result2 = null;
+            List<None> result3 = null;
+            List<None> result4 = null;
+            List<None> result5 = null;
+            List<None> result6 = null;
+            List<None> result7 = null;
+            return this.SubmitChanges(out result1, out result2, out result3, out result4, out result5, out result6, out result7);
         }
 
 #if !net40
@@ -399,78 +558,110 @@ namespace TZM.XFramework.Data
 #endif
 
         /// <summary>
-        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一个查询语义对应的实体序列。
         /// </summary>
         /// <typeparam name="T">T</typeparam>
-        /// <param name="result">提交更改并查询数据</param>
+        /// <param name="result">通过 AddQuery 添加的第一个查询语义对应的实体序列</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T>(out List<T> result)
         {
-            result = new List<T>();
-            int rowCount = _dbQueryables.Count;
-            if (rowCount == 0) return 0;
-
-            List<T> q1 = null;
-            IDataReader reader = null;
-            List<int> identitys = null;
-            List<RawCommand> sqlList = this.Resolve();
-
-            Func<IDbCommand, object> doExecute = cmd =>
-            {
-                reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(this.Database, reader, null);
-                do
-                {
-                    List<int> autoIncrements = null;
-                    var collection = deserializer.Deserialize<T>(out autoIncrements);
-                    if (autoIncrements != null)
-                    {
-                        if (identitys == null) identitys = new List<int>();
-                        identitys.AddRange(autoIncrements);
-                    }
-                    else if (collection != null)
-                    {
-                        if (q1 == null) q1 = collection;
-                    }
-                }
-                while (reader.NextResult());
-
-                // 释放当前的reader
-                if (reader != null) reader.Dispose();
-                return null;
-            };
-
-            try
-            {
-                this.Database.Execute<object>(sqlList, doExecute);
-                result = q1 ?? new List<T>(0);
-                this.SetIdentityValue(_dbQueryables, identitys);
-                return rowCount;
-            }
-            finally
-            {
-                if (reader != null) reader.Dispose();
-                this.InternalDispose();
-            }
+            result = new List<T>(0);
+            List<None> result2 = null;
+            List<None> result3 = null;
+            List<None> result4 = null;
+            List<None> result5 = null;
+            List<None> result6 = null;
+            List<None> result7 = null;
+            return this.SubmitChanges(out result, out result2, out result3, out result4, out result5, out result6, out result7);
         }
 
         /// <summary>
-        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一个和第二个查询语义对应的实体序列。
         /// </summary>
-        /// <typeparam name="T1">T</typeparam>
-        /// <typeparam name="T2">T</typeparam>
-        /// <param name="result1">结果集合</param>
-        /// <param name="result2">结果集合</param>
+        /// <typeparam name="T1">要返回的元素类型</typeparam>
+        /// <typeparam name="T2">要返回的元素类型</typeparam>
+        /// <param name="result1">第一个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result2">第二个通过 AddQuery 添加的查询语义对应的实体序列</param>
         /// <returns></returns>
         public virtual int SubmitChanges<T1, T2>(out List<T1> result1, out List<T2> result2)
         {
             result1 = new List<T1>();
             result2 = new List<T2>();
+            List<None> result3 = null;
+            List<None> result4 = null;
+            List<None> result5 = null;
+            List<None> result6 = null;
+            List<None> result7 = null;
+            return this.SubmitChanges(out result1, out result2, out result3, out result4, out result5, out result6, out result7);
+        }
+
+        /// <summary>
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一至第三个查询语义对应的实体序列。
+        /// </summary>
+        /// <typeparam name="T1">要返回的元素类型</typeparam>
+        /// <typeparam name="T2">要返回的元素类型</typeparam>
+        /// <typeparam name="T3">要返回的元素类型</typeparam>
+        /// <param name="result1">第一个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result2">第二个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result3">第三个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <returns></returns>
+        public virtual int SubmitChanges<T1, T2, T3>(out List<T1> result1, out List<T2> result2, out List<T3> result3)
+        {
+            result1 = new List<T1>();
+            result2 = new List<T2>();
+            result3 = new List<T3>();
+            List<None> result4 = null;
+            List<None> result5 = null;
+            List<None> result6 = null;
+            List<None> result7 = null;
+            return this.SubmitChanges(out result1, out result2, out result3, out result4, out result5, out result6, out result7);
+        }
+
+        /// <summary>
+        /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改。
+        /// 同时返回通过 AddQuery 添加的查询语义对应的实体序列。
+        /// 如果通过 AddQuery 添加了多个查询语义，只返回第一至第七个查询语义对应的实体序列。
+        /// </summary>
+        /// <typeparam name="T1">要返回的元素类型</typeparam>
+        /// <typeparam name="T2">要返回的元素类型</typeparam>
+        /// <typeparam name="T3">要返回的元素类型</typeparam>
+        /// <typeparam name="T4">要返回的元素类型</typeparam>
+        /// <typeparam name="T5">要返回的元素类型</typeparam>
+        /// <typeparam name="T6">要返回的元素类型</typeparam>
+        /// <typeparam name="T7">要返回的元素类型</typeparam>
+        /// <param name="result1">第一个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result2">第二个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result3">第三个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result4">第四个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result5">第五个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result6">第六个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <param name="result7">第七个通过 AddQuery 添加的查询语义对应的实体序列</param>
+        /// <returns></returns>
+        public virtual int SubmitChanges<T1, T2, T3, T4, T5, T6, T7>(out List<T1> result1, out List<T2> result2, out List<T3> result3, out List<T4> result4, out List<T5> result5, out List<T6> result6, out List<T7> result7)
+        {
+            result1 = new List<T1>();
+            result2 = new List<T2>();
+            result3 = new List<T3>();
+            result4 = new List<T4>();
+            result5 = new List<T5>();
+            result6 = new List<T6>();
+            result7 = new List<T7>();
             int rowCount = _dbQueryables.Count;
             if (rowCount == 0) return 0;
 
             List<T1> q1 = null;
             List<T2> q2 = null;
+            List<T3> q3 = null;
+            List<T4> q4 = null;
+            List<T5> q5 = null;
+            List<T6> q6 = null;
+            List<T7> q7 = null;
             IDataReader reader = null;
             List<int> identitys = null;
             List<RawCommand> sqlList = this.Resolve();
@@ -481,6 +672,11 @@ namespace TZM.XFramework.Data
                 reader = this.Database.ExecuteReader(cmd);
                 TypeDeserializer deserializer1 = null;
                 TypeDeserializer deserializer2 = null;
+                TypeDeserializer deserializer3 = null;
+                TypeDeserializer deserializer4 = null;
+                TypeDeserializer deserializer5 = null;
+                TypeDeserializer deserializer6 = null;
+                TypeDeserializer deserializer7 = null;
                 do
                 {
                     if (q1 == null)
@@ -500,7 +696,7 @@ namespace TZM.XFramework.Data
                             q1 = collection;
                         }
                     }
-                    else
+                    else if (q2 == null)
                     {
                         // 再查第二个类型集合
                         List<int> autoIncrements = null;
@@ -517,7 +713,91 @@ namespace TZM.XFramework.Data
                             if (q2 == null) q2 = collection;
                         }
                     }
+                    else if (q3 == null)
+                    {
+                        // 再查第三个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer3 == null) deserializer3 = new TypeDeserializer(this.Database, reader, maps.Count > 2 ? maps[2] : null);
+                        var collection = deserializer3.Deserialize<T3>(out autoIncrements);
 
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q3 == null) q3 = collection;
+                        }
+                    }
+                    else if (q4 == null)
+                    {
+                        // 再查第四个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer4 == null) deserializer4 = new TypeDeserializer(this.Database, reader, maps.Count > 3 ? maps[3] : null);
+                        var collection = deserializer4.Deserialize<T4>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q4 == null) q4 = collection;
+                        }
+                    }
+                    else if (q5 == null)
+                    {
+                        // 再查第五个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer5 == null) deserializer5 = new TypeDeserializer(this.Database, reader, maps.Count > 4 ? maps[4] : null);
+                        var collection = deserializer5.Deserialize<T5>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q5 == null) q5 = collection;
+                        }
+                    }
+                    else if (q6 == null)
+                    {
+                        // 再查第六个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer6 == null) deserializer6 = new TypeDeserializer(this.Database, reader, maps.Count > 5 ? maps[5] : null);
+                        var collection = deserializer6.Deserialize<T6>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q6 == null) q6 = collection;
+                        }
+                    }
+                    else
+                    {
+                        // 再查第七个类型集合
+                        List<int> autoIncrements = null;
+                        if (deserializer7 == null) deserializer7 = new TypeDeserializer(this.Database, reader, maps.Count > 6 ? maps[6] : null);
+                        var collection = deserializer7.Deserialize<T7>(out autoIncrements);
+
+                        if (autoIncrements != null)
+                        {
+                            if (identitys == null) identitys = new List<int>();
+                            identitys.AddRange(autoIncrements);
+                        }
+                        else if (collection != null)
+                        {
+                            if (q7 == null) q7 = collection;
+                        }
+                    }
                 }
                 while (reader.NextResult());
 
@@ -531,6 +811,11 @@ namespace TZM.XFramework.Data
                 this.Database.Execute<object>(sqlList, doExecute);
                 result1 = q1 ?? new List<T1>(0);
                 result2 = q2 ?? new List<T2>(0);
+                result3 = q3 ?? new List<T3>(0);
+                result4 = q4 ?? new List<T4>(0);
+                result5 = q5 ?? new List<T5>(0);
+                result6 = q6 ?? new List<T6>(0);
+                result7 = q7 ?? new List<T7>(0);
                 this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
@@ -544,6 +829,8 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 返回特定类型的对象的集合，其中类型由 T 参数定义
         /// </summary>
+        /// <typeparam name="T">对象的基类型</typeparam>
+        /// <returns></returns>
         public IDbQueryable<T> GetTable<T>()
         {
             DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
@@ -593,7 +880,8 @@ namespace TZM.XFramework.Data
         /// </summary>
         protected void InternalDispose()
         {
-            lock (this._oLock) this._dbQueryables.Clear();
+            //lock (this._oLock) 
+            this._dbQueryables.Clear();
         }
 
         #endregion
