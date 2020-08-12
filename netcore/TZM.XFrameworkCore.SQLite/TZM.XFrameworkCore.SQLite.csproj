@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>2.2.0</Version>
+    <Version>2.3</Version>
     <Authors>TANZAME</Authors>
     <Company>TANZAME</Company>
     <PackageProjectUrl>https://github.com/TANZAME/TZM.XFramework</PackageProjectUrl>
@@ -11,8 +11,8 @@
     <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
     <Description>SQLite provider for TZM.XFrameworkCore.</Description>
     <RepositoryUrl>https://github.com/TANZAME/TZM.XFramework</RepositoryUrl>
-    <AssemblyVersion>2.2.0</AssemblyVersion>
-    <FileVersion>2.2.0</FileVersion>
+    <AssemblyVersion>2.3</AssemblyVersion>
+    <FileVersion>2.3</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
