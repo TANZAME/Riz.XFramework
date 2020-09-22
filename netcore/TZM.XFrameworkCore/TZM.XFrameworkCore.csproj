@@ -121,6 +121,7 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbContext45.cs" Link="Data\Infrastructure\IDbContext45.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable.cs" Link="Data\Infrastructure\IDbQueryable.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs" Link="Data\Infrastructure\IDbQueryable`1.cs" />
+    <Compile Include="..\..\net45\TZM.XFramework\Data\OrderBy.cs" Link="Data\OrderBy.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo.cs" Link="Data\Parsing\DbQueryableInfo.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo_Delete.cs" Link="Data\Parsing\DbQueryableInfo_Delete.cs" />
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo_Insert.cs" Link="Data\Parsing\DbQueryableInfo_Insert.cs" />

@@ -449,7 +449,7 @@ namespace TZM.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = Data.DbFunction.RowNumber<long>(a.DemoCode, false)
+                    RowNumber = Data.DbFunction.RowNumber(a.DemoCode)
                 });
             var reuslt1 = query1.ToList();
             Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
@@ -463,7 +463,7 @@ namespace TZM.XFramework.UnitTest
             .GetTable<Model.ClientAccount>()
             .Select(a => new
             {
-                RowNumber = Data.DbFunction.PartitionRowNumber<long>(a.ClientId, a.AccountId, true)
+                RowNumber = Data.DbFunction.PartitionRowNumber(a.ClientId, a.AccountId)
             });
             reuslt1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.ToString());

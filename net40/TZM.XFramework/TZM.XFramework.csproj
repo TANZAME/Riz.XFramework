@@ -290,6 +290,9 @@
     <Compile Include="..\..\net45\TZM.XFramework\Data\Infrastructure\IDbQueryable`1.cs">
       <Link>Data\Infrastructure\IDbQueryable`1.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\TZM.XFramework\Data\OrderBy.cs">
+      <Link>Data\OrderBy.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\TZM.XFramework\Data\Parsing\DbQueryableInfo.cs">
       <Link>Data\Parsing\DbQueryableInfo.cs</Link>
     </Compile>
