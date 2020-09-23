@@ -19,6 +19,6 @@ namespace TZM.XFramework.Data
         /// <summary>
         /// 倒序
         /// </summary>
-        DES = 2
+        DESC = 2
     }
 }

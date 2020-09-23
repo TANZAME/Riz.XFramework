@@ -182,7 +182,7 @@ namespace TZM.XFramework.UnitTest
                 {
                     DemoDate = a.DemoDateTime2_Nullable.Value,
                     DemoId = a.DemoId,
-                    DemoCode = a.DemoName == "张三" ? "李四" : "王五",
+                    DemoCode = Data.DbFunction.CaseWhen(a.DemoName == "张1", "李1").When(a.DemoName == "张2", "李2").End("李李"), //a.DemoName == "张三" ? "李四" : "王五",
                     DemoName = a.DemoCode == "张三" ? "李四" : "王五",
                     DemoChar = 'A',
                     DemoNChar = 'B',
@@ -458,6 +458,15 @@ namespace TZM.XFramework.UnitTest
             //ROW_NUMBER() Over(Order By t0.[DemoCode]) AS [RowNumber]
             //FROM [Sys_Demo] t0 
 
+            var query2 =
+                 context
+                .GetTable<TDemo>()
+                .Select(a => new
+                {
+                    RowNumber = Data.DbFunction.RowNumber<long, string>(a.DemoCode, OrderBy.DESC)
+                });
+            var result2_0 = query2.ToList();
+
             query1 =
             context
             .GetTable<Model.ClientAccount>()
@@ -467,6 +476,14 @@ namespace TZM.XFramework.UnitTest
             });
             reuslt1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.ToString());
+            query2 =
+                context
+            .GetTable<Model.ClientAccount>()
+                .Select(a => new
+                {
+                    RowNumber = Data.DbFunction.PartitionRowNumber<long, int, string>(a.ClientId, a.AccountId, OrderBy.DESC)
+                });
+            result2_0 = query2.ToList();
 
             // DataTable
             query = from a in context.GetTable<TDemo>()
