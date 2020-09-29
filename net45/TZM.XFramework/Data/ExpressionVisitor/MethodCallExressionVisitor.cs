@@ -1175,7 +1175,7 @@ namespace TZM.XFramework.Data
             if (m.Arguments.Count > 1)
             {
                 var c = (ConstantExpression)m.Arguments[1];
-                if (!((bool)c.Value)) _builder.Append(" DESC");
+                if (((OrderBy)c.Value) == OrderBy.DESC) _builder.Append(" DESC");
             }
 
             _builder.Append(')');
@@ -1200,10 +1200,50 @@ namespace TZM.XFramework.Data
             if (m.Arguments.Count > 2)
             {
                 var c = (ConstantExpression)m.Arguments[2];
-                if (!((bool)c.Value)) _builder.Append(" DESC");
+                if (((OrderBy)c.Value) == OrderBy.DESC) _builder.Append(" DESC");
             }
 
             _builder.Append(')');
+            return m;
+        }
+
+        /// <summary>
+        /// 访问 CASE WHEN 方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected virtual Expression VisitEnd(MethodCallExpression m)
+        {
+            var stack = new Stack<MethodCallExpression>();
+            stack.Push(m);
+
+            MethodCallExpression me = m.Object as MethodCallExpression;
+            while (me != null)
+            {
+                stack.Push(me);
+                me = me.Object as MethodCallExpression;
+            }
+
+            _builder.Append("CASE");
+            me = stack.Pop();
+            while (me != null)
+            {
+                if (me == m)
+                {
+                    _builder.Append(" ELSE ");
+                    _visitor.Visit(me.Arguments[0]);
+                    _builder.Append(" END");
+                }
+                else
+                {
+                    _builder.Append(" WHEN ");
+                    _visitor.Visit(me.Arguments[0]);
+                    _builder.Append(" THEN ");
+                    _visitor.Visit(me.Arguments[1]);
+                }
+
+                me = stack.Count > 0 ? stack.Pop() : null;
+            }
+
             return m;
         }
 
