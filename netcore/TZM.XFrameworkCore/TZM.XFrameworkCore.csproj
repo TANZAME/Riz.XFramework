@@ -7,9 +7,9 @@
     <Description>TZM.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.3</AssemblyVersion>
-    <FileVersion>2.3</FileVersion>
-    <Version>2.3</Version>
+    <AssemblyVersion>2.3.1</AssemblyVersion>
+    <FileVersion>2.3.1</FileVersion>
+    <Version>2.3.1</Version>
     <Copyright>TANZAME</Copyright>
     <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

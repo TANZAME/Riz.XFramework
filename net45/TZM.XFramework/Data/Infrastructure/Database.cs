@@ -808,24 +808,24 @@ namespace TZM.XFramework.Data
             return TResult;
         }
 
-        ///// <summary>
-        ///// 解析生成参数
-        ///// </summary>
-        ///// <param name="component">SQL 参数源</param>
-        ///// <returns></returns>
-        //protected IEnumerable<IDbDataParameter> GetParameters(object component)
-        //{
-        //    List<IDbDataParameter> result = null;
-        //    PropertyDescriptorCollection descriptors = TypeDescriptor.GetProperties(component);
-        //    foreach (PropertyDescriptor property in descriptors)
-        //    {
-        //        if (result == null) result = new List<IDbDataParameter>(descriptors.Count);
-        //        object value = property.GetValue(component);
-        //        result.Add(this.CreateParameter(property.Name, value));
-        //    }
+        /// <summary>
+        /// 解析生成参数
+        /// </summary>
+        /// <param name="component">SQL 参数源</param>
+        /// <returns></returns>
+        protected IEnumerable<IDbDataParameter> GetParameters(object component)
+        {
+            List<IDbDataParameter> result = null;
+            PropertyDescriptorCollection descriptors = TypeDescriptor.GetProperties(component);
+            foreach (PropertyDescriptor property in descriptors)
+            {
+                if (result == null) result = new List<IDbDataParameter>(descriptors.Count);
+                object value = property.GetValue(component);
+                result.Add(this.CreateParameter(property.Name, value));
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
 
         /// <summary>
         /// 解析生成参数
@@ -871,9 +871,9 @@ namespace TZM.XFramework.Data
             {
             }
 
-            public int FillFromReader(DataSet ds, IDataReader dataReader, int startRecord, int maxRecords)
+            public int FillFromReader(DataSet result, IDataReader dataReader, int startRecord, int maxRecords)
             {
-                return this.Fill(ds, "Table", dataReader, startRecord, maxRecords);
+                return this.Fill(result, "Table", dataReader, startRecord, maxRecords);
             }
         }
 
