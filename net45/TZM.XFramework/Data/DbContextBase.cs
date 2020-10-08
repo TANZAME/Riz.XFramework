@@ -856,6 +856,63 @@ namespace TZM.XFramework.Data
 
             });
             return query;
+
+
+            // var query =
+            //from a in context.GetTable<Client>()
+            //     // 最新订单
+            // join b in newestQuery on a.ClientId equals b.ClientId into u_b
+
+            // // 注册推荐码    
+            // join c in context.GetTable<Client, RecommendationCode>(a => a.RegRecommendationCode) on a.RegRecommendationId equals c.RecommendationId into u_c
+            // // 注册推荐码对应的合作商
+            // from c in u_c.DefaultIfEmpty()
+            //join d in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = c.ServiceAgentId } equals new { A0 = d.PartnerType, B0 = d.PartnerId } into u_d
+            //join e in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = c.SaleAgentId } equals new { A0 = e.PartnerType, B0 = e.PartnerId } into u_e
+
+            // // 推荐码    
+            // join f in context.GetTable<Client, RecommendationCode>(a => a.RecommendationCode) on a.RecommendationId equals f.RecommendationId into u_f
+            // // 推荐码对应的合作商
+            // from f in u_f.DefaultIfEmpty()
+            //join g in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = f.ServiceAgentId } equals new { A0 = g.PartnerType, B0 = g.PartnerId } into u_g
+            //join h in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = f.SaleAgentId } equals new { A0 = h.PartnerType, B0 = h.PartnerId } into u_h
+
+            //from b in u_b.DefaultIfEmpty()
+            //from d in u_d.DefaultIfEmpty()
+            //from e in u_e.DefaultIfEmpty()
+            //from g in u_g.DefaultIfEmpty()
+            //from h in u_h.DefaultIfEmpty()
+            //select new Client(a)
+            //{
+            //    PartnerShortName = h.PartnerId != null ? h.ShortName : (g.PartnerId != null ? g.ShortName : (e.PartnerId != null ? e.ShortName : d.ShortName)),
+            //    Employee = new Employee { Deletable = canEidtEmployee, EmployeeCode = a.Employee.EmployeeCode, EmployeeName = a.Employee.EmployeeName },
+            //    Operation = new Employee { Deletable = canEidtOperation, EmployeeName = a.Operation.EmployeeName },
+            //    CS = new Employee { Deletable = canEidtCs, EmployeeName = a.CS.EmployeeName },
+            //    Manager = new Employee { EmployeeName = a.Manager.EmployeeName },
+            //    Signature = new Employee { EmployeeName = a.Signature.EmployeeName },
+            //    Package = new Package { PackageType = a.Package.PackageType, PackageCode = a.Package.PackageCode, PackageName = a.Package.PackageName },
+            //    RegRecommendationCode = new RecommendationCode
+            //    {
+            //        SaleType = c.SaleType,
+            //        RecommendationName = c.RecommendationName
+            //    },
+            //    RecommendationCode = new RecommendationCode
+            //    {
+            //        SaleType = f.SaleType,
+            //        RecommendationName = f.RecommendationName
+            //    },
+            //    NewestOrder = new SaleOrder
+            //    {
+            //        OrderId = b.OrderId,
+            //        OrderNo = b.OrderNo,
+            //        EmployeeId = b.EmployeeId,
+            //        EmployeeName = b.EmployeeName,
+            //        PayDate = b.PayDate,
+            //        PayAmount = b.PayAmount,
+            //        ClientId = b.ClientId,
+            //        Currency = b.Currency
+            //    }
+            //};
         }
 
         /// <summary>
