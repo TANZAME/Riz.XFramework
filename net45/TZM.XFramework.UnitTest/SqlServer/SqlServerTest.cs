@@ -12,7 +12,7 @@ namespace TZM.XFramework.UnitTest.SqlServer
 {
     public class SqlServerTest : TestBase<SqlServerModel.SqlServerDemo>
     {
-        const string connString = "Server=.;Database=TZM_XFramework;uid=sa;pwd=123456;pooling=true;max pool size=1;min pool size=1;connect timeout=10;";
+        const string connString = "Server=.;Database=Riz_XFramework;uid=sa;pwd=123456;pooling=true;max pool size=1;min pool size=1;connect timeout=10;";
 
         public override IDbContext CreateDbContext()
         {

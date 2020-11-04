@@ -521,6 +521,7 @@ namespace TZM.XFramework.Data
 
                 // 如果是 a=> a 这种表达式，那么一定会指定 elementSelector
                 if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[1];
+                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
 
                 _builder.Append(_aggregateMethods[dbExpressionType]);
                 _builder.Append("(");
