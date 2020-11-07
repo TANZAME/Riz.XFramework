@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Riz.XFramework.SQLite</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+	<license type="expression">Apache-2.0</license>
+    <projectUrl>https://github.com/TANZAME/Riz.XFramework</projectUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
+    <description>SQLite provider for Riz.XFramework.</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>.NET SQLite Database Data O/RM ADO.NET</tags>
+    <repository type="git" url="https://github.com/TANZAME/Riz.XFramework" />
+	<dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="Riz.XFramework" version="$version$" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <references>
+      <group targetFramework=".NETFramework4.5">
+        <reference file="System.Data.SQLite.dll" />
+        <reference file="Riz.XFramework.SQLite.dll" />
+      </group>
+    </references>
+  </metadata>
+  <files>
+	<file src="lib\runtimes\**" target="lib\runtimes" />
+	<file src="lib\System.Data.SQLite.dll" target="lib\net45" />
+  </files>
+</package>

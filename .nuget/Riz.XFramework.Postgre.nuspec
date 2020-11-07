@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Riz.XFramework.Postgre</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+	<license type="expression">Apache-2.0</license>
+    <projectUrl>https://github.com/TANZAME/Riz.XFramework</projectUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
+    <description>PostgreSQL/Npgsql provider for Riz.XFramework.</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</tags>
+    <repository type="git" url="https://github.com/TANZAME/Riz.XFramework" />
+	<dependencies>
+	  <group targetFramework=".NETFramework4.5">
+        <dependency id="Riz.XFramework" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="Npgsql" version="2.2.3" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

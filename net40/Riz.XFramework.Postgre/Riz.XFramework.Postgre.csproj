@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B21281BE-BD14-46AB-921C-E46564507F20}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Riz.XFramework.Postgre</RootNamespace>
+    <AssemblyName>Riz.XFramework.Postgre</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>
+    </NoWarn>
+    <DocumentationFile>bin\Debug\Riz.XFramework.Postgre.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Riz.XFramework.Postgre.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Npgsql, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NpgJoinExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NpgUpdateExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\NpgWhereExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\NpgDbContext.cs">
+      <Link>Data\SqlClient\NpgDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\NpgDbQueryProvider.cs">
+      <Link>Data\SqlClient\NpgDbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\NpgDbValueResolver.cs">
+      <Link>Data\SqlClient\NpgDbValueResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\NpgMethodCallExressionVisitor.cs">
+      <Link>Data\SqlClient\NpgMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\SqlClient\NpgSqlBuilder.cs">
+      <Link>Data\SqlClient\NpgSqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\TypeDeserialize\NpgSelectCommand.cs">
+      <Link>Data\TypeDeserialize\NpgSelectCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Data\TypeDeserialize\NpgTypeDeserializerImpl.cs">
+      <Link>Data\TypeDeserialize\NpgTypeDeserializerImpl.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.Postgre\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj">
+      <Project>{2e5450df-ed7f-4926-88ee-36f4923ae1f8}</Project>
+      <Name>Riz.XFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{37D944E7-B96F-434D-B535-E612AB72DF4C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Riz.XFramework.SQLite</RootNamespace>
+    <AssemblyName>Riz.XFramework.SQLite</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Riz.XFramework.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Riz.XFramework.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.111.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj">
+      <Project>{2e5450df-ed7f-4926-88ee-36f4923ae1f8}</Project>
+      <Name>Riz.XFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs">
+      <Link>Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs">
+      <Link>Data\Infrastructure\SQLiteDatabase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Parsing\IWithRowId .cs">
+      <Link>Data\Parsing\IWithRowId .cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Parsing\SQLiteDbQuerySelectTree.cs">
+      <Link>Data\Parsing\SQLiteDbQuerySelectTree.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs">
+      <Link>Data\SqlClient\DbTypeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs">
+      <Link>Data\SqlClient\SQLiteDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs">
+      <Link>Data\SqlClient\SQLiteDbQueryProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbValueResolver.cs">
+      <Link>Data\SqlClient\SQLiteDbValueResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs">
+      <Link>Data\SqlClient\SQLiteMethodCallExressionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteTranslateContext.cs">
+      <Link>Data\SqlClient\SQLiteTranslateContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\TypeDeserialize\SQLiteTypeDeserializerImpl.cs">
+      <Link>Data\TypeDeserialize\SQLiteTypeDeserializerImpl.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
