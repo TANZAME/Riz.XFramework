@@ -39,9 +39,22 @@ PM> Install-Package Riz.XFramework
 [Table(Name = "Bas_Client")]
 public partial class Client
 {
+    [Column(IsKey = true)]
     public virtual int ClientId { get; set; }
     public virtual string ClientCode { get; set; }
     public virtual string ClientName { get; set; }
+    public virtual int CloudServerId { get; set; }
+    [ForeignKey("CloudServerId")]
+    public IList<CloudServer> CloudServer { get; set; }
+}
+
+[Table(Name = "Sys_CloudServer")]
+public partial class CloudServer
+{
+    [Column(IsKey = true)]
+    public virtual int CloudServerId { get; set; }
+    public virtual string CloudServerCode { get; set; }
+    public virtual string CloudServerName { get; set; }
 }
 ```
 > #### 基本用法
@@ -52,4 +65,15 @@ const string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;conn
 // SqlServer
 var context = new SqlServerDbContext(connString);
 var data = context.GetTable<Client>().Where(a => a.ClientId <= 10).ToList();
+data = context
+    .GetTable<Model.Client>()
+    .Include(a => a.CloudServer, a => new
+    {
+        CloudServerCode = a.CloudServer.CloudServerCode
+    })
+    .ToList();
 ```
+:memo: 更详细用法见[Wiki](https://github.com/TANZAME/Riz.XFramework/wiki)
+> #### 支持作者
+![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
+
