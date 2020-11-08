@@ -34,9 +34,8 @@ PM> Install-Package Riz.XFramework
 | Oracle     | Riz.XFramework.Oracle  | Riz.XFrameworkCore.Oracle  |
 | Postgre    | Riz.XFramework.Postgre | Riz.XFrameworkCore.Postgre |
 | SQLite     | Riz.XFramework.SQLite  | Riz.XFrameworkCore.Postgre |
-- ###### 实体定义
-
-```
+> #### 定义实体
+```C#
 [Table(Name = "Bas_Client")]
 public partial class Client
 {
