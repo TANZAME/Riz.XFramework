@@ -66,7 +66,7 @@ const string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;conn
 var context = new SqlServerDbContext(connString);
 var data = context.GetTable<Client>().Where(a => a.ClientId <= 10).ToList();
 data = context
-    .GetTable<Model.Client>()
+    .GetTable<Client>()
     .Include(a => a.CloudServer, a => new
     {
         CloudServerCode = a.CloudServer.CloudServerCode
