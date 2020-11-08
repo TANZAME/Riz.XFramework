@@ -1260,14 +1260,16 @@ namespace TZM.XFramework.UnitTest
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
-                group a by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
+                group a.Qty by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
                 select new Model.Client
                 {
                     ClientId = g.Key.ClientId,
                     ClientCode = g.Key.ClientCode,
                     ClientName = g.Key.ClientName,
                     CloudServerId = g.Key.CloudServerId,
-                    Qty = g.Sum(a => a.Qty)
+                    //Qty = g.Sum(a => a.Qty),
+                    //State = (byte)(g.Count())
+                    Qty = g.Sum(a => a),
                 };
             query1 = query1
                 .Where(a => a.ClientId > 0)
@@ -1277,6 +1279,27 @@ namespace TZM.XFramework.UnitTest
                 ;
             var result1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.ToString());
+
+            query1 =
+                from a in
+                    context
+                    .GetTable<Model.Client>()
+                    .Include(a => a.CloudServer)
+                    .Include(a => a.Accounts)
+                    .Include(a => a.Accounts[0].Markets)
+                    .Include(a => a.Accounts[0].Markets[0].Client)
+                group a by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
+                select new Model.Client
+                {
+                    ClientId = g.Key.ClientId,
+                    ClientCode = g.Key.ClientCode,
+                    ClientName = g.Key.ClientName,
+                    CloudServerId = g.Key.CloudServerId,
+                    Qty = g.Sum(a => a.Qty),
+                    State = (byte)(g.Count())
+                    //Qty = g.Sum(a => a),
+                };
+            result1 = query1.ToList();
             //SQL=>
             //SELECT 
             //t0.[ClientId] AS [ClientId],
