@@ -3,7 +3,7 @@
 Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API。支持 Fx 4.0+ 和 .NETCore3.0，支持批量增删改查、导航属性、链式查询（点标记）和查询表达式等等。
 
 [![NuGet](https://img.shields.io/nuget/vpre/Riz.XFramework.svg)](https://www.nuget.org/packages/Riz.XFramework)
-[![stats](https://img.shields.io/nuget/dt/Riz.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/Riz.XFramework?groupby=Version) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)]
+[![stats](https://img.shields.io/nuget/dt/Riz.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/Riz.XFramework?groupby=Version) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/Riz.XFramework/blob/master/LICENSE.txt)
 
 <p align="center">
