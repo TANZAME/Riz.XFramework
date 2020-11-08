@@ -4,7 +4,7 @@
 [![stats](https://img.shields.io/nuget/dt/TZM.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/TZM.XFramework?groupby=Version) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/Riz.XFramework/blob/master/LICENSE.txt)
 
-Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API，支持 Fx 4.0+ 和 .NETCore3.1+。
+Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API，支持 Fx 4.0+ 和 NetCore3.1+。
 
 ## 亮点
 - 原生 EF 语法，完整的代码注释，零门槛上手
@@ -15,7 +15,8 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 - 支持 Postgre、Oracle 大小写敏感
 - 支持无限级一对一、一对多导航属性和延迟加载
 - 支持不同字段类型之间的智能映射
-- 支持原生ADO.NET操作、临时表、表变量操作
+- 支持实体属性名称和数据库字段名称映射
+- 支持原生 Ado.Net 操作、临时表、表变量操作
 
 ## 联系方式
 - Email：tian_naixiang@sina.com 
