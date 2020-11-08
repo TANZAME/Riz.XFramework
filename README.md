@@ -27,7 +27,7 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 ```
 PM> Install-Package Riz.XFramework
 ```
-|            | Fx 4.5                 | NetCore                    |
+|     #      | Fx 4.5                 | NetCore                    |
 | --------   | -----                  | ----                       |
 | SqlServer  | Riz.XFramework         | Riz.XFrameworkCore         |
 | MySql      | Riz.XFramework.MySql   | Riz.XFrameworkCore.MySql   |
