@@ -47,6 +47,7 @@ public partial class Client
     [ForeignKey("CloudServerId")]
     public IList<CloudServer> CloudServer { get; set; }
 }
+
 [Table(Name = "Sys_CloudServer")]
 public partial class CloudServer
 {
@@ -69,7 +70,10 @@ data = context
     .Include(a => a.CloudServer, a => new
     {
         CloudServerCode = a.CloudServer.CloudServerCode
-    });
+    })
+    .ToList();
 ```
-更多用
+[详细文档](https://github.com/TANZAME/Riz.XFramework/wiki)
+> #### 支持作者
+![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
 
