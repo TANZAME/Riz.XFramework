@@ -11,8 +11,8 @@ namespace Riz.XFramework
     {
         #region 私有属性
 
-        private string _adressIsEmpty = "email address is empty.";
-        private string _adressInvalid = "invalid email address";
+        private const string ADRESSISEMPTY = "email address is empty.";
+        private const string ADRESSINVALID = "invalid email address";
         private string _to;               //收件人
         private string _cc;               //抄送
         private string _content;          //邮件内容
@@ -223,7 +223,7 @@ namespace Riz.XFramework
                 if (checkEmpty)
                 {
                     //邮件地址不能为 null.
-                    throw new XFrameworkException(_adressIsEmpty);
+                    throw new XFrameworkException(ADRESSISEMPTY);
                 }
                 else
                 {
@@ -240,7 +240,7 @@ namespace Riz.XFramework
                 if (!System.Text.RegularExpressions.Regex.IsMatch(tos[i], @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"))
                 {
                     //无效的邮件地址.
-                    throw new XFrameworkException(_adressInvalid + address + "'");
+                    throw new XFrameworkException(ADRESSINVALID + address + "'");
                 }
             }
 
