@@ -73,7 +73,7 @@ data = context
     })
     .ToList();
 ```
-> #### [详细文档](https://github.com/TANZAME/Riz.XFramework/wiki)
+:memo: [详细文档](https://github.com/TANZAME/Riz.XFramework/wiki)
 > #### 支持作者
 ![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
 
