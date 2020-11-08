@@ -27,33 +27,13 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 ```
 PM> Install-Package Riz.XFramework
 ```
-|            | Fx 4.5                | NetCore  |
-| --------   | -----                 | ---- |
-| SqlServer  | Riz.XFramework        | Riz.XFrameworkCore         |
-| MySql      | Riz.XFramework.MySql  | Riz.XFrameworkCore.MySql   |
-| Oracle     | Riz.XFramework.Oracle | Riz.XFrameworkCore.Oracle  |
-| Postgre    | Riz.XFramework.Postgre| Riz.XFrameworkCore.Postgre |
-| SQLite     | Riz.XFramework.SQLite | Riz.XFrameworkCore.Postgre |
-
-PM> Install-Package TZM.XFramework
-
-
-```
-.net 4.5
-SqlServer => TZM.XFramework
-MySql     => TZM.XFramework.MySql
-Oracle    => TZM.XFramework.Oracle
-Postgre   => TZM.XFramework.Postgre
-SQLite    => TZM.XFramework.Postgre
-```
-
-```
-.net core
-SqlServer => TZM.XFrameworkCore
-MySql     => TZM.XFrameworkCore.MySql
-Oracle    => TZM.XFrameworkCore.Oracle
-Postgre   => TZM.XFrameworkCore.Postgre
-```
+|            | Fx 4.5                 | NetCore                    |
+| --------   | -----                  | ----                       |
+| SqlServer  | Riz.XFramework         | Riz.XFrameworkCore         |
+| MySql      | Riz.XFramework.MySql   | Riz.XFrameworkCore.MySql   |
+| Oracle     | Riz.XFramework.Oracle  | Riz.XFrameworkCore.Oracle  |
+| Postgre    | Riz.XFramework.Postgre | Riz.XFrameworkCore.Postgre |
+| SQLite     | Riz.XFramework.SQLite  | Riz.XFrameworkCore.Postgre |
 - ###### 实体定义
 
 ```
