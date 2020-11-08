@@ -6,10 +6,6 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 [![stats](https://img.shields.io/nuget/dt/Riz.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/Riz.XFramework?groupby=Version) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/Riz.XFramework/blob/master/LICENSE.txt)
 
-<p align="center">
-  <img src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200510093234A5FIJFHGJE6XVGH4IJ.png"/>
-</p>
-
 ## 亮点
 - 原生 EF 语法，完整的代码注释，零门槛上手
 - 支持 Linq 查询、拉姆达表达式
