@@ -46,10 +46,10 @@ public partial class Client
 ```
 > #### 基本用法
 ```C#
--- 声明数据库链接字符串
+// 声明数据库链接字符串
 const string connString = "Server=.;Database=***;uid=**;pwd=**;pooling=true;connect timeout=10;";
--- 实例化数据上下文
--- SqlServer
+// 实例化数据上下文
+// SqlServer
 var context = new SqlServerDbContext(connString);
 var data = context.GetTable<Client>().Where(a => a.ClientId <= 10).ToList();
 ```
