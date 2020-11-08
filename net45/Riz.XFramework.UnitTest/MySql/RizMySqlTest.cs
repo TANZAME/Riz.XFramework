@@ -55,7 +55,7 @@ namespace Riz.XFramework.UnitTest.MySql
             var context = _newContext();
             string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
 #if netcore
-
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
 
 #endif
