@@ -6,7 +6,7 @@
 
 Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API，支持 Fx 4.0+ 和 NetCore3.1+。
 
-## 亮点
+## 功能特点
 - 原生 EF 语法，完整的代码注释，零门槛上手
 - 支持 Linq 查询、拉姆达表达式
 - 支持丰富的表达式函数
