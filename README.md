@@ -75,5 +75,5 @@ data = context
 ```
 :memo: 更详细用法见[Wiki](https://github.com/TANZAME/Riz.XFramework/wiki)
 > #### 支持作者
-![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
+![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.png)
 
