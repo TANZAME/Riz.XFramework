@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="100" src="https://images.cnblogs.com/cnblogs_com/yiting/816517/o_200509140030Cgp3O1eXACaAGPjjAAI1Ux2fNtk168.png"/>
+  <img height="100" src="https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/logo.png"/>
 </p>
 
 Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API。支持 Fx 4.0+ 和 .NETCore3.0，支持批量增删改查、导航属性、链式查询（点标记）和查询表达式等等。
