@@ -24,14 +24,16 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 ***
 #### 快速开始
 > #### 安装
-
-|         | Fx 4.5    |  NetCore  |
-| --------   | -----   | ---- |
-| SqlServer  | PM> Install-Package Riz.XFramework      |   5    |
-| MySql      | PM> Install-Package Riz.XFramework.MySql       |   6    |
-| Oracle     | PM> Install-Package Riz.XFramework.Oracle       |   7    |
-| Postgre    | PM> Install-Package Riz.XFramework.Postgre       |   7    |
-| SQLite     | PM> Install-Package Riz.XFramework.Postgre       |   7    |
+```
+PM> Install-Package Riz.XFramework
+```
+|            | Fx 4.5                | NetCore  |
+| --------   | -----                 | ---- |
+| SqlServer  | Riz.XFramework        | Riz.XFrameworkCore         |
+| MySql      | Riz.XFramework.MySql  | Riz.XFrameworkCore.MySql   |
+| Oracle     | Riz.XFramework.Oracle | Riz.XFrameworkCore.Oracle  |
+| Postgre    | Riz.XFramework.Postgre| Riz.XFrameworkCore.Postgre |
+| SQLite     | Riz.XFramework.SQLite | Riz.XFrameworkCore.Postgre |
 
 PM> Install-Package TZM.XFramework
 
