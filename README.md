@@ -24,13 +24,13 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 ***
 #### 快速开始
 - ###### 安装
-```
+
 |     | Fx 4.5  | Net Core  |
 |  ----  | ----  | 表头  |
 | 单元格  | 单元格 | 表头  |
 | 单元格  | 单元格 | 表头  |
 PM> Install-Package TZM.XFramework
-```
+
 
 ```
 .net 4.5
