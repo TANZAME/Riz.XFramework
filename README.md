@@ -39,38 +39,11 @@ PM> Install-Package Riz.XFramework
 [Table(Name = "Bas_Client")]
 public partial class Client
 {
-    public Client()
-    {
-    }
-
-    public Client(Client model)
-    {
-    }
-
-    [Column(IsKey = true)]
     public virtual int ClientId { get; set; }
-
-    [Column(DbType = System.Data.DbType.AnsiString, Size = 32)]
     public virtual string ClientCode { get; set; }
-
-    [Column(Default = 0)]
-    public virtual int CloudServerId { get; set; }
-
-    [Column(Default = "'默认值'")]
-    public virtual string Remark { get; set; }
-
-    [ForeignKey("CloudServerId")]
-    public virtual CloudServer LocalServer { get; set; }
-
-    [ForeignKey("ClientId")]
-    public virtual List<ClientAccount> Accounts { get; set; }
+    public virtual string ClientName { get; set; }
 }
 ```
-    > 如果类有 TableAttribute，则用 TableAttribute 指定的名称做为表名，否则用类名称做为表名
-    > 实体的字段可以指定 ColumnAttribute 特性来说明实体字段与表字段的对应关系，删除/更新时如果传递的参数是一个实体，必须使用 [Column(IsKey = true)] 指定实体的主键
-    > ForeignKeyAttribute 指定外键，一对多外键时类型必须是 IList<T> 或者 List<T>
-    > ColumnAttribute.DataType 用来指定表字段类型。以SQLSERVER为例，System.String 默认对应 nvarchar 类型。若是varchar类型，需要指定[Column(DbType= DbType.AnsiString)]
-    > 使用[Column(Default = '默认值')]来指定字段的默认值，这在插入数据时非常有用
 - ###### 实例化上下文
 ```
 -- 声明数据库链接字符串
