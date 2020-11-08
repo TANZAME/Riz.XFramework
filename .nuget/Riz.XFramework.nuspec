@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Riz.XFramework</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+	<license type="expression">Apache-2.0</license>
+    <projectUrl>https://github.com/TANZAME/Riz.XFramework</projectUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkID=386613</iconUrl>
+    <description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</tags>
+    <repository type="git" url="https://github.com/TANZAME/Riz.XFramework" />
+	<dependencies />
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data"/>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations"/>
+      <frameworkAssembly assemblyName="System.Net.Http"/>
+    </frameworkAssemblies>
+  </metadata>
+ <!--
+  <files>
+	<file src="lib\Oracle.ManagedDataAccess.dll" target="lib\net45" />
+  </files>
+  -->
+</package>

@@ -11,60 +11,60 @@ cd ..\
 set startup_dir=%cd%
 cd .nuget
 
-:: 打包 TZM.XFramework -Build
-echo pack TZM.XFramework
-copy TZM.XFramework.nuspec %startup_dir%\net45\TZM.XFramework
-nuget pack %startup_dir%\net45\TZM.XFramework\TZM.XFramework.csproj -Properties Configuration=Release
-del %startup_dir%\net45\TZM.XFramework\TZM.XFramework.nuspec
+:: 打包 Riz.XFramework -Build
+echo pack Riz.XFramework
+copy Riz.XFramework.nuspec %startup_dir%\net45\Riz.XFramework
+nuget pack %startup_dir%\net45\Riz.XFramework\Riz.XFramework.csproj -Properties Configuration=Release
+del %startup_dir%\net45\Riz.XFramework\Riz.XFramework.nuspec
 echo=
 
-:: 打包 TZM.XFramework.MySql
-echo pack TZM.XFramework.MySql
-copy TZM.XFramework.MySql.nuspec %startup_dir%\net45\TZM.XFramework.MySql
-nuget pack %startup_dir%\net45\TZM.XFramework.MySql\TZM.XFramework.MySql.csproj -Properties Configuration=Release
-del %startup_dir%\net45\TZM.XFramework.MySql\TZM.XFramework.MySql.nuspec
+:: 打包 Riz.XFramework.MySql
+echo pack Riz.XFramework.MySql
+copy Riz.XFramework.MySql.nuspec %startup_dir%\net45\Riz.XFramework.MySql
+nuget pack %startup_dir%\net45\Riz.XFramework.MySql\Riz.XFramework.MySql.csproj -Properties Configuration=Release
+del %startup_dir%\net45\Riz.XFramework.MySql\Riz.XFramework.MySql.nuspec
 echo=
 
-:: 打包 TZM.XFramework.Oracle
-echo pack TZM.XFramework.Oracle
-copy TZM.XFramework.Oracle.nuspec %startup_dir%\net45\TZM.XFramework.Oracle
-nuget pack %startup_dir%\net45\TZM.XFramework.Oracle\TZM.XFramework.Oracle.csproj -Properties Configuration=Release
-del %startup_dir%\net45\TZM.XFramework.Oracle\TZM.XFramework.Oracle.nuspec
+:: 打包 Riz.XFramework.Oracle
+echo pack Riz.XFramework.Oracle
+copy Riz.XFramework.Oracle.nuspec %startup_dir%\net45\Riz.XFramework.Oracle
+nuget pack %startup_dir%\net45\Riz.XFramework.Oracle\Riz.XFramework.Oracle.csproj -Properties Configuration=Release
+del %startup_dir%\net45\Riz.XFramework.Oracle\Riz.XFramework.Oracle.nuspec
 echo=
 
-:: 打包 TZM.XFramework.Postgre
-echo pack TZM.XFramework.Postgre
-copy TZM.XFramework.Postgre.nuspec %startup_dir%\net45\TZM.XFramework.Postgre
-nuget pack %startup_dir%\net45\TZM.XFramework.Postgre\TZM.XFramework.Postgre.csproj -Properties Configuration=Release
-del %startup_dir%\net45\TZM.XFramework.Postgre\TZM.XFramework.Postgre.nuspec
+:: 打包 Riz.XFramework.Postgre
+echo pack Riz.XFramework.Postgre
+copy Riz.XFramework.Postgre.nuspec %startup_dir%\net45\Riz.XFramework.Postgre
+nuget pack %startup_dir%\net45\Riz.XFramework.Postgre\Riz.XFramework.Postgre.csproj -Properties Configuration=Release
+del %startup_dir%\net45\Riz.XFramework.Postgre\Riz.XFramework.Postgre.nuspec
 echo=
 
-:: 打包 TZM.XFramework.SQLite
-echo pack TZM.XFramework.SQLite
-copy TZM.XFramework.SQLite.nuspec %startup_dir%\net45\TZM.XFramework.SQLite
-nuget pack %startup_dir%\net45\TZM.XFramework.SQLite\TZM.XFramework.SQLite.csproj -Properties Configuration=Release
-del %startup_dir%\net45\TZM.XFramework.SQLite\TZM.XFramework.SQLite.nuspec
+:: 打包 Riz.XFramework.SQLite
+echo pack Riz.XFramework.SQLite
+copy Riz.XFramework.SQLite.nuspec %startup_dir%\net45\Riz.XFramework.SQLite
+nuget pack %startup_dir%\net45\Riz.XFramework.SQLite\Riz.XFramework.SQLite.csproj -Properties Configuration=Release
+del %startup_dir%\net45\Riz.XFramework.SQLite\Riz.XFramework.SQLite.nuspec
 echo=
 
-:: 打包 TZM.XFrameworkCore
-echo pack TZM.XFrameworkCore
-dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore\TZM.XFrameworkCore.csproj
+:: 打包 Riz.XFrameworkCore
+echo pack Riz.XFrameworkCore
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\Riz.XFrameworkCore\Riz.XFrameworkCore.csproj
 
-:: 打包 TZM.XFrameworkCore.MySql
-echo pack TZM.XFrameworkCore.MySql
-dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.MySql\TZM.XFrameworkCore.MySql.csproj
+:: 打包 Riz.XFrameworkCore.MySql
+echo pack Riz.XFrameworkCore.MySql
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\Riz.XFrameworkCore.MySql\Riz.XFrameworkCore.MySql.csproj
 
-:: 打包 TZM.XFrameworkCore
-echo pack TZM.XFrameworkCore.Oracle
-dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Oracle\TZM.XFrameworkCore.Oracle.csproj
+:: 打包 Riz.XFrameworkCore
+echo pack Riz.XFrameworkCore.Oracle
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\Riz.XFrameworkCore.Oracle\Riz.XFrameworkCore.Oracle.csproj
 
-:: 打包 TZM.XFrameworkCore.Postgre
-echo pack TZM.XFrameworkCore.Postgre
-dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.Postgre\TZM.XFrameworkCore.Postgre.csproj
+:: 打包 Riz.XFrameworkCore.Postgre
+echo pack Riz.XFrameworkCore.Postgre
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\Riz.XFrameworkCore.Postgre\Riz.XFrameworkCore.Postgre.csproj
 
-:: 打包 TZM.XFrameworkCore.SQLite
-echo pack TZM.XFrameworkCore.SQLite
-dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\TZM.XFrameworkCore.SQLite\TZM.XFrameworkCore.SQLite.csproj
+:: 打包 Riz.XFrameworkCore.SQLite
+echo pack Riz.XFrameworkCore.SQLite
+dotnet pack --no-build --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\netcore\Riz.XFrameworkCore.SQLite\Riz.XFrameworkCore.SQLite.csproj
 
 :: 批量推送包 
 for /R %cd% %%f in (*.nupkg) do ( 

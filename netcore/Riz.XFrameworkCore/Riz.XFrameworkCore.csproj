@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>NaiXiang Tian</Authors>
+    <Company>NaiXiang Tian</Company>
+    <Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyVersion>2.4.0</AssemblyVersion>
+    <FileVersion>2.4.0</FileVersion>
+    <Version>2.4.0</Version>
+    <Copyright>NaiXiang Tian</Copyright>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+    <PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
+    <NoWarn />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Data\Other\**" />
+    <EmbeddedResource Remove="Data\Other\**" />
+    <None Remove="Data\Other\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Caching\.gitkeep" />
+    <None Remove="Common\Collection\.gitkeep" />
+    <None Remove="Common\IoC\.gitkeep" />
+    <None Remove="Data\Infrastructure\.gitkeep" />
+    <None Remove="Data\SqlClient\.gitkeep" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\Riz.XFramework\Caching\ExpirationCache.cs" Link="Caching\ExpirationCache.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Caching\ICache.cs" Link="Caching\ICache.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Caching\MemberInfoComparer.cs" Link="Caching\MemberInfoComparer.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Caching\NormalCache.cs" Link="Caching\NormalCache.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Caching\ReaderWriterCache.cs" Link="Caching\ReaderWriterCache.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Collection\IPagedList.cs" Link="Common\Collection\IPagedList.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Collection\PagedList.cs" Link="Common\Collection\PagedList.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Common.cs" Link="Common\Common.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\DatePart.cs" Link="Common\DatePart.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Ioc\DefaultContainer.cs" Link="Common\IoC\DefaultContainer.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Ioc\IContainer.cs" Link="Common\IoC\IContainer.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\KeepAlive.cs" Link="Common\KeepAlive.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\Mailer.cs" Link="Common\Mailer.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\MetadataTypesRegister.cs" Link="Common\MetadataTypesRegister.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\XFrameworkException.cs" Link="Common\XFrameworkException.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\XFrameworkExtensions.cs" Link="Common\XFrameworkExtensions.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Common\XFrameworkValidator.cs" Link="Common\XFrameworkValidator.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Annotation\ColumnAttribute.cs" Link="Data\Annotation\ColumnAttribute.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Annotation\ForeignKeyAttribute.cs" Link="Data\Annotation\ForeignKeyAttribute.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Annotation\TableAttribute.cs" Link="Data\Annotation\TableAttribute.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbContextBase.cs" Link="Data\DbContextBase.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbExpression.cs" Link="Data\DbExpression.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbExpressionType.cs" Link="Data\DbExpressionType.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbFunction.cs" Link="Data\DbFunction.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbQueryable.cs" Link="Data\DbQueryable.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbQueryableExtensions.cs" Link="Data\DbQueryableExtensions.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\DbQueryable`1.cs" Link="Data\DbQueryable`1.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\ConstructorAccessor.cs" Link="Data\Emit\ConstructorAccessor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\FieldAccessor.cs" Link="Data\Emit\FieldAccessor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\ILGeneratorExtensions.cs" Link="Data\Emit\ILGeneratorExtensions.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\MemberAccessorBase.cs" Link="Data\Emit\MemberAccessorBase.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\MemberAccessorCollection.cs" Link="Data\Emit\MemberAccessorCollection.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\MethodAccessor.cs" Link="Data\Emit\MethodAccessor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\PropertyAccessor.cs" Link="Data\Emit\PropertyAccessor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\TypeRuntimeInfo.cs" Link="Data\Emit\TypeRuntimeInfo.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\TypeRuntimeInfoCache.cs" Link="Data\Emit\TypeRuntimeInfoCache.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\TypeUtils.cs" Link="Data\Emit\TypeUtils.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\AggregateExpressionVisitor.cs" Link="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\ColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\ColumnExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\ExpressionNominator.cs" Link="Data\ExpressionVisitor\ExpressionNominator.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\GroupByExpressionVisitor.cs" Link="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\HavingExpressionVisitor.cs" Link="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\JoinExpressionVisitor.cs" Link="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\LinqExpressionVisitor.cs" Link="Data\ExpressionVisitor\LinqExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\MemberVisitedStack.cs" Link="Data\ExpressionVisitor\MemberVisitedStack.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\MethodCallExressionVisitor.cs" Link="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs" Link="Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\OrderByExpressionVisitor.cs" Link="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\UpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\ExpressionVisitor\WhereExpressionVisitor.cs" Link="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\BulkInsertInfo.cs" Link="Data\Genaration\BulkInsertInfo.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbQueryProvider.cs" Link="Data\Genaration\DbQueryProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbRawCommand.cs" Link="Data\Genaration\DbRawCommand.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbRawParameter.cs" Link="Data\Genaration\DbRawParameter.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbRawSql.cs" Link="Data\Genaration\DbRawSql.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbSelectCommand.cs" Link="Data\Genaration\DbSelectCommand.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\DbValueResolver.cs" Link="Data\Genaration\DbValueResolver.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\IDbQueryProvider.cs" Link="Data\Genaration\IDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\IMapInfo.cs" Link="Data\Genaration\IMapInfo.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\ISqlBuilder.cs" Link="Data\Genaration\ISqlBuilder.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\ITranslateContext.cs" Link="Data\Genaration\ITranslateContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\SqlBuilder.cs" Link="Data\Genaration\SqlBuilder.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\TableAliasResolver.cs" Link="Data\Genaration\TableAliasResolver.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Genaration\TranslateContext.cs" Link="Data\Genaration\TranslateContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\AppConst.cs" Link="Data\Infrastructure\AppConst.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\Database.cs" Link="Data\Infrastructure\Database.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\Database45.cs" Link="Data\Infrastructure\Database45.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\DataExtensions.cs" Link="Data\Infrastructure\DataExtensions.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\DbCommandException.cs" Link="Data\Infrastructure\DbCommandException.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\DbCommandInterceptor.cs" Link="Data\Infrastructure\DbCommandInterceptor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\DbInterception.cs" Link="Data\Infrastructure\DbInterception.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\Enumerator.cs" Link="Data\Infrastructure\Enumerator.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\HashCollection`1.cs" Link="Data\Infrastructure\HashCollection`1.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDatabase.cs" Link="Data\Infrastructure\IDatabase.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDatabase45.cs" Link="Data\Infrastructure\IDatabase45.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDbCommandInterceptor.cs" Link="Data\Infrastructure\IDbCommandInterceptor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDbContext.cs" Link="Data\Infrastructure\IDbContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDbQueryable.cs" Link="Data\Infrastructure\IDbQueryable.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\IDbQueryable`1.cs" Link="Data\Infrastructure\IDbQueryable`1.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\ILoadingBalanceProvider.cs" Link="Data\Infrastructure\ILoadingBalanceProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\LoadingBalanceProvider.cs" Link="Data\Infrastructure\LoadingBalanceProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\OrderBy.cs" Link="Data\Infrastructure\OrderBy.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Infrastructure\ReplicaConfiguration.cs" Link="Data\Infrastructure\ReplicaConfiguration.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQueryableParser.cs" Link="Data\Parsing\DbQueryableParser.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQueryDeleteTree.cs" Link="Data\Parsing\DbQueryDeleteTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQueryInsertTree.cs" Link="Data\Parsing\DbQueryInsertTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQuerySelectTree.cs" Link="Data\Parsing\DbQuerySelectTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQueryTree.cs" Link="Data\Parsing\DbQueryTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Parsing\DbQueryUpdateTree.cs" Link="Data\Parsing\DbQueryUpdateTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerDbContext.cs" Link="Data\SqlClient\SqlServerDbContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerDbQueryProvider.cs" Link="Data\SqlClient\SqlServerDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerDbValueResolver.cs" Link="Data\SqlClient\SqlServerDbValueResolver.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerJoinExpressionVisitor.cs" Link="Data\SqlClient\SqlServerJoinExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" Link="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\SqlClient\SqlServerSelectCommand.cs" Link="Data\SqlClient\SqlServerSelectCommand.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\ColumnDescriptor.cs" Link="Data\TypeDeserialize\ColumnDescriptor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\ColumnDescriptorCollection.cs" Link="Data\TypeDeserialize\ColumnDescriptorCollection.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\IStringKey.cs" Link="Data\TypeDeserialize\IStringKey.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\NavDescriptor.cs" Link="Data\TypeDeserialize\NavDescriptor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\NavDescriptorCollection.cs" Link="Data\TypeDeserialize\NavDescriptorCollection.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\NavMember.cs" Link="Data\TypeDeserialize\NavMember.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\None.cs" Link="Data\TypeDeserialize\None.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\TypeDeserializer.cs" Link="Data\TypeDeserialize\TypeDeserializer.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\TypeDeserializerImpl.cs" Link="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\TypeDeserializer`1.cs" Link="Data\TypeDeserialize\TypeDeserializer`1.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\TypeDeserialize\TypeDeserializer`2.cs" Link="Data\TypeDeserialize\TypeDeserializer`2.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Caching\" />
+    <Folder Include="Data\Annotation\" />
+    <Folder Include="Data\Emit\" />
+    <Folder Include="Data\TypeDeserialize\" />
+    <Folder Include="Data\Parsing\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\Collection\" />
+    <Folder Include="Common\IoC\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+  </ItemGroup>
+</Project>

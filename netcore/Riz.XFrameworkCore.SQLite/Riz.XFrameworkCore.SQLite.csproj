@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>2.4.0</Version>
+    <Authors>NaiXiang Tian</Authors>
+    <Company>NaiXiang Tian</Company>
+    <AssemblyVersion>2.4.0</AssemblyVersion>
+    <FileVersion>2.4.0</FileVersion>
+    <Copyright>NaiXiang Tian</Copyright>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <RepositoryType>https://github.com/TANZAME/Riz.XFramework</RepositoryType>
+    <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
+    <Description>SQLite provider for Riz.XFrameworkCore.</Description>
+    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.SQLite.xml</DocumentationFile>
+    <NoWarn />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Data\Parsing\.gitkeep" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteColumnExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" Link="Data\ExpressionVisitor\SQLiteUpdateExpressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Infrastructure\SQLiteDatabase.cs" Link="Data\Infrastructure\SQLiteDatabase.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Parsing\IWithRowId .cs" Link="Data\Parsing\IWithRowId .cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\Parsing\SQLiteDbQuerySelectTree.cs" Link="Data\Parsing\SQLiteDbQuerySelectTree.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbContext.cs" Link="Data\SqlClient\SQLiteDbContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbQueryProvider.cs" Link="Data\SqlClient\SQLiteDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteDbValueResolver.cs" Link="Data\SqlClient\SQLiteDbValueResolver.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" Link="Data\SqlClient\SQLiteMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\SqlClient\SQLiteTranslateContext.cs" Link="Data\SqlClient\SQLiteTranslateContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.SQLite\Data\TypeDeserialize\SQLiteTypeDeserializerImpl.cs" Link="TypeDeserialize\SQLiteTypeDeserializerImpl.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\ExpressionVisitor\" />
+    <Folder Include="Data\Parsing\" />
+    <Folder Include="Data\SqlClient\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Riz.XFrameworkCore\Riz.XFrameworkCore.csproj" />
+  </ItemGroup>
+</Project>

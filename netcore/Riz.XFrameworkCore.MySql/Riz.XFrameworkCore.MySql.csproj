@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>NaiXiang Tian</Authors>
+    <Company>NaiXiang Tian</Company>
+    <Description>MySQL provider for Riz.XFrameworkCore.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyVersion>2.4.0</AssemblyVersion>
+    <FileVersion>2.4.0</FileVersion>
+    <Version>2.4.0</Version>
+    <Copyright>NaiXiang Tian</Copyright>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <PackageTags>.NET Core MySQL Database Data O/RM ADO.NET</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.MySql.xml</DocumentationFile>
+    <NoWarn />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.MySql.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Data\SqlClient\.gitkeep" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\DbTypeUtils.cs" Link="Data\SqlClient\DbTypeUtils.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\MySqlDbContext.cs" Link="Data\SqlClient\MySqlDbContext.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\MySqlDbQueryProvider.cs" Link="Data\SqlClient\MySqlDbQueryProvider.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\MySqlDbValueResolver.cs" Link="Data\SqlClient\MySqlDbValueResolver.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\MySqlMethodCallExressionVisitor.cs" Link="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework.MySql\Data\SqlClient\MySqlTranslateContext.cs" Link="Data\SqlClient\MySqlTranslateContext.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="0.53.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\SqlClient\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Riz.XFrameworkCore\Riz.XFrameworkCore.csproj" />
+  </ItemGroup>
+</Project>
