@@ -309,153 +309,10 @@ namespace Riz.XFramework.Data
         public TAttribute GetMemberAttribute<TAttribute>(string memberName) where TAttribute : Attribute
         {
             MemberAccessorBase m = this.GetMember(memberName);
-            return m != null ? m.GetCustomAttribute<TAttribute>() : null;
-        }
-
-        /// <summary>
-        /// 获取成员包装器的外键特性
-        /// </summary>
-        /// <param name="memberName">实体成员名称（字段/属性）</param>
-        /// <returns></returns>
-        public ForeignKeyAttribute GetForeignKeyAttribute(string memberName)
-        {
-            // 找出指定名称的成员
-            MemberAccessorBase item = null;
-            this.Members.TryGetValue(memberName, out item);
-            if (item == null) throw new XFrameworkException("Member {0}.{1} not found.", _type.Name, memberName);
-
-            // 成员必须是字段/属性成员
-            var m = item as FieldAccessorBase;
-            var attribute = m.GetCustomAttribute<ForeignKeyAttribute>();
-            if (attribute == null )
-            {
-                // 如果是属性，要求标记为 virtual
-                var p = m as PropertyAccessor;
-                if (p != null && p.Member.GetGetMethod(true) != null && !p.Member.GetGetMethod().IsVirtual) return null;
-
-                // 区分一对一和一对多导航属性
-                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType);
-                if (TypeUtils.IsCollectionType(m.MemberCLRType))
-                {
-                    // 1:n 关系，外键实体必须持有当前实体的所有主键属性
-
-                    int index = 0;
-                    string[] innerKeys = null;
-                    string[] outerKeys = null;
-                    foreach (FieldAccessorBase inner in this.KeyMembers)
-                    {
-                        if (!navTypeRuntime.Members.Contains(inner.Name))
-                        {
-                            innerKeys = null;
-                            outerKeys = null;
-                            break;
-                        }
-                        else
-                        {
-                            var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
-                            if (outer == null)
-                            {
-                                innerKeys = null;
-                                outerKeys = null;
-                                break;
-                            }
-                            else
-                            {
-                                if (innerKeys == null) innerKeys = new string[this.KeyMembers.Count];
-                                if (outerKeys == null) outerKeys = new string[this.KeyMembers.Count];
-                                innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
-                                outerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
-                            }
-                        }
-
-                        index += 1;
-                    }
-
-                    if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
-                }
-                else
-                {
-                    // 1:1 关系，分两种情况
-                    // 1. 当前实体持有外键实体的主键属性
-                    // 2. 外键实体持有当前实体的主键属性
-
-                    if (navTypeRuntime.KeyMembers.Count > 0)
-                    {
-                        int index = 0;
-                        string[] innerKeys = null;
-                        string[] outerKeys = null;
-                        foreach (FieldAccessorBase outer in navTypeRuntime.KeyMembers)
-                        {
-                            if (!this.Members.Contains(outer.Name))
-                            {
-                                innerKeys = null;
-                                outerKeys = null;
-                                break;
-                            }
-                            else
-                            {
-                                var inner = this.GetMember(outer.Name) as FieldAccessorBase;
-                                if (inner == null)
-                                {
-                                    innerKeys = null;
-                                    outerKeys = null;
-                                    break;
-                                }
-                                else
-                                {
-                                    if (innerKeys == null) innerKeys = new string[navTypeRuntime.KeyMembers.Count];
-                                    if (outerKeys == null) outerKeys = new string[navTypeRuntime.KeyMembers.Count];
-                                    innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
-                                    outerKeys[index] = outer.Column != null && !string.IsNullOrEmpty(outer.Column.Name) ? outer.Column.Name : outer.Name;
-                                }
-                            }
-
-                            index += 1;
-                        }
-
-                        if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
-                    }
-
-                    if (attribute == null)
-                    {
-                        int index = 0;
-                        string[] innerKeys = null;
-                        string[] outerKeys = null;
-                        foreach (FieldAccessorBase inner in this.KeyMembers)
-                        {
-                            if (!navTypeRuntime.Members.Contains(inner.Name))
-                            {
-                                innerKeys = null;
-                                outerKeys = null;
-                                break;
-                            }
-                            else
-                            {
-                                var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
-                                if (outer == null)
-                                {
-                                    innerKeys = null;
-                                    outerKeys = null;
-                                    break;
-                                }
-                                else
-                                {
-                                    if (innerKeys == null) innerKeys = new string[this.KeyMembers.Count];
-                                    if (outerKeys == null) outerKeys = new string[this.KeyMembers.Count];
-                                    innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
-                                    outerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
-                                }
-                            }
-
-                            index += 1;
-                        }
-
-                        if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
-                    }
-                }
-            }
-
-            return attribute;
+            if (typeof(TAttribute) == typeof(ForeignKeyAttribute))
+                return (TAttribute)(object)this.GetForeignKeyAttribute(m as FieldAccessorBase, memberName);
+            else
+                return m != null ? m.GetCustomAttribute<TAttribute>() : null;
         }
 
         /// <summary>
@@ -599,6 +456,142 @@ namespace Riz.XFramework.Data
             }
 
             throw new XFrameworkException("not such constructor.");
+        }
+
+        // 获取成员包装器的外键特性
+        private ForeignKeyAttribute GetForeignKeyAttribute(FieldAccessorBase m, string memberName)
+        {
+            if (m == null) throw new XFrameworkException("Member {0}.{1} not found.", _type.Name, memberName);
+            var attribute = m.GetCustomAttribute<ForeignKeyAttribute>();
+            if (attribute == null)
+            {
+                // 如果是属性，要求标记为 virtual
+                var p = m as PropertyAccessor;
+                if (p != null && p.Member.GetGetMethod(true) != null && !p.Member.GetGetMethod().IsVirtual) return null;
+
+                // 区分一对一和一对多导航属性
+                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType);
+                if (TypeUtils.IsCollectionType(m.MemberCLRType))
+                {
+                    // 1:n 关系，外键实体必须持有当前实体的所有主键属性
+
+                    int index = 0;
+                    string[] innerKeys = null;
+                    string[] outerKeys = null;
+                    foreach (FieldAccessorBase inner in this.KeyMembers)
+                    {
+                        if (!navTypeRuntime.Members.Contains(inner.Name))
+                        {
+                            innerKeys = null;
+                            outerKeys = null;
+                            break;
+                        }
+                        else
+                        {
+                            var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
+                            if (outer == null)
+                            {
+                                innerKeys = null;
+                                outerKeys = null;
+                                break;
+                            }
+                            else
+                            {
+                                if (innerKeys == null) innerKeys = new string[this.KeyMembers.Count];
+                                if (outerKeys == null) outerKeys = new string[this.KeyMembers.Count];
+                                innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
+                                outerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
+                            }
+                        }
+
+                        index += 1;
+                    }
+
+                    if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
+                }
+                else
+                {
+                    // 1:1 关系，分两种情况
+                    // 1. 当前实体持有外键实体的主键属性
+                    // 2. 外键实体持有当前实体的主键属性
+
+                    if (navTypeRuntime.KeyMembers.Count > 0)
+                    {
+                        int index = 0;
+                        string[] innerKeys = null;
+                        string[] outerKeys = null;
+                        foreach (FieldAccessorBase outer in navTypeRuntime.KeyMembers)
+                        {
+                            if (!this.Members.Contains(outer.Name))
+                            {
+                                innerKeys = null;
+                                outerKeys = null;
+                                break;
+                            }
+                            else
+                            {
+                                var inner = this.GetMember(outer.Name) as FieldAccessorBase;
+                                if (inner == null)
+                                {
+                                    innerKeys = null;
+                                    outerKeys = null;
+                                    break;
+                                }
+                                else
+                                {
+                                    if (innerKeys == null) innerKeys = new string[navTypeRuntime.KeyMembers.Count];
+                                    if (outerKeys == null) outerKeys = new string[navTypeRuntime.KeyMembers.Count];
+                                    innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
+                                    outerKeys[index] = outer.Column != null && !string.IsNullOrEmpty(outer.Column.Name) ? outer.Column.Name : outer.Name;
+                                }
+                            }
+
+                            index += 1;
+                        }
+
+                        if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
+                    }
+
+                    if (attribute == null)
+                    {
+                        int index = 0;
+                        string[] innerKeys = null;
+                        string[] outerKeys = null;
+                        foreach (FieldAccessorBase inner in this.KeyMembers)
+                        {
+                            if (!navTypeRuntime.Members.Contains(inner.Name))
+                            {
+                                innerKeys = null;
+                                outerKeys = null;
+                                break;
+                            }
+                            else
+                            {
+                                var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
+                                if (outer == null)
+                                {
+                                    innerKeys = null;
+                                    outerKeys = null;
+                                    break;
+                                }
+                                else
+                                {
+                                    if (innerKeys == null) innerKeys = new string[this.KeyMembers.Count];
+                                    if (outerKeys == null) outerKeys = new string[this.KeyMembers.Count];
+                                    innerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
+                                    outerKeys[index] = inner.Column != null && !string.IsNullOrEmpty(inner.Column.Name) ? inner.Column.Name : inner.Name;
+                                }
+                            }
+
+                            index += 1;
+                        }
+
+                        if (innerKeys != null) attribute = new ForeignKeyAttribute(innerKeys, outerKeys);
+                    }
+                }
+            }
+
+            return attribute;
         }
     }
 }

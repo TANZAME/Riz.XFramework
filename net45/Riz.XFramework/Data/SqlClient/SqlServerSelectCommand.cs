@@ -43,7 +43,7 @@ namespace Riz.XFramework.Data
                 string key = nav.Key;
                 MemberExpression m = nav.Expression;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
 
                 string innerKey = string.Empty;
                 string outerKey = key;
