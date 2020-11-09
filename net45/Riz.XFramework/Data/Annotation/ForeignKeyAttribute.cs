@@ -18,7 +18,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         public string[] InnerKeys
         {
-            get { if (_innerKeys == null)_innerKeys = new string[0]; return _innerKeys; }
+            get { if (_innerKeys == null) _innerKeys = new string[0]; return _innerKeys; }
             private set { _innerKeys = value; }
         }
 
@@ -28,7 +28,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         public string[] OuterKeys
         {
-            get { if (_outerKeys == null)_outerKeys = new string[0]; return _outerKeys; }
+            get { if (_outerKeys == null) _outerKeys = new string[0]; return _outerKeys; }
             private set { _outerKeys = value; }
         }
 
@@ -37,16 +37,9 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="key">两表关联使用的键（字段）</param>
         public ForeignKeyAttribute(string key)
-            : this(key, key)
-        { }
-
-        /// <summary>
-        /// 初始化 <see cref="ForeignKeyAttribute"/> 的实例 => a.key0=b.key0 AND a.key1=b.key1 ...
-        /// </summary>
-        /// <param name="keys">两表关联使用的键（字段）</param>
-        public ForeignKeyAttribute(string[] keys)
-            : this(keys, keys)
-        { }
+            : this(new[] { key })
+        {
+        }
 
         /// <summary>
         /// 初始化 <see cref="ForeignKeyAttribute"/> 的实例 => a.innerKey=b.outerKey
@@ -54,9 +47,17 @@ namespace Riz.XFramework.Data
         /// <param name="innerKey">内表关联键（字段）</param>
         /// <param name="outerKey">外表关联键（字段）</param>
         public ForeignKeyAttribute(string innerKey, string outerKey)
+            : this(new[] { innerKey }, new[] { outerKey })
         {
-            _innerKeys = new[] { innerKey };
-            _outerKeys = new[] { outerKey };
+        }
+
+        /// <summary>
+        /// 初始化 <see cref="ForeignKeyAttribute"/> 的实例 => a.key0=b.key0 AND a.key1=b.key1 ...
+        /// </summary>
+        /// <param name="keys">两表关联使用的键（字段）</param>
+        public ForeignKeyAttribute(string[] keys)
+            : this(keys, keys)
+        {
         }
 
         /// <summary>
@@ -70,6 +71,11 @@ namespace Riz.XFramework.Data
         /// <param name="outerKeys">外表关联键（字段）</param>
         public ForeignKeyAttribute(string[] innerKeys, string[] outerKeys)
         {
+            if (innerKeys == null || innerKeys.Length == 0)
+                throw new XFrameworkException("innerKeys should not be empty.");
+            if (outerKeys == null || outerKeys.Length == 0)
+                throw new XFrameworkException("outerKeys should not be empty.");
+
             _innerKeys = innerKeys;
             _outerKeys = outerKeys;
         }

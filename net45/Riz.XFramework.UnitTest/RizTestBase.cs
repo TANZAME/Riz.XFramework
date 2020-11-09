@@ -972,6 +972,7 @@ namespace Riz.XFramework.UnitTest
                     LocalServer = new RizModel.CloudServer
                     {
                         RizCloudServerId = a.RizCloudServerId,
+                        RizCloudServerCode = "LocalCode",
                         RizCloudServerName = a.LocalServer.RizCloudServerName,
                     }
                 };
@@ -1002,6 +1003,8 @@ namespace Riz.XFramework.UnitTest
                     Accounts = a.Accounts,
                     RizClientCode = a.RizClientCode
                 };
+            result = query.ToList();
+            query = context.GetTable<RizModel.Client>().Include(a => a.Markets);
             result = query.ToList();
             var single = query.FirstOrDefault();
 

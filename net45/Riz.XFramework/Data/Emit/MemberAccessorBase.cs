@@ -10,54 +10,9 @@ namespace Riz.XFramework.Data
     /// </summary>
     public abstract class MemberAccessorBase
     {
-        private Type _dataType = null;
         private MemberInfo _member = null;
         private object[] _attributes = null;
-        private ColumnAttribute _column = null;
-        private ForeignKeyAttribute _foreignKey = null;
         private string _memberName = null;
-        //private HybridDictionary _attributes = null;
-
-        /// <summary>
-        /// 列特性（仅属性、字段适用）
-        /// </summary>
-        public ColumnAttribute Column
-        {
-            get
-            {
-                if (_column == null) _column = this.GetCustomAttribute<ColumnAttribute>();
-                return _column;
-            }
-        }
-
-        /// <summary>
-        /// 外键列特性（仅属性、字段适用）
-        /// </summary>
-        public ForeignKeyAttribute ForeignKey
-        {
-            get
-            {
-                if (_foreignKey == null) _foreignKey = this.GetCustomAttribute<ForeignKeyAttribute>();
-                return _foreignKey;
-            }
-        }
-
-        /// <summary>
-        /// CLR 类型（仅属性、字段适用）
-        /// </summary>
-        public Type DataType
-        {
-            get
-            {
-                if (_dataType == null)
-                {
-                    if (this.MemberType == MemberTypes.Property) _dataType = ((PropertyInfo)_member).PropertyType;
-                    else if (this.MemberType == MemberTypes.Field) _dataType = ((FieldInfo)_member).FieldType;
-                }
-
-                return _dataType;
-            }
-        }
 
         /// <summary>
         /// 成员元数据（构造函数、方法、属性、字段）

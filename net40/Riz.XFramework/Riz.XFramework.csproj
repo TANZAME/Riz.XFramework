@@ -167,6 +167,9 @@
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\FieldAccessor.cs">
       <Link>Data\Emit\FieldAccessor.cs</Link>
     </Compile>
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\FieldAccessorBase.cs">
+      <Link>Data\Emit\FieldAccessorBase.cs</Link>
+    </Compile>
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\ILGeneratorExtensions.cs">
       <Link>Data\Emit\ILGeneratorExtensions.cs</Link>
     </Compile>

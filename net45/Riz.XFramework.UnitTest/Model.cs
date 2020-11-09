@@ -297,7 +297,7 @@ namespace Riz.XFramework.UnitTest
             [Column(Default = "'默认值'")]
             public virtual string Remark { get; set; }
 
-            [ForeignKey("CloudServerId")]
+            //[ForeignKey("CloudServerId")]
             public virtual CloudServer CloudServer { get; set; }
 
             [ForeignKey("CloudServerId")]

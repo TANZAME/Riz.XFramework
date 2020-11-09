@@ -169,10 +169,10 @@ namespace Riz.XFramework.Data
                 string keyName = typeName + "." + navigation.Name;
                 if (keyName != navigation.Key) continue;
 
-                var navMember = typeRuntime.GetMember(navigation.Name);
+                var navMember = typeRuntime.GetMember(navigation.Name) as FieldAccessorBase;
                 if (navMember == null) continue;
 
-                Type navType = navMember.DataType;
+                Type navType = navMember.FieldType;
                 Func<IDataRecord, object> deserializer = null;
                 TypeRuntimeInfo navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navType);
                 object navCollection = null;

@@ -480,10 +480,10 @@ namespace Riz.XFramework.Data.SqlClient
                 ISqlBuilder valuesBuilder = this.CreateSqlBuilder(context);
 
                 // 指定插入列
-                MemberAccessorCollection memberAssessors = typeRuntime.Members;
+                var members = typeRuntime.Members;
                 if (tree.EntityColumns != null && tree.EntityColumns.Count > 0)
                 {
-                    memberAssessors = new MemberAccessorCollection();
+                    members = new MemberAccessorCollection();
                     for (int i = 0; i < tree.EntityColumns.Count; i++)
                     {
                         Expression curExpr = tree.EntityColumns[i];
@@ -493,16 +493,14 @@ namespace Riz.XFramework.Data.SqlClient
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
-                        memberAssessors[name] = typeRuntime.Members[name];
+                        members[name] = typeRuntime.Members[name];
                     }
                 }
 
-                foreach (var m in memberAssessors)
+                foreach (var item in members)
                 {
-                    var column = m.Column;
-                    if (column != null && column.NoMapped) continue;
-                    if (m.ForeignKey != null) continue;
-                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    var m = item as FieldAccessorBase;
+                    if (m == null || !m.IsDbField) continue;
 
                     if (m != typeRuntime.Identity)
                     {
@@ -510,8 +508,8 @@ namespace Riz.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = m.Invoke(entity);
-                        string seg = this.DbResolver.GetSqlValueWidthDefault(value, context, column);
-                        valuesBuilder.Append(seg);
+                        string sqlExpression = this.DbResolver.GetSqlValueWidthDefault(value, context, m.Column);
+                        valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
                 }
@@ -559,12 +557,12 @@ namespace Riz.XFramework.Data.SqlClient
                 context.DbExpressionType = srcDbExpressionType;
                 context.IsOutQuery = srcIsOutQuery;
 
-                int i = 0;
+                int index = 0;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.NewName);
-                    if (i < cmd.PickColumns.Count - 1) builder.Append(',');
-                    i++;
+                    if (index < cmd.PickColumns.Count - 1) builder.Append(',');
+                    index++;
                 }
 
                 builder.Append(')');
@@ -601,15 +599,14 @@ namespace Riz.XFramework.Data.SqlClient
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var m in typeRuntime.KeyMembers)
+                foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
-                    var column = m.Column;
                     var value = m.Invoke(entity);
-                    var seg = this.DbResolver.GetSqlValue(value, context, column);
+                    var sqlExpression = this.DbResolver.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
-                    builder.Append(seg);
+                    builder.Append(sqlExpression);
                     builder.Append(" AND ");
                 }
                 builder.Length -= 5;
@@ -666,22 +663,20 @@ namespace Riz.XFramework.Data.SqlClient
                 int length = 0;
                 builder.AppendNewLine(" SET");
 
-                foreach (var m in typeRuntime.Members)
+                foreach (var item in typeRuntime.Members)
                 {
-                    var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
-                    if (column != null && column.NoMapped) continue;
-                    if (m.ForeignKey != null) continue;
-                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    var m = item as FieldAccessorBase;
+                    if (m == null || !m.IsDbField) continue;
+                    if (m.Column != null && m.Column.IsIdentity) goto LABEL; // Fix issue# 自增列同时又是主键
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                gotoLabel:
+                    LABEL:
                     var value = m.Invoke(entity);
-                    var seg = this.DbResolver.GetSqlValueWidthDefault(value, context, column);
+                    var seg = this.DbResolver.GetSqlValueWidthDefault(value, context, m.Column);
 
-                    if (column == null || !column.IsIdentity)
+                    if (m.Column == null || !m.Column.IsIdentity)
                     {
                         builder.Append(seg);
                         length = builder.Length;
@@ -689,7 +684,7 @@ namespace Riz.XFramework.Data.SqlClient
                         builder.AppendNewLine();
                     }
 
-                    if (column != null && column.IsKey)
+                    if (m.Column != null && m.Column.IsKey)
                     {
                         useKey = true;
                         whereBuilder.AppendMember("t0", m.Member, typeRuntime.Type);

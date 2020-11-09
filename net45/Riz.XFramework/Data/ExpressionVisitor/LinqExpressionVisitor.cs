@@ -356,7 +356,10 @@ namespace Riz.XFramework.Data
 
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.Expression.Type);
                 ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Member.Name);
-                if (attribute == null) break;
+                if (attribute == null)
+                {
+                    
+                }
 
                 string key = member.GetKeyWidthoutAnonymous();
                 stack.Push(new NavMember(key, member));

@@ -321,14 +321,16 @@ namespace Riz.XFramework.UnitTest
             [Column(Default = "'默认值'", Name = "Remark")]
             public virtual string RizRemark { get; set; }
 
-            [ForeignKey("CloudServerId")]
+            //[ForeignKey("CloudServerId")]
             public virtual CloudServer CloudServer { get; set; }
 
             [ForeignKey("CloudServerId")]
             public virtual CloudServer LocalServer { get; set; }
 
-            [ForeignKey("ClientId")]
+            //[ForeignKey("ClientId")]
             public virtual IList<ClientAccount> Accounts { get; set; }
+
+            public virtual ICollection<ClientAccountMarket> Markets { get; set; }
 
             /// <summary>
             /// 构造函数勾子

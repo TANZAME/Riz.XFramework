@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// 底层使用 Emit IL 实现
     /// </para>
     /// </summary>
-    public partial class PropertyAccessor : MemberAccessorBase
+    public partial class PropertyAccessor : FieldAccessorBase
     {
         private Func<object, object> _getter = null;
         private Action<object, object> _setter = null;
@@ -45,7 +45,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // set
-                Set(target, parameters != null ? parameters[0] : TypeUtils.GetNullValue(base.DataType));
+                Set(target, parameters != null ? parameters[0] : TypeUtils.GetNullValue(base.FieldType));
                 return null;
             }
         }
