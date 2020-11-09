@@ -314,7 +314,7 @@ namespace Riz.XFramework.Data
                 if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable())
                 {
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(newType);
-                    var attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
+                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
                     // 不能当做导航属性的复杂字段
                     if (attribute == null) return;
                 }
@@ -579,7 +579,7 @@ namespace Riz.XFramework.Data
                 {
                     // a.Client 要求 <Client> 必须标明 ForeignKeyAttribute
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                    var attribute = typeRuntime.GetForeignKeyAttribute(memberExpression.Member.Name);
+                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
                     if (attribute == null)
                         throw new XFrameworkException("ForeignKeyAttribute not found for include member {0}.{1}", typeRuntime.Type.Name, memberExpression.Member.Name);
 
@@ -620,7 +620,7 @@ namespace Riz.XFramework.Data
         private void AddSplitOnColumn(MemberExpression m, string alias)
         {
             TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-            var attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
+            var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
             string keyName = attribute.OuterKeys.FirstOrDefault(a => !a.StartsWith(AppConst.CONSTANT_FOREIGNKEY, StringComparison.Ordinal));
 
             _builder.Append("CASE WHEN ");
