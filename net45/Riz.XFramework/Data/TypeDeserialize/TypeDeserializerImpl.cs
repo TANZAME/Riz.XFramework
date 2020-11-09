@@ -158,7 +158,7 @@ namespace Riz.XFramework.Data
                 Type readerFieldType = reader.GetFieldType(index);
                 Type realReaderFieldType = readerFieldType;
                 // 实体属性类型
-                Type entityFieldType = m.FieldType;
+                Type entityFieldType = m.MemberCLRType;
                 MethodInfo getFieldValue = this.GetReaderMethod(readerFieldType, entityFieldType, ref realReaderFieldType);
                 if (readerFieldType != realReaderFieldType) readerFieldType = realReaderFieldType;
 
