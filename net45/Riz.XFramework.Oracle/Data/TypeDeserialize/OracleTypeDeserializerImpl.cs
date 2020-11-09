@@ -31,21 +31,27 @@ namespace Riz.XFramework.Data
         {
         }
 
-        // 获取对应每列的读取方法
-        protected override MethodInfo GetReaderMethod(Type myFieldType, Type memberType, ref Type myFieldType2)
+        /// <summary>
+        /// 获取对应每列的读取方法
+        /// </summary>
+        /// <param name="readerFieldType">dataReader 里的字段类型</param>
+        /// <param name="entityFieldType">实体定义的字段类型</param>
+        /// <param name="realReaderFieldType">字段类型（引用传递）</param>
+        /// <returns></returns>
+        protected override MethodInfo GetReaderMethod(Type readerFieldType, Type entityFieldType, ref Type realReaderFieldType)
         {
             // DateTimeOffset 类型时，DataReaer.GetFieldType = DateTime
             // 需要强制转换为 DateTimeOffset 类型
-            bool isTimezone = myFieldType == typeof(DateTime) && (memberType == typeof(DateTimeOffset) || memberType == typeof(DateTimeOffset?));
-            if (!isTimezone) return base.GetReaderMethod(myFieldType, memberType, ref myFieldType2);
+            bool isTimezone = readerFieldType == typeof(DateTime) && (entityFieldType == typeof(DateTimeOffset) || entityFieldType == typeof(DateTimeOffset?));
+            if (!isTimezone) return base.GetReaderMethod(readerFieldType, entityFieldType, ref realReaderFieldType);
             else
             {
 #if !net40
-                myFieldType2 = typeof(DateTimeOffset);
+                realReaderFieldType = typeof(DateTimeOffset);
                 return _getDateTimeOffset;
 #endif
 #if net40
-                myFieldType2 = typeof(OracleTimeStampTZ);
+                realReaderFieldType = typeof(OracleTimeStampTZ);
                 return _getOracleTimeStampTZ;
 #endif
             }
@@ -53,7 +59,14 @@ namespace Riz.XFramework.Data
 
 #if net40
 
-        // 自定义类型转换
+        /// <summary>
+        /// 自定义类型转换
+        /// </summary>
+        /// <param name="il">IL 指令</param>
+        /// <param name="from">源类型</param>
+        /// <param name="to">目标类型</param>
+        /// <param name="via">拆箱类型</param>
+        /// <returns></returns>
         protected override bool ConvertBoxedStackExtension(ILGenerator il, Type from, Type to, Type via)
         {
             bool isExecuted = base.ConvertBoxedStackExtension(il, from, to, via);

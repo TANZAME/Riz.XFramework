@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 字段成员访问器
     /// </summary>
-    public partial class FieldAccessor : MemberAccessorBase
+    public partial class FieldAccessor : FieldAccessorBase
     {
         private Func<object, object> _getter = null;
         private Action<object, object> _setter = null;

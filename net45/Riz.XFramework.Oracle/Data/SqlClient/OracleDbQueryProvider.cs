@@ -657,10 +657,10 @@ namespace Riz.XFramework.Data.SqlClient
                 ISqlBuilder valuesBuilder = this.CreateSqlBuilder(context);
 
                 // 指定插入列
-                MemberAccessorCollection memberAccessors = typeRuntime.Members;
+                var members = typeRuntime.Members;
                 if (tree.EntityColumns != null && tree.EntityColumns.Count > 0)
                 {
-                    memberAccessors = new MemberAccessorCollection();
+                    members = new MemberAccessorCollection();
                     for (int i = 0; i < tree.EntityColumns.Count; i++)
                     {
                         Expression curExpr = tree.EntityColumns[i];
@@ -670,7 +670,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                         MemberExpression member = curExpr as MemberExpression;
                         string name = member.Member.Name;
-                        memberAccessors[name] = typeRuntime.Members[name];
+                        members[name] = typeRuntime.Members[name];
                     }
                 }
 
@@ -678,32 +678,30 @@ namespace Riz.XFramework.Data.SqlClient
                 IDbDataParameter seqParameter = null;
                 // 自增列标记
                 ColumnAttribute seqColumn = null;
-                foreach (var m in memberAccessors)
+                foreach (var item in members)
                 {
-                    var column = m.Column;
-                    if (column != null && column.NoMapped) continue;
-                    if (m.ForeignKey != null) continue;
-                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    var m = item as FieldAccessorBase;
+                    if (m == null || !m.IsDbField) continue;
 
                     columnsBuilder.AppendMember(null, m.Member, typeRuntime.Type);
                     columnsBuilder.Append(',');
 
                     if (m == typeRuntime.Identity)
                     {
-                        seqColumn = column;
+                        seqColumn = m.Column;
                         if (tree.Bulk == null)
                         {
                             // 非批量INSERT，产生一个 OUTPUT 类型的参数
-                            string pName = string.Format("{0}{1}{2}", this.ParameterPrefix, AppConst.PARAMETER_NAME_PRIFIX, context.Parameters.Count);
+                            string parameterName = string.Format("{0}{1}{2}", this.ParameterPrefix, AppConst.PARAMETER_NAME_PRIFIX, context.Parameters.Count);
                             var database = context.DbContext.Database;
-                            seqParameter = this.DbProvider.CreateParameter(pName, -1, direction: ParameterDirection.Output);
+                            seqParameter = this.DbProvider.CreateParameter(parameterName, -1, direction: ParameterDirection.Output);
                             context.Parameters.Add(seqParameter);
                             valuesBuilder.Append(seqParameter.ParameterName);
                             valuesBuilder.Append(',');
                         }
                         else
                         {
-                            valuesBuilder.Append(((OracleColumnAttribute)column).SEQName);
+                            valuesBuilder.Append(((OracleColumnAttribute)m.Column).SEQName);
                             valuesBuilder.Append(".NEXTVAL");
                             valuesBuilder.Append(',');
                         }
@@ -711,8 +709,8 @@ namespace Riz.XFramework.Data.SqlClient
                     else
                     {
                         var value = m.Invoke(entity);
-                        string seg = this.DbResolver.GetSqlValueWidthDefault(value, context, column);
-                        valuesBuilder.Append(seg);
+                        string sqlExpression = this.DbResolver.GetSqlValueWidthDefault(value, context, m.Column);
+                        valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
                 }
@@ -787,12 +785,12 @@ namespace Riz.XFramework.Data.SqlClient
                 context.DbExpressionType = srcDbExpressionType;
                 context.IsOutQuery = srcIsOutQuery;
 
-                int i = 0;
+                int index = 0;
                 foreach (var column in cmd.PickColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (i < cmd.PickColumns.Count - 1) builder.Append(',');
-                    i++;
+                    if (index < cmd.PickColumns.Count - 1) builder.Append(',');
+                    index++;
                 }
 
                 builder.Append(')');
@@ -830,15 +828,14 @@ namespace Riz.XFramework.Data.SqlClient
                 builder.AppendNewLine();
                 builder.Append("WHERE ");
 
-                foreach (var m in typeRuntime.KeyMembers)
+                foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
-                    var column = m.Column;
                     var value = m.Invoke(entity);
-                    var seg = this.DbResolver.GetSqlValue(value, context, column);
+                    var sqlExpression = this.DbResolver.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
-                    builder.Append(seg);
+                    builder.Append(sqlExpression);
                     builder.Append(" AND ");
                 }
                 builder.Length -= 5;
@@ -855,9 +852,9 @@ namespace Riz.XFramework.Data.SqlClient
                     var iterator = outQuery;
                     while (iterator.Subquery != null)
                     {
-                        var subQuery = new OracleDbQuerySelectTree(iterator.Subquery);
-                        iterator.Subquery = subQuery;
-                        iterator = subQuery;
+                        var subquery = new OracleDbQuerySelectTree(iterator.Subquery);
+                        iterator.Subquery = subquery;
+                        iterator = subquery;
                     }
 
                     // 解析成 RowId IN 结构
@@ -904,32 +901,29 @@ namespace Riz.XFramework.Data.SqlClient
                 bool useKey = false;
                 int length = 0;
 
-
-                foreach (var m in typeRuntime.Members)
+                foreach (var item in typeRuntime.Members)
                 {
-                    var column = m.Column;
-                    if (column != null && column.IsIdentity) goto gotoLabel; // Fix issue# 自增列同时又是主键
-                    if (column != null && column.NoMapped) continue;
-                    if (m.ForeignKey != null) continue;
-                    if (m.Member.MemberType == System.Reflection.MemberTypes.Method) continue;
+                    var m = item as FieldAccessorBase;
+                    if (m == null || !m.IsDbField) continue;
+
+                    if (m.Column != null && m.Column.IsIdentity) goto LABEL; // Fix issue# 自增列同时又是主键
 
                     builder.AppendMember(null, m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                gotoLabel:
-
-                    if (column == null || !column.IsIdentity)
+                    LABEL:
+                    if (m.Column == null || !m.Column.IsIdentity)
                     {
                         var value = m.Invoke(entity);
-                        var seg = this.DbResolver.GetSqlValueWidthDefault(value, context, column);
+                        var sqlExpression = this.DbResolver.GetSqlValueWidthDefault(value, context, m.Column);
 
-                        builder.Append(seg);
+                        builder.Append(sqlExpression);
                         length = builder.Length;
                         builder.Append(',');
                         builder.AppendNewLine();
                     }
 
-                    if (column != null && column.IsKey) useKey = true;
+                    if (m.Column != null && m.Column.IsKey) useKey = true;
                 }
 
                 if (!useKey) throw new XFrameworkException("Update<T>(T value) require T must have key column.");
@@ -937,7 +931,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 // ORACLE 需要注意参数顺序问题 
                 int index = -1;
-                foreach (var m in typeRuntime.KeyMembers)
+                foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
                     var column = m.Column;
                     var value = m.Invoke(entity);
@@ -978,13 +972,15 @@ namespace Riz.XFramework.Data.SqlClient
                 {
                     var newExpression = body as NewExpression;
                     var bindings = new List<MemberBinding>();
-                    for (int i = 0; i < newExpression.Members.Count; i++)
+                    for (int index = 0; index < newExpression.Members.Count; index++)
                     {
-                        var m = typeRuntime.Members.FirstOrDefault(a => a.Name == newExpression.Members[i].Name || a.Column != null && a.Column.Name == newExpression.Members[i].Name);
-                        if (m == null) throw new XFrameworkException("There is no property named {0}.{1}.", typeRuntime.Type.Name, newExpression.Members[i].Name);
-                        var binding = Expression.Bind(m.Member, newExpression.Arguments[i].Type != m.DataType
-                            ? Expression.Convert(newExpression.Arguments[i], m.DataType)
-                            : newExpression.Arguments[i]);
+                        var m = (FieldAccessorBase)typeRuntime.Members.FirstOrDefault(a => a is FieldAccessorBase && (
+                                a.Name == newExpression.Members[index].Name ||
+                                ((FieldAccessorBase)a).Column != null && ((FieldAccessorBase)a).Column.Name == newExpression.Members[index].Name));
+                        if (m == null) throw new XFrameworkException("Member {0}.{1} not found.", typeRuntime.Type.Name, newExpression.Members[index].Name);
+                        var binding = Expression.Bind(m.Member, newExpression.Arguments[index].Type != m.FieldType
+                            ? Expression.Convert(newExpression.Arguments[index], m.FieldType)
+                            : newExpression.Arguments[index]);
                         bindings.Add(binding);
                     }
 

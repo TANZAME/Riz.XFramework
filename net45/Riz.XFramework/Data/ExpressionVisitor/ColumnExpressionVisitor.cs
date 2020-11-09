@@ -291,7 +291,7 @@ namespace Riz.XFramework.Data
             }
 
             if (visitNavigation)
-                AddSplitOnColumn(node.Member, alias);
+                AddSplitOnColumn(node, alias);
 
             return node;
         }
@@ -304,12 +304,6 @@ namespace Riz.XFramework.Data
 
             if (TypeUtils.IsPrimitive(m.Member))
             {
-                //if (ma.Expression.CanEvaluate())
-                //    _builder.Append(ma.Expression.Evaluate().Value, ma.Member);
-                //else
-                //    this.VisitWithoutRemark(_ => this.VisitMemberBinding(ma));
-
-
                 this.VisitMemberBinding(m);
                 // 选择字段
                 this.AddPickColumn(m.Member, newType);
@@ -320,8 +314,9 @@ namespace Riz.XFramework.Data
                 if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable())
                 {
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(newType);
-                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
-                    if (attribute == null) throw new XFrameworkException("Complex property {{{0}}} must mark 'ForeignKeyAttribute' ", m.Member.Name);
+                    var attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
+                    // 不能当做导航属性的复杂字段
+                    if (attribute == null) return;
                 }
 
                 // 生成导航属性描述集合，以类名.属性名做为键值
@@ -517,11 +512,10 @@ namespace Riz.XFramework.Data
             else
             {
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                foreach (var m in typeRuntime.Members)
+                foreach (var item in typeRuntime.Members)
                 {
-                    if (m != null && m.Column != null && m.Column.NoMapped) continue;
-                    if (m != null && m.ForeignKey != null) continue; // 不加载导航属性
-                    if (m.Member.MemberType == MemberTypes.Method) continue;
+                    var m = item as FieldAccessorBase;
+                    if (m == null || !m.IsDbField) continue;
 
                     _builder.AppendMember(alias, m.Member, type);
                     this.AddPickColumn(m.Member, type);
@@ -585,8 +579,9 @@ namespace Riz.XFramework.Data
                 {
                     // a.Client 要求 <Client> 必须标明 ForeignKeyAttribute
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(memberExpression.Expression.Type);
-                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(memberExpression.Member.Name);
-                    if (attribute == null) throw new XFrameworkException("Include member {{{0}}} must mark 'ForeignKeyAttribute'.", memberExpression);
+                    var attribute = typeRuntime.GetForeignKeyAttribute(memberExpression.Member.Name);
+                    if (attribute == null)
+                        throw new XFrameworkException("ForeignKeyAttribute not found for include member {0}.{1}", typeRuntime.Type.Name, memberExpression.Member.Name);
 
                     MemberExpression m = null;
                     chain.Add(memberExpression);
@@ -600,9 +595,9 @@ namespace Riz.XFramework.Data
 
                 // 生成导航属性描述信息
                 string keyId = string.Empty;
-                for (int i = chain.Count - 1; i >= 0; i--)
+                for (int index = chain.Count - 1; index >= 0; index--)
                 {
-                    Expression expression = chain[i];
+                    Expression expression = chain[index];
                     memberExpression = expression as MemberExpression;
                     if (memberExpression == null) continue;
 
@@ -611,8 +606,8 @@ namespace Riz.XFramework.Data
                     {
                         // Fix issue# SplitOn 列占一个位
                         var nav = new NavDescriptor(keyId, memberExpression.Member);
-                        nav.StartIndex = i == 0 ? _pickColumns.Count : -1;
-                        nav.FieldCount = i == 0 ? (AggregateField(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
+                        nav.StartIndex = index == 0 ? _pickColumns.Count : -1;
+                        nav.FieldCount = index == 0 ? (AggregateField(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
                         _navDescriptors.Add(nav);
                     }
                 }
@@ -622,11 +617,11 @@ namespace Riz.XFramework.Data
         }
 
         // 添加额外列，用来判断整个（左）连接记录是否为空
-        private void AddSplitOnColumn(System.Reflection.MemberInfo member, string alias)
+        private void AddSplitOnColumn(MemberExpression m, string alias)
         {
-            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.DeclaringType);
-            var fkAttribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Name);
-            string keyName = fkAttribute.OuterKeys.FirstOrDefault(a => !a.StartsWith(AppConst.CONSTANT_FOREIGNKEY, StringComparison.Ordinal));
+            TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
+            var attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
+            string keyName = attribute.OuterKeys.FirstOrDefault(a => !a.StartsWith(AppConst.CONSTANT_FOREIGNKEY, StringComparison.Ordinal));
 
             _builder.Append("CASE WHEN ");
             _builder.AppendMember(alias, keyName);
@@ -640,15 +635,6 @@ namespace Riz.XFramework.Data
             _builder.Append(',');
             _builder.AppendNewLine();
         }
-
-        //// 缓存选中字段
-        //private void AddPickColumn(string memberName)
-        //{
-        //    string newName = _pickColumns.Add(memberName);
-        //    _builder.AppendAs(newName);
-        //    _builder.Append(',');
-        //    _builder.AppendNewLine();
-        //}
 
         // 记录选中字段
         private void AddPickColumn(MemberInfo m, Type reflectedType)
@@ -718,6 +704,8 @@ namespace Riz.XFramework.Data
         private static Func<MemberInfo, int> _countPrimitive = member => TypeUtils.IsPrimitive(member) ? 1 : 0;
         // 复合类型计数器
         private static Func<Expression, int> _countComplex = exp =>
-              exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type) ? 1 : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).DataFieldNumber;
+              exp.NodeType == ExpressionType.MemberAccess && TypeUtils.IsPrimitiveType(exp.Type)
+                ? 1
+                : TypeRuntimeInfoCache.GetRuntimeInfo(exp.Type.IsGenericType ? exp.Type.GetGenericArguments()[0] : exp.Type).Members.Count(a => a is FieldAccessorBase && ((FieldAccessorBase)a).IsDbField);
     }
 }

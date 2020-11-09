@@ -72,6 +72,7 @@
     <Compile Include="..\..\net45\Riz.XFramework\Data\DbQueryable`1.cs" Link="Data\DbQueryable`1.cs" />
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\ConstructorAccessor.cs" Link="Data\Emit\ConstructorAccessor.cs" />
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\FieldAccessor.cs" Link="Data\Emit\FieldAccessor.cs" />
+    <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\FieldAccessorBase.cs" Link="Data\Emit\FieldAccessorBase.cs" />
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\ILGeneratorExtensions.cs" Link="Data\Emit\ILGeneratorExtensions.cs" />
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\MemberAccessorBase.cs" Link="Data\Emit\MemberAccessorBase.cs" />
     <Compile Include="..\..\net45\Riz.XFramework\Data\Emit\MemberAccessorCollection.cs" Link="Data\Emit\MemberAccessorCollection.cs" />

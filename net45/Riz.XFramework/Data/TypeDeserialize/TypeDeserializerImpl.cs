@@ -149,18 +149,18 @@ namespace Riz.XFramework.Data
                     il.Emit(OpCodes.Brtrue_S, loadNullLabel);
                 }
 
-                var m = typeRuntime.GetMember(memberName);
+                var m = typeRuntime.GetMember(memberName) as FieldAccessorBase;
                 if (m == null) continue;
 
                 if (specializedConstructor == null) il.Emit(OpCodes.Dup);// stack is now [target][target]
 
                 // 数据字段类型
-                Type myFieldType = reader.GetFieldType(index);
-                Type realFieldType = myFieldType;
+                Type readerFieldType = reader.GetFieldType(index);
+                Type realReaderFieldType = readerFieldType;
                 // 实体属性类型
-                Type memberType = m.DataType;
-                MethodInfo getFieldValue = this.GetReaderMethod(myFieldType, memberType, ref realFieldType);
-                if (myFieldType != realFieldType) myFieldType = realFieldType;
+                Type entityFieldType = m.FieldType;
+                MethodInfo getFieldValue = this.GetReaderMethod(readerFieldType, entityFieldType, ref realReaderFieldType);
+                if (readerFieldType != realReaderFieldType) readerFieldType = realReaderFieldType;
 
                 Label isDbNullLabel = il.DefineLabel();
                 Label nextLoopLabel = il.DefineLabel();
@@ -176,20 +176,20 @@ namespace Riz.XFramework.Data
                 il.Emit(OpCodes.Ldc_I4, index);                 // stack is now [target][target][reader][index]
                 il.Emit(OpCodes.Callvirt, getFieldValue);       // stack is now [target][target][value-or-object]
 
-                if (memberType == typeof(char) || memberType == typeof(char?))
+                if (entityFieldType == typeof(char) || entityFieldType == typeof(char?))
                 {
-                    il.EmitCall(OpCodes.Call, memberType == typeof(char) ? _readChar : _readNullChar, null);    // stack is now [target][target][typed-value]
+                    il.EmitCall(OpCodes.Call, entityFieldType == typeof(char) ? _readChar : _readNullChar, null);    // stack is now [target][target][typed-value]
                 }
                 else
                 {
                     // unbox nullable enums as the primitive, i.e. byte etc
-                    var nullUnderlyingType = Nullable.GetUnderlyingType(memberType);
-                    var unboxType = nullUnderlyingType != null && nullUnderlyingType.IsEnum ? nullUnderlyingType : memberType;
+                    var nullUnderlyingType = Nullable.GetUnderlyingType(entityFieldType);
+                    var unboxType = nullUnderlyingType != null && nullUnderlyingType.IsEnum ? nullUnderlyingType : entityFieldType;
 
                     if (unboxType.IsEnum)
                     {
                         Type numericType = Enum.GetUnderlyingType(unboxType);
-                        if (myFieldType != typeof(string)) ConvertBoxedStack(il, myFieldType, unboxType, numericType);
+                        if (readerFieldType != typeof(string)) ConvertBoxedStack(il, readerFieldType, unboxType, numericType);
                         else
                         {
                             if (enumDeclareLocal == -1)
@@ -207,17 +207,17 @@ namespace Riz.XFramework.Data
                         }
 
                         // new Nullable<TValue>(TValue)
-                        if (nullUnderlyingType != null) EmitNewNullable(il, memberType); // stack is now [target][target][typed-value]
+                        if (nullUnderlyingType != null) EmitNewNullable(il, entityFieldType); // stack is now [target][target][typed-value]
                     }
-                    else if (memberType.FullName == _linqBinaryName)
+                    else if (entityFieldType.FullName == _linqBinaryName)
                     {
-                        var ctor = memberType.GetConstructor(new Type[] { typeof(byte[]) });
+                        var ctor = entityFieldType.GetConstructor(new Type[] { typeof(byte[]) });
                         il.Emit(OpCodes.Unbox_Any, typeof(byte[]));           // stack is now [target][target][byte-array]
                         il.Emit(OpCodes.Newobj, ctor);                        // stack is now [target][target][binary]
                     }
                     else
                     {
-                        bool noBoxed = myFieldType == unboxType || myFieldType == nullUnderlyingType;
+                        bool noBoxed = readerFieldType == unboxType || readerFieldType == nullUnderlyingType;
 
                         // myFieldType和实体属性类型一致， 如果用 DataReader.GetValue，则要强制转换{object}为实体属性定义的类型
                         bool useCast = noBoxed && getFieldValue == _getValue && unboxType != typeof(object);
@@ -226,13 +226,13 @@ namespace Riz.XFramework.Data
                         // myFieldType和实体属性类型不一致，需要做类型转换
                         if (!noBoxed)
                         {
-                            if (getFieldValue == _getValue && myFieldType.IsValueType) il.Emit(OpCodes.Unbox_Any, myFieldType);// stack is now [target][target][value]
+                            if (getFieldValue == _getValue && readerFieldType.IsValueType) il.Emit(OpCodes.Unbox_Any, readerFieldType);// stack is now [target][target][value]
                             // not a direct match; need to tweak the unbox
-                            ConvertBoxedStack(il, myFieldType, nullUnderlyingType ?? unboxType, null);
+                            ConvertBoxedStack(il, readerFieldType, nullUnderlyingType ?? unboxType, null);
                         }
 
                         // new Nullable<TValue>(TValue)
-                        if (nullUnderlyingType != null) EmitNewNullable(il, memberType);// stack is now [target][target][typed-value]
+                        if (nullUnderlyingType != null) EmitNewNullable(il, entityFieldType);// stack is now [target][target][typed-value]
                     }
                 }
 
@@ -255,12 +255,12 @@ namespace Riz.XFramework.Data
                 else
                 {
                     // DbNull，将NULL或者0推到栈顶
-                    if (!m.DataType.IsValueType) il.Emit(OpCodes.Ldnull);
+                    if (!entityFieldType.IsValueType) il.Emit(OpCodes.Ldnull);
                     else
                     {
-                        int localIndex = il.DeclareLocal(m.DataType).LocalIndex;
+                        int localIndex = il.DeclareLocal(entityFieldType).LocalIndex;
                         il.LoadLocalAddress(localIndex);
-                        il.Emit(OpCodes.Initobj, m.DataType);
+                        il.Emit(OpCodes.Initobj, entityFieldType);
                         il.LoadLocal(localIndex);
                     }
                 }
@@ -307,25 +307,25 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 获取对应每列的读取方法
         /// </summary>
-        /// <param name="myFieldType">字段类型</param>
-        /// <param name="memberType">实体类型</param>
-        /// <param name="realFieldType">字段类型（引用传递）</param>
+        /// <param name="readerFieldType">dataReader 里的字段类型</param>
+        /// <param name="entityFieldType">实体定义的字段类型</param>
+        /// <param name="realReaderFieldType">字段类型（引用传递）</param>
         /// <returns></returns>
-        protected virtual MethodInfo GetReaderMethod(Type myFieldType, Type memberType, ref Type realFieldType)
+        protected virtual MethodInfo GetReaderMethod(Type readerFieldType, Type entityFieldType, ref Type realReaderFieldType)
         {
             MethodInfo result = null;
-            if (myFieldType == typeof(char)) result = _getChar;
-            else if (myFieldType == typeof(string)) result = _getString;
-            else if (myFieldType == typeof(bool) || myFieldType == typeof(bool?)) result = _getBoolean;
-            else if (myFieldType == typeof(byte) || myFieldType == typeof(byte?)) result = _getByte;
-            else if (myFieldType == typeof(DateTime) || myFieldType == typeof(DateTime?)) result = _getDateTime;
-            else if (myFieldType == typeof(decimal) || myFieldType == typeof(decimal?)) result = _getDecimal;
-            else if (myFieldType == typeof(double) || myFieldType == typeof(double?)) result = _getDouble;
-            else if (myFieldType == typeof(float) || myFieldType == typeof(float?)) result = _getFloat;
-            else if (myFieldType == typeof(Guid) || myFieldType == typeof(Guid?)) result = _getGuid;
-            else if (myFieldType == typeof(short) || myFieldType == typeof(short?)) result = _getInt16;
-            else if (myFieldType == typeof(int) || myFieldType == typeof(int?)) result = _getInt32;
-            else if (myFieldType == typeof(long) || myFieldType == typeof(long?)) result = _getInt64;
+            if (readerFieldType == typeof(char)) result = _getChar;
+            else if (readerFieldType == typeof(string)) result = _getString;
+            else if (readerFieldType == typeof(bool) || readerFieldType == typeof(bool?)) result = _getBoolean;
+            else if (readerFieldType == typeof(byte) || readerFieldType == typeof(byte?)) result = _getByte;
+            else if (readerFieldType == typeof(DateTime) || readerFieldType == typeof(DateTime?)) result = _getDateTime;
+            else if (readerFieldType == typeof(decimal) || readerFieldType == typeof(decimal?)) result = _getDecimal;
+            else if (readerFieldType == typeof(double) || readerFieldType == typeof(double?)) result = _getDouble;
+            else if (readerFieldType == typeof(float) || readerFieldType == typeof(float?)) result = _getFloat;
+            else if (readerFieldType == typeof(Guid) || readerFieldType == typeof(Guid?)) result = _getGuid;
+            else if (readerFieldType == typeof(short) || readerFieldType == typeof(short?)) result = _getInt16;
+            else if (readerFieldType == typeof(int) || readerFieldType == typeof(int?)) result = _getInt32;
+            else if (readerFieldType == typeof(long) || readerFieldType == typeof(long?)) result = _getInt64;
             else result = _getValue;
 
             return result;

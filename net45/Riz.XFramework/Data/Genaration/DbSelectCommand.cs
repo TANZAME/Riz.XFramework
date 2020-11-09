@@ -3,6 +3,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace Riz.XFramework.Data
 {
@@ -137,7 +138,7 @@ namespace Riz.XFramework.Data
                 string key = nav.Key;
                 MemberExpression m = nav.Expression;
                 TypeRuntimeInfo typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
+                ForeignKeyAttribute attribute = typeRuntime.GetForeignKeyAttribute(m.Member.Name);
 
                 string innerKey = string.Empty;
                 string outerKey = key;
@@ -178,6 +179,7 @@ namespace Riz.XFramework.Data
                 builder.Append(" ");
                 builder.Append(alias2);
                 builder.Append(" ON ");
+
                 for (int i = 0; i < attribute.InnerKeys.Length; i++)
                 {
                     if (attribute.InnerKeys[i].StartsWith(AppConst.CONSTANT_FOREIGNKEY, StringComparison.Ordinal)) builder.Append(attribute.InnerKeys[i].Substring(7));

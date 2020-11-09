@@ -87,6 +87,7 @@
     <Compile Include="Common\XFrameworkExtensions.cs" />
     <Compile Include="Common\XFrameworkException.cs" />
     <Compile Include="Common\XFrameworkValidator.cs" />
+    <Compile Include="Data\Emit\FieldAccessorBase.cs" />
     <Compile Include="Data\Emit\MemberAccessorCollection.cs" />
     <Compile Include="Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs" />
     <Compile Include="Data\Genaration\DbRawParameter.cs" />

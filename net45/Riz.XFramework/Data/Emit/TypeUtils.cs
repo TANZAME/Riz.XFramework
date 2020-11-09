@@ -133,9 +133,8 @@ namespace Riz.XFramework.Data
             var type2 = type.GetGenericTypeDefinition();
             if (type2 == typeof(List<>)) return true;
             else if (type2 == typeof(IList<>)) return true;
-            //if (type == typeof(List<>)) return true;
-            //else if (type == typeof(IList<>)) return true;
-            else return typeof(IList<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(IList<>).FullName) != null;
+            else if (type2 == typeof(ICollection<>)) return true;
+            else return typeof(ICollection<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(ICollection<>).FullName) != null;
 
         }
 
@@ -271,7 +270,7 @@ namespace Riz.XFramework.Data
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(reflectedType);
                 var m = typeRuntime.GetMember(member.Name);
-                if (m != null) column = m.Column;
+                if (m != null && m is FieldAccessorBase) column = (m as FieldAccessorBase).Column;
             }
 
             return column;
