@@ -334,8 +334,8 @@ namespace Riz.XFramework.Data
                 if (p != null && p.Member.GetGetMethod(true) != null && !p.Member.GetGetMethod().IsVirtual) return null;
 
                 // 区分一对一和一对多导航属性
-                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.FieldType.IsGenericType ? m.FieldType.GetGenericArguments()[0] : m.FieldType);
-                if (TypeUtils.IsCollectionType(m.FieldType))
+                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType);
+                if (TypeUtils.IsCollectionType(m.MemberCLRType))
                 {
                     // 1:n 关系，外键实体必须持有当前实体的所有主键属性
 

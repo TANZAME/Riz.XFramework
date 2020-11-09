@@ -172,7 +172,7 @@ namespace Riz.XFramework.Data
                 var navMember = typeRuntime.GetMember(navigation.Name) as FieldAccessorBase;
                 if (navMember == null) continue;
 
-                Type navType = navMember.FieldType;
+                Type navType = navMember.MemberCLRType;
                 Func<IDataRecord, object> deserializer = null;
                 TypeRuntimeInfo navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navType);
                 object navCollection = null;

@@ -978,8 +978,8 @@ namespace Riz.XFramework.Data.SqlClient
                                 a.Name == newExpression.Members[index].Name ||
                                 ((FieldAccessorBase)a).Column != null && ((FieldAccessorBase)a).Column.Name == newExpression.Members[index].Name));
                         if (m == null) throw new XFrameworkException("Member {0}.{1} not found.", typeRuntime.Type.Name, newExpression.Members[index].Name);
-                        var binding = Expression.Bind(m.Member, newExpression.Arguments[index].Type != m.FieldType
-                            ? Expression.Convert(newExpression.Arguments[index], m.FieldType)
+                        var binding = Expression.Bind(m.Member, newExpression.Arguments[index].Type != m.MemberCLRType
+                            ? Expression.Convert(newExpression.Arguments[index], m.MemberCLRType)
                             : newExpression.Arguments[index]);
                         bindings.Add(binding);
                     }
