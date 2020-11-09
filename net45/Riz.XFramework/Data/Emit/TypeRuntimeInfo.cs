@@ -244,15 +244,30 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         public MemberAccessorBase GetMember(string memberName)
         {
-            MemberAccessorBase result = null;
-            this.Members.TryGetValue(memberName, out result);
+            MemberAccessorBase m = null;
+            this.Members.TryGetValue(memberName, out m);
 
-            if (result != null && (result is MethodAccessor) && ((MethodAccessor)result).Overrides != null && ((MethodAccessor)result).Overrides.Count > 0)
+            if (m != null)
             {
-                throw new XFrameworkException("{0} have multi overrides,please try {TypeRuntimeInfo.GetMethod}.", memberName);
+                // 有多个相同名称的方法成员（重载）
+                var method = m as MethodAccessor;
+                if (method != null && method.Overrides != null && method.Overrides.Count > 0)
+                    throw new XFrameworkException("{0}.{1} member has another overrides,please use TypeRuntimeInfo.GetMethod method.", _type.Name, memberName);
             }
 
-            return result;
+            return m;
+        }
+
+        /// <summary>
+        /// 获取成员反射器
+        /// </summary>
+        /// <param name="memberName">成员名称</param>
+        /// <returns></returns>
+        public T GetMember<T>(string memberName) where T : MemberAccessorBase
+        {
+            MemberAccessorBase m = null;
+            this.Members.TryGetValue(memberName, out m);
+            return m as T;
         }
 
         /// <summary>
@@ -466,11 +481,16 @@ namespace Riz.XFramework.Data
             if (attribute == null)
             {
                 // 如果是属性，要求标记为 virtual
-                var p = m as PropertyAccessor;
-                if (p != null && p.Member.GetGetMethod(true) != null && !p.Member.GetGetMethod().IsVirtual) return null;
+                var property = m as PropertyAccessor;
+                if (property != null)
+                {
+                    var getMethod = property.Member.GetGetMethod(true);
+                    if (getMethod != null && !getMethod.IsVirtual) return null;
+                }
 
                 // 区分一对一和一对多导航属性
-                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType);
+                var navEntityType = m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType;
+                var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navEntityType);
                 if (TypeUtils.IsCollectionType(m.MemberCLRType))
                 {
                     // 1:n 关系，外键实体必须持有当前实体的所有主键属性
@@ -488,7 +508,7 @@ namespace Riz.XFramework.Data
                         }
                         else
                         {
-                            var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
+                            var outer = navTypeRuntime.GetMember<FieldAccessorBase>(inner.Name);
                             if (outer == null)
                             {
                                 innerKeys = null;
@@ -530,7 +550,7 @@ namespace Riz.XFramework.Data
                             }
                             else
                             {
-                                var inner = this.GetMember(outer.Name) as FieldAccessorBase;
+                                var inner = this.GetMember<FieldAccessorBase>(outer.Name);
                                 if (inner == null)
                                 {
                                     innerKeys = null;
@@ -567,7 +587,7 @@ namespace Riz.XFramework.Data
                             }
                             else
                             {
-                                var outer = navTypeRuntime.GetMember(inner.Name) as FieldAccessorBase;
+                                var outer = navTypeRuntime.GetMember<FieldAccessorBase>(inner.Name);
                                 if (outer == null)
                                 {
                                     innerKeys = null;

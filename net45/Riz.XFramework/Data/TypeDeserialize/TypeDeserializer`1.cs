@@ -169,14 +169,13 @@ namespace Riz.XFramework.Data
                 string keyName = typeName + "." + navigation.Name;
                 if (keyName != navigation.Key) continue;
 
-                var navMember = typeRuntime.GetMember(navigation.Name) as FieldAccessorBase;
+                var navMember = typeRuntime.GetMember<FieldAccessorBase>(navigation.Name);
                 if (navMember == null) continue;
 
                 Type navType = navMember.MemberCLRType;
                 Func<IDataRecord, object> deserializer = null;
                 TypeRuntimeInfo navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navType);
                 object navCollection = null;
-                //if (navType.IsGenericType && navTypeRuntime.GenericTypeDefinition == typeof(List<>))
                 if (TypeUtils.IsCollectionType(navType))
                 {
                     // 1：n关系，导航属性为 List<T>
@@ -241,12 +240,12 @@ namespace Riz.XFramework.Data
                                     //if (curTypeRuntime.GenericTypeDefinition == typeof(List<>))
                                     if (TypeUtils.IsCollectionType(curType))
                                     {
-                                        var getCountMember = curTypeRuntime.GetMember("get_Count");
-                                        int count = Convert.ToInt32(getCountMember.Invoke(curModel));      // List.Count
+                                        var member_Count = curTypeRuntime.GetMember("get_Count");
+                                        int count = Convert.ToInt32(member_Count.Invoke(curModel));      // List.Count
                                         if (count > 0)
                                         {
-                                            var getItemMember = curTypeRuntime.GetMember("get_Item");
-                                            curModel = getItemMember.Invoke(curModel, count - 1);        // List[List.Count-1]
+                                            var member_Index = curTypeRuntime.GetMember("get_Item");
+                                            curModel = member_Index.Invoke(curModel, count - 1);        // List[List.Count-1]
                                             curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(curModel.GetType());
                                         }
                                         else

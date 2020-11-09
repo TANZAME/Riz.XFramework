@@ -1004,9 +1004,12 @@ namespace Riz.XFramework.UnitTest
                     RizClientCode = a.RizClientCode
                 };
             result = query.ToList();
-            query = context.GetTable<RizModel.Client>().Include(a => a.Markets);
-            result = query.ToList();
             var single = query.FirstOrDefault();
+
+            query = context.GetTable<RizModel.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets2);
+            result = query.ToList();
 
             //SQL=>
             //SELECT

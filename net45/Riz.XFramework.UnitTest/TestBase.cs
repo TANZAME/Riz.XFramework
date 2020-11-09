@@ -1005,6 +1005,12 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             var single = query.FirstOrDefault();
 
+
+            query = context.GetTable<Model.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets2);
+            result = query.ToList();
+
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
