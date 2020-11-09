@@ -362,8 +362,10 @@ namespace Riz.XFramework.UnitTest
             [ForeignKey("ClientId")]
             public virtual Client Client { get; set; }
 
-            [ForeignKey(new[] { "ClientId", "AccountId" }, new[] { "ClientId", "{CONST}'2'" })]
             public virtual IList<ClientAccountMarket> Markets { get; set; }
+
+            [ForeignKey(new[] { "ClientId", "AccountId" }, new[] { "ClientId", "{CONST}'2'" })]
+            public virtual ICollection<ClientAccountMarket> Markets2 { get; set; }
 
             /// <summary>
             /// 构造函数勾子
