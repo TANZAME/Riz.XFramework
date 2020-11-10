@@ -1,95 +1,74 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
-    <Authors>NaiXiang Tian</Authors>
-    <Company>NaiXiang Tian</Company>
-    <Description>MySQL provider for Riz.XFrameworkCore.</Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.4.0</AssemblyVersion>
-    <FileVersion>2.4.0</FileVersion>
-    <Version>2.4.0</Version>
-    <Copyright>NaiXiang Tian</Copyright>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageTags>.NET Core MySQL Database Data O/RM ADO.NET</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-  </PropertyGroup>
-  
-  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup>
+		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<Authors>NaiXiang Tian</Authors>
+		<Company>NaiXiang Tian</Company>
+		<Description>MySQL provider for Riz.XFrameworkCore.</Description>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<AssemblyVersion>2.4.0</AssemblyVersion>
+		<FileVersion>2.4.0</FileVersion>
+		<Version>2.4.0</Version>
+		<Copyright>NaiXiang Tian</Copyright>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageTags>.NET Core MySQL Database Data O/RM ADO.NET</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+	</PropertyGroup>
+
+	<!--
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
-    <OutputPath>bin\Debug</OutputPath>
-    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.MySql.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
     <NoWarn />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
-    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.MySql.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
     <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>-->
-  
-  <!-- xml 文档输出 -->
-  <PropertyGroup>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-  
-  <!-- 定义条件编译符 -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>netcore</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>net45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>net40</DefineConstants>
-  </PropertyGroup>
+  -->
 
+	<!-- xml 文档输出 -->
+	<PropertyGroup>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
 
-  <!-- fx 4.0 和 4.5 共同引用的dll -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
+	<!-- 定义条件编译符 -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<DefineConstants>netcore</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+		<DefineConstants>net45</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+		<DefineConstants>net40</DefineConstants>
+	</PropertyGroup>
+	
+	<ItemGroup>
+	  <Compile Remove="lib\**" />
+	  <EmbeddedResource Remove="lib\**" />
+	  <None Remove="lib\**" />
+	</ItemGroup>
 
-  <!-- fx 4.0 单独引用的 dll -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Reference Include="MySql.Data">
-      <HintPath>lib\MySql.Data.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <!-- fx 4.5 单独引用的 dll -->
-  <!-- fx 4.5 单独引用的 package -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Net.Http" Version="4.0.0" />
-  </ItemGroup>
-  
-  
-  <!-- netcore 引用的包 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
-    <Compile Include="Data\SqlClient\MySqlDbContext.cs" />
-    <Compile Include="Data\SqlClient\MySqlDbQueryProvider.cs" />
-    <Compile Include="Data\SqlClient\MySqlDbValueResolver.cs" />
-    <Compile Include="Data\SqlClient\MySqlMethodCallExressionVisitor.cs" />
-    <Compile Include="Data\SqlClient\MySqlTranslateContext.cs" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+	  <Reference Include="MySql.Data">
+	    <HintPath>lib\net40\MySql.Data.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="MySqlConnector" Version="0.53.0" />
+	</ItemGroup>
+	
 </Project>
