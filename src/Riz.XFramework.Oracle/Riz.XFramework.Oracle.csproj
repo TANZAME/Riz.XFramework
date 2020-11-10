@@ -51,22 +51,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="lib\**" />
-		<EmbeddedResource Remove="lib\**" />
-		<None Remove="lib\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
 		<Reference Include="Oracle.ManagedDataAccess">
-			<HintPath>lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+			<HintPath>..\..\lib\Oracle\net40\Oracle.ManagedDataAccess.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
 		<Reference Include="Oracle.ManagedDataAccess">
-			<HintPath>lib\net45\Oracle.ManagedDataAccess.dll</HintPath>
+			<HintPath>..\..\lib\Oracle\net45\Oracle.ManagedDataAccess.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

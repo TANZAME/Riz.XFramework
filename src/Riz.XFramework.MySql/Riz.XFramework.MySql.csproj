@@ -49,19 +49,13 @@
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
 		<DefineConstants>net40</DefineConstants>
 	</PropertyGroup>
-	
-	<ItemGroup>
-	  <Compile Remove="lib\**" />
-	  <EmbeddedResource Remove="lib\**" />
-	  <None Remove="lib\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
 	  <Reference Include="MySql.Data">
-	    <HintPath>lib\net40\MySql.Data.dll</HintPath>
+	    <HintPath>..\..\lib\MySql\net40\MySql.Data.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
