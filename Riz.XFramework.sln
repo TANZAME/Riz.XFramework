@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.Postgre", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.SQLite", "src\Riz.XFramework.SQLite\Riz.XFramework.SQLite.csproj", "{331BB191-A618-478B-B8E1-6CEE9C2E6660}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.UnitTest", "src\Riz.XFramework.UnitTest\Riz.XFramework.UnitTest.csproj", "{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,10 @@ Global
 		{331BB191-A618-478B-B8E1-6CEE9C2E6660}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{331BB191-A618-478B-B8E1-6CEE9C2E6660}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{331BB191-A618-478B-B8E1-6CEE9C2E6660}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -197,6 +203,7 @@ Global
 		{08715534-AAD4-482A-B09E-BC9CADEF998F} = {FA218316-9D79-4702-BDD1-888C266634D2}
 		{C1793F17-A5BD-48AA-A061-1670BCC69BC3} = {FA218316-9D79-4702-BDD1-888C266634D2}
 		{331BB191-A618-478B-B8E1-6CEE9C2E6660} = {FA218316-9D79-4702-BDD1-888C266634D2}
+		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235} = {FA218316-9D79-4702-BDD1-888C266634D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3DB1C9FE-3743-4973-BC61-0BFD7F063824}

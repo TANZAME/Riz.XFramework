@@ -48,22 +48,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="lib\**" />
-		<EmbeddedResource Remove="lib\**" />
-		<None Remove="lib\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
 		<Reference Include="System.Data.SQLite">
-			<HintPath>lib\net40\System.Data.SQLite.dll</HintPath>
+			<HintPath>..\..\lib\SQLite\net40\System.Data.SQLite.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
 		<Reference Include="System.Data.SQLite">
-			<HintPath>lib\net45\System.Data.SQLite.dll</HintPath>
+			<HintPath>..\..\lib\SQLite\net45\System.Data.SQLite.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

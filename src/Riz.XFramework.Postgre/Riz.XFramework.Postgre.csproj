@@ -51,22 +51,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="lib\**" />
-		<EmbeddedResource Remove="lib\**" />
-		<None Remove="lib\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
 		<Reference Include="Npgsql">
-			<HintPath>lib\net40\Npgsql.dll</HintPath>
+			<HintPath>..\..\lib\Postgre\net40\Npgsql.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
 		<Reference Include="Npgsql">
-			<HintPath>lib\net45\Npgsql.dll</HintPath>
+			<HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
