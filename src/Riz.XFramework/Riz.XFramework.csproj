@@ -1,29 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- 
+	<!-- 
   参考：https://docs.microsoft.com/zh-cn/visualstudio/msbuild/project-element-msbuild?view=vs-2019 
   -->
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
-    <Authors>NaiXiang Tian</Authors>
-    <Company>NaiXiang Tian</Company>
-    <Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.4.0</AssemblyVersion>
-    <FileVersion>2.4.0</FileVersion>
-    <Version>2.4.0</Version>
-    <Copyright>NaiXiang Tian</Copyright>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-    <PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
-  </PropertyGroup>
-  
-  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup>
+		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<Authors>NaiXiang Tian</Authors>
+		<Company>NaiXiang Tian</Company>
+		<Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the original Entity Framework api.</Description>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<AssemblyVersion>2.4.0</AssemblyVersion>
+		<FileVersion>2.4.0</FileVersion>
+		<Version>2.4.0</Version>
+		<Copyright>NaiXiang Tian</Copyright>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+		<PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
+	</PropertyGroup>
+
+	<!--
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
@@ -33,153 +34,49 @@
     <DefineConstants>TRACE;netcore</DefineConstants>
     <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
     <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>-->
-  
-  <!-- xml 文档输出 -->
-  <PropertyGroup>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-  
-  <!-- 定义条件编译符 -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>netcore</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>net45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>net40</DefineConstants>
-  </PropertyGroup>
+  -->
+
+	<!-- xml 文档输出 -->
+	<PropertyGroup>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<!-- 定义条件编译符 -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<DefineConstants>netcore</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+		<DefineConstants>net45</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+		<DefineConstants>net40</DefineConstants>
+	</PropertyGroup>
 
 
-  <!-- fx 4.0 和 4.5 共同引用的dll -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
+	<!-- net4.0 和 net45 的引用的 dll -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
+		<Reference Include="System.ComponentModel.DataAnnotations" />
+		<Reference Include="System.Configuration" />
+		<Reference Include="System.Web" />
+	</ItemGroup>
 
-  <!-- fx 4.0 单独引用的 dll -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+	<!-- net45 引用的包 -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+		<PackageReference Include="System.Net.Http" Version="4.0.0" />
+	</ItemGroup>
 
-  </ItemGroup>
 
-  <!-- fx 4.5 单独引用的 dll -->
-  <!-- fx 4.5 单独引用的 package -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Net.Http" Version="4.0.0" />
-  </ItemGroup>
-  
-  
-  <!-- netcore 引用的包 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-  </ItemGroup>
-  
-    <ItemGroup>
-    <Compile Remove="Data\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <None Remove="Data\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Caching\.gitkeep" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Data\Annotation\ColumnAttribute.cs" />
-    <Compile Include="Data\Annotation\ForeignKeyAttribute.cs" />
-    <Compile Include="Data\Annotation\TableAttribute.cs" />
-    <Compile Include="Data\DbContextBase.cs" />
-    <Compile Include="Data\DbExpression.cs" />
-    <Compile Include="Data\DbExpressionType.cs" />
-    <Compile Include="Data\DbFunction.cs" />
-    <Compile Include="Data\DbQueryable.cs" />
-    <Compile Include="Data\DbQueryableExtensions.cs" />
-    <Compile Include="Data\DbQueryable`1.cs" />
-    <Compile Include="Data\Emit\ConstructorAccessor.cs" />
-    <Compile Include="Data\Emit\FieldAccessor.cs" />
-    <Compile Include="Data\Emit\FieldAccessorBase.cs" />
-    <Compile Include="Data\Emit\ILGeneratorExtensions.cs" />
-    <Compile Include="Data\Emit\MemberAccessorBase.cs" />
-    <Compile Include="Data\Emit\MemberAccessorCollection.cs" />
-    <Compile Include="Data\Emit\MethodAccessor.cs" />
-    <Compile Include="Data\Emit\PropertyAccessor.cs" />
-    <Compile Include="Data\Emit\TypeRuntimeInfo.cs" />
-    <Compile Include="Data\Emit\TypeRuntimeInfoCache.cs" />
-    <Compile Include="Data\Emit\TypeUtils.cs" />
-    <Compile Include="Data\ExpressionVisitor\AggregateExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\ColumnExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\ExpressionNominator.cs" />
-    <Compile Include="Data\ExpressionVisitor\GroupByExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\HavingExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\JoinExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\LinqExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\MemberVisitedStack.cs" />
-    <Compile Include="Data\ExpressionVisitor\MethodCallExressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\NavPredicateExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\OrderByExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\UpdateExpressionVisitor.cs" />
-    <Compile Include="Data\ExpressionVisitor\WhereExpressionVisitor.cs" />
-    <Compile Include="Data\Genaration\BulkInsertInfo.cs" />
-    <Compile Include="Data\Genaration\DbQueryProvider.cs" />
-    <Compile Include="Data\Genaration\DbRawCommand.cs" />
-    <Compile Include="Data\Genaration\DbRawParameter.cs" />
-    <Compile Include="Data\Genaration\DbRawSql.cs" />
-    <Compile Include="Data\Genaration\DbSelectCommand.cs" />
-    <Compile Include="Data\Genaration\DbValueResolver.cs" />
-    <Compile Include="Data\Genaration\IDbQueryProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Data\Genaration\IMapInfo.cs" />
-    <Compile Include="Data\Genaration\ISqlBuilder.cs" />
-    <Compile Include="Data\Genaration\ITranslateContext.cs" />
-    <Compile Include="Data\Genaration\SqlBuilder.cs" />
-    <Compile Include="Data\Genaration\TableAliasResolver.cs" />
-    <Compile Include="Data\Genaration\TranslateContext.cs" />
-    <Compile Include="Data\Infrastructure\AppConst.cs" />
-    <Compile Include="Data\Infrastructure\Database.cs" />
-    <Compile Include="Data\Infrastructure\Database45.cs" />
-    <Compile Include="Data\Infrastructure\DataExtensions.cs" />
-    <Compile Include="Data\Infrastructure\DbCommandException.cs" />
-    <Compile Include="Data\Infrastructure\DbCommandInterceptor.cs" />
-    <Compile Include="Data\Infrastructure\DbInterception.cs" />
-    <Compile Include="Data\Infrastructure\Enumerator.cs" />
-    <Compile Include="Data\Infrastructure\HashCollection`1.cs" />
-    <Compile Include="Data\Infrastructure\IDatabase.cs" />
-    <Compile Include="Data\Infrastructure\IDatabase45.cs" />
-    <Compile Include="Data\Infrastructure\IDbCommandInterceptor.cs" />
-    <Compile Include="Data\Infrastructure\IDbContext.cs" />
-    <Compile Include="Data\Infrastructure\IDbQueryable.cs" />
-    <Compile Include="Data\Infrastructure\IDbQueryable`1.cs" />
-    <Compile Include="Data\Infrastructure\ILoadingBalanceProvider.cs" />
-    <Compile Include="Data\Infrastructure\LoadingBalanceProvider.cs" />
-    <Compile Include="Data\Infrastructure\OrderBy.cs" />
-    <Compile Include="Data\Infrastructure\ReplicaConfiguration.cs" />
-    <Compile Include="Data\Parsing\DbQueryableParser.cs" />
-    <Compile Include="Data\Parsing\DbQueryDeleteTree.cs" />
-    <Compile Include="Data\Parsing\DbQueryInsertTree.cs" />
-    <Compile Include="Data\Parsing\DbQuerySelectTree.cs" />
-    <Compile Include="Data\Parsing\DbQueryTree.cs" />
-    <Compile Include="Data\Parsing\DbQueryUpdateTree.cs" />
-    <Compile Include="Data\SqlClient\DbTypeUtils.cs" />
-    <Compile Include="Data\SqlClient\SqlServerDbContext.cs" />
-    <Compile Include="Data\SqlClient\SqlServerDbQueryProvider.cs" />
-    <Compile Include="Data\SqlClient\SqlServerDbValueResolver.cs" />
-    <Compile Include="Data\SqlClient\SqlServerJoinExpressionVisitor.cs" />
-    <Compile Include="Data\SqlClient\SqlServerMethodCallExressionVisitor.cs" />
-    <Compile Include="Data\SqlClient\SqlServerSelectCommand.cs" />
-    <Compile Include="Data\TypeDeserialize\ColumnDescriptor.cs" />
-    <Compile Include="Data\TypeDeserialize\ColumnDescriptorCollection.cs" />
-    <Compile Include="Data\TypeDeserialize\IStringKey.cs" />
-    <Compile Include="Data\TypeDeserialize\NavDescriptor.cs" />
-    <Compile Include="Data\TypeDeserialize\NavDescriptorCollection.cs" />
-    <Compile Include="Data\TypeDeserialize\NavMember.cs" />
-    <Compile Include="Data\TypeDeserialize\None.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializer.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializerImpl.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializer`1.cs" />
-    <Compile Include="Data\TypeDeserialize\TypeDeserializer`2.cs" />
-  </ItemGroup>
-  
+	<!-- netcore 引用的包 -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+		<PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="lib\**" />
+	  <EmbeddedResource Remove="lib\**" />
+	  <None Remove="lib\**" />
+	</ItemGroup>
+
 </Project>
