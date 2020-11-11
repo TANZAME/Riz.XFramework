@@ -55,7 +55,7 @@ namespace Riz.XFramework.UnitTest
         // 单表查询
         protected virtual void Query()
         {
-            Console.WriteLine("***** Query *****");
+            Console.WriteLine("1. Query");
             var context = _newContext();
 
             // 查询表达式 <注：Date,DateTime,DateTime2的支持>
@@ -515,7 +515,7 @@ namespace Riz.XFramework.UnitTest
         // 数据库函数支持
         protected virtual void DbFunction()
         {
-            Console.WriteLine("***** DbFunction *****");
+            Console.WriteLine("2. DbFunction ");
             var context = _newContext();
             int m_byte = 16;
             Model.State state = Model.State.Complete;
@@ -926,7 +926,7 @@ namespace Riz.XFramework.UnitTest
         // 多表查询
         protected virtual void Join()
         {
-            Console.WriteLine("***** Join *****");
+            Console.WriteLine("3. Join ");
             var context = _newContext();
 
             // INNER JOIN
@@ -1758,7 +1758,7 @@ namespace Riz.XFramework.UnitTest
         // 新增记录
         protected virtual void Insert()
         {
-            Console.WriteLine("***** Insert *****");
+            Console.WriteLine("4. Insert ");
             var context = _newContext();
 
             // 带自增列
@@ -2089,7 +2089,7 @@ namespace Riz.XFramework.UnitTest
         // 更新记录
         protected virtual void Update()
         {
-            Console.WriteLine("***** Update *****");
+            Console.WriteLine("5. Update ");
             var context = _newContext();
             // 整个实体更新
             var demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId > 0);
@@ -2256,7 +2256,7 @@ namespace Riz.XFramework.UnitTest
         // 删除记录
         protected virtual void Delete()
         {
-            Console.WriteLine("***** Delete *****");
+            Console.WriteLine("6. Delete ");
             var context = _newContext();
 
             // 1. 删除单个记录
@@ -2398,7 +2398,7 @@ namespace Riz.XFramework.UnitTest
 
         protected virtual void API()
         {
-            Console.WriteLine("***** API *****");
+            Console.WriteLine("7. API");
             var context = _newContext();
 
             var any = context.GetTable<Model.Client>().Any();
@@ -2613,7 +2613,7 @@ namespace Riz.XFramework.UnitTest
         // 性能测试
         protected virtual void Rabbit()
         {
-            Console.WriteLine("***** Rabbit *****");
+            Console.WriteLine("8. Rabbit ");
             Stopwatch stop = new Stopwatch();
             var context = _newContext();
 
