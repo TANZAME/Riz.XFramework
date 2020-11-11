@@ -1,25 +1,27 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace Riz.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// MSSQL SQL字段值解析器
+    /// SQL 语句构造器
     /// </summary>
-    internal class SqlServerDbValueResolver : DbValueResolver
+    public class OracleDbFuncletizer : DbFuncletizer
     {
         /// <summary>
         /// SQL字段值解析器实例
         /// </summary>
-        internal static SqlServerDbValueResolver Instance = new SqlServerDbValueResolver();
+        public static OracleDbFuncletizer Instance = new OracleDbFuncletizer();
 
         /// <summary>
-        /// 实例化 <see cref="SqlServerDbValueResolver"/> 类的新实例
+        /// 实例化 <see cref="OracleDbFuncletizer"/> 类的新实例
         /// </summary>
-        protected SqlServerDbValueResolver()
-            : base(SqlServerDbQueryProvider.Instance)
+        protected OracleDbFuncletizer()
+            : base(OracleDbQueryProvider.Instance)
         {
 
         }
@@ -35,14 +37,45 @@ namespace Riz.XFramework.Data.SqlClient
         /// <param name="scale">小数位</param>
         /// <param name="direction">查询参数类型</param>
         /// <returns></returns>
-        protected override IDbDataParameter CreateParameter(object value, ITranslateContext context,
+        protected override IDbDataParameter CreateParameter(object value, ITranslateContext context, 
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
+            if (value is bool) value = ((bool)value) ? 1 : 0;
+            else if (value is Guid)
+            {
+                value = ((Guid)value).ToByteArray();
+                dbType = OracleDbType.Raw;
+            }
+            else if (value is DateTimeOffset)
+            {
+                var dto = (DateTimeOffset)value;
+                var zone = (dto.Offset < TimeSpan.Zero ? "-" : "+") + dto.Offset.ToString("hh\\:mm");
+                value = new OracleTimeStampTZ(dto.DateTime, zone);
+            }
+
             // 补充 DbType
-            SqlParameter sqlParameter = (SqlParameter)base.CreateParameter(value, context, dbType, size, precision, scale, direction);
-            sqlParameter.DbType(dbType);
-            return sqlParameter;
+            OracleParameter oracleParameter = (OracleParameter)base.CreateParameter(value, context, dbType, size, precision, scale, direction);
+            oracleParameter.DbType(dbType);
+            return oracleParameter;
         }
+
+        /// <summary>
+        /// 获取 byte[] 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        protected override string GetSqlValueOfBytes(object value)
+        {
+            byte[] bytes = (byte[])value;
+            string hex = Common.BytesToHex(bytes, false, true);
+            string result = string.Empty;
+            if (string.IsNullOrEmpty(hex)) 
+                result = "EMPTY_BLOB()";
+            else
+                result = string.Format("TO_BLOB(HEXTORAW('{0}'))", hex);
+
+            return result;
+        }
+
 
         /// <summary>
         /// 获取 String 类型的 SQL 片断
@@ -53,8 +86,8 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfString(object value, object dbType, int? size = null)
         {
-            bool isUnicode = DbTypeUtils.IsUnicode(dbType);
-            string result = this.EscapeQuote(value.ToString(), isUnicode, true);
+            bool unicode = DbTypeUtils.IsUnicode(dbType);
+            string result = this.EscapeQuote(value.ToString(), unicode, true);
             return result;
         }
 
@@ -67,11 +100,11 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfTime(object value, object dbType, int? scale)
         {
-            // SQLSERVER 的Time类型范围：00:00:00.0000000 到 23:59:59.9999999
-            // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
+            // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/nlspg/datetime-data-types-and-time-zone-support.html#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
 
-            // 默认精度为7
-            string format = @"hh\:mm\:ss\.fffffff";
+            TimeSpan ts = (TimeSpan)value;
+            // 默认精度为6
+            string format = @"hh\:mm\:ss\.ffffff";
             if (DbTypeUtils.IsTime(dbType))
             {
                 string s = string.Empty;
@@ -79,7 +112,10 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(s)) format = string.Format(@"hh\:mm\:ss\.{0}", s);
             }
 
-            string result = this.EscapeQuote(((TimeSpan)value).ToString(format), false, false);
+            string result = ts.ToString(format);
+            result = string.Format("{0} {1}", ts.Days, result);
+            result = this.EscapeQuote(result, false, false);
+            result = string.Format("TO_DSINTERVAL({0})", result);
             return result;
         }
 
@@ -92,19 +128,21 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfDateTime(object value, object dbType, int? scale)
         {
-            // 默认精度为3
-            string format = "yyyy-MM-dd HH:mm:ss.fff";
+            DateTime date = (DateTime)value;
+
+            // 默认精度6
+            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
-            else if (DbTypeUtils.IsDateTime(dbType)) format = "yyyy-MM-dd HH:mm:ss.fff";
-            else if (DbTypeUtils.IsDateTime2(dbType))
+            else if (DbTypeUtils.IsDateTime(dbType) || DbTypeUtils.IsDateTime2(dbType))
             {
                 string s = string.Empty;
-                format = "yyyy-MM-dd HH:mm:ss.fffffff";
+                format = "yyyy-MM-dd HH:mm:ss.ffffff";
                 if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
             string result = this.EscapeQuote(((DateTime)value).ToString(format), false, false);
+            result = string.Format("TO_TIMESTAMP({0},'yyyy-mm-dd hh24:mi:ss.ff')", result);
             return result;
         }
 
@@ -117,8 +155,8 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfDateTimeOffset(object value, object dbType, int? scale)
         {
-            // 默认精度为7
-            string format = "yyyy-MM-dd HH:mm:ss.fffffff";
+            // 默认精度为6
+            string format = "yyyy-MM-dd HH:mm:ss.ffffff";
             if (DbTypeUtils.IsDateTimeOffset(dbType))
             {
                 string s = string.Empty;
@@ -126,17 +164,28 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
-            string myDateTime = this.EscapeQuote(((DateTimeOffset)value).DateTime.ToString(format), false, false);
+            string myDateTime = ((DateTimeOffset)value).DateTime.ToString(format);
             string myOffset = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
             myOffset = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', myOffset);
-            myOffset = this.EscapeQuote(myOffset, false, false);
 
-            string result = string.Format("TODATETIMEOFFSET({0},{1})", myDateTime, myOffset);
+            string result = string.Format("TO_TIMESTAMP_TZ('{0} {1}','yyyy-mm-dd hh24:mi:ss.ff tzh:tzm')", myDateTime, myOffset);
             return result;
         }
 
-        // 如果用SQL的日期函数进行赋值，DateTime字段类型要用GETDATE()，DateTime2字段类型要用SYSDATETIME()。
-        // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
-        // 数据类型转换优先级： https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/data-type-precedence-transact-sql?redirectedfrom=MSDN&view=sql-server-ver15
+        /// <summary>
+        /// 获取 Guid 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        protected override string GetSqlValueOfGuid(object value)
+        {
+            string b = BitConverter.ToString(((Guid)value).ToByteArray()).Replace("-", "");
+            return this.EscapeQuote(b, false, false);
+        }
+
+
+        // 官方数据类型和.NET数据类型映射关系
+        // https://docs.oracle.com/database/121/ODPNT/featTypes.htm#ODPNT281
+        // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Data-Types.html#GUID-7B72E154-677A-4342-A1EA-C74C1EA928E6
     }
 }

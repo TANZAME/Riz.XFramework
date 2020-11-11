@@ -66,10 +66,7 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="key">连接键</param>
         /// <returns></returns>
-        public static string GetConnectionString(string key)
-        {
-            return ConfigurationManager.ConnectionStrings[key].ConnectionString;
-        }
+        public static string GetConnectionString(string key) => ConfigurationManager.ConnectionStrings[key].ConnectionString;
 
         /// <summary>
         /// 时间戳转时间类型

@@ -59,20 +59,14 @@ namespace Riz.XFramework
         /// 抛出一个异常
         /// </summary>
         /// <param name="message">描述错误的消息</param>
-        public static void Throw(string message)
-        {
-            throw new XFrameworkException(message);
-        }
+        public static void Throw(string message) => throw new XFrameworkException(message);
 
         /// <summary>
         /// 抛出一个异常
         /// </summary>
         /// <param name="message">描述错误的消息</param>
         /// <param name="args">一个对象数组，其中包含零个或多个要设置格式的对象</param>
-        public static void Throw(string message, params object[] args)
-        {
-            throw new XFrameworkException(message, args);
-        }
+        public static void Throw(string message, params object[] args) => throw new XFrameworkException(message, args);
 
         /// <summary>
         /// 参数检查类

@@ -12,31 +12,22 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 默认实例
         /// </summary>
-        public static MemberInfoComparer<T> Default { get { return Nested.Instance; } }
+        public static MemberInfoComparer<T> Default => Nested.Instance;
 
         /// <summary>
         /// 比较两个对象并返回一个值，指示一个对象是小于、等于还是大于另一个对象。
         /// </summary>
-        public int Compare(T x, T y)
-        {
-            return x.MetadataToken - y.MetadataToken;
-        }
+        public int Compare(T x, T y) => x.MetadataToken - y.MetadataToken;
 
         /// <summary>
         ///  确定指定的对象是否相等。
         /// </summary>
-        public bool Equals(T x, T y)
-        {
-            return x == y;
-        }
+        public bool Equals(T x, T y) => x == y;
 
         /// <summary>
         /// 返回指定对象的哈希代码。
         /// </summary>
-        public int GetHashCode(T obj)
-        {
-            return obj.MetadataToken;
-        }
+        public int GetHashCode(T obj) => obj.MetadataToken;
 
         class Nested
         {

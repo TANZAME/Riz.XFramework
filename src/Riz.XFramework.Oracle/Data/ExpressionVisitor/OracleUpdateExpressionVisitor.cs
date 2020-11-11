@@ -10,10 +10,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="OracleUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="expression">查询语义</param>
-        public OracleUpdateExpressionVisitor(TableAliasResolver aliasResolver, Expression expression)
-            : base(aliasResolver, expression)
+        public OracleUpdateExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
+            : base(aliasGenerator, expression)
         {
         }
 

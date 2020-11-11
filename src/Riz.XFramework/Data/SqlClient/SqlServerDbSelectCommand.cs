@@ -8,21 +8,21 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令，用于产生 WITH NOLOCK
     /// </summary>
-    internal class SqlServerSelectCommand : DbSelectCommand
+    internal class SqlServerDbSelectCommand : DbSelectCommand
     {
         private bool _isNoLock = false;
         private string _withNoLock = string.Empty;
-        private TableAliasResolver _aliasResolver = null;
+        private AliasGenerator _aliasGenerator = null;
 
         /// <summary>
-        /// 实例化 <see cref="SqlServerSelectCommand"/> 类的新实例
+        /// 实例化 <see cref="SqlServerDbSelectCommand"/> 类的新实例
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
-        /// <param name="aliasResolver">表别名解析器</param>
-        public SqlServerSelectCommand(ITranslateContext context, TableAliasResolver aliasResolver)
-            : base(context, aliasResolver)
+        /// <param name="aliasGenerator">表别名解析器</param>
+        public SqlServerDbSelectCommand(ITranslateContext context, AliasGenerator aliasGenerator)
+            : base(context, aliasGenerator)
         {
-            _aliasResolver = aliasResolver;
+            _aliasGenerator = aliasGenerator;
 
             var dc = context.DbContext;
             _isNoLock = ((SqlServerDbContext)dc).NoLock;
@@ -35,7 +35,7 @@ namespace Riz.XFramework.Data
             if (base.NavMembers == null || base.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliasResolver = new TableAliasResolver(_aliasResolver.ReserveQty);
+            if (this.HasMany) _aliasGenerator = new AliasGenerator(_aliasGenerator.ReserveQty);
             //开始产生LEFT JOIN 子句
             ISqlBuilder builder = this.JoinFragment;
             foreach (var nav in base.NavMembers)
@@ -61,18 +61,18 @@ namespace Riz.XFramework.Data
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
                     string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableName;
-                    innerAlias = _aliasResolver.GetJoinTableAlias(name);
+                    innerAlias = _aliasGenerator.GetJoinTableAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (base.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliasResolver.GetNavTableAlias(innerKey);
+                        innerAlias = _aliasGenerator.GetNavTableAlias(innerKey);
                     }
                 }
 
-                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasResolver.GetTableAlias(innerKey);
-                string alias2 = _aliasResolver.GetNavTableAlias(outerKey);
+                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasGenerator.GetTableAlias(innerKey);
+                string alias2 = _aliasGenerator.GetNavTableAlias(outerKey);
 
 
                 builder.AppendNewLine();
@@ -117,8 +117,8 @@ namespace Riz.XFramework.Data
 
                 if (nav.Predicate != null)
                 {
-                    string alias = _aliasResolver.GetNavTableAlias(nav.Key);
-                    var visitor = new NavPredicateExpressionVisitor(_aliasResolver, nav.Predicate, alias);
+                    string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
+                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, nav.Predicate, alias);
                     visitor.Write(builder);
                 }
             }

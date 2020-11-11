@@ -48,7 +48,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// SQL字段值解析器
         /// </summary>
-        public abstract DbValueResolver DbResolver { get; }
+        public abstract DbFuncletizer Funcletizer { get; }
 
         /// <summary>
         /// <see cref="IDataReader"/> 转实体映射器
@@ -68,20 +68,14 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="context">当前查询上下文</param>
         /// <returns></returns>
-        public virtual ITranslateContext CreateTranslateContext(IDbContext context)
-        {
-            return new DefaultTranslateContext(context);
-        }
+        public virtual ITranslateContext CreateTranslateContext(IDbContext context) => new DefaultTranslateContext(context);
 
         /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        public virtual ISqlBuilder CreateSqlBuilder(ITranslateContext context)
-        {
-            return new DefaultSqlBuilder(context);
-        }
+        public virtual ISqlBuilder CreateSqlBuilder(ITranslateContext context) => new DefaultSqlBuilder(context);
 
         /// <summary>
         /// 创建方法表达式访问器
@@ -93,10 +87,7 @@ namespace Riz.XFramework.Data
         /// 创建 SQL 命令
         /// </summary>
         /// <param name="dbQueryable">查询 语句</param>
-        public DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable)
-        {
-            return this.Translate(dbQueryable, 0, true, null);
-        }
+        public DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable) => this.Translate(dbQueryable, 0, true, null);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -172,7 +163,7 @@ namespace Riz.XFramework.Data
                     // 解析参数
                     object[] args = null;
                     if (rawSql.Parameters != null)
-                        args = rawSql.Parameters.Select(x => this.DbResolver.GetSqlValue(x, context)).ToArray();
+                        args = rawSql.Parameters.Select(x => this.Funcletizer.GetSqlValue(x, context)).ToArray();
                     string sql = rawSql.CommandText;
                     if (args != null && args.Length > 0) sql = string.Format(sql, args);
 
@@ -246,23 +237,23 @@ namespace Riz.XFramework.Data
         /// <param name="tree">查询语义</param>
         /// <param name="aliasPrefix">表别名前缀</param>
         /// <returns></returns>
-        protected TableAliasResolver PrepareTableAlias(DbQuerySelectTree tree, string aliasPrefix)
+        protected AliasGenerator PrepareTableAlias(DbQuerySelectTree tree, string aliasPrefix)
         {
-            var aliasResolver = new TableAliasResolver((tree.Joins != null ? tree.Joins.Count : 0) + 1, aliasPrefix);
+            var aliasGenerator = new AliasGenerator((tree.Joins != null ? tree.Joins.Count : 0) + 1, aliasPrefix);
             foreach (DbExpression exp in tree.Joins)
             {
                 // [INNER/LEFT JOIN]
                 if (exp.DbExpressionType == DbExpressionType.GroupJoin || exp.DbExpressionType == DbExpressionType.Join || exp.DbExpressionType == DbExpressionType.GroupRightJoin)
-                    this.PrepareJoinAlias(exp, aliasResolver);
+                    this.PrepareJoinAlias(exp, aliasGenerator);
                 else if (exp.DbExpressionType == DbExpressionType.SelectMany)
-                    this.PrepareCrossAlias(exp, aliasResolver);
+                    this.PrepareCrossAlias(exp, aliasGenerator);
             }
 
-            return aliasResolver;
+            return aliasGenerator;
         }
 
         // 获取 LEFT JOIN / INNER JOIN 子句关联表的的别名
-        private void PrepareJoinAlias(DbExpression dbExpression, TableAliasResolver aliasResolver)
+        private void PrepareJoinAlias(DbExpression dbExpression, AliasGenerator aliasGenerator)
         {
             Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
             string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
@@ -277,14 +268,14 @@ namespace Riz.XFramework.Data
                 var body2 = right.Body as NewExpression;
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    aliasResolver.GetTableAlias(body1.Arguments[index]);
+                    aliasGenerator.GetTableAlias(body1.Arguments[index]);
                 }
                 for (int index = 0; index < body2.Arguments.Count; ++index)
                 {
-                    string alias = aliasResolver.GetTableAlias(body2.Arguments[index]);
+                    string alias = aliasGenerator.GetTableAlias(body2.Arguments[index]);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    aliasResolver.AddJoinTableAlias(name, alias);
+                    aliasGenerator.AddJoinTableAlias(name, alias);
                 }
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
@@ -293,46 +284,46 @@ namespace Riz.XFramework.Data
                 var body2 = right.Body as MemberInitExpression;
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    aliasResolver.GetTableAlias((body1.Bindings[index] as MemberAssignment).Expression);
+                    aliasGenerator.GetTableAlias((body1.Bindings[index] as MemberAssignment).Expression);
                 }
                 for (int index = 0; index < body2.Bindings.Count; ++index)
                 {
-                    string alias = aliasResolver.GetTableAlias((body2.Bindings[index] as MemberAssignment).Expression);
+                    string alias = aliasGenerator.GetTableAlias((body2.Bindings[index] as MemberAssignment).Expression);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    aliasResolver.AddJoinTableAlias(name, alias);
+                    aliasGenerator.AddJoinTableAlias(name, alias);
                 }
             }
             else
             {
-                aliasResolver.GetTableAlias(dbExpression.Expressions[1]);
-                string alias = aliasResolver.GetTableAlias(dbExpression.Expressions[2]);
+                aliasGenerator.GetTableAlias(dbExpression.Expressions[1]);
+                string alias = aliasGenerator.GetTableAlias(dbExpression.Expressions[2]);
                 outerAlias = alias;
                 // 记录显示指定的LEFT JOIN 表别名
-                aliasResolver.AddJoinTableAlias(name, alias);
+                aliasGenerator.AddJoinTableAlias(name, alias);
             }
 
             // 由 GetTable 重载指定的导航属性表别名
             if (dbExpression.Expressions.Length > 4)
             {
-                if (string.IsNullOrEmpty(outerAlias) || outerAlias == TableAliasResolver.EMPTYNAME)
+                if (string.IsNullOrEmpty(outerAlias) || outerAlias == AliasGenerator.EMPTYNAME)
                 {
                     var lambda = dbExpression.Expressions[3] as LambdaExpression;
-                    string alias = aliasResolver.GetTableAlias(lambda.Parameters[1]);
+                    string alias = aliasGenerator.GetTableAlias(lambda.Parameters[1]);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    aliasResolver.AddJoinTableAlias(name, alias);
+                    aliasGenerator.AddJoinTableAlias(name, alias);
                 }
 
                 var member = (dbExpression.Expressions[4] as LambdaExpression).Body as MemberExpression;
                 string keyId = member.GetKeyWidthoutAnonymous();
                 // 记录GetTable<,>(path)指定的表别名
-                aliasResolver.AddGetTableAlias(keyId, outerAlias);
+                aliasGenerator.AddGetTableAlias(keyId, outerAlias);
             }
         }
 
         // 获取 CROSS JOIN 子句关联表的的别名
-        private void PrepareCrossAlias(DbExpression dbExpression, TableAliasResolver aliasGenerator)
+        private void PrepareCrossAlias(DbExpression dbExpression, AliasGenerator aliasGenerator)
         {
             var lambda = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambda.Parameters.Count; ++index)

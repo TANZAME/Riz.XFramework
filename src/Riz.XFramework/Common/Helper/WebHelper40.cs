@@ -1,11 +1,11 @@
 ﻿
-#if !netcore
-
 using System;
 using System.Text;
 using System.IO;
+#if !netcore
 using System.Web;
 using System.Web.Security;
+#endif
 
 namespace Riz.XFramework
 {
@@ -14,7 +14,9 @@ namespace Riz.XFramework
     /// </summary>
     public partial class WebHelper
     {
-        // 此文件适用于 Fx 版本（net40,45）
+#if !netcore
+
+        // 此文件适用于 fx（net40,net45）
 
         #region Cookie
 
@@ -412,7 +414,7 @@ namespace Riz.XFramework
         }
 
         #endregion
-    }
-}
 
 #endif
+    }
+}

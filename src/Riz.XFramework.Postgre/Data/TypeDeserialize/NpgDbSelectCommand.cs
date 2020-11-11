@@ -7,11 +7,11 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// Npg 含实体映射信息的SQL命令
     /// </summary>
-    internal sealed class NpgSelectCommand : DbSelectCommand
+    internal sealed class NpgDbSelectCommand : DbSelectCommand
     {
         private ISqlBuilder _onPhrase = null;
         private bool _hasCombine = false;
-        private TableAliasResolver _aliasResolver = null;
+        private AliasGenerator _aliasGenerator = null;
         private readonly string _keywordName = string.Empty;
         private DbExpressionType _dbExpressionType = DbExpressionType.None;
         private string _pad = "";
@@ -46,15 +46,15 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="NpgSelectCommand" /> 的新实例
+        /// 实例化 <see cref="NpgDbSelectCommand" /> 的新实例
         /// </summary>
-        /// <param name="aliasResolver">别名</param>
+        /// <param name="aliasGenerator">别名</param>
         /// <param name="dbExpressionType">表达式类型</param>
         /// <param name="context">解析SQL命令上下文</param>
-        public NpgSelectCommand(ITranslateContext context, TableAliasResolver aliasResolver, DbExpressionType dbExpressionType)
-            : base(context, aliasResolver)
+        public NpgDbSelectCommand(ITranslateContext context, AliasGenerator aliasGenerator, DbExpressionType dbExpressionType)
+            : base(context, aliasGenerator)
         {
-            _aliasResolver = aliasResolver;
+            _aliasGenerator = aliasGenerator;
             _onPhrase = context.DbContext.Provider.CreateSqlBuilder(context);
             _dbExpressionType = dbExpressionType;
 
@@ -71,12 +71,12 @@ namespace Riz.XFramework.Data
             if (this.NavMembers == null || this.NavMembers.Count == 0) return;
 
             // 如果有一对多的导航属性，肯定会产生嵌套查询。那么内层查询别名肯定是t0，所以需要清掉
-            if (this.HasMany) _aliasResolver = new TableAliasResolver(_aliasResolver.ReserveQty);
+            if (this.HasMany) _aliasGenerator = new AliasGenerator(_aliasGenerator.ReserveQty);
             //开始产生 USING 子句
             ISqlBuilder jf = this.JoinFragment;
             int index = -1;
             // 未生成USING子句
-            if (_aliasResolver.ReserveQty <= 1)
+            if (_aliasGenerator.ReserveQty <= 1)
             {
                 jf.AppendNewLine();
                 jf.Append(_keywordName);
@@ -111,21 +111,21 @@ namespace Riz.XFramework.Data
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
                     string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableName;
-                    innerAlias = _aliasResolver.GetJoinTableAlias(name);
+                    innerAlias = _aliasGenerator.GetJoinTableAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (this.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliasResolver.GetNavTableAlias(innerKey);
+                        innerAlias = _aliasGenerator.GetNavTableAlias(innerKey);
                     }
                 }
 
-                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasResolver.GetTableAlias(innerKey);
-                string alias2 = _aliasResolver.GetNavTableAlias(outerKey);
+                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasGenerator.GetTableAlias(innerKey);
+                string alias2 = _aliasGenerator.GetNavTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
-                if (_aliasResolver.ReserveQty > 1 || index > 0) jf.Append(_pad);
+                if (_aliasGenerator.ReserveQty > 1 || index > 0) jf.Append(_pad);
 
                 Type type = m.Type;
                 var typeRumtime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);
@@ -158,8 +158,8 @@ namespace Riz.XFramework.Data
 
                 if (nav.Predicate != null)
                 {
-                    string alias = _aliasResolver.GetNavTableAlias(nav.Key);
-                    var visitor = new NavPredicateExpressionVisitor(_aliasResolver, nav.Predicate, alias);
+                    string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
+                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, nav.Predicate, alias);
                     visitor.Write(_onPhrase);
                 }
 

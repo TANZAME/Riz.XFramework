@@ -6,7 +6,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表别名解析器
     /// </summary>
-    public sealed class TableAliasResolver
+    public sealed class AliasGenerator
     {
         // 1.表别名缓存项（包含显示指定的和导航属性产生的）
         private readonly NormalCache<string, string> _globals = new NormalCache<string, string>();
@@ -53,29 +53,29 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasResolver"/> 类的新实例
+        /// 实例化 <see cref="AliasGenerator"/> 类的新实例
         /// </summary>
-        public TableAliasResolver()
+        public AliasGenerator()
             : this(0)
         {
 
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasResolver"/> 类的新实例
+        /// 实例化 <see cref="AliasGenerator"/> 类的新实例
         /// </summary>
         /// <param name="reserveQty">FROM 和 JOIN 表达式总数，别名系统会预留这个数量，在这个计数的基础上再分配导航属性关联的表别名</param>
-        public TableAliasResolver(int reserveQty)
+        public AliasGenerator(int reserveQty)
             : this(reserveQty, null)
         {
         }
 
         /// <summary>
-        /// 实例化 <see cref="TableAliasResolver"/> 类的新实例
+        /// 实例化 <see cref="AliasGenerator"/> 类的新实例
         /// </summary>
         /// <param name="reserveQty">FROM 和 JOIN 表达式总数，别名系统会预留这个数量，在这个计数的基础上再分配导航属性关联的表别名</param>
         /// <param name="prefix">显式指定别名，用于内嵌的 exists 解析</param>
-        public TableAliasResolver(int reserveQty, string prefix)
+        public AliasGenerator(int reserveQty, string prefix)
         {
             _reserveQty = reserveQty;
             _prefix = prefix;
@@ -99,7 +99,7 @@ namespace Riz.XFramework.Data
             // p.t
             // <>h__TransparentIdentifier0.p.Id
             XFrameworkException.Check.NotNull(expression, "expression");
-            string key = TableAliasResolver.GetTableAliasKey(expression);
+            string key = AliasGenerator.GetTableAliasKey(expression);
             return this.GetTableAlias(key);
         }
 
@@ -195,9 +195,9 @@ namespace Riz.XFramework.Data
             // t.t.a
             // t.a.Id
             var memberExpression = expression as MemberExpression;
-            if (memberExpression == null) return TableAliasResolver.GetTableAliasKey(expression);
+            if (memberExpression == null) return AliasGenerator.GetTableAliasKey(expression);
 
-            if (memberExpression.Visitable()) return TableAliasResolver.GetTableAliasKey(memberExpression.Expression);
+            if (memberExpression.Visitable()) return AliasGenerator.GetTableAliasKey(memberExpression.Expression);
 
             return memberExpression.Member.Name;
         }

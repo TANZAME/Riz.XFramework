@@ -19,18 +19,12 @@ namespace Riz.XFramework
         /// <summary>
         /// 向容器注册单例实例
         /// </summary>
-        public void Register<T>(Func<T> func) where T : class
-        {
-            this.Register<T>(func, true);
-        }
+        public void Register<T>(Func<T> func) where T : class => this.Register<T>(func, true);
 
         /// <summary>
         /// 向容器注册类型
         /// </summary>
-        public void Register<T>(Func<T> func, bool isSingleton) where T : class
-        {
-            this.Register(typeof(T), func, isSingleton);
-        }
+        public void Register<T>(Func<T> func, bool isSingleton) where T : class => this.Register(typeof(T), func, isSingleton);
 
         /// <summary>
         /// 向容器注册类型
@@ -78,10 +72,7 @@ namespace Riz.XFramework
         /// <summary>
         /// 返回指定类型是否已经在容器中
         /// </summary>
-        public bool IsRegistered<T>() where T : class
-        {
-            return this.IsRegistered(typeof(T));
-        }
+        public bool IsRegistered<T>() where T : class => this.IsRegistered(typeof(T));
 
         /// <summary>
         /// 返回指定类型是否已经在容器中

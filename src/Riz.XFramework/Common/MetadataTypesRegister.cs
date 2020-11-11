@@ -26,7 +26,7 @@ namespace Riz.XFramework
                     if (m != null)
                     {                        
                         TypeDescriptor.AddProviderTransparent(
-                        new AssociatedMetadataTypeTypeDescriptionProvider(type, m.MetadataClassType), type);
+                            new AssociatedMetadataTypeTypeDescriptionProvider(type, m.MetadataClassType), type);
                     }
                 }
             }
