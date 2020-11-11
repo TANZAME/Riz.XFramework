@@ -79,7 +79,6 @@ namespace Riz.XFramework.UnitTest
                     test.Run(myDatabaseType);
                     Console.WriteLine("================ " + myDatabaseType + " END   ================"); 
                     Console.WriteLine(string.Empty);
-                    Console.WriteLine(string.Empty);
                 }
 
                 if (!string.IsNullOrEmpty(s)) break;
