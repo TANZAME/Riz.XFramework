@@ -13,7 +13,7 @@ namespace Riz.XFramework.UnitTest
         public static void Main(string[] args)
         {
             // fase 表示忽略 ColumnAttribute.Name，否则翻译时会使用 ColumnAttribute.Name（参考 RizModel）
-            bool withNameAttribute = true;  
+            bool withNameAttribute = false;  
             // 是否调式模式，调试模式下生成的 SQL 会有格式化
             bool isDebug = true;
             // 是否区分大小写，适用 ORCACLE 和 POSTGRESQL

@@ -12,7 +12,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// 查询语义提供者，用来构建、解析查询语义
     /// </summary>
-    public sealed class SQLiteDbQueryProvider : DbQueryProvider
+    internal sealed class SQLiteDbQueryProvider : DbQueryProvider
     {
         /// <summary>
         /// 查询语义提供者实例
