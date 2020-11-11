@@ -37,9 +37,10 @@
   </PropertyGroup>
   -->
 
-	<!-- xml 文档输出 -->
+	<!-- 编译输出路径 -->
 	<PropertyGroup>
-		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 	</PropertyGroup>
 
 	<!-- 定义条件编译符 -->
