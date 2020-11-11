@@ -13,33 +13,38 @@ namespace Riz.XFramework.UnitTest.SQLite
     {
         // SQLite 需要将包里的 SQLite.Interop.dll 文件拷到运行目录下
 
-#if net40
+        //#if net40
+
+        //        static string connString =
+        //            "DataSource=" +
+        //            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
+        //            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+
+        //#endif
+
+
+        //#if net45
+
+        //        static string connString =
+        //            "DataSource=" +
+        //            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
+        //            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+
+        //#endif
+
+        //#if netcore
+
+        //        static string connString =
+        //            "DataSource=" +
+        //            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName +
+        //            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+
+        //#endif
 
         static string connString =
             "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
-            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
-
-#endif
-
-
-#if net45
-
-        static string connString =
-            "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName +
-            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
-
-#endif
-
-#if netcore
-
-        static string connString =
-            "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName +
-            @"\net45\Riz.XFramework.UnitTest\SQLite\TZM_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
-
-#endif
+            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName +
+            @"\SQLite\Riz_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
 
         public SQLiteTest()
             : base()
@@ -103,13 +108,15 @@ namespace Riz.XFramework.UnitTest.SQLite
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
-            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-#if netcore
-
-            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-
-#endif
+            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName + @"\长文本.txt";
             string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
+            //            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
+            //#if netcore
+
+            //            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
+
+            //#endif
+            //            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
