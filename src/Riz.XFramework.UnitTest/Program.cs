@@ -13,7 +13,7 @@ namespace Riz.XFramework.UnitTest
         public static void Main(string[] args)
         {
             // fase 表示忽略 ColumnAttribute.Name，否则翻译时会使用 ColumnAttribute.Name（参考 RizModel）
-            bool withNameAttribute = false;  
+            bool withNameAttribute = false;
             // 是否调式模式，调试模式下生成的 SQL 会有格式化
             bool isDebug = true;
             // 是否区分大小写，适用 ORCACLE 和 POSTGRESQL
@@ -39,7 +39,7 @@ namespace Riz.XFramework.UnitTest
                             writer.Write("-- ");
                             writer.Write(p.ParameterName);
                             writer.Write(" = ");
-                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[] ? Common.BytesToHex((byte[])p.Value, true, true) : p.Value));
+                            writer.Write(p.Value == null ? string.Empty : (p.Value is byte[]? Common.BytesToHex((byte[])p.Value, true, true) : p.Value));
                             writer.Write(", DbType = {0}, ", p.DbType);
                             if (p.Size != default(int)) writer.Write("Size = {0}, ", p.Size);
                             if (p.Precision != default(byte)) writer.Write("Precision = {0}, ", p.Precision);
@@ -75,9 +75,11 @@ namespace Riz.XFramework.UnitTest
 
                 if (test != null)
                 {
-                    Console.WriteLine(myDatabaseType + " BEGIN");
+                    Console.WriteLine("================ " + myDatabaseType + " Begin ================");
                     test.Run(myDatabaseType);
-                    Console.WriteLine(myDatabaseType + " END");
+                    Console.WriteLine("================ " + myDatabaseType + " END   ================"); 
+                    Console.WriteLine(string.Empty);
+                    Console.WriteLine(string.Empty);
                 }
 
                 if (!string.IsNullOrEmpty(s)) break;
