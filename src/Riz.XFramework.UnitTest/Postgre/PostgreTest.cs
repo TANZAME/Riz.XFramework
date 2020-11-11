@@ -12,7 +12,7 @@ namespace Riz.XFramework.UnitTest.Postgre
 {
     public class PostgreTest : TestBase<PostgreModel.PostgreDemo>
     {
-        const string connString = "Host=localhost;Database=TZM_XFramework;uid=postgres;pwd=123456;pooling=true;minpoolsize=1;maxpoolsize=1;";
+        const string connString = "Host=localhost;Database=Riz_XFramework;uid=postgres;pwd=123456;pooling=true;minpoolsize=1;maxpoolsize=1;";
 
         public override IDbContext CreateDbContext()
         {
@@ -50,20 +50,9 @@ namespace Riz.XFramework.UnitTest.Postgre
         protected override void API()
         {
             base.API();
-
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
-            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName + @"\长文本.txt";
-            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
-            //            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-            //#if netcore
-
-            //            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-            //            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-            //#endif
-            //            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -94,7 +83,7 @@ namespace Riz.XFramework.UnitTest.Postgre
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(LongText.LONGTEXT) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -104,7 +93,7 @@ namespace Riz.XFramework.UnitTest.Postgre
                 .GetTable<PostgreModel.PostgreDemo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
-            Debug.Assert(myList[0].DemVarBinary_s == text);
+            Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
             var demo = new PostgreModel.PostgreDemo
@@ -130,13 +119,13 @@ namespace Riz.XFramework.UnitTest.Postgre
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<PostgreModel.PostgreDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
-            Debug.Assert(demo.DemVarBinary_s == text);
+            Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
                 .GetTable<PostgreModel.PostgreDemo>()
                 .Where(x => x.DemoId == demo.DemoId)
