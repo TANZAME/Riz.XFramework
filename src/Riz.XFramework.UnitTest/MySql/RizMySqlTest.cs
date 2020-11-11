@@ -13,7 +13,7 @@ namespace Riz.XFramework.UnitTest.MySql
 {
     public class RizMySqlTest : RizTestBase<RizMySqlModel.RizMySqlDemo>
     {
-        const string connString = "Host=localhost;Database=TZM_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
+        const string connString = "Host=localhost;Database=Riz_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
 
         public override IDbContext CreateDbContext()
         {
@@ -51,17 +51,7 @@ namespace Riz.XFramework.UnitTest.MySql
         protected override void API()
         {
             base.API();
-
             var context = _newContext();
-            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName + @"\长文本.txt";
-            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
-//            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-//#if netcore
-//            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-//            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-
-//#endif
-//            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -92,7 +82,7 @@ namespace Riz.XFramework.UnitTest.MySql
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(LongText.LONGTEXT) : new byte[0],
                 };
                 demos.Add(d);
             }
@@ -102,7 +92,7 @@ namespace Riz.XFramework.UnitTest.MySql
                 .GetTable<RizMySqlModel.RizMySqlDemo>()
                 .OrderByDescending(x => x.RizDemoId)
                 .Take(5).ToList();
-            Debug.Assert(myList[0].DemVarBinary_s == text);
+            Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
             var demo = new RizMySqlModel.RizMySqlDemo
@@ -129,13 +119,13 @@ namespace Riz.XFramework.UnitTest.MySql
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<RizMySqlModel.RizMySqlDemo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
-            Debug.Assert(demo.DemVarBinary_s == text);
+            Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
                 .GetTable<RizMySqlModel.RizMySqlDemo>()
                 .Where(x => x.RizDemoId == demo.RizDemoId)

@@ -94,8 +94,6 @@ namespace Riz.XFramework.UnitTest.SqlServer
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
-            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName + @"\长文本.txt";
-            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312"));
 
             // 单个插入
             var demo = new RizSqlServerModel.RizSqlServerDemo
@@ -121,13 +119,13 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
             demo = context.GetTable<RizSqlServerModel.RizSqlServerDemo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
-            Debug.Assert(demo.DemVarBinary_s == text);
+            Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
                 .GetTable<RizSqlServerModel.RizSqlServerDemo>()
                 .Where(x => x.RizDemoId == demo.RizDemoId)
@@ -162,7 +160,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(LongText.LONGTEXT) : new byte[0],
                 };
                 models.Add(d);
             }
@@ -199,7 +197,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
             };
             context.Insert(demo1);
             context.Insert(demo1);
@@ -214,7 +212,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 .Take(7)
                 .OrderBy(a => a.RizDemoId)
                 .ToList();
-            Debug.Assert(myList[0].DemVarBinary_s == text);
+            Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
             Debug.Assert(myList[0].RizDemoId == demo.RizDemoId + 1);
             Debug.Assert(myList[6].RizDemoId == demo.RizDemoId + 7);
 

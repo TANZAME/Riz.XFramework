@@ -105,15 +105,7 @@ namespace Riz.XFramework.UnitTest.Oracle
             var context = _newContext();
             DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
-            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName + @"\长文本.txt";
-            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312")).Substring(0, 600); // 大概就600个字符串;
-            //            string fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-            //#if netcore
-
-            //            fileName = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.Parent.Parent.FullName + @"\net45\Riz.XFramework.UnitTest\长文本.txt";
-
-            //#endif
-            //            string text = System.IO.File.ReadAllText(fileName, Encoding.GetEncoding("GB2312")).Substring(0, 600); // 大概就600个字符串;
+            string text = LongText.LONGTEXT.Substring(0, 600); // 大概就600个字符串;
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
