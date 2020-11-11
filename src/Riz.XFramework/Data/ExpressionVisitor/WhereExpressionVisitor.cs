@@ -12,10 +12,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="WhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="dbExpression">要访问的表达式</param>
-        public WhereExpressionVisitor(TableAliasResolver aliasResolver, DbExpression dbExpression)
-            : base(aliasResolver, dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null)
+        public WhereExpressionVisitor(AliasGenerator aliasGenerator, DbExpression dbExpression)
+            : base(aliasGenerator, dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null)
         {
             _expression = base.Expression;
         }

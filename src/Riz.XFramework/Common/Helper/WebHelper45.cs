@@ -1,14 +1,14 @@
 ﻿
-#if !net40
-
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+#if !net40
+using System.Net.Http;
+using System.Net.Http.Headers;
+#endif
 
 namespace Riz.XFramework
 {
@@ -17,9 +17,11 @@ namespace Riz.XFramework
     /// </summary>
     public partial class WebHelper
     {
+#if !net40
+
         // 此文件适用于 4.5+（net45,netcore）
 
-        #region 网络
+#region 网络
 
         /// <summary>
         /// HttpClient 用GET方法访问指定URI
@@ -266,8 +268,8 @@ namespace Riz.XFramework
             }
         }
 
-        #endregion
-    }
-}
+#endregion
 
 #endif
+    }
+}

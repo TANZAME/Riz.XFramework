@@ -35,12 +35,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="AggregateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="aggregate">聚合函数表达式</param>
         /// <param name="groupBy">Group by 子句</param>
         /// <param name="alias">指定的别名</param>
-        public AggregateExpressionVisitor(TableAliasResolver aliasResolver, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
-            : base(aliasResolver, aggregate.Expressions != null ? aggregate.Expressions[0] : null)
+        public AggregateExpressionVisitor(AliasGenerator aliasGenerator, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
+            : base(aliasGenerator, aggregate.Expressions != null ? aggregate.Expressions[0] : null)
         {
             _aggregate = aggregate;
             _groupBy = groupBy;

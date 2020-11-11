@@ -23,11 +23,11 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="SQLiteUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="tree">更新语义</param>
         /// <param name="alias">指定的表达式别名</param>
-        internal SQLiteUpdateExpressionVisitor(TableAliasResolver aliasResolver, DbQueryUpdateTree tree, string alias)
-            : base(aliasResolver, tree.Expression)
+        internal SQLiteUpdateExpressionVisitor(AliasGenerator aliasGenerator, DbQueryUpdateTree tree, string alias)
+            : base(aliasGenerator, tree.Expression)
         {
             _alias = alias;
             _tree = tree;

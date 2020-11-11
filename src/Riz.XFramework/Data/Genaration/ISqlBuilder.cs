@@ -39,10 +39,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 追加列名
         /// </summary>
-        /// <param name="aliasResolver">表别名</param>
+        /// <param name="aliasGenerator">表别名</param>
         /// <param name="expression">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        string AppendMember(TableAliasResolver aliasResolver, Expression expression);
+        string AppendMember(AliasGenerator aliasGenerator, Expression expression);
 
         /// <summary>
         /// 追加列名

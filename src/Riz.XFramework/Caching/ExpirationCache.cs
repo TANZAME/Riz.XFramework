@@ -53,10 +53,12 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 添加缓存时间间隔，默认1秒钟
         /// </summary>
-        public TimeSpan Period
-        {
-            get { return _period; }
-        }
+        public TimeSpan Period => _period;
+
+        /// <summary>
+        /// 清理过期缓存产生异常的处理程序
+        /// </summary>
+        public Action<Exception> ExceptionHandler { get; set; }
 
         /// <summary>
         /// 实例化 ExpirationCache 类的新实例
@@ -228,9 +230,9 @@ namespace Riz.XFramework.Caching
                     if (expired) this.Remove(array[i].Key);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                this.ExceptionHandler?.Invoke(ex);
             }
         }
     }

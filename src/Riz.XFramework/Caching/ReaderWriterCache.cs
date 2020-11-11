@@ -22,13 +22,7 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 缓存内容
         /// </summary>
-        protected IDictionary<TKey, TValue> Cache
-        {
-            get
-            {
-                return this._innerCache;
-            }
-        }
+        protected IDictionary<TKey, TValue> Cache => this._innerCache;
 
         /// <summary>
         /// 缓存项目计数
@@ -60,10 +54,7 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 实例化 ReaderWriterCache 类的新实例
         /// </summary>
-        public ReaderWriterCache(IEqualityComparer<TKey> comparer)
-        {
-            this._innerCache = new Dictionary<TKey, TValue>(comparer);
-        }
+        public ReaderWriterCache(IEqualityComparer<TKey> comparer) => this._innerCache = new Dictionary<TKey, TValue>(comparer);
 
         /// <summary>
         /// 尝试获取指定键值的缓存项，若缓存项不存在，则使用指定委托创建

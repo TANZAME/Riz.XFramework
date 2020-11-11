@@ -13,10 +13,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="NpgUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="expression">要访问的表达式</param>
-        public NpgUpdateExpressionVisitor(TableAliasResolver aliasResolver, Expression expression)
-            : base(aliasResolver, expression)
+        public NpgUpdateExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
+            : base(aliasGenerator, expression)
         {
         }
 

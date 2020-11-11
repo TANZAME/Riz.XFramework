@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// SQL字段值解析器
     /// </summary>
-    public abstract class DbValueResolver
+    public abstract class DbFuncletizer
     {
         private string _escCharLeft;
         private string _escCharRight;
@@ -18,10 +18,10 @@ namespace Riz.XFramework.Data
         private IDbQueryProvider _provider = null;
 
         /// <summary>
-        /// 实例化 <see cref="DbValueResolver"/> 类的新实例
+        /// 实例化 <see cref="DbFuncletizer"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
-        public DbValueResolver(IDbQueryProvider provider)
+        public DbFuncletizer(IDbQueryProvider provider)
         {
             _provider = provider;
             _escCharLeft = _provider.QuotePrefix;

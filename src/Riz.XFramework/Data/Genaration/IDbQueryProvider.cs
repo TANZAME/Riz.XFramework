@@ -43,7 +43,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// SQL值片断生成器
         /// </summary>
-        DbValueResolver DbResolver { get; }
+        DbFuncletizer Funcletizer { get; }
 
         /// <summary>
         /// <see cref="IDataReader"/> 转实体映射器

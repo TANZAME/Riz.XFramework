@@ -14,21 +14,12 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 缓存项目计数
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return this._cache.Count;
-            }
-        }
+        public int Count => this._cache.Count;
 
         /// <summary>
         /// 实例化 SimpleCache 类的新实例
         /// </summary>
-        public NormalCache()
-        {
-            this._cache = new Dictionary<TKey, TValue>();
-        }
+        public NormalCache() => this._cache = new Dictionary<TKey, TValue>();
 
         /// <summary>
         /// 尝试获取指定键值的缓存项，若缓存项不存在，则使用指定委托创建
@@ -73,17 +64,11 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 尝试获取指定键值的缓存项
         /// </summary>
-        public bool TryGet(TKey key, out TValue value)
-        {
-            return this._cache.TryGetValue(key, out value);
-        }
+        public bool TryGet(TKey key, out TValue value) => this._cache.TryGetValue(key, out value);
 
         /// <summary>
         /// 移除指定键值的缓存项
         /// </summary>
-        public void Remove(TKey key)
-        {
-            this._cache.Remove(key);
-        }
+        public void Remove(TKey key) => this._cache.Remove(key);
     }
 }

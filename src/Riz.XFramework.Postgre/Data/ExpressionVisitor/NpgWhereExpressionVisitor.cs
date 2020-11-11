@@ -11,10 +11,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="NpgWhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="dbExpression">要访问的表达式</param>
-        public NpgWhereExpressionVisitor(TableAliasResolver aliasResolver, DbExpression dbExpression)
-            : base( aliasResolver, dbExpression)
+        public NpgWhereExpressionVisitor(AliasGenerator aliasGenerator, DbExpression dbExpression)
+            : base( aliasGenerator, dbExpression)
         {
             _expression = dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null;
         }

@@ -7,17 +7,17 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// SQLite SQL字段值解析器
     /// </summary>
-    public class SQLiteDbValueResolver : DbValueResolver
+    public class SQLiteDbFuncletizer : DbFuncletizer
     {
         /// <summary>
         /// SQL字段值解析器实例
         /// </summary>
-        public static SQLiteDbValueResolver Instance = new SQLiteDbValueResolver();
+        public static SQLiteDbFuncletizer Instance = new SQLiteDbFuncletizer();
 
         /// <summary>
-        /// 实例化 <see cref="SQLiteDbValueResolver"/> 类的新实例
+        /// 实例化 <see cref="SQLiteDbFuncletizer"/> 类的新实例
         /// </summary>
-        protected SQLiteDbValueResolver()
+        protected SQLiteDbFuncletizer()
             : base(SQLiteDbQueryProvider.Instance)
         {
 

@@ -12,7 +12,7 @@ namespace Riz.XFramework.Data.SqlClient
     class SQLiteMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private DbValueResolver _valueResolver = null;
+        private DbFuncletizer _funcletizer = null;
         private LinqExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
@@ -39,7 +39,7 @@ namespace Riz.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _valueResolver = _builder.TranslateContext.DbContext.Provider.DbResolver;
+            _funcletizer = _builder.TranslateContext.DbContext.Provider.Funcletizer;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _valueResolver.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -185,7 +185,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _valueResolver.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -223,7 +223,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 ColumnAttribute column = null;
                 bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _valueResolver.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -266,7 +266,7 @@ namespace Riz.XFramework.Data.SqlClient
                 ConstantExpression c = args[1].Evaluate();
                 int index = Convert.ToInt32(c.Value);
                 index += 1;
-                string value = _valueResolver.GetSqlValue(index, _builder.TranslateContext);
+                string value = _funcletizer.GetSqlValue(index, _builder.TranslateContext);
                 _builder.Append(value);
                 _builder.Append(',');
             }

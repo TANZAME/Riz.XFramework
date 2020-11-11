@@ -14,10 +14,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="SQLiteColumnExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="tree">查询语义</param>
-        public SQLiteColumnExpressionVisitor(TableAliasResolver aliasResolver, DbQuerySelectTree tree)
-            : base(aliasResolver, tree)
+        public SQLiteColumnExpressionVisitor(AliasGenerator aliasGenerator, DbQuerySelectTree tree)
+            : base(aliasGenerator, tree)
         {
             _tree = tree;
         }

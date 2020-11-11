@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     internal class NpgJoinExpressionVisitor : JoinExpressionVisitor
     {
         private List<DbExpression> _joins = null;
-        private TableAliasResolver _aliasResolver = null;
+        private AliasGenerator _aliasGenerator = null;
         private bool usedKeyword = false;
         private readonly string _keywordName = string.Empty;
         private DbExpressionType _dbExpressionType = DbExpressionType.None;
@@ -19,14 +19,14 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="NpgJoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="joins">JOIN 子句</param>
         /// <param name="dbExpressionType">表达式类型</param>
-        public NpgJoinExpressionVisitor(TableAliasResolver aliasResolver, List<DbExpression> joins, DbExpressionType dbExpressionType)
-            : base(aliasResolver, joins)
+        public NpgJoinExpressionVisitor(AliasGenerator aliasGenerator, List<DbExpression> joins, DbExpressionType dbExpressionType)
+            : base(aliasGenerator, joins)
         {
             _joins = joins;
-            _aliasResolver = aliasResolver;
+            _aliasGenerator = aliasGenerator;
             _dbExpressionType = dbExpressionType;
 
             if (_dbExpressionType == DbExpressionType.Delete) _keywordName = "USING ";
@@ -38,7 +38,7 @@ namespace Riz.XFramework.Data
         /// 写入SQL片断
         /// </summary>
         /// <param name="cmd">SQL 命令</param>
-        public void Write(NpgSelectCommand cmd)
+        public void Write(NpgDbSelectCommand cmd)
         {
             ISqlBuilder jf = cmd.JoinFragment;
             ISqlBuilder on = cmd.OnPhrase;
@@ -50,15 +50,15 @@ namespace Riz.XFramework.Data
                 {
                     DbExpression qj = _joins[i];
                     if (qj.DbExpressionType == DbExpressionType.GroupJoin || qj.DbExpressionType == DbExpressionType.Join || qj.DbExpressionType == DbExpressionType.GroupRightJoin)
-                        this.AppendLfInJoin(jf, on, qj, _aliasResolver);
+                        this.AppendLfInJoin(jf, on, qj, _aliasGenerator);
                     else if (qj.DbExpressionType == DbExpressionType.SelectMany)
-                        this.AppendCrossJoin(jf, qj, _aliasResolver);
+                        this.AppendCrossJoin(jf, qj, _aliasGenerator);
                 }
             }
         }
 
         // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression, TableAliasResolver aliasResolver)
+        private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression, AliasGenerator aliasGenerator)
         {
             IDbQueryable sQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (!usedKeyword)
@@ -94,8 +94,8 @@ namespace Riz.XFramework.Data
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
-                ? aliasResolver.GetTableAlias(dbExpression.Expressions[2])
-                : aliasResolver.GetTableAlias(right.Parameters[0]);
+                ? aliasGenerator.GetTableAlias(dbExpression.Expressions[2])
+                : aliasGenerator.GetTableAlias(right.Parameters[0]);
             jf.Append(' ');
             jf.Append(alias);
 
@@ -109,9 +109,9 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    on.AppendMember(aliasResolver, body1.Arguments[index]);
+                    on.AppendMember(aliasGenerator, body1.Arguments[index]);
                     on.Append(" = ");
-                    on.AppendMember(aliasResolver, body2.Arguments[index]);
+                    on.AppendMember(aliasGenerator, body2.Arguments[index]);
                     if (index < body1.Arguments.Count - 1) on.Append(" AND ");
                 }
             }
@@ -122,22 +122,22 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    on.AppendMember(aliasResolver, (body1.Bindings[index] as MemberAssignment).Expression);
+                    on.AppendMember(aliasGenerator, (body1.Bindings[index] as MemberAssignment).Expression);
                     on.Append(" = ");
-                    on.AppendMember(aliasResolver, (body2.Bindings[index] as MemberAssignment).Expression);
+                    on.AppendMember(aliasGenerator, (body2.Bindings[index] as MemberAssignment).Expression);
                     if (index < body1.Bindings.Count - 1) on.Append(" AND ");
                 }
             }
             else
             {
-                on.AppendMember(aliasResolver, left.Body.ReduceUnary());
+                on.AppendMember(aliasGenerator, left.Body.ReduceUnary());
                 on.Append(" = ");
-                on.AppendMember(aliasResolver, right.Body.ReduceUnary());
+                on.AppendMember(aliasGenerator, right.Body.ReduceUnary());
             }
         }
 
         // Cross Join
-        private void AppendCrossJoin(ISqlBuilder jf, DbExpression dbExpression, TableAliasResolver aliasResolver)
+        private void AppendCrossJoin(ISqlBuilder jf, DbExpression dbExpression, AliasGenerator aliasGenerator)
         {
             if (!usedKeyword)
             {
@@ -157,7 +157,7 @@ namespace Riz.XFramework.Data
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
 
-            string alias = aliasResolver.GetTableAlias(lambda.Parameters[1]);
+            string alias = aliasGenerator.GetTableAlias(lambda.Parameters[1]);
             jf.Append(' ');
             jf.Append(alias);
         }

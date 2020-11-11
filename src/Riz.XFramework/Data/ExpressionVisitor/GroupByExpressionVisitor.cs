@@ -14,10 +14,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="GroupByExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasResolver">表别名解析器</param>
+        /// <param name="aliasGenerator">表别名解析器</param>
         /// <param name="groupBy">GROUP BY 子句</param>
-        public GroupByExpressionVisitor(TableAliasResolver aliasResolver, DbExpression groupBy)
-            : base(aliasResolver, groupBy != null ? groupBy.Expressions[0] : null)
+        public GroupByExpressionVisitor(AliasGenerator aliasGenerator, DbExpression groupBy)
+            : base(aliasGenerator, groupBy != null ? groupBy.Expressions[0] : null)
         {
 
         }

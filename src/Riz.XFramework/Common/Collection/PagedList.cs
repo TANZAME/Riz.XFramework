@@ -70,13 +70,7 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="index">索引</param>
         /// <returns></returns>
-        public T this[int index]
-        {
-            get
-            {
-                return this.Items[index];
-            }
-        }
+        public T this[int index] => this.Items[index];
 
         /// <summary>
         /// 初始化 PagedList 类的新实例
