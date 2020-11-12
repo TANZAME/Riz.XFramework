@@ -13,6 +13,8 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <!-- 此程序集不可打包，通常在单元测试项目中设置此属性。 -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <!--
