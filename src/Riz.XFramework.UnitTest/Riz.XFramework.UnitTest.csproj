@@ -51,9 +51,6 @@
 	<PropertyGroup>
 	  <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
 	</PropertyGroup>
-	<ItemGroup>
-	  <None Remove="长文本.txt" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework.MySql\Riz.XFramework.MySql.csproj" />
