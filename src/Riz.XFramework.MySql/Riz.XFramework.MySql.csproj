@@ -4,7 +4,7 @@
     <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
     <Authors>NaiXiang Tian</Authors>
     <Company>NaiXiang Tian</Company>
-    <Description>MySQL provider for Riz.XFrameworkCore.</Description>
+    <Description>MySQL provider for Riz.XFramework.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <AssemblyVersion>2.4.1</AssemblyVersion>

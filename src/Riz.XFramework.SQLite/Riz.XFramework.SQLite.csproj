@@ -13,7 +13,7 @@
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <RepositoryType>https://github.com/TANZAME/Riz.XFramework</RepositoryType>
     <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
-    <Description>SQLite provider for Riz.XFrameworkCore.</Description>
+    <Description>SQLite provider for Riz.XFramework.</Description>
     <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
   </PropertyGroup>
   <!--
