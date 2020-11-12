@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- 
-  参考：https://docs.microsoft.com/zh-cn/visualstudio/msbuild/project-element-msbuild?view=vs-2019 
+  参考：
+  https://docs.microsoft.com/zh-cn/visualstudio/msbuild/project-element-msbuild?view=vs-2019 
+  https://blog.csdn.net/WPwalter/article/details/80371265
   -->
   <PropertyGroup>
     <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
