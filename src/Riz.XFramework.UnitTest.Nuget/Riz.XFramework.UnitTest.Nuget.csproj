@@ -1,0 +1,120 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--
+    TargetFrameworks 的顺序决定了默认的版本，例如下面 netcoreapp3.1 写在最前面，那么这个控制台就是 netcore 版本
+    测试时使用相应的 TargetFramework
+    -->
+    <!--<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>-->
+    <!--<TargetFramework>net40</TargetFramework>-->
+    <TargetFramework>net45</TargetFramework>
+    <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <!--
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFramework.xml</DocumentationFile>
+    <NoWarn />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;netcore</DefineConstants>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFramework.xml</DocumentationFile>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  -->
+
+  <!-- 编译输出路径 -->
+  <PropertyGroup>
+    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!-- 定义条件编译符 -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>netcore</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>net45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <DefineConstants>net40</DefineConstants>
+  </PropertyGroup>
+  <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+	  <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+	</PropertyGroup>-->
+  <PropertyGroup>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\Riz.XFramework.UnitTest\DatabaseType.cs" Link="DatabaseType.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Model.cs" Link="Model.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\MySql\MySqlModel.cs" Link="MySql\MySqlModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\MySql\MySqlTest.cs" Link="MySql\MySqlTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\MySql\RizMySqlModel.cs" Link="MySql\RizMySqlModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\MySql\RizMySqlTest.cs" Link="MySql\RizMySqlTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Oracle\OracleModel.cs" Link="Oracle\OracleModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Oracle\OracleTest.cs" Link="Oracle\OracleTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Oracle\RizOracleModel.cs" Link="Oracle\RizOracleModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Oracle\RizOracleTest.cs" Link="Oracle\RizOracleTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Postgre\PostgreModel.cs" Link="Postgre\PostgreModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Postgre\PostgreTest.cs" Link="Postgre\PostgreTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Postgre\RizPostgreModel.cs" Link="Postgre\RizPostgreModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Postgre\RizPostgreTest.cs" Link="Postgre\RizPostgreTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\Program.cs" Link="Program.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\RizModel.cs" Link="RizModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\RizTestBase.cs" Link="RizTestBase.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SQLite\RizSQLiteModel.cs" Link="SQLite\RizSQLiteModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SQLite\RizSQLiteTest.cs" Link="SQLite\RizSQLiteTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SQLite\SQLiteModel.cs" Link="SQLite\SQLiteModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SQLite\SQLiteTest.cs" Link="SQLite\SQLiteTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SqlServer\RizSqlServerModel.cs" Link="SqlServer\RizSqlServerModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SqlServer\RizSqlServerTest.cs" Link="SqlServer\RizSqlServerTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SqlServer\SqlServerModel.cs" Link="SqlServer\SqlServerModel.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\SqlServer\SqlServerTest.cs" Link="SqlServer\SqlServerTest.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\TestBase.cs" Link="TestBase.cs" />
+    <Compile Include="..\Riz.XFramework.UnitTest\LongText.cs" Link="LongText.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Riz.XFramework" Version="2.4.1" />
+    <PackageReference Include="Riz.XFramework.MySql" Version="2.4.1" />
+    <PackageReference Include="Riz.XFramework.Oracle" Version="2.4.1" />
+    <PackageReference Include="Riz.XFramework.Postgre" Version="2.4.1" />
+    <PackageReference Include="Riz.XFramework.SQLite" Version="2.4.1" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Reference Include="MySql.Data">
+      <HintPath>..\..\lib\MySql\net40\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\..\lib\Oracle\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\..\lib\Postgre\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\lib\SQLite\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\..\lib\Oracle\net45\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\lib\SQLite\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
