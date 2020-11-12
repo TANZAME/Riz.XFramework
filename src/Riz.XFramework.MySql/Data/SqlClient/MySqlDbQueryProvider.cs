@@ -165,8 +165,8 @@ namespace Riz.XFramework.Data.SqlClient
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
             bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.IsParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
-            AliasGenerator resolver = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, resolver);
+            AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
+            var result = new DbSelectCommand(context, ag);
             result.HasMany = tree.HasMany;
 
             ISqlBuilder jf = result.JoinFragment;
@@ -184,7 +184,7 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(resolver, tree.Aggregate, tree.GroupBy, alias);
+                var visitor_ = new AggregateExpressionVisitor(ag, tree.Aggregate, tree.GroupBy, alias);
                 visitor_.Write(jf);
                 result.AddNavMembers(visitor_.NavMembers);
 
@@ -218,7 +218,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(resolver, tree.Aggregate, tree.GroupBy);
+                var visitor_ = new AggregateExpressionVisitor(ag, tree.Aggregate, tree.GroupBy);
                 visitor_.Write(jf);
                 result.AddNavMembers(visitor_.NavMembers);
             }
@@ -232,7 +232,7 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!tree.HasAny)
                 {
                     // SELECT 范围
-                    var visitor_ = new ColumnExpressionVisitor(resolver, tree);
+                    var visitor_ = new ColumnExpressionVisitor(ag, tree);
                     if (tree.Skip > 0 && tree.Take == 0)
                     {
                         sf = this.CreateSqlBuilder(context);
@@ -277,7 +277,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                         if (tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                         jf.Append("ROW_NUMBER() OVER(");
-                        var visitor3 = new OrderByExpressionVisitor(resolver, tree.OrderBys, tree.GroupBy);
+                        var visitor3 = new OrderByExpressionVisitor(ag, tree.OrderBys, tree.GroupBy);
                         visitor3.Write(jf, false);
                         result.AddNavMembers(visitor3.NavMembers);
                         jf.Append(") Row_Number0");
@@ -315,30 +315,30 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new JoinExpressionVisitor(resolver, tree.Joins);
+            LinqExpressionVisitor visitor = new JoinExpressionVisitor(ag, tree.Joins);
             visitor.Write(jf);
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(resolver, tree.Where);
+            visitor = new WhereExpressionVisitor(ag, tree.Where);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(resolver, tree.GroupBy);
+            visitor = new GroupByExpressionVisitor(ag, tree.GroupBy);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(resolver, tree.Having, tree.GroupBy);
+            visitor = new HavingExpressionVisitor(ag, tree.Having, tree.GroupBy);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
             if (tree.OrderBys.Count > 0 && useOrderBy)// && !groupByPaging)
             {
-                visitor = new OrderByExpressionVisitor(resolver, tree.OrderBys, tree.GroupBy);
+                visitor = new OrderByExpressionVisitor(ag, tree.OrderBys, tree.GroupBy);
                 visitor.Write(wf);
                 result.AddNavMembers(visitor.NavMembers);
             }
@@ -380,7 +380,7 @@ namespace Riz.XFramework.Data.SqlClient
             if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(resolver, subquery.OrderBys);//, null, "t0");
+                visitor = new OrderByExpressionVisitor(ag, subquery.OrderBys);//, null, "t0");
                 visitor.Write(jf);
             }
 
