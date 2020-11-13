@@ -75,6 +75,15 @@ namespace Riz.XFramework.UnitTest
 
                 if (test != null)
                 {
+#if net40
+                    Console.WriteLine("- net 40 -");
+#endif
+#if net45
+                    Console.WriteLine("- net 45 -");
+#endif
+#if netcore
+                    Console.WriteLine("- net core -");
+#endif
                     Console.WriteLine("================ " + myDatabaseType + " Begin ================");
                     test.Run(myDatabaseType);
                     Console.WriteLine("================ " + myDatabaseType + " END   ================"); 
