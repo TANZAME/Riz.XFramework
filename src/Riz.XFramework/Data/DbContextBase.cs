@@ -123,6 +123,8 @@ namespace Riz.XFramework.Data
         /// </summary>
         public DbContextBase(string connString, int? commandTimeout)
         {
+            XFrameworkException.Check.NotNull(connString, nameof(connString));
+
             _connString = connString;
             _commandTimeout = commandTimeout;
             _isDebug = false;
