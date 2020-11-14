@@ -47,12 +47,30 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
     <DefineConstants>net40</DefineConstants>
   </PropertyGroup>
+  
+  <!--<PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);GetMyPackageFiles</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="GetMyPackageFiles">
+    <ItemGroup>
+      <BuildOutputInPackage Include="..\..\lib\MySql\net40\MySql.Data.dll">
+        <TargetPath>cs</TargetPath>
+      </BuildOutputInPackage>
+    </ItemGroup>
+  </Target>-->
+  
   <ItemGroup>
     <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Reference Include="MySql.Data">
+    <Reference Include="MySql.Data, Version=6.9.12.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
       <HintPath>..\..\lib\MySql\net40\MySql.Data.dll</HintPath>
+      <!--<Private>False</Private>-->
+      <!--
+      参考
+      https://stackoverflow.com/questions/41979310/including-referenced-project-dlls-in-nuget-package-net-core-rc3-csproj-file
+      -->
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
