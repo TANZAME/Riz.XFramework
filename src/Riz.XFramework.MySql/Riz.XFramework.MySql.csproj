@@ -1,25 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
-    <Authors>NaiXiang Tian</Authors>
-    <Company>NaiXiang Tian</Company>
-    <Description>MySQL provider for Riz.XFramework.</Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>2.4.1</AssemblyVersion>
-    <FileVersion>2.4.1</FileVersion>
-    <Version>2.4.1</Version>
-    <Copyright>NaiXiang Tian</Copyright>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageTags>.NET Core MySQL Database Data O/RM ADO.NET</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-  </PropertyGroup>
-  <!--
+	<PropertyGroup>
+		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<Authors>NaiXiang Tian</Authors>
+		<Company>NaiXiang Tian</Company>
+		<Description>MySQL provider for Riz.XFramework.</Description>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<AssemblyVersion>2.4.1</AssemblyVersion>
+		<FileVersion>2.4.1</FileVersion>
+		<Version>2.4.1</Version>
+		<Copyright>NaiXiang Tian</Copyright>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageTags>.NET Core MySQL Database Data O/RM ADO.NET</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+
+	</PropertyGroup>
+	<!--
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
@@ -32,51 +33,51 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   -->
-  <!-- 编译输出路径 -->
-  <PropertyGroup>
-    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
-  <!-- 定义条件编译符 -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>netcore</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>net45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>net40</DefineConstants>
-  </PropertyGroup>
-  
-  <!--<PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);GetMyPackageFiles</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
+	<!-- 编译输出路径 -->
+	<PropertyGroup>
+		<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+	
+	<!-- 定义条件编译符 -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<DefineConstants>netcore</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+		<DefineConstants>net45</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+		<DefineConstants>net40</DefineConstants>
+	</PropertyGroup>
 
-  <Target Name="GetMyPackageFiles">
-    <ItemGroup>
-      <BuildOutputInPackage Include="..\..\lib\MySql\net40\MySql.Data.dll">
-        <TargetPath>cs</TargetPath>
-      </BuildOutputInPackage>
-    </ItemGroup>
-  </Target>-->
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Reference Include="MySql.Data, Version=6.9.12.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-      <HintPath>..\..\lib\MySql\net40\MySql.Data.dll</HintPath>
-      <!--<Private>False</Private>-->
-      <!--
-      参考
+	<!-- 包括特定于目标框架的内容和程序集到包中 -->
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludePackageFile</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
+	</ItemGroup>
+
+	<!--
+      参考：
+	  https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
       https://stackoverflow.com/questions/41979310/including-referenced-project-dlls-in-nuget-package-net-core-rc3-csproj-file
       -->
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
-  </ItemGroup>
+	<Target Name="IncludePackageFile" Condition="'$(TargetFramework)' == 'net40'">
+		<ItemGroup>
+			<BuildOutputInPackage Include="..\..\lib\MySql\net40\MySql.Data.dll" />
+		</ItemGroup>
+	</Target>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+		<Reference Include="MySql.Data, Version=6.9.12.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+			<HintPath>..\..\lib\MySql\net40\MySql.Data.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+	</ItemGroup>
 </Project>

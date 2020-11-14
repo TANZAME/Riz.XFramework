@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
-    <Version>2.4.1</Version>
-    <Authors>NaiXiang Tian</Authors>
-    <Company>NaiXiang Tian</Company>
-    <AssemblyVersion>2.4.1</AssemblyVersion>
-    <FileVersion>2.4.1</FileVersion>
-    <Copyright>NaiXiang Tian</Copyright>
-    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-    <RepositoryType>https://github.com/TANZAME/Riz.XFramework</RepositoryType>
-    <PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
-    <Description>SQLite provider for Riz.XFramework.</Description>
-    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-  </PropertyGroup>
-  <!--
+	<PropertyGroup>
+		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<Version>2.4.1</Version>
+		<Authors>NaiXiang Tian</Authors>
+		<Company>NaiXiang Tian</Company>
+		<AssemblyVersion>2.4.1</AssemblyVersion>
+		<FileVersion>2.4.1</FileVersion>
+		<Copyright>NaiXiang Tian</Copyright>
+		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+		<RepositoryType>https://github.com/TANZAME/Riz.XFramework</RepositoryType>
+		<PackageTags>.NET Core SQLite Database Data O/RM ADO.NET</PackageTags>
+		<Description>SQLite provider for Riz.XFramework.</Description>
+		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+	</PropertyGroup>
+	<!--
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
@@ -29,33 +29,60 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   -->
-  <!-- 编译输出路径 -->
-  <PropertyGroup>
-    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
-  <!-- 定义条件编译符 -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>netcore</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>net45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>net40</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\lib\SQLite\net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
-  </ItemGroup>
+	<!-- 编译输出路径 -->
+	<PropertyGroup>
+		<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<!-- 定义条件编译符 -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<DefineConstants>netcore</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+		<DefineConstants>net45</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+		<DefineConstants>net40</DefineConstants>
+	</PropertyGroup>
+
+	<!-- 包括特定于目标框架的内容和程序集到包中 -->
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludePackageFile</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+	<PropertyGroup>
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeRuntimeFile</TargetsForTfmSpecificContentInPackage>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
+	</ItemGroup>
+
+	<!--
+      参考：
+	  https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
+      https://stackoverflow.com/questions/41979310/including-referenced-project-dlls-in-nuget-package-net-core-rc3-csproj-file
+      -->
+	<Target Name="IncludePackageFile" Condition="'$(TargetFramework)' == 'net40'">
+		<ItemGroup>
+			<BuildOutputInPackage Include="..\..\lib\SQLite\net40\System.Data.SQLite.dll" />
+		</ItemGroup>
+	</Target>
+	<Target Name="IncludeRuntimeFile" Condition="'$(TargetFramework)' == 'net40'">
+		<ItemGroup>
+			<TfmSpecificPackageFile  Include="..\..\lib\SQLite\net40\SQLite.Interop.zip">
+				<PackagePath>lib\net40\rumtime\</PackagePath>
+			</TfmSpecificPackageFile>
+		</ItemGroup>
+	</Target>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+		<Reference Include="System.Data.SQLite">
+			<HintPath>..\..\lib\SQLite\net40\System.Data.SQLite.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+		<PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
+	</ItemGroup>
 </Project>
