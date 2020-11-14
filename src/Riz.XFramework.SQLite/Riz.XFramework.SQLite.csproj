@@ -53,11 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\lib\SQLite\net45\System.Data.SQLite.dll</HintPath>
-    </Reference>
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
   </ItemGroup>
 </Project>
