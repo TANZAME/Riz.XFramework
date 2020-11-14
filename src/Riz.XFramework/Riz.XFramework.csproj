@@ -4,6 +4,7 @@
   参考：
   https://docs.microsoft.com/zh-cn/visualstudio/msbuild/project-element-msbuild?view=vs-2019 
   https://blog.csdn.net/WPwalter/article/details/80371265
+  https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
   -->
   <PropertyGroup>
     <TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
