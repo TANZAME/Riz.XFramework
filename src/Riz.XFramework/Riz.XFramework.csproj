@@ -22,7 +22,7 @@
     <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-    <PackageTags>.NET SqlServer MSSQL Database Data O/RM ADO.NET</PackageTags>
+    <PackageTags>.NET SqlServer Database Data O/RM ADO.NET</PackageTags>
   </PropertyGroup>
   <!--
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

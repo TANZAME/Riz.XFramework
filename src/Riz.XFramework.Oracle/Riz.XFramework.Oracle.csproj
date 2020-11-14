@@ -56,11 +56,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <Reference Include="Oracle.ManagedDataAccess">
-      <HintPath>..\..\lib\Oracle\net45\Oracle.ManagedDataAccess.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Oracle.ManagedDataAccess" Version="19.9.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.6" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.91" />
   </ItemGroup>
 </Project>
