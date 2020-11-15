@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1433E583-BC58-4946-94A4-C20F00302D7D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Riz.XFramework.UnitTest.Nuget45</RootNamespace>
+    <AssemblyName>Riz.XFramework.UnitTest.Nuget45</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\DatabaseType.cs">
+      <Link>DatabaseType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\LongText.cs">
+      <Link>LongText.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Model.cs">
+      <Link>Model.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\MySqlModel.cs">
+      <Link>MySql\MySqlModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\MySqlTest.cs">
+      <Link>MySql\MySqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\RizMySqlModel.cs">
+      <Link>MySql\RizMySqlModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\RizMySqlTest.cs">
+      <Link>MySql\RizMySqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\OracleModel.cs">
+      <Link>Oracle\OracleModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\OracleTest.cs">
+      <Link>Oracle\OracleTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\RizOracleModel.cs">
+      <Link>Oracle\RizOracleModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\RizOracleTest.cs">
+      <Link>Oracle\RizOracleTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\PostgreModel.cs">
+      <Link>Postgre\PostgreModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\PostgreTest.cs">
+      <Link>Postgre\PostgreTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\RizPostgreModel.cs">
+      <Link>Postgre\RizPostgreModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\RizPostgreTest.cs">
+      <Link>Postgre\RizPostgreTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\RizModel.cs">
+      <Link>RizModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\RizTestBase.cs">
+      <Link>RizTestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\RizSQLiteModel.cs">
+      <Link>SQLite\RizSQLiteModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\RizSQLiteTest.cs">
+      <Link>SQLite\RizSQLiteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\SQLiteModel.cs">
+      <Link>SQLite\SQLiteModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\SQLiteTest.cs">
+      <Link>SQLite\SQLiteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\RizSqlServerModel.cs">
+      <Link>SqlServer\RizSqlServerModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\RizSqlServerTest.cs">
+      <Link>SqlServer\RizSqlServerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\SqlServerModel.cs">
+      <Link>SqlServer\SqlServerModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\SqlServerTest.cs">
+      <Link>SqlServer\SqlServerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\TestBase.cs">
+      <Link>TestBase.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="MySql\.gitkeep" />
+    <None Include="Oracle\.gitkeep" />
+    <None Include="Postgre\.gitkeep" />
+    <None Include="SQLite\.gitkeep" />
+    <None Include="SqlServer\.gitkeep" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Riz.XFramework">
+      <Version>2.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Riz.XFramework.MySql">
+      <Version>2.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Riz.XFramework.Oracle">
+      <Version>2.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Riz.XFramework.Postgre">
+      <Version>2.4.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

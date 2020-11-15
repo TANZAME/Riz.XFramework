@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.SQLite", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.UnitTest", "src\Riz.XFramework.UnitTest\Riz.XFramework.UnitTest.csproj", "{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Riz.XFramework.UnitTest.Nuget", "src\Riz.XFramework.UnitTest.Nuget\Riz.XFramework.UnitTest.Nuget.csproj", "{8D9C619E-E90F-431D-9AE2-EF9679E0C334}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBBAB5A7-57B3-43F6-A9F6-0417EDF97235}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D9C619E-E90F-431D-9AE2-EF9679E0C334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D9C619E-E90F-431D-9AE2-EF9679E0C334}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D9C619E-E90F-431D-9AE2-EF9679E0C334}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D9C619E-E90F-431D-9AE2-EF9679E0C334}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
