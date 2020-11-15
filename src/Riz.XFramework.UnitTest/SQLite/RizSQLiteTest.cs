@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Riz.XFramework.Data;
 using Riz.XFramework.Data.SqlClient;
 using System.Text;
+using System.IO;
 
 namespace Riz.XFramework.UnitTest.SQLite
 {
@@ -13,15 +14,25 @@ namespace Riz.XFramework.UnitTest.SQLite
     {
         // SQLite 需要将包里的 SQLite.Interop.dll 文件拷到运行目录下
 
-        static string connString =
-            "DataSource=" +
-            new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName +
-            @"\SQLite\Riz_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
-
+        static string connString = string.Empty;
         public RizSQLiteTest()
             : base()
         {
-            // 初始化数据~~
+            string source = string.Empty;
+            var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while (true)
+            {
+                if (Directory.Exists(Path.Combine(directory.FullName, ".nuget")) &&
+                    Directory.Exists(Path.Combine(directory.FullName, "lib")))
+                {
+                    connString = "DataSource=" + Path.Combine(directory.FullName, "lib") + "\\SQLite\\Riz_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+                    break;
+                }
+                else
+                {
+                    directory = directory.Parent;
+                }
+            }
         }
 
         public override IDbContext CreateDbContext()

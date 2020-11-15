@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest.Nuget40", "Riz.XFramework.UnitTest.Nuget40\Riz.XFramework.UnitTest.Nuget40.csproj", "{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest.Nuget45", "Riz.XFramework.UnitTest.Nuget45\Riz.XFramework.UnitTest.Nuget45.csproj", "{1433E583-BC58-4946-94A4-C20F00302D7D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1433E583-BC58-4946-94A4-C20F00302D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1433E583-BC58-4946-94A4-C20F00302D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1433E583-BC58-4946-94A4-C20F00302D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1433E583-BC58-4946-94A4-C20F00302D7D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3DB1C9FE-3743-4973-BC61-0BFD7F063824}
+	EndGlobalSection
+EndGlobal

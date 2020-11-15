@@ -2,19 +2,20 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-    <!--
-    TargetFrameworks 的顺序决定了默认的版本，例如下面 netcoreapp3.1 写在最前面，那么这个控制台就是 netcore 版本
-    测试时使用相应的 TargetFramework
-    -->
-		<!--<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>-->
-    <!--<TargetFramework>net40</TargetFramework>-->
-    <TargetFramework>net45</TargetFramework>
-    <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+		<!--
+		TargetFrameworks 的顺序决定了默认的版本，例如下面 netcoreapp3.1 写在最前面，那么这个控制台就是 netcore 版本
+		测试时使用相应的 TargetFramework。如果想一次性全跑所有平台，用 dotnet test。
+		https://weblog.west-wind.com/posts/2017/jun/22/multitargeting-and-porting-a-net-library-to-net-core-20
+		-->
+		<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
+		<!--<TargetFramework>net40</TargetFramework>-->
+		<!--<TargetFramework>net45</TargetFramework>-->
+		<!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
 		<Version>1.0.0</Version>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
-    <!-- 此程序集不可打包，通常在单元测试项目中设置此属性。 -->
-    <IsPackable>false</IsPackable>
+		<!-- 此程序集不可打包，通常在单元测试项目中设置此属性。 -->
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<!--
@@ -31,10 +32,10 @@
   </PropertyGroup>
   -->
 
-  <!-- 编译输出路径 -->
-  <PropertyGroup>
-    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
+	<!-- 编译输出路径 -->
+	<!--<PropertyGroup>
+		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>-->
 
 	<!-- 定义条件编译符 -->
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -50,7 +51,7 @@
 	  <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
 	</PropertyGroup>-->
 	<PropertyGroup>
-	  <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+		<NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -75,20 +76,20 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
-    <PackageReference Include="Oracle.ManagedDataAccess" Version="19.9.0" />
+		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+		<PackageReference Include="Oracle.ManagedDataAccess" Version="19.9.0" />
 		<Reference Include="Npgsql">
 			<HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
 		</Reference>
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
+		<PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.91" />
+		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.91" />
 		<PackageReference Include="Npgsql" Version="4.1.1" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
+		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
 	</ItemGroup>
 
 </Project>

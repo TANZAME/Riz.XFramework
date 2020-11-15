@@ -31,10 +31,6 @@ namespace Riz.XFramework.UnitTest
         public TestBase()
         {
             _newContext = this.CreateDbContext;
-
-            DateTime dateTime = DateTime.Parse("2019-10-27 23:59:59.1234567");
-            long result = dateTime.Ticks;
-            var r2 = Math.Log(100);
         }
 
         public abstract IDbContext CreateDbContext();
@@ -2501,6 +2497,7 @@ namespace Riz.XFramework.UnitTest
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 7;
             var tuple2 = context.Database.Execute<int, int, int>(query3, query4, query5);
+            string str = WebHelper.Get<string>("https://www.baidu.com/");
 #if !net40
             query3 =
                from a in context.GetTable<Model.Client>()
@@ -2525,6 +2522,7 @@ namespace Riz.XFramework.UnitTest
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 6;
             tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
+            str = WebHelper.GetAsync<string>("https://www.baidu.com/");
 #endif
 
             // 事务1. 上下文独立事务

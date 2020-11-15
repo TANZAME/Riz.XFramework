@@ -61,10 +61,10 @@ namespace Riz.XFramework.UnitTest
             Console.WriteLine("- net 40 -");
 #endif
 #if net45
-                    Console.WriteLine("- net 45 -");
+            Console.WriteLine("- net 45 -");
 #endif
 #if netcore
-                    Console.WriteLine("- net core -");
+            Console.WriteLine("- net core -");
 #endif
 
             foreach (DatabaseType item in Enum.GetValues(typeof(DatabaseType)))
@@ -88,7 +88,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     Console.WriteLine("================ " + myDatabaseType + " Begin ================");
                     test.Run(myDatabaseType);
-                    Console.WriteLine("================ " + myDatabaseType + " END   ================"); 
+                    Console.WriteLine("================ " + myDatabaseType + " END   ================");
                     Console.WriteLine(string.Empty);
                 }
 
