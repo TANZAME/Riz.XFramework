@@ -55,7 +55,7 @@ namespace Riz.XFramework
         /// <summary>
         /// 获取当前应用程序默认配置的数据。
         /// </summary>
-        public static NameValueCollection AppSettings { get { return ConfigurationManager.AppSettings; } }
+        public static NameValueCollection AppSettings => ConfigurationManager.AppSettings;
 
         #endregion
 
@@ -282,6 +282,28 @@ namespace Riz.XFramework
         }
 
         /// <summary>
+        /// 16进制字符串转为明文
+        /// </summary>
+        /// <param name="hex">16进制字符串</param>
+        /// <param name="encoding">编码，如果不传则使用 UTF8</param>
+        /// <returns></returns>
+        public static string HexToString(string hex, Encoding encoding = null)
+        {
+            hex = hex ?? string.Empty;
+            encoding = encoding ?? Encoding.UTF8;
+
+            string s = "";
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length / 2; i++)
+            {
+                s = hex.Substring(i * 2, 2);
+                bytes[i] = Convert.ToByte(s, 16);
+            }
+            //按照指定编码将字节数组变为字符串
+            return encoding.GetString(bytes);
+        }
+
+        /// <summary>
         /// 将字符串转为 16 进制形式
         /// </summary>
         /// <param name="buffer">字节序列</param>
@@ -335,33 +357,11 @@ namespace Riz.XFramework
         }
 
         /// <summary>
-        /// 16进制字符串转为明文
-        /// </summary>
-        /// <param name="hex">16进制字符串</param>
-        /// <param name="encoding">编码，如果不传则使用 UTF8</param>
-        /// <returns></returns>
-        public static string HexToString(string hex, Encoding encoding = null)
-        {
-            hex = hex ?? string.Empty;
-            encoding = encoding ?? Encoding.UTF8;
-
-            string s = "";
-            byte[] bytes = new byte[hex.Length / 2];
-            for (int i = 0; i < hex.Length / 2; i++)
-            {
-                s = hex.Substring(i * 2, 2);
-                bytes[i] = Convert.ToByte(s, 16);
-            }
-            //按照指定编码将字节数组变为字符串
-            return encoding.GetString(bytes);
-        }
-
-        /// <summary>
         /// 将源字符串的双字节部分（如中文字符）转为 \u 的unicode形式
         /// </summary>
         /// <param name="source">源字符串</param>
         /// <returns></returns>
-        public static string ToUnicode(string source)
+        public static string StringToUnicode(string source)
         {
             if (string.IsNullOrEmpty(source)) return string.Empty;
 
@@ -451,7 +451,7 @@ namespace Riz.XFramework
         /// <returns></returns>
         public static ulong ConvertHashToUInt64(string text)
         {
-            return Common.ConvertHashToUInt64(SHA256.Create(), text);
+            return Common.HashToUInt64(SHA256.Create(), text);
         }
 
         /// <summary>
@@ -460,7 +460,7 @@ namespace Riz.XFramework
         /// <param name="hasher">哈希算法</param>
         /// <param name="text">来源字符串</param>
         /// <returns></returns>
-        public static ulong ConvertHashToUInt64(HashAlgorithm hasher, string text)
+        public static ulong HashToUInt64(HashAlgorithm hasher, string text)
         {
             using (hasher)
             {

@@ -2526,6 +2526,8 @@ namespace Riz.XFramework.UnitTest
             Debug.Assert(str == strAsync);
 #endif
 
+
+
             // 事务1. 上下文独立事务
             try
             {
@@ -2607,6 +2609,8 @@ namespace Riz.XFramework.UnitTest
 
                 context.Dispose();
             }
+
+
         }
 
         // 性能测试
