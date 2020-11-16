@@ -42,5 +42,7 @@ namespace Riz.XFramework.Data.SqlClient
             : base(connString, commandTimeout)
         {
         }
+
+        // TODO MySqlBulkCopy
     }
 }
