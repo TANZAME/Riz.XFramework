@@ -7,7 +7,7 @@
   https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
   -->
 	<PropertyGroup>
-		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
 		<Authors>NaiXiang Tian</Authors>
 		<Company>NaiXiang Tian</Company>
 		<Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the native Entity Framework api.</Description>

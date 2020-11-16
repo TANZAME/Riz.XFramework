@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net40;net45;netcoreapp3.1</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
 		<Authors>NaiXiang Tian</Authors>
 		<Company>NaiXiang Tian</Company>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
