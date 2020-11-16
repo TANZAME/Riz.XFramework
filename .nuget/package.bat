@@ -4,7 +4,7 @@
 :: 4. 
 
 @echo off
-set api_key=
+set api_key=oy2hxwpdgniqql255qsq2y7pzybtupiu7omuwzrmp42p4i
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
@@ -13,29 +13,11 @@ cd .nuget
 
 :: 打包 Riz.XFramework
 echo pack Riz.XFramework
-dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\src\Riz.XFramework\Riz.XFramework.csproj
-
-:: 打包 Riz.XFramework.MySql
-echo pack Riz.XFramework.MySql
-dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\src\Riz.XFramework.MySql\Riz.XFramework.MySql.csproj
-
-:: 打包 Riz.XFramework
-echo pack Riz.XFramework.Oracle
-dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\src\Riz.XFramework.Oracle\Riz.XFramework.Oracle.csproj
-
-:: 打包 Riz.XFramework.Postgre
-echo pack Riz.XFramework.Postgre
-dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\src\Riz.XFramework.Postgre\Riz.XFramework.Postgre.csproj
-
-:: 打包 Riz.XFramework.SQLite
-echo pack Riz.XFramework.SQLite
-dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\src\Riz.XFramework.SQLite\Riz.XFramework.SQLite.csproj
+dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%\Riz.XFramework.sln
 
 :: 批量推送包 
 for /R %cd% %%f in (*.nupkg) do ( 
-::echo=
-::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
-echo=
+dotnet nuget push %%f -k %api_key% -s %source_api_uri%
 )
 
 echo=

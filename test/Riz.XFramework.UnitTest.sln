@@ -3,9 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest.Nuget40", "Riz.XFramework.UnitTest.Nuget40\Riz.XFramework.UnitTest.Nuget40.csproj", "{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net40", "net40", "{0199484B-42E7-4C5D-A8FD-ADC8BD9CB38C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest.Nuget45", "Riz.XFramework.UnitTest.Nuget45\Riz.XFramework.UnitTest.Nuget45.csproj", "{1433E583-BC58-4946-94A4-C20F00302D7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest", "Riz.XFramework.UnitTest40\Riz.XFramework.UnitTest.csproj", "{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net45", "net45", "{C33D5F57-D343-474B-BD08-E1BB4C838F72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest", "Riz.XFramework.UnitTest45\Riz.XFramework.UnitTest.csproj", "{1433E583-BC58-4946-94A4-C20F00302D7D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "netcore", "netcore", "{9432E86C-44AD-4770-8744-DCA6C2FF6064}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Riz.XFramework.UnitTest", "Riz.XFramework.UnitTestCore\Riz.XFramework.UnitTest.csproj", "{AA647188-41FC-4D65-84C4-522D34220F98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +29,18 @@ Global
 		{1433E583-BC58-4946-94A4-C20F00302D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1433E583-BC58-4946-94A4-C20F00302D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1433E583-BC58-4946-94A4-C20F00302D7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA647188-41FC-4D65-84C4-522D34220F98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA647188-41FC-4D65-84C4-522D34220F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA647188-41FC-4D65-84C4-522D34220F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA647188-41FC-4D65-84C4-522D34220F98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8} = {0199484B-42E7-4C5D-A8FD-ADC8BD9CB38C}
+		{1433E583-BC58-4946-94A4-C20F00302D7D} = {C33D5F57-D343-474B-BD08-E1BB4C838F72}
+		{AA647188-41FC-4D65-84C4-522D34220F98} = {9432E86C-44AD-4770-8744-DCA6C2FF6064}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3DB1C9FE-3743-4973-BC61-0BFD7F063824}

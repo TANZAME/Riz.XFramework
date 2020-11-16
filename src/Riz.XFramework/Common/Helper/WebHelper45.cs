@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO.Compression;
 #if !net40
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -21,7 +22,7 @@ namespace Riz.XFramework
 
         // 此文件适用于 4.5+（net45,netcore）
 
-#region 网络
+        #region 网络
 
         /// <summary>
         /// HttpClient 用GET方法访问指定URI
@@ -45,10 +46,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Get;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, configuration);
         }
 
         /// <summary>
@@ -79,10 +78,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Post;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, configuration);
         }
 
         /// <summary>
@@ -113,10 +110,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Delete;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = await WebHelper.SendAsync(uri, configuration);
-            return await WebHelper.ReadAsResultAsync<T>(response, conf != null ? conf.Deserializer : null);
+            return await WebHelper.ReadAsResultAsync<T>(response, configuration);
         }
 
         /// <summary>
@@ -250,15 +245,34 @@ namespace Riz.XFramework
         }
 
         // 从响应流中读取响应为实体
-        static async Task<T> ReadAsResultAsync<T>(HttpResponseMessage response, Func<string, T> deserializer = null)
+        static async Task<T> ReadAsResultAsync<T>(HttpResponseMessage response, HttpConfiguration configuration)
         {
             Stream stream = null;
             try
             {
-                Encoding encoding = null;
-                if (response.Content != null && response.Content.Headers != null && response.Content.Headers.ContentType != null)
-                    encoding = Encoding.GetEncoding(response.Content.Headers.ContentType.CharSet);
+                //Encoding encoding = null;
+                //var content = response.Content;
+                //if (content != null && content.Headers != null && content.Headers.ContentType != null && !string.IsNullOrEmpty(content.Headers.ContentType.CharSet))
+                //    encoding = Encoding.GetEncoding(response.Content.Headers.ContentType.CharSet);
+                //stream = await response.Content.ReadAsStreamAsync();
+                //return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
+
+                var content = response.Content;
+                var conf = configuration as HttpConfiguration<T>;
+                var deserializer = conf != null ? conf.Deserializer : null;
+                Encoding encoding = configuration.Encoding;
+                if (encoding == null)
+                {
+                    encoding = content != null && content.Headers != null && content.Headers.ContentType != null && !string.IsNullOrEmpty(content.Headers.ContentType.CharSet)
+                        ? Encoding.GetEncoding(content.Headers.ContentType.CharSet)
+                        : null;
+                }
+
                 stream = await response.Content.ReadAsStreamAsync();
+                if (content.Headers != null && content.Headers.ContentEncoding != null && content.Headers.ContentEncoding.Contains("gzip"))
+                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                else if (content.Headers != null && content.Headers.ContentEncoding != null && content.Headers.ContentEncoding.Contains("deflate"))
+                    stream = new DeflateStream(stream, CompressionMode.Decompress);
                 return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
             }
             finally
@@ -268,7 +282,7 @@ namespace Riz.XFramework
             }
         }
 
-#endregion
+        #endregion
 
 #endif
     }
