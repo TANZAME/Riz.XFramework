@@ -2497,7 +2497,7 @@ namespace Riz.XFramework.UnitTest
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 7;
             var tuple2 = context.Database.Execute<int, int, int>(query3, query4, query5);
-            string str = WebHelper.Get<string>("https://www.baidu.com/");
+            string str = WebHelper.Get<string>("https://www.baidu.com/", new WebHelper.HttpConfiguration { Encoding = System.Text.Encoding.UTF8 });
 #if !net40
             query3 =
                from a in context.GetTable<Model.Client>()
@@ -2522,7 +2522,8 @@ namespace Riz.XFramework.UnitTest
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 6;
             tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
-            str = WebHelper.GetAsync<string>("https://www.baidu.com/");
+            string strAsync = WebHelper.GetAsync<string>("https://www.baidu.com/").Result;
+            Debug.Assert(str == strAsync);
 #endif
 
             // 事务1. 上下文独立事务

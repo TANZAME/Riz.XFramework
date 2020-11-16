@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{36445574-5FB4-4CA9-8D90-E5F0CA66DBF8}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Riz.XFramework.UnitTest.Nuget40</RootNamespace>
+    <AssemblyName>Riz.XFramework.UnitTest.Nuget40</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;net40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.Postgre.2.4.1\lib\net40\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.9.12.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.MySql.2.4.1\lib\net40\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.Postgre.2.4.1\lib\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.Oracle.2.4.1\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Riz.XFramework, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.2.4.1\lib\net40\Riz.XFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Riz.XFramework.MySql, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.MySql.2.4.1\lib\net40\Riz.XFramework.MySql.dll</HintPath>
+    </Reference>
+    <Reference Include="Riz.XFramework.Oracle, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.Oracle.2.4.1\lib\net40\Riz.XFramework.Oracle.dll</HintPath>
+    </Reference>
+    <Reference Include="Riz.XFramework.Postgre, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.Postgre.2.4.1\lib\net40\Riz.XFramework.Postgre.dll</HintPath>
+    </Reference>
+    <Reference Include="Riz.XFramework.SQLite, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.SQLite.2.4.1\lib\net40\Riz.XFramework.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.111.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riz.XFramework.SQLite.2.4.1\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\DatabaseType.cs">
+      <Link>DatabaseType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\LongText.cs">
+      <Link>LongText.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Model.cs">
+      <Link>Model.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\MySqlModel.cs">
+      <Link>MySql\MySqlModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\MySqlTest.cs">
+      <Link>MySql\MySqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\RizMySqlModel.cs">
+      <Link>MySql\RizMySqlModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\MySql\RizMySqlTest.cs">
+      <Link>MySql\RizMySqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\OracleModel.cs">
+      <Link>Oracle\OracleModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\OracleTest.cs">
+      <Link>Oracle\OracleTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\RizOracleModel.cs">
+      <Link>Oracle\RizOracleModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Oracle\RizOracleTest.cs">
+      <Link>Oracle\RizOracleTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\PostgreModel.cs">
+      <Link>Postgre\PostgreModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\PostgreTest.cs">
+      <Link>Postgre\PostgreTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\RizPostgreModel.cs">
+      <Link>Postgre\RizPostgreModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Postgre\RizPostgreTest.cs">
+      <Link>Postgre\RizPostgreTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\RizModel.cs">
+      <Link>RizModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\RizTestBase.cs">
+      <Link>RizTestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\RizSQLiteModel.cs">
+      <Link>SQLite\RizSQLiteModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\RizSQLiteTest.cs">
+      <Link>SQLite\RizSQLiteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\SQLiteModel.cs">
+      <Link>SQLite\SQLiteModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SQLite\SQLiteTest.cs">
+      <Link>SQLite\SQLiteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\RizSqlServerModel.cs">
+      <Link>SqlServer\RizSqlServerModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\RizSqlServerTest.cs">
+      <Link>SqlServer\RizSqlServerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\SqlServerModel.cs">
+      <Link>SqlServer\SqlServerModel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\SqlServer\SqlServerTest.cs">
+      <Link>SqlServer\SqlServerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Riz.XFramework.UnitTest\TestBase.cs">
+      <Link>TestBase.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="MySql\.gitkeep" />
+    <None Include="Oracle\.gitkeep" />
+    <None Include="packages.config" />
+    <None Include="Postgre\.gitkeep" />
+    <None Include="SQLite\.gitkeep" />
+    <None Include="SqlServer\.gitkeep" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

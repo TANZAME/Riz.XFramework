@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Drawing;
 using System.Collections.Generic;
+using System.IO.Compression;
 
 namespace Riz.XFramework
 {
@@ -227,10 +228,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Get;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf);
+            return WebHelper.ReadAsResult<T>(response, configuration);
         }
 
         /// <summary>
@@ -261,10 +260,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Post;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf);
+            return WebHelper.ReadAsResult<T>(response, configuration);
         }
 
         /// <summary>
@@ -295,10 +292,8 @@ namespace Riz.XFramework
         {
             if (configuration == null) configuration = new HttpConfiguration<T>();
             configuration.Method = HttpMethod.Delete;
-
-            var conf = configuration as HttpConfiguration<T>;
             var response = WebHelper.Send(uri, configuration);
-            return WebHelper.ReadAsResult<T>(response, conf);
+            return WebHelper.ReadAsResult<T>(response, configuration);
         }
 
         /// <summary>
@@ -449,8 +444,18 @@ namespace Riz.XFramework
                 var conf = configuration as HttpConfiguration<T>;
                 var deserializer = conf != null ? conf.Deserializer : null;
                 Encoding encoding = configuration.Encoding;
-                if (encoding == null) encoding = !string.IsNullOrEmpty(response.CharacterSet) ? Encoding.GetEncoding(response.CharacterSet) : null;
+                if (encoding == null)
+                {
+                    encoding = !string.IsNullOrEmpty(response.CharacterSet) 
+                        ? Encoding.GetEncoding(response.CharacterSet) 
+                        : null;
+                }
+
                 stream = response.GetResponseStream();
+                if (response.ContentEncoding == "gzip") 
+                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                else if (response.ContentEncoding == "deflate")
+                    stream = new DeflateStream(stream, CompressionMode.Decompress);
                 return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
             }
             finally

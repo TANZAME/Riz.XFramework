@@ -51,6 +51,14 @@ namespace Riz.XFramework.UnitTest.SqlServer
             List<Model.Client> result = null;
             context.SubmitChanges(out result);
 
+            var qeury =
+                context
+                .GetTable<SqlServerModel.SqlServerDemo>()
+                .Where(a => a.DemoId > 100);
+            // 2.WHERE 条件批量删除
+            context.Delete<SqlServerModel.SqlServerDemo>(qeury);
+            context.SubmitChanges();
+            Debug.Assert(context.GetTable<SqlServerModel.SqlServerDemo>().Count(a => a.DemoId > 100) == 0);
 
             base.Run(dbType);
         }
@@ -223,7 +231,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 from a in context.GetTable<Model.Client>()
                 where a.ClientId <= 10
                 select a;
-            
+
             var table = query.ToDataTable<Model.Client>();
 
             table.TableName = "Bas_Client";
