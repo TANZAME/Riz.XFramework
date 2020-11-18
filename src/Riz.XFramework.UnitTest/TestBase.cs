@@ -960,6 +960,8 @@ namespace Riz.XFramework.UnitTest
 
             // 更简单的赋值方式 
             // 适用场景：在显示列表时只想显示外键表的一两个字段
+            // CloudServer = a.CloudServer 语法相当于 Include 语法，如果左表是空，那么这个导航属性=null 
+            // 不同于 LocalServer = new Model.CloudServer 语法，这种语法导航属性一定不为空
             query =
                 from a in context.GetTable<Model.Client>()
                 select new Model.Client(a)
