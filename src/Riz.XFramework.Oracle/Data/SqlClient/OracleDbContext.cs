@@ -209,7 +209,7 @@ namespace Riz.XFramework.Data.SqlClient
             IDataReader reader = null;
             List<int> identitys = null;
             List<DbRawCommand> sqlList = this.Translate();
-            List<IMapInfo> maps = sqlList.ToList(x => x as IMapInfo, x => x is IMapInfo);
+            List<IMapInfo> maps = sqlList.ToList(a => a is IMapInfo, a => a as IMapInfo);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {

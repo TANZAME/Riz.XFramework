@@ -932,12 +932,18 @@ namespace Riz.XFramework.UnitTest
                 where a.ClientId > 0
                 select a;
             var result = query.ToList();
-            // 点标记
-            query = context
-                .GetTable<Model.Client>()
-                .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
-                .Where(a => a.ClientId > 0);
+            query = from a in context.GetTable<Model.Client>()
+                    join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
+                    select a;
             result = query.ToList();
+            //// 点标记 TODO（未实现）
+            //query = context
+            //    .GetTable<Model.Client>()
+            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a, CloudServer = b })
+            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServer.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a.Client, CloudServer = b })
+            //    .Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
+            //    .Select(a => a.Client);
+            //result = query.ToList();
             query =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.Client, Model.CloudServer>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId
@@ -2619,199 +2625,17 @@ namespace Riz.XFramework.UnitTest
         protected virtual void Rabbit()
         {
             Console.WriteLine("8. Rabbit ");
-            Stopwatch stop = new Stopwatch();
+            Stopwatch watch = new Stopwatch();
             var context = _newContext();
 
-            stop = new Stopwatch();
-            stop.Start();
+            watch = new Stopwatch();
+            watch.Start();
             for (int i = 0; i < 10; i++)
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
                     .GetTable<Model.Rabbit>()
                     .ToList();
-
-                //                string sql = @"
-                //SELECT 
-                //t0.[DemoId] AS [DemoId],
-                //t0.[DemoCode] AS [DemoCode],
-                //t0.[DemoName] AS [DemoName],
-                //t0.[DemoBoolean] AS [DemoBoolean],
-                //t0.[DemoBoolean_Nullable] AS [DemoBoolean_Nullable],
-                //t0.[DemoChar] AS [DemoChar],
-                //t0.[DemoChar_Nullable] AS [DemoChar_Nullable],
-                //t0.[DemoByte] AS [DemoByte],
-                //t0.[DemoByte_Nullable] AS [DemoByte_Nullable],
-                //t0.[DemoDate] AS [DemoDate],
-                //t0.[DemoDate_Nullable] AS [DemoDate_Nullable],
-                //t0.[DemoDateTime] AS [DemoDateTime],
-                //t0.[DemoDateTime_Nullable] AS [DemoDateTime_Nullable],
-                //t0.[DemoDateTime2] AS [DemoDateTime2],
-                //t0.[DemoDateTime2_Nullable] AS [DemoDateTime2_Nullable],
-                //t0.[DemoDecimal] AS [DemoDecimal],
-                //t0.[DemoDecimal_Nullable] AS [DemoDecimal_Nullable],
-                //t0.[DemoDouble] AS [DemoDouble],
-                //t0.[DemoDouble_Nullable] AS [DemoDouble_Nullable],
-                //t0.[DemoFloat] AS [DemoFloat],
-                //t0.[DemoFloat_Nullable] AS [DemoFloat_Nullable],
-                //t0.[DemoGuid] AS [DemoGuid],
-                //t0.[DemoGuid_Nullable] AS [DemoGuid_Nullable],
-                //t0.[DemoShort] AS [DemoShort],
-                //t0.[DemoShort_Nullable] AS [DemoShort_Nullable],
-                //t0.[DemoInt] AS [DemoInt],
-                //t0.[DemoInt_Nullable] AS [DemoInt_Nullable],
-                //t0.[DemoLong] AS [DemoLong],
-                //t0.[DemoLong_Nullable] AS [DemoLong_Nullable]
-                //FROM [Sys_Rabbit] t0 
-                //";
-                //                List<Model.Rabbit> result = new List<Model.Rabbit>();
-                //                var P_0 = context.Database.ExecuteReader(sql);
-                //                List<Model.Rabbit> m2 = new List<Model.Rabbit>();
-                //                while (P_0.Read())
-                //                {
-                //                    int index = 0;
-                //                    Model.Rabbit rabbit = new Model.Rabbit();
-                //                    object val = default(object);
-                //                    try
-                //                    {
-                //                        Model.Rabbit rabbit2 = rabbit;
-                //                        //index = 0;
-                //                        //val = null;
-                //                        rabbit2.DemoId = P_0.GetInt32(0);
-                //                        //index = 1;
-                //                        //val = null;
-                //                        rabbit2.DemoCode = P_0.GetString(1);
-                //                        //index = 2;
-                //                        //val = null;
-                //                        rabbit2.DemoName = P_0.GetString(2);
-                //                        //index = 3;
-                //                        //val = null;
-                //                        rabbit2.DemoBoolean = P_0.GetBoolean(3);
-                //                        //index = 4;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(4))
-                //                        {
-                //                            rabbit2.DemoBoolean_Nullable = P_0.GetBoolean(4);
-                //                        }
-                //                        //index = 5;
-                //                        //val = null;
-                //                        rabbit2.DemoChar = P_0.GetString(5);
-                //                        //index = 6;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(6))
-                //                        {
-                //                            rabbit2.DemoChar_Nullable = P_0.GetString(6);
-                //                        }
-                //                        //index = 7;
-                //                        //val = null;
-                //                        rabbit2.DemoByte = P_0.GetByte(7);
-                //                        //index = 8;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(8))
-                //                        {
-                //                            rabbit2.DemoByte_Nullable = P_0.GetByte(8);
-                //                        }
-                //                        //index = 9;
-                //                        //val = null;
-                //                        rabbit2.DemoDate = P_0.GetDateTime(9);
-                //                        //index = 10;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(10))
-                //                        {
-                //                            rabbit2.DemoDate_Nullable = P_0.GetDateTime(10);
-                //                        }
-                //                        //index = 11;
-                //                        //val = null;
-                //                        rabbit2.DemoDateTime = P_0.GetDateTime(11);
-                //                        //index = 12;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(12))
-                //                        {
-                //                            rabbit2.DemoDateTime_Nullable = P_0.GetDateTime(12);
-                //                        }
-                //                        //index = 13;
-                //                        //val = null;
-                //                        rabbit2.DemoDateTime2 = P_0.GetDateTime(13);
-                //                        //index = 14;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(14))
-                //                        {
-                //                            rabbit2.DemoDateTime2_Nullable = P_0.GetDateTime(14);
-                //                        }
-                //                        //index = 15;
-                //                        //val = null;
-                //                        rabbit2.DemoDecimal = P_0.GetDecimal(15);
-                //                        //index = 16;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(16))
-                //                        {
-                //                            rabbit2.DemoDecimal_Nullable = P_0.GetDecimal(16);
-                //                        }
-                //                        //index = 17;
-                //                        //val = null;
-                //                        rabbit2.DemoDouble = P_0.GetDouble(17);
-                //                        //index = 18;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(18))
-                //                        {
-                //                            rabbit2.DemoDouble_Nullable = P_0.GetDouble(18);
-                //                        }
-                //                        //index = 19;
-                //                        //val = null;
-                //                        rabbit2.DemoFloat = P_0.GetFloat(19);
-                //                        //index = 20;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(20))
-                //                        {
-                //                            rabbit2.DemoFloat_Nullable = P_0.GetFloat(20);
-                //                        }
-                //                        //index = 21;
-                //                        //val = null;
-                //                        rabbit2.DemoGuid = P_0.GetGuid(21);
-                //                        //index = 22;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(22))
-                //                        {
-                //                            rabbit2.DemoGuid_Nullable = P_0.GetGuid(22);
-                //                        }
-                //                        //index = 23;
-                //                        //val = null;
-                //                        rabbit2.DemoShort = P_0.GetInt16(23);
-                //                        //index = 24;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(24))
-                //                        {
-                //                            rabbit2.DemoShort_Nullable = P_0.GetInt16(24);
-                //                        }
-                //                        //index = 25;
-                //                        //val = null;
-                //                        rabbit2.DemoInt = P_0.GetInt32(25);
-                //                        //index = 26;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(26))
-                //                        {
-                //                            rabbit2.DemoInt_Nullable = P_0.GetInt32(26);
-                //                        }
-                //                        //index = 27;
-                //                        //val = null;
-                //                        rabbit2.DemoLong = P_0.GetInt64(27);
-                //                        //index = 28;
-                //                        //val = null;
-                //                        if (!P_0.IsDBNull(28))
-                //                        {
-                //                            rabbit2.DemoLong_Nullable = P_0.GetInt64(28);
-                //                        }
-                //                        rabbit = rabbit2;
-                //                        //return rabbit;
-                //                        result.Add(rabbit);
-                //                    }
-                //                    catch (Exception ex)
-                //                    {
-                //                        //TypeDeserializerImpl.ThrowDataException(ex, index, val, P_0);
-                //                        //return rabbit;
-                //                    }
-                //                }
-                //P_0.Dispose();
                 Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
 
                 // 100w 数据量明显，清掉后内存会及时释放
@@ -2820,12 +2644,12 @@ namespace Riz.XFramework.UnitTest
                 //reader.Close();
             }
 
-            stop.Stop();
-            Console.WriteLine(string.Format("运行 10 次 100w 行单表数据，用时：{0}", stop.Elapsed));
+            watch.Stop();
+            Console.WriteLine(string.Format("运行 10 次 100w 行单表数据，用时：{0}", watch.Elapsed));
             //Console.ReadLine();
 
-            stop = new Stopwatch();
-            stop.Start();
+            watch = new Stopwatch();
+            watch.Start();
             for (int i = 0; i < 100; i++)
             {
                 DateTime sDate = DateTime.Now;
@@ -2834,11 +2658,11 @@ namespace Riz.XFramework.UnitTest
                     .Include(a => a.Accounts)
                     .ToList();
             }
-            stop.Stop();
-            Console.WriteLine(string.Format("运行 100 次 2000 行主从数据，用时：{0}", stop.Elapsed));
+            watch.Stop();
+            Console.WriteLine(string.Format("运行 100 次 2000 行主从数据，用时：{0}", watch.Elapsed));
 
-            stop = new Stopwatch();
-            stop.Start();
+            watch = new Stopwatch();
+            watch.Start();
             for (int i = 0; i < 100; i++)
             {
                 DateTime sDate = DateTime.Now;
@@ -2848,9 +2672,35 @@ namespace Riz.XFramework.UnitTest
                     .Include(a => a.Accounts[0].Markets)
                     .ToList();
             }
-            stop.Stop();
-            Console.WriteLine(string.Format("运行 100 次 2000 行主从孙数据，用时：{0}", stop.Elapsed));
+            watch.Stop();
+            Console.WriteLine(string.Format("运行 100 次 2000 行主从孙数据，用时：{0}", watch.Elapsed));
             //Console.ReadLine();
+
+            watch = new Stopwatch();
+            watch.Start();
+            for (int i = 0; i < 100; i++)
+            {
+                //DateTime sDate = DateTime.Now;
+
+                var query =
+                    from a in context
+                .GetTable<Model.Client>()
+                .Include(a => a.Accounts)
+                .Include(a => a.Accounts[0].Markets)
+                .Include(a => a.Accounts[0].Markets[0].Client)
+                    where a.ClientId > 0
+                    orderby a.Accounts[0].AccountId descending, a.Accounts[0].Markets[0].MarketId, a.CloudServer.CloudServerId ascending, a.ClientId
+                    select a;
+                query = query
+                    .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
+                    .Skip(10)
+                    .Take(20);
+                var sql = query.ToString();
+
+                //Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
+            }
+            watch.Stop();
+            Console.WriteLine(string.Format("运行 100 次 SQL 解析，用时：{0}", watch.Elapsed));
         }
 
         /// <summary>

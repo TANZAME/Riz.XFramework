@@ -48,9 +48,15 @@ namespace Riz.XFramework.Data
             DbExpression group = null;                          // GROUP BY #
             DbExpression aggregate = null;                      // SUM&MAX  #
 
+            //var parameters = new List<ParameterExpression>();
             for (int index = startIndex; index < source.DbExpressions.Count; index++)
             {
                 DbExpression item = source.DbExpressions[index];
+                //if (item.Expressions != null) item.Expressions.ForEach(expr =>
+                //{
+                //    if (expr != null && expr.NodeType == ExpressionType.Parameter) parameters.Add(((ParameterExpression)expr));
+                //    else if (expr != null && expr.NodeType == ExpressionType.Lambda) parameters.AddRange(((LambdaExpression)expr).Parameters);
+                //});
 
                 // Take(n)
                 if (take != null || (skip != null && item.DbExpressionType != DbExpressionType.Take) || isDistinct || subQuery)
@@ -372,7 +378,7 @@ namespace Riz.XFramework.Data
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 if (initExpression != null)
-                    bindings = initExpression.Bindings.ToList(x => x, x => TypeUtils.IsPrimitiveType((x.Member as System.Reflection.PropertyInfo).PropertyType));
+                    bindings = initExpression.Bindings.ToList(a => TypeUtils.IsPrimitiveType((a.Member as System.Reflection.PropertyInfo).PropertyType));
 
                 if (newExpression != null || bindings.Count() > 0)
                 {

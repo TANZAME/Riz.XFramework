@@ -38,7 +38,7 @@ namespace Riz.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2, query3 });
-            List<IMapInfo> maps = sqlList.ToList(x => x as IMapInfo, x => x is IMapInfo);
+            List<IMapInfo> maps = sqlList.ToList(a => a is IMapInfo, a => a as IMapInfo);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;

@@ -300,6 +300,15 @@ namespace Riz.XFramework
         }
 
         /// <summary>
+        /// 对集合中的每个元素执行指定操作
+        /// </summary>
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+        {
+            if (action == null) return;
+            foreach (var item in collection) action.Invoke(item);
+        }
+
+        /// <summary>
         /// 创建一个集合
         /// </summary>
         public static List<TResult> ToList<T, TResult>(this IEnumerable<T> collection, Func<T, TResult> selector)
@@ -310,7 +319,16 @@ namespace Riz.XFramework
         /// <summary>
         /// 列表转换扩展
         /// </summary>
-        public static List<TResult> ToList<T, TResult>(this IEnumerable<T> source, Func<T, TResult> selector, Func<T, bool> predicate = null)
+        public static List<T> ToList<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            if (predicate != null) source = source.Where(predicate);
+            return source.ToList();
+        }
+
+        /// <summary>
+        /// 列表转换扩展
+        /// </summary>
+        public static List<TResult> ToList<T, TResult>(this IEnumerable<T> source, Func<T, bool> predicate, Func<T, TResult> selector)
         {
             if (predicate != null) source = source.Where(predicate);
             return source.Select(selector).ToList();
