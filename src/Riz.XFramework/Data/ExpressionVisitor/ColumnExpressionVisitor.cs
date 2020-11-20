@@ -27,10 +27,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 选中字段，Column 对应实体的原始属性
         /// </summary>
-        public ColumnDescriptorCollection PickColumns
-        {
-            get { return _pickColumns; }
-        }
+        public ColumnDescriptorCollection PickColumns => _pickColumns;
 
         /// <summary>
         /// 选中字段的文本，给 Contains 表达式用
@@ -61,10 +58,7 @@ namespace Riz.XFramework.Data
         /// </para>
         /// </summary>
         /// <remarks>只有选择语义才需要字段-实体映射描述。所以 Navigations</remarks>
-        public NavDescriptorCollection PickNavDescriptors
-        {
-            get { return _navDescriptors; }
-        }
+        public NavDescriptorCollection PickNavDescriptors => _navDescriptors;
 
         static ColumnExpressionVisitor()
         {
@@ -109,7 +103,7 @@ namespace Riz.XFramework.Data
                 _startLength = _builder.Length;
 
                 // SELECT 表达式解析
-                if (base.Expression.NodeType != ExpressionType.Constant) base.Write(builder);
+                if (base.Expression.NodeType != ExpressionType.Constant) base.Visit(base.Expression);
                 else
                 {
                     // 选择所有字段

@@ -1,5 +1,6 @@
 ﻿
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Riz.XFramework.Data
@@ -12,12 +13,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 查询类型
         /// </summary>
-        public DbExpressionType DbExpressionType { get; set; }
+        public DbExpressionType DbExpressionType { get; internal set; }
 
         /// <summary>
-        /// 表达式
+        /// 此查询语义所包含的所有表达式
         /// </summary>
-        public Expression[] Expressions { get; set; }
+        public Expression[] Expressions { get; internal set; }
 
         /// <summary>
         /// 实例化<see cref="DbExpression"/>类的新实例

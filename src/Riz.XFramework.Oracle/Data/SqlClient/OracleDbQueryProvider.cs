@@ -478,7 +478,7 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.FromType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.From);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias);
@@ -492,7 +492,7 @@ namespace Riz.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Where);
+            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -502,7 +502,7 @@ namespace Riz.XFramework.Data.SqlClient
             result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Having, tree.GroupBy);
+            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -609,7 +609,7 @@ namespace Riz.XFramework.Data.SqlClient
                 // 如果没有分页，则显式指定只查一笔记录
                 if (tree.Take == 0 && tree.Skip == 0)
                 {
-                    if (tree.Where != null && tree.Where.Expressions != null) jf.Append(" AND ROWNUM <= 1");
+                    if (tree.Wheres != null && tree.Wheres.Expressions != null) jf.Append(" AND ROWNUM <= 1");
                     else
                     {
                         jf.AppendNewLine();
@@ -869,7 +869,7 @@ namespace Riz.XFramework.Data.SqlClient
                     var visitor = new JoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
                     visitor.Write(builder);
 
-                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                     visitor_.Write(builder);
                 }
             }
@@ -1041,7 +1041,7 @@ namespace Riz.XFramework.Data.SqlClient
                     var visitor = new UpdateExpressionVisitor(aliasGenerator, tree.Expression);
                     visitor.Write(builder);
 
-                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                     visitor_.Write(builder);
                 }
             }

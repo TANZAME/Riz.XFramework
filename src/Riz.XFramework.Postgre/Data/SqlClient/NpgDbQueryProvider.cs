@@ -264,7 +264,7 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.FromType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.From);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias);
@@ -278,7 +278,7 @@ namespace Riz.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Where);
+            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -288,7 +288,7 @@ namespace Riz.XFramework.Data.SqlClient
             result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Having, tree.GroupBy);
+            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -550,7 +550,7 @@ namespace Riz.XFramework.Data.SqlClient
                 var visitor = new NpgJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins, DbExpressionType.Delete);
                 visitor.Write(cmd);
 
-                var visitor_ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                var visitor_ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                 visitor_.Write(cmd.WhereFragment);
                 cmd.AddNavMembers(visitor_.NavMembers);
                 builder.Append(cmd.CommandText);
@@ -637,7 +637,7 @@ namespace Riz.XFramework.Data.SqlClient
                 var visitor_ = new NpgJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins, DbExpressionType.Update);
                 visitor_.Write(cmd);
 
-                var visitor__ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                var visitor__ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                 visitor__.Write(cmd.WhereFragment);
                 cmd.AddNavMembers(visitor__.NavMembers);
                 builder.Append(cmd.CommandText);

@@ -256,7 +256,7 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else
             {
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.FromType);
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.From);
                 jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias);
@@ -273,7 +273,7 @@ namespace Riz.XFramework.Data.SqlClient
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Where);
+            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -283,7 +283,7 @@ namespace Riz.XFramework.Data.SqlClient
             result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Having, tree.GroupBy);
+            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
             visitor.Write(wf);
             result.AddNavMembers(visitor.NavMembers);
 
@@ -556,7 +556,7 @@ namespace Riz.XFramework.Data.SqlClient
                 LinqExpressionVisitor visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
                 visitor.Write(cmd.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                 visitor.Write(cmd.WhereFragment);
                 cmd.AddNavMembers(visitor.NavMembers);
 
@@ -654,7 +654,7 @@ namespace Riz.XFramework.Data.SqlClient
                 visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
                 visitor.Write(cmd.JoinFragment);
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Where);
+                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
                 visitor.Write(cmd.WhereFragment);
                 cmd.AddNavMembers(visitor.NavMembers);
 

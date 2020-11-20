@@ -9,39 +9,6 @@ namespace Riz.XFramework.Data
     /// </summary>
     public class DbQuerySelectTree : DbQueryTree
     {
-        private List<DbExpression> _joins = null;
-        private List<DbExpression> _orderBys = null;
-        private List<DbExpression> _includes = null;
-        private List<DbQuerySelectTree> _unions = null;
-        private DbExpression _groupByExpression = null;
-
-        /// <summary>
-        /// JOIN 表达式集合
-        /// </summary>
-        public List<DbExpression> Joins
-        {
-            get { return _joins; }
-            set { _joins = value; }
-        }
-
-        /// <summary>
-        /// ORDER BY 表达式集合
-        /// </summary>
-        public List<DbExpression> OrderBys
-        {
-            get { return _orderBys; }
-            set { _orderBys = value; }
-        }
-
-        /// <summary>
-        /// ORDER BY 表达式集合
-        /// </summary>
-        public List<DbExpression> Includes
-        {
-            get { return _includes; }
-            set { _includes = value; }
-        }
-
         /// <summary>
         /// SQL 命令是否含 DISTINCT 
         /// </summary>
@@ -70,7 +37,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 SELECT FROM 子句表对应类型
         /// </summary>
-        public Type FromType { get; set; }
+        public Type From { get; set; }
 
         /// <summary>
         /// SELECT 字段表达式
@@ -78,28 +45,39 @@ namespace Riz.XFramework.Data
         public DbExpression Select { get; set; }
 
         /// <summary>
-        /// WHERE 表达式
-        /// </summary>
-        public DbExpression Where { get; set; }
-
-        /// <summary>
-        /// HAVING 表达式
-        /// </summary>
-        public DbExpression Having { get; set; }
-
-        /// <summary>
         /// 聚合函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
         /// </summary>
         public DbExpression Aggregate { get; set; }
 
         /// <summary>
+        /// JOIN 表达式集合
+        /// </summary>
+        public List<DbExpression> Joins { get; set; }
+
+        /// <summary>
+        /// ORDER BY 表达式集合
+        /// </summary>
+        public List<DbExpression> OrderBys { get; set; }
+
+        /// <summary>
+        /// ORDER BY 表达式集合
+        /// </summary>
+        public List<DbExpression> Includes { get; set; }
+
+        /// <summary>
         /// GROUP BY 表达式集合
         /// </summary>
-        public DbExpression GroupBy
-        {
-            get { return _groupByExpression; }
-            set { _groupByExpression = value; }
-        }
+        public DbExpression GroupBy { get; set; }
+
+        /// <summary>
+        /// WHERE 表达式
+        /// </summary>
+        public List<DbExpression> Wheres { get; set; }
+
+        /// <summary>
+        /// HAVING 表达式
+        /// </summary>
+        public List<DbExpression> Havings { get; set; }
 
         /// <summary>
         /// 子查询语义
@@ -114,21 +92,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 并集操作，翻译成 UNION ALL
         /// </summary>
-        public List<DbQuerySelectTree> Unions
-        {
-            get { return _unions; }
-            set { _unions = value; }
-        }
-
-        /// <summary>
-        /// 初始化 <see cref="DbQuerySelectTree"/> 类的新实例
-        /// </summary>
-        public DbQuerySelectTree()
-        {
-            _joins = new List<DbExpression>(0);
-            _orderBys = new List<DbExpression>(0);
-            _includes = new List<DbExpression>(0);
-            _unions = new List<DbQuerySelectTree>(0);
-        }
+        public List<DbQuerySelectTree> Unions { get; set; }
     }
 }

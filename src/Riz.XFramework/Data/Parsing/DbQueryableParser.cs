@@ -34,29 +34,24 @@ namespace Riz.XFramework.Data
             int? skip = null;
             int? take = null;
             int? outerIndex = null;
-            var conditions = new List<Expression>();            // WHERE
-            var havings = new List<Expression>();               // HAVING
-            var joins = new List<DbExpression>();               // JOIN
-            var orderBys = new List<DbExpression>();            // ORDER BY
-            var includes = new List<DbExpression>();            // ORDER BY
-            var unions = new List<DbQuerySelectTree>();         // UNION ALL
+            List<DbExpression> wheres = null;        // WHERE
+            List<DbExpression> havings = null;      // HAVING
+            List<DbExpression> joins = null;        // JOIN
+            List<DbExpression> orderBys = null;     // ORDER BY
+            List<DbExpression> includes = null;     // ORDER BY
+            List<DbQuerySelectTree> unions = null;  // UNION ALL
 
-            Expression select = null;                           // SELECT #
-            DbExpression insert = null;                         // INSERT #
-            DbExpression update = null;                         // UPDATE #
-            DbExpression delete = null;                         // DELETE #
-            DbExpression group = null;                          // GROUP BY #
-            DbExpression aggregate = null;                      // SUM&MAX  #
+            Expression pickExpression = null;
+            DbExpression select = null;             // SELECT #
+            DbExpression insert = null;             // INSERT #
+            DbExpression update = null;             // UPDATE #
+            DbExpression delete = null;             // DELETE #
+            DbExpression group = null;              // GROUP BY #
+            DbExpression aggregate = null;          // SUM&MAX  #
 
-            //var parameters = new List<ParameterExpression>();
             for (int index = startIndex; index < source.DbExpressions.Count; index++)
             {
                 DbExpression item = source.DbExpressions[index];
-                //if (item.Expressions != null) item.Expressions.ForEach(expr =>
-                //{
-                //    if (expr != null && expr.NodeType == ExpressionType.Parameter) parameters.Add(((ParameterExpression)expr));
-                //    else if (expr != null && expr.NodeType == ExpressionType.Lambda) parameters.AddRange(((LambdaExpression)expr).Parameters);
-                //});
 
                 // Take(n)
                 if (take != null || (skip != null && item.DbExpressionType != DbExpressionType.Take) || isDistinct || subQuery)
@@ -75,7 +70,11 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.Any:
                         isAny = true;
-                        if (item.Expressions != null) conditions.Add(item.Expressions[0]);
+                        if (item.Expressions != null)
+                        {
+                            if (wheres != null) wheres = new List<DbExpression>();
+                            wheres.Add(item);
+                        }
                         break;
 
                     case DbExpressionType.AsSubquery:
@@ -86,6 +85,7 @@ namespace Riz.XFramework.Data
                         var constExpression = item.Expressions[0] as ConstantExpression;
                         var uQuery = constExpression.Value as IDbQueryable;
                         var u = DbQueryableParser.Parse(uQuery, constExpression.Type.GetGenericArguments()[0], 0);
+                        if (unions == null) unions = new List<DbQuerySelectTree>();
                         unions.Add((DbQuerySelectTree)u);
 
                         // 如果下一个不是 union，就使用嵌套
@@ -94,6 +94,7 @@ namespace Riz.XFramework.Data
                         continue;
 
                     case DbExpressionType.Include:
+                        if (includes == null) includes = new List<DbExpression>();
                         includes.Add(item);
                         continue;
 
@@ -114,7 +115,11 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.Count:
                         aggregate = item;
-                        if (item.Expressions != null) conditions.Add(item.Expressions[0]);
+                        if (item.Expressions != null)
+                        {
+                            if (wheres != null) wheres = new List<DbExpression>();
+                            wheres.Add(item);
+                        }
                         continue;
 
                     case DbExpressionType.Distinct:
@@ -124,13 +129,17 @@ namespace Riz.XFramework.Data
                     case DbExpressionType.First:
                     case DbExpressionType.FirstOrDefault:
                         take = 1;
-                        if (item.Expressions != null) conditions.Add(item.Expressions[0]);
+                        if (item.Expressions != null)
+                        {
+                            if (wheres != null) wheres = new List<DbExpression>();
+                            wheres.Add(item);
+                        }
                         continue;
 
                     case DbExpressionType.Join:
                     case DbExpressionType.GroupJoin:
                     case DbExpressionType.GroupRightJoin:
-                        select = item.Expressions[3];
+                        pickExpression = item.Expressions[3];
 
                         var j = item;
 
@@ -145,6 +154,7 @@ namespace Riz.XFramework.Data
                             expressions[expressions.Length - 1] = inner.DbExpressions[0].Expressions[1];
                             j = new DbExpression(item.DbExpressionType, expressions);
                         }
+                        if (joins == null) joins = new List<DbExpression>();
                         joins.Add(j);
 
 
@@ -152,21 +162,30 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.OrderBy:
                     case DbExpressionType.OrderByDescending:
+                        if (orderBys == null) orderBys = new List<DbExpression>();
                         orderBys.Add(item);
                         continue;
                     case DbExpressionType.Select:
-                        select = item.Expressions != null ? item.Expressions[0] : null;
+                        pickExpression = item.Expressions != null ? item.Expressions[0] : null;
                         continue;
 
                     case DbExpressionType.SelectMany:
-                        select = item.Expressions[1];
-                        if (IsSelectMany(source.DbExpressions, item, startIndex)) joins.Add(item);
+                        pickExpression = item.Expressions[1];
+                        if (IsCrossJoin(source.DbExpressions, item, startIndex))
+                        {
+                            if (joins == null) joins = new List<DbExpression>();
+                            joins.Add(item);
+                        }
                         continue;
 
                     case DbExpressionType.Single:
                     case DbExpressionType.SingleOrDefault:
                         take = 1;
-                        if (item.Expressions != null) conditions.Add(item.Expressions[0]);
+                        if (item.Expressions != null)
+                        {
+                            if (wheres != null) wheres = new List<DbExpression>();
+                            wheres.Add(item);
+                        }
                         continue;
 
                     case DbExpressionType.Skip:
@@ -179,12 +198,24 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.ThenBy:
                     case DbExpressionType.ThenByDescending:
+                        if (orderBys == null) orderBys = new List<DbExpression>();
                         orderBys.Add(item);
                         continue;
 
                     case DbExpressionType.Where:
-                        var predicate = group == null ? conditions : havings;
-                        if (item.Expressions != null) predicate.Add(item.Expressions[0]);
+                        if (item.Expressions != null)
+                        {
+                            if (group == null)
+                            {
+                                if (wheres == null) wheres = new List<DbExpression>();
+                                wheres.Add(item);
+                            }
+                            else
+                            {
+                                if (havings == null) havings = new List<DbExpression>();
+                                havings.Add(item);
+                            }
+                        }
                         continue;
 
                     case DbExpressionType.Insert:
@@ -207,11 +238,12 @@ namespace Riz.XFramework.Data
             }
 
             // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关聚合函数，则默认选择 FromEntityType 的所有字段
-            bool nonePick = insert == null && delete == null && update == null && select == null && aggregate == null;
-            if (nonePick) select = Expression.Constant(fromType ?? elmentType);
+            if (insert == null && delete == null && update == null && pickExpression == null && aggregate == null)
+                pickExpression = Expression.Constant(fromType ?? elmentType);
+            select = new DbExpression(DbExpressionType.Select, pickExpression);
 
             var result_Query = new DbQuerySelectTree();
-            result_Query.FromType = fromType;
+            result_Query.From = fromType;
             result_Query.HasDistinct = isDistinct;
             result_Query.HasAny = isAny;
             result_Query.Joins = joins;
@@ -222,9 +254,9 @@ namespace Riz.XFramework.Data
             result_Query.Includes = includes;
             result_Query.Skip = skip != null ? skip.Value : 0;
             result_Query.Take = take != null ? take.Value : 0;
-            result_Query.Select = new DbExpression(DbExpressionType.Select, select);
-            result_Query.Where = new DbExpression(DbExpressionType.Where, CombineCondition(conditions));
-            result_Query.Having = new DbExpression(DbExpressionType.Having, CombineCondition(havings));
+            result_Query.Select = select;
+            result_Query.Wheres = wheres;
+            result_Query.Havings = havings;
 
             #region 更新语义
 
@@ -357,7 +389,7 @@ namespace Riz.XFramework.Data
 
             Expression select = tree.Select.Expressions[0];
             List<DbExpression> includes = tree.Includes;
-            Type fromType = tree.FromType;
+            Type fromType = tree.From;
 
             // 解析导航属性 如果有 1:n 的导航属性，那么查询的结果集的主记录将会有重复记录
             // 这时就需要使用嵌套语义，先查主记录，再关联导航记录
@@ -391,7 +423,7 @@ namespace Riz.XFramework.Data
                 tree.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQuerySelectTree();
-                result_Query.FromType = fromType;
+                result_Query.From = fromType;
                 result_Query.Subquery = tree;
                 result_Query.Joins = new List<DbExpression>(0);
                 result_Query.OrderBys = new List<DbExpression>(0);
@@ -553,25 +585,25 @@ namespace Riz.XFramework.Data
             return result;
         }
 
-        // 合并 'Where' 表达式谓词
-        private static Expression CombineCondition(IList<Expression> predicates)
-        {
-            if (predicates.Count == 0) return null;
+        //// 合并 'Where' 表达式谓词
+        //private static Expression CombineCondition(IList<Expression> predicates)
+        //{
+        //    if (predicates.Count == 0) return null;
 
-            Expression body = ((LambdaExpression)predicates[0].ReduceUnary()).Body;
-            for (int i = 1; i < predicates.Count; i++)
-            {
-                Expression expression = predicates[i];
-                if (expression != null) body = Expression.And(body, ((LambdaExpression)expression.ReduceUnary()).Body);
-            }
+        //    Expression body = ((LambdaExpression)predicates[0].ReduceUnary()).Body;
+        //    for (int i = 1; i < predicates.Count; i++)
+        //    {
+        //        Expression expression = predicates[i];
+        //        if (expression != null) body = Expression.And(body, ((LambdaExpression)expression.ReduceUnary()).Body);
+        //    }
 
-            LambdaExpression lambda = Expression.Lambda(body, ((LambdaExpression)predicates[0]).Parameters);
-            return lambda;
+        //    LambdaExpression lambda = Expression.Lambda(body, ((LambdaExpression)predicates[0]).Parameters);
+        //    return lambda;
 
-        }
+        //}
 
         // 判断表达式是否是 CROSS JOIN
-        private static bool IsSelectMany(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)
+        private static bool IsCrossJoin(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)
         {
             Expression node = dbExpression.Expressions[0];
             if (node.NodeType == ExpressionType.Lambda)

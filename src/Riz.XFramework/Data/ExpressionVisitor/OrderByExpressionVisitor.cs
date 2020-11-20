@@ -9,7 +9,7 @@ namespace Riz.XFramework.Data
     /// </summary>
     public class OrderByExpressionVisitor : LinqExpressionVisitor
     {
-        private List<DbExpression> _orderBy = null;
+        private List<DbExpression> _orderBys = null;
         private DbExpression _groupBy = null;
         private string _alias = null;
 
@@ -17,13 +17,13 @@ namespace Riz.XFramework.Data
         /// 初始化 <see cref="OrderByExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="orderBy">ORDER BY 子句</param>
+        /// <param name="orderBys">ORDER BY 子句</param>
         /// <param name="groupBy">GROUP BY 子句</param>
         /// <param name="alias">指定的表别名</param>
-        public OrderByExpressionVisitor(AliasGenerator aliasGenerator, List<DbExpression> orderBy, DbExpression groupBy = null, string alias = null)
+        public OrderByExpressionVisitor(AliasGenerator aliasGenerator, List<DbExpression> orderBys, DbExpression groupBy = null, string alias = null)
             : base(aliasGenerator, null)
         {
-            _orderBy = orderBy;
+            _orderBys = orderBys;
             _groupBy = groupBy;
             _alias = alias;
         }
@@ -36,19 +36,19 @@ namespace Riz.XFramework.Data
         public void Write(ISqlBuilder builder, bool newLine)
         {
             if (_builder == null) this.Initialize(builder);
-            if (_orderBy.Count > 0)
+            if (_orderBys.Count > 0)
             {
                 if (newLine) _builder.AppendNewLine();
                 _builder.Append("ORDER BY ");
 
-                for (int i = 0; i < _orderBy.Count; i++)
+                for (int i = 0; i < _orderBys.Count; i++)
                 {
-                    this.VisitWithoutRemark(_ => this.Visit(_orderBy[i].Expressions[0]));
-                    if (_orderBy[i].DbExpressionType == DbExpressionType.OrderByDescending || _orderBy[i].DbExpressionType == DbExpressionType.ThenByDescending)
+                    this.VisitWithoutRemark(_ => this.Visit(_orderBys[i].Expressions[0]));
+                    if (_orderBys[i].DbExpressionType == DbExpressionType.OrderByDescending || _orderBys[i].DbExpressionType == DbExpressionType.ThenByDescending)
                     {
                         builder.Append(" DESC");
                     }
-                    if (i < _orderBy.Count - 1) builder.Append(',');
+                    if (i < _orderBys.Count - 1) builder.Append(',');
                 }
             }
         }

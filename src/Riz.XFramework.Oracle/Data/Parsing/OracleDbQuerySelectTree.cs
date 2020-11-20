@@ -20,10 +20,10 @@ namespace Riz.XFramework.Data
             this.HasMany = source.HasMany;
             this.Skip = source.Skip;
             this.Take = source.Take;
-            this.FromType = source.FromType;
+            this.From = source.From;
             this.Select = source.Select;
-            this.Where = source.Where;
-            this.Having = source.Having;
+            this.Wheres = source.Wheres;
+            this.Havings = source.Havings;
             this.Aggregate = source.Aggregate;
             this.GroupBy = source.GroupBy;
             this.Subquery = source.Subquery;

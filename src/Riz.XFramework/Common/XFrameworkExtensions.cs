@@ -255,10 +255,10 @@ namespace Riz.XFramework
         /// <summary>
         /// 取剔除掉系统动态生成前缀后的表达式
         /// </summary>
-        public static string GetKeyWidthoutAnonymous(this MemberExpression node, bool isDescriptor = false)
+        public static string GetKeyWidthoutAnonymous(this MemberExpression node, bool isInclude = false)
         {
-            List<string> segs = new List<string>();
-            segs.Add(node.Member.Name);
+            List<string> members = new List<string>();
+            members.Add(node.Member.Name);
 
             Expression expression = node.Expression;
             while (expression.Visitable())
@@ -267,16 +267,16 @@ namespace Riz.XFramework
                 if (expression.NodeType == ExpressionType.MemberAccess) memberExpression = (MemberExpression)expression;
                 else if (expression.NodeType == ExpressionType.Call) memberExpression = (expression as MethodCallExpression).Object as MemberExpression;
 
-                segs.Add(memberExpression.Member.Name);
+                members.Add(memberExpression.Member.Name);
                 expression = memberExpression.Expression;
             }
 
             // 如果读取
-            if (expression.NodeType == ExpressionType.Parameter) segs.Add(isDescriptor ? expression.Type.Name : (expression as ParameterExpression).Name);
-            else if (expression.NodeType == ExpressionType.MemberAccess) segs.Add((expression as MemberExpression).Member.Name);
+            if (expression.NodeType == ExpressionType.Parameter) members.Add(isInclude ? expression.Type.Name : (expression as ParameterExpression).Name);
+            else if (expression.NodeType == ExpressionType.MemberAccess) members.Add((expression as MemberExpression).Member.Name);
 
-            segs.Reverse();
-            string result = string.Join(".", segs);
+            members.Reverse();
+            string result = string.Join(".", members);
             return result;
         }
 

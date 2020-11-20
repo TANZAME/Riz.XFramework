@@ -44,31 +44,22 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 即将解析的表达式
         /// </summary>
-        public Expression Expression
-        {
-            get { return _expression; }
-        }
+        public Expression Expression => _expression;
 
         /// <summary>
         /// 即将解析的表达式
         /// </summary>
-        public ISqlBuilder SqlBuilder
-        {
-            get { return _builder; }
-        }
+        public ISqlBuilder SqlBuilder => _builder;
 
         /// <summary>
         /// 导航属性表达式列表
         /// </summary>
-        public HashCollection<NavMember> NavMembers
-        {
-            get { return _navMembers; }
-        }
+        public HashCollection<NavMember> NavMembers => _navMembers;
 
         /// <summary>
         /// 成员访问痕迹
         /// </summary>
-        public MemberVisitedStack VisitedStack { get { return _visitedStack; } }
+        public MemberVisitedStack VisitedStack => _visitedStack;
 
         #endregion
 
@@ -124,8 +115,8 @@ namespace Riz.XFramework.Data
             if (b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.OrElse)
             {
                 // expression maybe a.Name == "TAN" && a.Allowused
-                left = TryMakeBinary(b.Left);
-                right = TryMakeBinary(b.Right);
+                left = Binary(b.Left);
+                right = Binary(b.Right);
 
                 if (left != b.Left || right != b.Right)
                 {
@@ -154,7 +145,7 @@ namespace Riz.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.TryMakeBinary(node.Test);
+            Expression testExpression = this.Binary(node.Test);
 
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
@@ -264,10 +255,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="u">一元表达式</param>
         /// <returns></returns>
-        protected override Expression VisitUnary(UnaryExpression u)
-        {
-            return _methodVisitor.Visit(u, MethodCall.Unary);
-        }
+        protected override Expression VisitUnary(UnaryExpression u) => _methodVisitor.Visit(u, MethodCall.Unary);
 
         /// <summary>
         /// 访问表达式树后自动删掉访问的成员痕迹
@@ -317,19 +305,19 @@ namespace Riz.XFramework.Data
             else
             {
                 // 常量表达式放在右边，以充分利用 MemberVisitedMark
-                string oper = this.GetOperator(b);
-                bool use = this.UseBracket(b, b.Left);
+                string @operator = this.GetOperator(b);
+                bool useBracket = this.UseBracket(b, b.Left);
 
-                if (use) _builder.Append('(');
+                if (useBracket) _builder.Append('(');
                 this.Visit(b.Left);
-                if (use) _builder.Append(')');
+                if (useBracket) _builder.Append(')');
 
-                _builder.Append(oper);
+                _builder.Append(@operator);
 
-                bool use2 = this.UseBracket(b, b.Right);
-                if (use2) _builder.Append('(');
+                bool useBracket2 = this.UseBracket(b, b.Right);
+                if (useBracket2) _builder.Append('(');
                 this.Visit(b.Right);
-                if (use2) _builder.Append(')');
+                if (useBracket2) _builder.Append(')');
 
                 return b;
             }
@@ -353,9 +341,6 @@ namespace Riz.XFramework.Data
 
                 if (stack == null) stack = new Stack<NavMember>();
                 var member = node as MemberExpression;
-
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(member.Expression.Type);
-                ForeignKeyAttribute attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(member.Member.Name);
 
                 string key = member.GetKeyWidthoutAnonymous();
                 stack.Push(new NavMember(key, member));
@@ -406,7 +391,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="expression">将要转换的表达式</param>
         /// <returns></returns>
-        protected virtual Expression TryMakeBinary(Expression expression)
+        protected virtual Expression Binary(Expression expression)
         {
             if (expression.Type != typeof(bool)) return expression;
             //else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;

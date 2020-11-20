@@ -358,9 +358,9 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
-        /// <param name="isRightOuterJoin">是否右关联</param>
+        /// <param name="rj">是否右关联</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> DefaultIfEmpty<TSource>(this IDbQueryable<TSource> source, bool isRightOuterJoin)
+        public static IDbQueryable<TSource> DefaultIfEmpty<TSource>(this IDbQueryable<TSource> source, bool rj)
         {
             return source.CreateQuery<TSource>(DbExpressionType.DefaultIfEmpty);
         }

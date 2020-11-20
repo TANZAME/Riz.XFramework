@@ -117,7 +117,7 @@ namespace Riz.XFramework.Data
             else
                 _builder.Append("WHERE ");
 
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_tree.Entity != null ? _tree.Entity.GetType() : _tree.SelectTree.FromType);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_tree.Entity != null ? _tree.Entity.GetType() : _tree.SelectTree.From);
             foreach (var m in typeRuntime.KeyMembers)
             {
                 _builder.AppendMember("s0", m.Member, typeRuntime.Type);

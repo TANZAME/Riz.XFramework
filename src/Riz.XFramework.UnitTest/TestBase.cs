@@ -936,14 +936,14 @@ namespace Riz.XFramework.UnitTest
                     join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                     select a;
             result = query.ToList();
-            //// 点标记 TODO（未实现）
-            //query = context
-            //    .GetTable<Model.Client>()
-            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a, CloudServer = b })
-            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServer.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a.Client, CloudServer = b })
-            //    .Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
-            //    .Select(a => a.Client);
-            //result = query.ToList();
+            // 点标记 TODO（未实现）
+            query = context
+                .GetTable<Model.Client>()
+                .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a, CloudServer = b })
+                .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServer.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a.Client, CloudServer = b })
+                .Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
+                .Select(a => a.Client);
+            result = query.ToList();
             query =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.Client, Model.CloudServer>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId

@@ -48,7 +48,7 @@ namespace Riz.XFramework.Data
             // 如果初始表达式是 a=>a.Allowused && xxx 这种形式，则将 a.Allowused 解析成 a.Allowused == 1
             if (node == _expression)
             {
-                node = TryMakeBinary(node);
+                node = Binary(node);
                 _expression = node;
             }
             return base.Visit(node);
@@ -60,7 +60,7 @@ namespace Riz.XFramework.Data
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             LambdaExpression lambda = node as LambdaExpression;
-            Expression expr = this.TryMakeBinary(lambda.Body);
+            Expression expr = this.Binary(lambda.Body);
             if (expr != lambda.Body) node = Expression.Lambda<T>(expr, lambda.Parameters);
 
             return base.VisitLambda<T>(node);
