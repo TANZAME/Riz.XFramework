@@ -38,7 +38,7 @@ namespace Riz.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _funcletizer = _builder.TranslateContext.Funcletizer;
+            _funcletizer = _builder.TranslateContext.SQLParser;
         }
 
         /// <summary>

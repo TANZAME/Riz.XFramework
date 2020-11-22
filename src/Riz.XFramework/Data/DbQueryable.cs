@@ -95,6 +95,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 解析查询语义
         /// </summary>
-        internal abstract DbQueryTree Parse();
+        internal abstract IDbQueryTree Parse();
     }
 }

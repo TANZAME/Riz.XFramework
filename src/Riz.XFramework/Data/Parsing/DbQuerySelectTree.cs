@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表示一项以命令目录树形式表示的查询操作
     /// </summary>
-    internal class DbQuerySelectTree : DbQueryTree
+    public class DbQuerySelectTree : IDbQueryTree
     {
         /// <summary>
         /// SQL 命令是否含 DISTINCT 

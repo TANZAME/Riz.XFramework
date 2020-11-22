@@ -44,7 +44,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 值转SQL表达式解析器。代理 Provider 的 Funcletizer
         /// </summary>
-        DbSQLParser Funcletizer { get; }
+        DbSQLParser SQLParser { get; }
 
         /// <summary>
         /// 复制一个实例，简化创建代码 

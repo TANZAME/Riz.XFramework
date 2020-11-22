@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表示一项以命令目录树形式表示的插入操作
     /// </summary>
-    internal class DbQueryInsertTree : DbQueryTree
+    public class DbQueryInsertTree : IDbQueryTree
     {
         /// <summary>
         /// 实体对象

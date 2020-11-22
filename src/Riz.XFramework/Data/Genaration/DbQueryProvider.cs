@@ -108,7 +108,7 @@ namespace Riz.XFramework.Data
             if (query.Parameterized && context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
 
             // 解析查询语义
-            DbQueryTree tree = DbQueryableParser.Parse<T>(query);
+            IDbQueryTree tree = DbQueryableParser.Parse<T>(query);
             // 查询
             if (tree is DbQuerySelectTree) return this.TranslateSelectCommand((DbQuerySelectTree)tree, indent, isOutQuery, context);
             // 新增

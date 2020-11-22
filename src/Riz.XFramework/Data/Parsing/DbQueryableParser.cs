@@ -8,15 +8,15 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 支持将查询表达式转换为查询表达式树(CQT)的类。
     /// </summary>
-    internal class DbQueryableParser
+    internal sealed class DbQueryableParser
     {
         /// <summary>
         /// 解析查询语义，将其转换成命令表达式
         /// </summary>
-        internal static DbQueryTree Parse<TElement>(IDbQueryable<TElement> source) => DbQueryableParser.Parse(source, typeof(TElement), 0);
+        internal static IDbQueryTree Parse<TElement>(IDbQueryable<TElement> source) => DbQueryableParser.Parse(source, typeof(TElement), 0);
 
         // 解析查询语义
-        private static DbQueryTree Parse(IDbQueryable source, Type elmentType, int startIndex)
+        private static IDbQueryTree Parse(IDbQueryable source, Type elmentType, int startIndex)
         {
             // 目的：将query 转换成增/删/改/查
             // 1、from a in context.GetTable<T>() select a 此时query里面可能没有SELECT 表达式
@@ -580,23 +580,6 @@ namespace Riz.XFramework.Data
 
             return result;
         }
-
-        //// 合并 'Where' 表达式谓词
-        //private static Expression CombineCondition(IList<Expression> predicates)
-        //{
-        //    if (predicates.Count == 0) return null;
-
-        //    Expression body = ((LambdaExpression)predicates[0].ReduceUnary()).Body;
-        //    for (int i = 1; i < predicates.Count; i++)
-        //    {
-        //        Expression expression = predicates[i];
-        //        if (expression != null) body = Expression.And(body, ((LambdaExpression)expression.ReduceUnary()).Body);
-        //    }
-
-        //    LambdaExpression lambda = Expression.Lambda(body, ((LambdaExpression)predicates[0]).Parameters);
-        //    return lambda;
-
-        //}
 
         // 判断表达式是否是 CROSS JOIN
         private static bool IsCrossJoin(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)

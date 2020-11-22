@@ -103,6 +103,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 解析查询语义
         /// </summary>
-        internal override DbQueryTree Parse() => DbQueryableParser.Parse(this);
+        internal override IDbQueryTree Parse() => DbQueryableParser.Parse(this);
     }
 }
