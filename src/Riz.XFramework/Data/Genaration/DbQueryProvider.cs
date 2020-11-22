@@ -46,14 +46,14 @@ namespace Riz.XFramework.Data
         public abstract DbProviderFactory DbProvider { get; }
 
         /// <summary>
-        /// SQL字段值解析器
+        /// 值转SQL表达式解析器
         /// </summary>
-        public abstract DbFuncletizer Funcletizer { get; }
+        internal abstract DbSQLParser SQLParser { get; }
 
         /// <summary>
         /// <see cref="IDataReader"/> 转实体映射器
         /// </summary>
-        public abstract TypeDeserializerImpl TypeDeserializerImpl { get; }
+        internal abstract TypeDeserializerImpl TypeDeserializerImpl { get; }
 
         #endregion
 
@@ -68,20 +68,20 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="context">当前查询上下文</param>
         /// <returns></returns>
-        public virtual ITranslateContext CreateTranslateContext(IDbContext context) => new DefaultTranslateContext(context);
+        internal virtual ITranslateContext CreateTranslateContext(IDbContext context) => new TranslateContext(context);
 
         /// <summary>
         /// 创建 SQL 构造器
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        public virtual ISqlBuilder CreateSqlBuilder(ITranslateContext context) => new DefaultSqlBuilder(context);
+        internal ISqlBuilder CreateSqlBuilder(ITranslateContext context) => new SqlBuilder(context);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public abstract MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor);
+        internal abstract MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -97,25 +97,26 @@ namespace Riz.XFramework.Data
         /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        public DbRawCommand Translate<T>(IDbQueryable<T> dbQuery, int indent, bool isOutQuery, ITranslateContext context)
+        internal DbRawCommand Translate<T>(IDbQueryable<T> dbQuery, int indent, bool isOutQuery, ITranslateContext context)
         {
+            DbQueryable<T> query = (DbQueryable<T>)dbQuery;
             // 当前查询语义如果不设置参数化，默认使用参数化
-            if (!dbQuery.HasSetParameterized) dbQuery.Parameterized = true;
+            if (!query.HasSetParameterized) query.Parameterized = true;
             // 如果解析上下文是空，默认创建一个上下文，用来承载 DbContext （查询上下文）
-            if (context == null) context = this.CreateTranslateContext(dbQuery.DbContext);
+            if (context == null) context = this.CreateTranslateContext(query.DbContext);
             // 如果使用参数化查询并且参数列表为空，默认创建了一个新的参数列表
-            if (dbQuery.Parameterized && context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
+            if (query.Parameterized && context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
 
             // 解析查询语义
-            DbQueryTree result = DbQueryableParser.Parse<T>(dbQuery);
+            DbQueryTree tree = DbQueryableParser.Parse<T>(query);
             // 查询
-            if (result is DbQuerySelectTree) return this.TranslateSelectCommand((DbQuerySelectTree)result, indent, isOutQuery, context);
+            if (tree is DbQuerySelectTree) return this.TranslateSelectCommand((DbQuerySelectTree)tree, indent, isOutQuery, context);
             // 新增
-            else if (result is DbQueryInsertTree) return this.TranslateInsertCommand<T>((DbQueryInsertTree)result, context);
+            else if (tree is DbQueryInsertTree) return this.TranslateInsertCommand<T>((DbQueryInsertTree)tree, context);
             // 更新
-            else if (result is DbQueryUpdateTree) return this.TranslateUpdateCommand<T>((DbQueryUpdateTree)result, context);
+            else if (tree is DbQueryUpdateTree) return this.TranslateUpdateCommand<T>((DbQueryUpdateTree)tree, context);
             // 删除
-            else if (result is DbQueryDeleteTree) return this.TranslateDeleteCommand<T>((DbQueryDeleteTree)result, context);
+            else if (tree is DbQueryDeleteTree) return this.TranslateDeleteCommand<T>((DbQueryDeleteTree)tree, context);
 
             throw new NotImplementedException();
         }
@@ -139,7 +140,7 @@ namespace Riz.XFramework.Data
 
                 if (obj is IDbQueryable)
                 {
-                    IDbQueryable dbQuery = (IDbQueryable)obj;
+                    DbQueryable dbQuery = (DbQueryable)obj;
                     dbQuery.Parameterized = true;
                     if (context == null) context = this.CreateTranslateContext(dbQuery.DbContext);
                     if (context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
@@ -163,7 +164,7 @@ namespace Riz.XFramework.Data
                     // 解析参数
                     object[] args = null;
                     if (rawSql.Parameters != null)
-                        args = rawSql.Parameters.Select(x => this.Funcletizer.GetSqlValue(x, context)).ToArray();
+                        args = rawSql.Parameters.Select(x => this.SQLParser.GetSqlValue(x, context)).ToArray();
                     string sql = rawSql.CommandText;
                     if (args != null && args.Length > 0) sql = string.Format(sql, args);
 
@@ -205,7 +206,7 @@ namespace Riz.XFramework.Data
         /// <param name="isOutQuery">是否是最外层查询</param>
         /// <param name="context">解析上下文</param>
         /// <returns></returns>
-        protected abstract DbRawCommand TranslateSelectCommand(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context);
+        internal abstract DbRawCommand TranslateSelectCommand(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context);
 
         /// <summary>
         /// 创建 INSRT 命令
@@ -213,7 +214,7 @@ namespace Riz.XFramework.Data
         /// <param name="tree">查询语义</param>
         /// <param name="context">解析上下文</param>
         /// <returns></returns>
-        protected abstract DbRawCommand TranslateInsertCommand<T>(DbQueryInsertTree tree, ITranslateContext context);
+        internal abstract DbRawCommand TranslateInsertCommand<T>(DbQueryInsertTree tree, ITranslateContext context);
 
         /// <summary>
         /// 创建 DELETE 命令
@@ -221,7 +222,7 @@ namespace Riz.XFramework.Data
         /// <param name="tree">查询语义</param>
         /// <param name="context">解析上下文</param>
         /// <returns></returns>
-        protected abstract DbRawCommand TranslateDeleteCommand<T>(DbQueryDeleteTree tree, ITranslateContext context);
+        internal abstract DbRawCommand TranslateDeleteCommand<T>(DbQueryDeleteTree tree, ITranslateContext context);
 
         /// <summary>
         /// 创建 UPDATE 命令
@@ -229,7 +230,7 @@ namespace Riz.XFramework.Data
         /// <param name="tree">查询语义</param>
         /// <param name="context">解析上下文</param>
         /// <returns></returns>
-        protected abstract DbRawCommand TranslateUpdateCommand<T>(DbQueryUpdateTree tree, ITranslateContext context);
+        internal abstract DbRawCommand TranslateUpdateCommand<T>(DbQueryUpdateTree tree, ITranslateContext context);
 
         /// <summary>
         /// 生成关联子句所表示的别名列表
@@ -237,7 +238,7 @@ namespace Riz.XFramework.Data
         /// <param name="tree">查询语义</param>
         /// <param name="aliasPrefix">表别名前缀</param>
         /// <returns></returns>
-        protected AliasGenerator PrepareTableAlias(DbQuerySelectTree tree, string aliasPrefix)
+        internal AliasGenerator PrepareTableAlias(DbQuerySelectTree tree, string aliasPrefix)
         {
             var aliasGenerator = new AliasGenerator((tree.Joins != null ? tree.Joins.Count : 0) + 1, aliasPrefix);
             foreach (DbExpression exp in tree.Joins)
@@ -349,7 +350,7 @@ namespace Riz.XFramework.Data
                 int count = dbQueryables.Count();
                 var builder = new System.Text.StringBuilder(128);
 
-                foreach (IDbQueryable query in dbQueryables)
+                foreach (DbQueryable query in dbQueryables)
                 {
                     i += 1;
                     query.Parameterized = false;

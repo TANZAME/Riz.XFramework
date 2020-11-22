@@ -15,7 +15,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 字段元数据
         /// </summary>
-        public new FieldInfo Member { get { return (FieldInfo)base.Member; } }
+        public new FieldInfo Member => (FieldInfo)base.Member;
 
         /// <summary>
         /// 初始化 <see cref="FieldAccessor"/> 类的新实例

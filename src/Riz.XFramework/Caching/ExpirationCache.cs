@@ -32,10 +32,7 @@ namespace Riz.XFramework.Caching
             /// <summary>
             /// 设置缓存项的最后访问时间
             /// </summary>
-            public void SetLastAccess()
-            {
-                this.LastAccessTime = DateTime.Now;
-            }
+            public void SetLastAccess() => this.LastAccessTime = DateTime.Now;
         }
 
         private readonly System.Threading.Timer _timer;
@@ -45,10 +42,7 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 缓存过期时间，默认30分钟
         /// </summary>
-        public TimeSpan Timeout
-        {
-            get { return _timeout; }
-        }
+        public TimeSpan Timeout => _timeout;
 
         /// <summary>
         /// 添加缓存时间间隔，默认1秒钟
@@ -71,6 +65,8 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 实例化 ExpirationCache 类的新实例
         /// </summary>
+        /// <param name="timeout">缓存过期时间</param>
+        /// <param name="period">定时清理过期缓存的时间间隔</param>
         public ExpirationCache(TimeSpan timeout, TimeSpan period)
             : this(null, timeout, period)
         {
@@ -79,6 +75,9 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 实例化 ExpirationCache 类的新实例
         /// </summary>
+        /// <param name="comparer">键比较器</param>
+        /// <param name="timeout">缓存过期时间</param>
+        /// <param name="period">定时清理过期缓存的时间间隔</param>
         public ExpirationCache(IEqualityComparer<TKey> comparer, TimeSpan timeout, TimeSpan period)
             : base(comparer)
         {
@@ -232,7 +231,10 @@ namespace Riz.XFramework.Caching
             }
             catch(Exception ex)
             {
-                this.ExceptionHandler?.Invoke(ex);
+                if (this.ExceptionHandler != null)
+                    this.ExceptionHandler.Invoke(ex);
+                else
+                    throw ex;
             }
         }
     }

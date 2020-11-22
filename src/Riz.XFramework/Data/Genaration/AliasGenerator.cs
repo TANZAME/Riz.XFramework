@@ -6,7 +6,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表别名解析器
     /// </summary>
-    public sealed class AliasGenerator
+    internal sealed class AliasGenerator
     {
         // 1.表别名缓存项（包含显示指定的和导航属性产生的）
         private readonly NormalCache<string, string> _globals = new NormalCache<string, string>();

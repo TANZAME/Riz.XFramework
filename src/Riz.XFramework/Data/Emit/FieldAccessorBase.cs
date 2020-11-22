@@ -57,18 +57,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 是否是主键成员
         /// </summary>
-        public virtual bool IsKey
-        {
-            get { return this.Column != null && this.Column.IsKey; }
-        }
+        public virtual bool IsKey => this.Column != null && this.Column.IsKey;
 
         /// <summary>
         /// 是否是自增成员
         /// </summary>
-        public virtual bool IsIdentity
-        {
-            get { return this.Column != null && this.Column.IsIdentity; }
-        }
+        public virtual bool IsIdentity => this.Column != null && this.Column.IsIdentity;
 
         /// <summary>
         /// 是否是外键成员
@@ -82,10 +76,7 @@ namespace Riz.XFramework.Data
         /// 是否是基元类的数据字段。
         /// 即与数据库字段一一对应的基础字段，不含外键
         /// </summary>
-        public virtual bool IsDbField
-        {
-            get { return !this.IsNavigation && (this.Column == null || !this.Column.NoMapped); }
-        }
+        public virtual bool IsDbField => !this.IsNavigation && (this.Column == null || !this.Column.NoMapped);
 
         /// <summary>
         /// 初始化 <see cref="FieldAccessorBase"/> 类的新实例

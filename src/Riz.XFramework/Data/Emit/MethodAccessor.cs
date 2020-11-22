@@ -16,7 +16,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 方法元数据
         /// </summary>
-        public new MethodInfo Member { get { return (MethodInfo)base.Member; } }
+        public new MethodInfo Member => (MethodInfo)base.Member;
 
         /// <summary>
         /// 重载的方法列表

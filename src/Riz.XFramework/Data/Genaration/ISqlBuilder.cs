@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Data;
 using System.Reflection;
 using System.Linq.Expressions;
-using System.Collections.Generic;
 
 namespace Riz.XFramework.Data
 {
     /// <summary>
     /// SQL 语句生成器
     /// </summary>
-    public interface ISqlBuilder
+    internal interface ISqlBuilder
     {
         /// <summary>
         /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。

@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// <see cref="IDataReader"/> 转实体映射器
     /// </summary>
-    public class TypeDeserializerImpl
+    internal class TypeDeserializerImpl
     {
         // 这个类的代码在 Dapper.NET 的基础上修改的，实体映射确实强悍得一匹
         // https://github.com/StackExchange/Dapper
@@ -377,6 +377,7 @@ namespace Riz.XFramework.Data
             }
             else if (this.ConvertBoxedStackExtension(il, from, to, via))
             {
+                // 自定义类型转换
             }
             else
             {

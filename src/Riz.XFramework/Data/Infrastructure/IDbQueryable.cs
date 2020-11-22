@@ -22,62 +22,13 @@ namespace Riz.XFramework.Data
         ReadOnlyCollection<DbExpression> DbExpressions { get; }
 
         /// <summary>
-        /// 批量插入信息
+        /// 字符串表示形式。无参数，主要用于调式
         /// </summary>
-        BulkInsertInfo Bulk { get; set; }
-
-        /// <summary>
-        /// 当前查询上下文
-        /// </summary>
-        IDbContext DbContext { get; }
-
-        /// <summary>
-        /// 获取或设置该查询是否需要参数化 
-        /// 此属性用于设置单条查询语义在解析时是否需要参数化
-        /// </summary>
-        /// <remarks>
-        /// 批量插入数据不需要参数化
-        /// </remarks>
-        bool Parameterized { get; set; }
-
-        /// <summary>
-        /// Parameterized 属性是否已被设置
-        /// </summary>
-        bool HasSetParameterized { get; }
+        string Sql { get; }
 
         /// <summary>
         /// 解析成 SQL 命令
         /// </summary>
         DbRawCommand Translate();
-
-        /// <summary>
-        /// 解析成 SQL 命令
-        /// </summary>
-        /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="context">解析SQL命令上下文</param>
-        /// <returns></returns>
-        DbRawCommand Translate(int indent, bool isOutQuery, ITranslateContext context);
-
-        /// <summary>
-        /// 执行查询
-        /// </summary>
-        /// <returns></returns>
-        TResult Execute<TResult>();
-
-#if !net40
-
-        /// <summary>
-        /// 执行查询
-        /// </summary>
-        /// <returns></returns>
-        Task<TResult> ExecuteAsync<TResult>();
-
-#endif
-
-        /// <summary>
-        /// 解析查询语义
-        /// </summary>
-        DbQueryTree Parse();
     }
 }

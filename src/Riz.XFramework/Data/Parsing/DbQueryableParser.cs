@@ -13,10 +13,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 解析查询语义，将其转换成命令表达式
         /// </summary>
-        internal static DbQueryTree Parse<TElement>(IDbQueryable<TElement> source)
-        {
-            return DbQueryableParser.Parse(source, typeof(TElement), 0);
-        }
+        internal static DbQueryTree Parse<TElement>(IDbQueryable<TElement> source) => DbQueryableParser.Parse(source, typeof(TElement), 0);
 
         // 解析查询语义
         private static DbQueryTree Parse(IDbQueryable source, Type elmentType, int startIndex)
@@ -34,7 +31,7 @@ namespace Riz.XFramework.Data
             int? skip = null;
             int? take = null;
             int? outerIndex = null;
-            List<DbExpression> wheres = null;        // WHERE
+            List<DbExpression> wheres = null;       // WHERE
             List<DbExpression> havings = null;      // HAVING
             List<DbExpression> joins = null;        // JOIN
             List<DbExpression> orderBys = null;     // ORDER BY
@@ -42,7 +39,6 @@ namespace Riz.XFramework.Data
             List<DbQuerySelectTree> unions = null;  // UNION ALL
 
             Expression pickExpression = null;
-            DbExpression select = null;             // SELECT #
             DbExpression insert = null;             // INSERT #
             DbExpression update = null;             // UPDATE #
             DbExpression delete = null;             // DELETE #
@@ -72,7 +68,7 @@ namespace Riz.XFramework.Data
                         isAny = true;
                         if (item.Expressions != null)
                         {
-                            if (wheres != null) wheres = new List<DbExpression>();
+                            if (wheres == null) wheres = new List<DbExpression>();
                             wheres.Add(item);
                         }
                         break;
@@ -117,7 +113,7 @@ namespace Riz.XFramework.Data
                         aggregate = item;
                         if (item.Expressions != null)
                         {
-                            if (wheres != null) wheres = new List<DbExpression>();
+                            if (wheres == null) wheres = new List<DbExpression>();
                             wheres.Add(item);
                         }
                         continue;
@@ -131,7 +127,7 @@ namespace Riz.XFramework.Data
                         take = 1;
                         if (item.Expressions != null)
                         {
-                            if (wheres != null) wheres = new List<DbExpression>();
+                            if (wheres == null) wheres = new List<DbExpression>();
                             wheres.Add(item);
                         }
                         continue;
@@ -183,7 +179,7 @@ namespace Riz.XFramework.Data
                         take = 1;
                         if (item.Expressions != null)
                         {
-                            if (wheres != null) wheres = new List<DbExpression>();
+                            if (wheres == null) wheres = new List<DbExpression>();
                             wheres.Add(item);
                         }
                         continue;
@@ -240,7 +236,7 @@ namespace Riz.XFramework.Data
             // 没有解析到INSERT/DELETE/UPDATE/SELECT表达式，并且没有相关聚合函数，则默认选择 FromEntityType 的所有字段
             if (insert == null && delete == null && update == null && pickExpression == null && aggregate == null)
                 pickExpression = Expression.Constant(fromType ?? elmentType);
-            select = new DbExpression(DbExpressionType.Select, pickExpression);
+            DbExpression select = new DbExpression(DbExpressionType.Select, pickExpression);
 
             var result_Query = new DbQuerySelectTree();
             result_Query.From = fromType;
@@ -419,7 +415,7 @@ namespace Riz.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     tree.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                tree.IsParsedByMany = true;
+                tree.ParsedByMany = true;
                 tree.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQuerySelectTree();

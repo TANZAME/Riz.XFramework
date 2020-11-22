@@ -25,15 +25,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 包含的成员数量
         /// </summary>
-        public int Count { get { return _collection.Count; } }
+        public int Count => _collection.Count;
 
         /// <summary>
         /// 实例化<see cref="MemberAccessorCollection"/>类的新实例
         /// </summary>
-        public MemberAccessorCollection()
-        {
-            _collection = new Dictionary<string, MemberAccessorBase>(8);
-        }
+        public MemberAccessorCollection() => _collection = new Dictionary<string, MemberAccessorBase>(8);
 
         /// <summary>
         /// 返回一个循环访问集合的枚举数。
@@ -83,10 +80,7 @@ namespace Riz.XFramework.Data
         /// 确定是否包含指定成员
         /// </summary>
         /// <param name="memberName">成员名称</param>
-        public bool Contains(string memberName)
-        {
-            return _collection.ContainsKey(memberName);
-        }
+        public bool Contains(string memberName) => _collection.ContainsKey(memberName);
 
         /// <summary>
         /// 获取指定名称的成员
@@ -94,9 +88,6 @@ namespace Riz.XFramework.Data
         /// <param name="memberName">成员名称</param>
         /// <param name="m">成员访问器</param>
         /// <returns></returns>
-        public bool TryGetValue(string memberName, out MemberAccessorBase m)
-        {
-            return _collection.TryGetValue(memberName, out m);
-        }
+        public bool TryGetValue(string memberName, out MemberAccessorBase m) => _collection.TryGetValue(memberName, out m);
     }
 }

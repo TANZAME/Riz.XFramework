@@ -17,10 +17,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="type">类型实例</param>
         /// <returns></returns>
-        public static TypeRuntimeInfo GetRuntimeInfo(Type type)
-        {
-            return TypeRuntimeInfoCache.GetRuntimeInfo(type, false);
-        }
+        public static TypeRuntimeInfo GetRuntimeInfo(Type type) => TypeRuntimeInfoCache.GetRuntimeInfo(type, false);
 
         /// <summary>
         /// 取指定类型的运行时元数据
@@ -28,20 +25,14 @@ namespace Riz.XFramework.Data
         /// <param name="type">类型实例</param>
         /// <param name="private">包含私有成员</param>
         /// <returns></returns>
-        public static TypeRuntimeInfo GetRuntimeInfo(Type type, bool @private)
-        {
-            return _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p, @private));
-        }
+        public static TypeRuntimeInfo GetRuntimeInfo(Type type, bool @private) => _typeRuntimeCache.GetOrAdd(type, p => new TypeRuntimeInfo(p, @private));
 
         /// <summary>
         /// 取指定类型的运行时元数据
         /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <returns></returns>
-        public static TypeRuntimeInfo GetRuntimeInfo<T>()
-        {
-            return TypeRuntimeInfoCache.GetRuntimeInfo(typeof(T));
-        }
+        public static TypeRuntimeInfo GetRuntimeInfo<T>() => TypeRuntimeInfoCache.GetRuntimeInfo(typeof(T));
 
         /// <summary>
         /// 清空所有运行时缓存项目

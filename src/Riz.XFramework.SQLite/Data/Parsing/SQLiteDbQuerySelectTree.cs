@@ -27,7 +27,7 @@ namespace Riz.XFramework.Data
             this.Aggregate = source.Aggregate;
             this.GroupBy = source.GroupBy;
             this.Subquery = source.Subquery;
-            this.IsParsedByMany = source.IsParsedByMany;
+            this.ParsedByMany = source.ParsedByMany;
             this.Unions = source.Unions;
         }
     }

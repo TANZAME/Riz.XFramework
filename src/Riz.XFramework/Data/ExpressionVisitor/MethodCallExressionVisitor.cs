@@ -15,7 +15,7 @@ namespace Riz.XFramework.Data
     public abstract class MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private LinqExpressionVisitor _visitor = null;
+        private DbExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedStack = null;
         private static HashSet<string> _removeVisitedMethods = null;
         private List<MethodCallExpression> _notOperands = null;
@@ -51,7 +51,7 @@ namespace Riz.XFramework.Data
         /// 实例化 <see cref="MethodCallExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
-        public MethodCallExpressionVisitor(LinqExpressionVisitor visitor)
+        public MethodCallExpressionVisitor(DbExpressionVisitor visitor)
         {
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
@@ -68,29 +68,29 @@ namespace Riz.XFramework.Data
         /// <param name="node">方法节点</param>
         /// <param name="router">方法路由</param>
         /// <returns></returns>
-        public Expression Visit(Expression node, MethodCall router)
+        public Expression Visit(Expression node, MethodCallType router)
         {
             int visitedQty = _visitedStack.Count;
             Expression newNode = null;
 
-            if (router == MethodCall.Coalesce)
+            if (router == MethodCallType.Coalesce)
                 newNode = this.VisitCoalesce((BinaryExpression)node);
-            else if (router == MethodCall.EqualNull)
+            else if (router == MethodCallType.EqualNull)
                 newNode = this.VisitEqualNull((BinaryExpression)node);
-            else if (router == MethodCall.MethodCall)
+            else if (router == MethodCallType.MethodCall)
                 newNode = this.VisitMethodCall((MethodCallExpression)node);
-            else if (router == MethodCall.BinaryCall)
+            else if (router == MethodCallType.BinaryCall)
                 newNode = this.VisitMethodCall((BinaryExpression)node);
-            else if (router == MethodCall.MemberMember)
+            else if (router == MethodCallType.MemberMember)
                 newNode = this.VisitMemberMember((MemberExpression)node);
-            else if (router == MethodCall.Unary)
+            else if (router == MethodCallType.Unary)
                 newNode = this.VisitUnary((UnaryExpression)node);
 
             // 自身已构成布尔表达式的则需要删除它本身所产生的访问链
             if (_visitedStack.Count != visitedQty)
             {
-                bool b = router != MethodCall.Unary;
-                if (b && router == MethodCall.MethodCall)
+                bool b = router != MethodCallType.Unary;
+                if (b && router == MethodCallType.MethodCall)
                 {
                     var m = (MethodCallExpression)node;
                     b = _removeVisitedMethods.Contains(m.Method.Name);
@@ -274,7 +274,7 @@ namespace Riz.XFramework.Data
         {
             Type type = m.Method.ReflectedType != null ? m.Method.ReflectedType : m.Method.DeclaringType;
             if (type == typeof(string)) return this.VisitStringContains(m);
-            else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(m);
+            else if (type == typeof(ExpressionExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(m);
             else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(m);
             else throw new XFrameworkException("{0}.{1} is not supported.", m.Method.DeclaringType, m.Method.Name);
         }
@@ -1346,7 +1346,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 方法动态调用枚举
     /// </summary>
-    public enum MethodCall
+    public enum MethodCallType
     {
         /// <summary>
         /// 一个表示空合并操作，如节点 (a ?? b)

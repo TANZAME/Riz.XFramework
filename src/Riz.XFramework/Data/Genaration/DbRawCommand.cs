@@ -16,38 +16,26 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 针对数据源运行的文本命令
         /// </summary>
-        public virtual string CommandText
-        {
-            get { return _commandText; }
-            set { _commandText = value; }
-        }
+        public virtual string CommandText => _commandText;
 
         /// <summary>
         /// 命令参数
         /// </summary>
-        public virtual IList<IDbDataParameter> Parameters
-        {
-            get { return _parameters; }
-            set { _parameters = value; }
-        }
+        public virtual IList<IDbDataParameter> Parameters => _parameters;
 
         /// <summary>
         /// 命令类型
         /// </summary>
-        public virtual CommandType? CommandType
-        {
-            get { return _commandType; }
-            set { _commandType = value; }
-        }
+        public virtual CommandType? CommandType => _commandType;
 
         /// <summary>
         /// 初始化 <see cref="DbRawCommand"/> 类的新实例
         /// </summary>
         public DbRawCommand(string commandText, IList<IDbDataParameter> parameters = null, CommandType? commandType = null)
         {
-            this._commandText = commandText;
-            this._parameters = parameters;
-            this._commandType = commandType;
+            _parameters = parameters;
+            _commandText = commandText;
+            _commandType = commandType;
         }
     }
 }

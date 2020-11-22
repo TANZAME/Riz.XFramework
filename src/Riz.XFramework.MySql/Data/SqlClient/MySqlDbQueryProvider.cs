@@ -24,9 +24,9 @@ namespace Riz.XFramework.Data.SqlClient
         public override DbProviderFactory DbProvider { get { return MySqlClientFactory.Instance; } }
 
         /// <summary>
-        /// SQL字段值解析器
+        /// 值转SQL表达式解析器
         /// </summary>
-        public override DbFuncletizer Funcletizer { get { return MySqlDbFuncletizer.Instance; } }
+        public override SQLParser Funcletizer { get { return MySqlDbFuncletizer.Instance; } }
 
         /// <summary>
         /// SQL值片断生成器
@@ -163,7 +163,7 @@ namespace Riz.XFramework.Data.SqlClient
             // 第一层的表别名
             string alias = context != null && !string.IsNullOrEmpty(context.AliasPrefix) ? (context.AliasPrefix + "0") : "t0";
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
-            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.IsParsedByMany || (tree.Skip > 0 || tree.Take > 0));
+            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
             AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
             var result = new DbSelectCommand(context, ag);

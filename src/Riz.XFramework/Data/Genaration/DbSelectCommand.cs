@@ -80,17 +80,17 @@ namespace Riz.XFramework.Data
         /// 来源于：SELECT、JOIN、WHERE 各个片断
         /// </para>
         /// </summary>
-        public virtual HashCollection<NavMember> NavMembers { get { return _navMembers; } }
+        public virtual HashCollection<NavMember> NavMembers => _navMembers;
 
         /// <summary>
         /// JOIN（含） 之前的片断
         /// </summary>
-        public virtual ISqlBuilder JoinFragment { get { return _joinFragment; } }
+        public virtual ISqlBuilder JoinFragment => _joinFragment;
 
         /// <summary>
         /// Where 之后的片断
         /// </summary>
-        public virtual ISqlBuilder WhereFragment { get { return _whereFragment; } }
+        public virtual ISqlBuilder WhereFragment => _whereFragment;
 
         /// <summary>
         /// 实例化 <see cref="DbSelectCommand"/> 类的新实例
@@ -206,8 +206,8 @@ namespace Riz.XFramework.Data
                 if (nav.Predicate != null)
                 {
                     string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
-                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, nav.Predicate, alias);
-                    visitor.Write(builder);
+                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, builder, alias);
+                    visitor.Visit(nav.Predicate);
                 }
             }
         }

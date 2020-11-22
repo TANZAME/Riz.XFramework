@@ -30,13 +30,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 访问链成员数量
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return _visitedMembers == null ? 0 : _visitedMembers.Count;
-            }
-        }
+        public int Count => _visitedMembers == null ? 0 : _visitedMembers.Count;
         /// <summary>
         /// 添加已访问成员
         /// </summary>

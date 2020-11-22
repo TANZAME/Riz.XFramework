@@ -6,12 +6,12 @@ using System.Data.SqlClient;
 namespace Riz.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// MSSQL SQL字段值解析器
+    /// MSSQL 值转SQL表达式解析器
     /// </summary>
-    internal class SqlServerDbFuncletizer : DbFuncletizer
+    internal class SqlServerDbFuncletizer : DbSQLParser
     {
         /// <summary>
-        /// SQL字段值解析器实例
+        /// 值转SQL表达式解析器实例
         /// </summary>
         internal static SqlServerDbFuncletizer Instance = new SqlServerDbFuncletizer();
 

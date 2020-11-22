@@ -10,14 +10,14 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// SQL 语句建造器
     /// </summary>
-    public abstract class SqlBuilder : ISqlBuilder
+    internal class SqlBuilder : ISqlBuilder
     {
         private string _escCharLeft;
         private string _escCharRight;
         private string _escCharQuote;
         private StringBuilder _innerBuilder = null;
         private ITranslateContext _context = null;
-        private DbFuncletizer _funcletizer = null;
+        private DbSQLParser _funcletizer = null;
 
         /// <summary>
         /// TAB 制表符
@@ -27,7 +27,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 内部可变字符串
         /// </summary>
-        protected StringBuilder InnerBuilder { get { return _innerBuilder; } }
+        protected StringBuilder InnerBuilder => _innerBuilder;
 
         /// <summary>
         /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。
@@ -41,7 +41,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 获取或设置此实例中指定字符位置处的字符。
         /// </summary>
-        public char this[int index] { get { return _innerBuilder[index]; } }
+        public char this[int index] => _innerBuilder[index];
 
         /// <summary>
         /// 缩进
@@ -51,18 +51,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 参数化
         /// </summary>
-        public virtual bool Parameterized
-        {
-            get { return _context != null && _context.Parameters != null; }
-        }
+        public virtual bool Parameterized => _context != null && _context.Parameters != null;
 
         /// <summary>
         /// 解析SQL命令上下文
         /// </summary>
-        public ITranslateContext TranslateContext
-        {
-            get { return _context; }
-        }
+        public ITranslateContext TranslateContext => _context;
 
         /// <summary>
         /// 实例化 <see cref="SqlBuilder"/> 类的新实例
@@ -73,7 +67,7 @@ namespace Riz.XFramework.Data
             _context = context;
             _innerBuilder = new StringBuilder(128);
 
-            var provider = _context.DbContext.Provider;
+            var provider = _context.Provider;
             _funcletizer = provider.Funcletizer;
             _escCharLeft = provider.QuotePrefix;
             _escCharRight = provider.QuoteSuffix;
@@ -200,8 +194,8 @@ namespace Riz.XFramework.Data
         /// </summary>
         public ISqlBuilder Append(object value, MemberVisitedStack.VisitedMember m)
         {
-            var sql = _funcletizer.GetSqlValue(value, _context, m);
-            return this.Append(sql);
+            var sqlExpression = _funcletizer.GetSqlValue(value, _context, m);
+            return this.Append(sqlExpression);
         }
 
         /// <summary>
@@ -321,9 +315,6 @@ namespace Riz.XFramework.Data
         /// 将此值实例转换成 <see cref="string"/>
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return _innerBuilder.ToString();
-        }
+        public override string ToString() => _innerBuilder.ToString();
     }
 }

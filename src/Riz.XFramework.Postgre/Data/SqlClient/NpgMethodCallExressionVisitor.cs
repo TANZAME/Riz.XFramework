@@ -14,7 +14,7 @@ namespace Riz.XFramework.Data.SqlClient
     internal class NpgMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private DbFuncletizer _funcletizer = null;
+        private SQLParser _funcletizer = null;
         private LinqExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;

@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace Riz.XFramework.Data
 {
     /// <summary>
-    /// SQL字段值解析器
+    /// 值转SQL表达式解析器
     /// </summary>
-    public abstract class DbFuncletizer
+    internal abstract class DbSQLParser
     {
         private string _escCharLeft;
         private string _escCharRight;
@@ -18,10 +18,10 @@ namespace Riz.XFramework.Data
         private IDbQueryProvider _provider = null;
 
         /// <summary>
-        /// 实例化 <see cref="DbFuncletizer"/> 类的新实例
+        /// 实例化 <see cref="DbSQLParser"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
-        public DbFuncletizer(IDbQueryProvider provider)
+        public DbSQLParser(IDbQueryProvider provider)
         {
             _provider = provider;
             _escCharLeft = _provider.QuotePrefix;
@@ -35,10 +35,7 @@ namespace Riz.XFramework.Data
         /// <param name="value">SQL值</param>
         /// <param name="context">解析SQL命令时的参数上下文</param>
         /// <returns></returns>
-        public string GetSqlValue(object value, ITranslateContext context)
-        {
-            return this.GetSqlValue(value, context, (ColumnAttribute)null);
-        }
+        public string GetSqlValue(object value, ITranslateContext context) => this.GetSqlValue(value, context, (ColumnAttribute)null);
 
         /// <summary>
         /// 生成 value 对应的 SQL 片断
@@ -187,20 +184,14 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="value">值</param>
         /// <returns></returns>
-        protected virtual string GetSqlValueOfEnum(object value)
-        {
-            return Convert.ToUInt64(value).ToString();
-        }
+        protected virtual string GetSqlValueOfEnum(object value) => Convert.ToUInt64(value).ToString();
 
         /// <summary>
         /// 获取 Guid 类型的 SQL 片断
         /// </summary>
         /// <param name="value">值</param>
         /// <returns></returns>
-        protected virtual string GetSqlValueOfGuid(object value)
-        {
-            return this.EscapeQuote(value.ToString(), false, false);
-        }
+        protected virtual string GetSqlValueOfGuid(object value) => this.EscapeQuote(value.ToString(), false, false);
 
         /// <summary>
         /// 获取数字类型的 SQL 片断
@@ -234,10 +225,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="value">SQL值</param>
         /// <param name="dbType">数据类型</param>
-        protected virtual string GetSqlValueOfBoolean(object value, object dbType)
-        {
-            return ((bool)value) ? "1" : "0";
-        }
+        protected virtual string GetSqlValueOfBoolean(object value, object dbType) => ((bool)value) ? "1" : "0";
 
         /// <summary>
         /// 获取 String 类型的 SQL 片断

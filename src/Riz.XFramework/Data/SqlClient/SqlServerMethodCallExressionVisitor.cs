@@ -10,8 +10,8 @@ namespace Riz.XFramework.Data.SqlClient
     internal class SqlServerMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private DbFuncletizer _funcletizer = null;
-        private LinqExpressionVisitor _visitor = null;
+        private DbSQLParser _funcletizer = null;
+        private DbExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
 
@@ -32,13 +32,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// 实例化 <see cref="SqlServerMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
-        public SqlServerMethodCallExressionVisitor(LinqExpressionVisitor visitor)
+        public SqlServerMethodCallExressionVisitor(DbExpressionVisitor visitor)
             : base(visitor)
         {
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _funcletizer = _builder.TranslateContext.DbContext.Provider.Funcletizer;
+            _funcletizer = _builder.TranslateContext.Funcletizer;
         }
 
         /// <summary>

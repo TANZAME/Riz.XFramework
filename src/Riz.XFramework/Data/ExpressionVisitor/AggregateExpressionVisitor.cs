@@ -7,68 +7,57 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 聚合函数表达式解析器
     /// </summary>
-    public class AggregateExpressionVisitor : LinqExpressionVisitor
+    internal class AggregateExpressionVisitor : DbExpressionVisitor
     {
         private string _alias = null;
-        private string _columnName = string.Empty;
+        private string _columnName = "";
+        private ISqlBuilder _builder = null;
         private DbExpression _groupBy = null;
-        private DbExpression _aggregate = null;
-        private static IDictionary<DbExpressionType, string> _aggregateMethods = null;
 
         /// <summary>
         /// 统计的列名 在嵌套统计时使用
         /// </summary>
-        public string AggregateName { get { return _columnName; } }
-
-        static AggregateExpressionVisitor()
-        {
-            _aggregateMethods = new Dictionary<DbExpressionType, string>
-            {
-                { DbExpressionType.Count,"COUNT" },
-                { DbExpressionType.Max,"MAX" },
-                { DbExpressionType.Min,"MIN" },
-                { DbExpressionType.Average,"AVG" },
-                { DbExpressionType.Sum,"SUM" }
-            };
-        }
+        public string AggregateName => _columnName;
 
         /// <summary>
         /// 初始化 <see cref="AggregateExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="aggregate">聚合函数表达式</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">Group by 子句</param>
         /// <param name="alias">指定的别名</param>
-        public AggregateExpressionVisitor(AliasGenerator aliasGenerator, DbExpression aggregate, DbExpression groupBy = null, string alias = null)
-            : base(aliasGenerator, aggregate.Expressions != null ? aggregate.Expressions[0] : null)
+        public AggregateExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy, string alias)
+            : base(aliasGenerator, builder)
         {
-            _aggregate = aggregate;
-            _groupBy = groupBy;
             _alias = alias;
+            _builder = builder;
+            _groupBy = groupBy;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="aggregate">聚合函数表达式</param>
+        public override Expression Visit(DbExpression aggregate)
         {
-            this.Initialize(builder);
-            if (_aggregate != null)
+            if (aggregate != null)
             {
-
-                Expression exp = _aggregate.DbExpressionType == DbExpressionType.Count ? Expression.Constant(1) : base.Expression;
-                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
-
+                Expression expression = aggregate.DbExpressionType == DbExpressionType.Count
+                    ? Expression.Constant(1)
+                    : aggregate.Expressions[0];
+                if (expression.NodeType == ExpressionType.Lambda)
+                    expression = (expression as LambdaExpression).Body;
                 // q.Average(a => a);
                 // 这种情况下g.Key 一定是单个字段，否则解析出来的SQL执行不了
-                if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[0];
+                if (expression.NodeType == ExpressionType.Parameter)
+                    expression = _groupBy.Expressions[0];
 
-                builder.Append(_aggregateMethods[_aggregate.DbExpressionType]);
-                builder.Append("(");
-                base.Visit(exp);
-                builder.Append(")");
+                _builder.Append(ExpressionExtensions.Aggregates[aggregate.DbExpressionType]);
+                _builder.Append("(");
+                base.Visit(expression);
+                _builder.Append(")");
             }
+            return aggregate != null ? aggregate.Expressions[0] : null;
         }
 
         /// <summary>

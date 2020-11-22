@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -8,28 +9,16 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表达式解析器基类，提供公共的表达式处理方式
     /// </summary>
-    public class LinqExpressionVisitor : ExpressionVisitor
+    internal class DbExpressionVisitor : ExpressionVisitor
     {
         #region 私有字段
 
+        private ISqlBuilder _builder = null;
+        private IDbQueryProvider _provider = null;
         private AliasGenerator _aliasGenerator = null;
-        private Expression _expression = null;
+        private MemberVisitedStack _visitedStack = null;
         private HashCollection<NavMember> _navMembers = null;
-
-        /// <summary>
-        /// SQL 构造器
-        /// </summary>
-        protected ISqlBuilder _builder = null;
-
-        /// <summary>
-        /// 方法解析器
-        /// </summary>
-        protected MethodCallExpressionVisitor _methodVisitor = null;
-
-        /// <summary>
-        /// 成员访问痕迹
-        /// </summary>
-        protected MemberVisitedStack _visitedStack = null;
+        private MethodCallExpressionVisitor _methodCallVisitor = null;
 
         //防SQL注入字符
         //private static readonly Regex RegSystemThreats = 
@@ -44,38 +33,41 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 即将解析的表达式
         /// </summary>
-        public Expression Expression => _expression;
-
-        /// <summary>
-        /// 即将解析的表达式
-        /// </summary>
         public ISqlBuilder SqlBuilder => _builder;
 
         /// <summary>
         /// 导航属性表达式列表
         /// </summary>
-        public HashCollection<NavMember> NavMembers => _navMembers;
+        public HashCollection<NavMember> NavMembers
+        {
+            get
+            {
+                if (this._navMembers == null)
+                    this._navMembers = new HashCollection<NavMember>();
+                return this._navMembers;
+            }
+        }
 
         /// <summary>
-        /// 成员访问痕迹
+        /// 成员访问栈，用于在给成员的值确定数据类型（DbType）
         /// </summary>
-        public MemberVisitedStack VisitedStack => _visitedStack;
+        public MemberVisitedStack VisitedStack => this._visitedStack;
 
         #endregion
 
         #region 构造函数
 
         /// <summary>
-        /// 初始化 <see cref="LinqExpressionVisitor"/> 类的新实例
+        /// 初始化 <see cref="DbExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="expression">将访问的表达式</param>
-        public LinqExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
+        /// <param name="builder">SQL 语句生成器</param>
+        public DbExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
         {
+            _builder = builder;
             _aliasGenerator = aliasGenerator;
-            _expression = expression;
+            _provider = _builder.TranslateContext.Provider;
             _visitedStack = new MemberVisitedStack();
-            _navMembers = new HashCollection<NavMember>();
         }
 
         #endregion
@@ -83,13 +75,30 @@ namespace Riz.XFramework.Data
         #region 重写方法
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public virtual void Write(ISqlBuilder builder)
+        /// <param name="node">表达式节点</param>
+        public override Expression Visit(Expression node) => base.Visit(node);
+
+        /// <summary>
+        /// 访问表达式节点
+        /// </summary>
+        /// <param name="dbExpression">将访问的表达式</param>
+        public virtual Expression Visit(DbExpression dbExpression) => dbExpression != null ? base.Visit(dbExpression.Expressions[0]) : null;
+
+        /// <summary>
+        /// 访问表达式节点
+        /// </summary>
+        /// <param name="dbExpressions">将访问的表达式</param>
+        public virtual Expression Visit(List<DbExpression> dbExpressions)
         {
-            this.Initialize(builder);
-            if (_expression != null) this.Visit(_expression);
+            for (int index = 0; index < (dbExpressions != null ? dbExpressions.Count : -1); index++)
+            {
+                DbExpression d = dbExpressions[index];
+                base.Visit(d.Expressions[0]);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -97,43 +106,40 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="node">二元表达式</param>
         /// <returns></returns>
-        protected override Expression VisitBinary(BinaryExpression node)
-        {
-            return this.VisitWithoutRemark(a => this.VisitBinaryImpl(node));
-        }
+        protected override Expression VisitBinary(BinaryExpression node) => this.VisitWithoutRemark(_ => this.VisitBinaryImpl(node));
 
-        // 访问二元表达式
-        Expression VisitBinaryImpl(BinaryExpression b)
+        // 访问二元表达式节点
+        private Expression VisitBinaryImpl(BinaryExpression node)
         {
-            if (b == null) return b;
+            if (node == null) return node;
 
             // array[0]
-            if (b.NodeType == ExpressionType.ArrayIndex) return this.Visit(b.Evaluate());
+            if (node.NodeType == ExpressionType.ArrayIndex) return this.Visit(node.Evaluate());
 
-            Expression left = b.Left.ReduceUnary();
-            Expression right = b.Right.ReduceUnary();
-            if (b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.OrElse)
+            Expression left = node.Left.ReduceUnary();
+            Expression right = node.Right.ReduceUnary();
+            if (node.NodeType == ExpressionType.AndAlso || node.NodeType == ExpressionType.OrElse)
             {
                 // expression maybe a.Name == "TAN" && a.Allowused
-                left = Binary(b.Left);
-                right = Binary(b.Right);
+                left = FixBinary(node.Left);
+                right = FixBinary(node.Right);
 
-                if (left != b.Left || right != b.Right)
+                if (left != node.Left || right != node.Right)
                 {
-                    b = Expression.MakeBinary(b.NodeType, left, right);
-                    return this.Visit(b);
+                    node = Expression.MakeBinary(node.NodeType, left, right);
+                    return this.Visit(node);
                 }
             }
 
             // 例： a.Name ?? "TAN"
-            if (b.NodeType == ExpressionType.Coalesce) return _methodVisitor.Visit(b, MethodCall.Coalesce);
+            if (node.NodeType == ExpressionType.Coalesce) return this.VisitMethodCall(node, MethodCallType.Coalesce);
 
             // 例： a.Name == null
             var constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) return _methodVisitor.Visit(b, MethodCall.EqualNull);
+            if (constExpression != null && constExpression.Value == null) return this.VisitMethodCall(node, MethodCallType.EqualNull);
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
-            return this.VisitBinary_Condition(b);
+            return this.VisitBinary_Condition(node);
         }
 
         /// <summary>
@@ -145,7 +151,7 @@ namespace Riz.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.Binary(node.Test);
+            Expression testExpression = this.FixBinary(node.Test);
 
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
@@ -202,7 +208,7 @@ namespace Riz.XFramework.Data
             // => a.ActiveDate == DateTime.Now  => a.State == (byte)state
             if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
             // => DateTime.Now
-            if (node.Type == typeof(DateTime) && node.Expression == null) return _methodVisitor.Visit(node, MethodCall.MemberMember);
+            if (node.Type == typeof(DateTime) && node.Expression == null) return this.VisitMethodCall(node, MethodCallType.MemberMember);
             // => a.Nullable.Value
             bool isNullable = node.Expression.Type.IsGenericType && node.Member.Name == "Value" && node.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
             if (isNullable)
@@ -215,7 +221,7 @@ namespace Riz.XFramework.Data
             _visitedStack.Add(node);
 
             // => a.Name.Length
-            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return _methodVisitor.Visit(node, MethodCall.MemberMember);
+            if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return this.VisitMethodCall(node, MethodCallType.MemberMember);
             // => <>h__3.b.ClientName
             if (!node.Expression.Visitable())
             {
@@ -246,8 +252,10 @@ namespace Riz.XFramework.Data
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // => List<int>[]
-            if (node.CanEvaluate()) return this.VisitConstant(node.Evaluate());
-            return _methodVisitor.Visit(node, MethodCall.MethodCall);
+            if (node.CanEvaluate())
+                return this.VisitConstant(node.Evaluate());
+            else
+                return this.VisitMethodCall(node, MethodCallType.MethodCall);
         }
 
         /// <summary>
@@ -255,7 +263,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="u">一元表达式</param>
         /// <returns></returns>
-        protected override Expression VisitUnary(UnaryExpression u) => _methodVisitor.Visit(u, MethodCall.Unary);
+        protected override Expression VisitUnary(UnaryExpression u) => this.VisitMethodCall(u, MethodCallType.Unary);
 
         /// <summary>
         /// 访问表达式树后自动删掉访问的成员痕迹
@@ -286,6 +294,20 @@ namespace Riz.XFramework.Data
         #region 私有函数
 
         /// <summary>
+        /// 访问方法表达式
+        /// </summary>
+        /// <param name="node">方法表达式</param>
+        /// <param name="method">方法类型</param>
+        /// <returns></returns>
+        protected Expression VisitMethodCall(Expression node, MethodCallType method)
+        {
+            if (_methodCallVisitor == null)
+                _methodCallVisitor = _provider.CreateMethodCallVisitor(this);
+            _methodCallVisitor.Visit(node, method);
+            return node;
+        }
+
+        /// <summary>
         /// 访问二元表达式
         /// </summary>
         /// <param name="b">二元表达式</param>
@@ -297,11 +319,11 @@ namespace Riz.XFramework.Data
 
             if (b == null) return b;
             // 取模运算
-            else if (b.NodeType == ExpressionType.Modulo) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            else if (b.NodeType == ExpressionType.Modulo) return this.VisitMethodCall(b, MethodCallType.BinaryCall);
             // 除法运算
-            else if (b.NodeType == ExpressionType.Divide) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            else if (b.NodeType == ExpressionType.Divide) return this.VisitMethodCall(b, MethodCallType.BinaryCall);
             // 字符相加
-            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return _methodVisitor.Visit(b, MethodCall.BinaryCall);
+            else if (b.NodeType == ExpressionType.Add && b.Type == typeof(string)) return this.VisitMethodCall(b, MethodCallType.BinaryCall);
             else
             {
                 // 常量表达式放在右边，以充分利用 MemberVisitedMark
@@ -333,26 +355,26 @@ namespace Riz.XFramework.Data
         {
             // 表达式 => b.Client.Address.AddressName
             Expression node = expression;
-            Stack<NavMember> stack = null;
+            Stack<NavMember> navStack = null;
             string alias = string.Empty;
             while (node != null && node.Visitable())
             {
                 if (node.NodeType != ExpressionType.MemberAccess) break;
 
-                if (stack == null) stack = new Stack<NavMember>();
+                if (navStack == null) navStack = new Stack<NavMember>();
                 var member = node as MemberExpression;
 
                 string key = member.GetKeyWidthoutAnonymous();
-                stack.Push(new NavMember(key, member));
+                navStack.Push(new NavMember(key, member));
                 node = member.Expression;
                 if (node.NodeType == ExpressionType.Call) node = (node as MethodCallExpression).Object;
             }
 
-            if (stack != null && stack.Count > 0)
+            if (navStack != null && navStack.Count > 0)
             {
-                while (stack != null && stack.Count > 0)
+                while (navStack != null && navStack.Count > 0)
                 {
-                    NavMember nav = stack.Pop();
+                    NavMember nav = navStack.Pop();
                     Type type = nav.Expression.Type;
                     if (type.IsGenericType) type = type.GetGenericArguments()[0];
 
@@ -368,11 +390,11 @@ namespace Riz.XFramework.Data
                     {
                         // 如果没有，则使用导航属性别名
                         alias = _aliasGenerator.GetNavTableAlias(nav.Key);
-                        if (!_navMembers.Contains(nav.Key)) _navMembers.Add(nav);
+                        if (!this.NavMembers.Contains(nav.Key)) this.NavMembers.Add(nav);
                     }
 
                     // 例： a.Client.ClientId
-                    if (stack.Count == 0 && !string.IsNullOrEmpty(memberName)) _builder.AppendMember(alias, memberName);
+                    if (navStack.Count == 0 && !string.IsNullOrEmpty(memberName)) _builder.AppendMember(alias, memberName);
                 }
             }
             else
@@ -391,7 +413,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="expression">将要转换的表达式</param>
         /// <returns></returns>
-        protected virtual Expression Binary(Expression expression)
+        protected Expression FixBinary(Expression expression)
         {
             if (expression.Type != typeof(bool)) return expression;
             //else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;
@@ -427,20 +449,8 @@ namespace Riz.XFramework.Data
             return expression;
         }
 
-        /// <summary>
-        /// 使用 SqlBuilder 初始化
-        /// </summary>
-        /// <param name="builder"></param>
-        protected virtual void Initialize(ISqlBuilder builder)
-        {
-            _builder = builder;
-            var context = _builder.TranslateContext.DbContext;
-            if (_methodVisitor == null)
-                _methodVisitor = context.Provider.CreateMethodCallVisitor(this);
-        }
-
         // 获取二元表达式对应的操作符
-        string GetOperator(BinaryExpression b)
+        private string GetOperator(BinaryExpression b)
         {
             string opr = string.Empty;
             switch (b.NodeType)
@@ -500,7 +510,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判断是否需要括号
-        bool UseBracket(Expression expression, Expression subExpression = null)
+        private bool UseBracket(Expression expression, Expression subExpression = null)
         {
             if (subExpression != null)
             {
@@ -525,7 +535,7 @@ namespace Riz.XFramework.Data
         }
 
         // 获取表达式优先级
-        int GetPriority(Expression expression)
+        private int GetPriority(Expression expression)
         {
             switch (expression.NodeType)
             {

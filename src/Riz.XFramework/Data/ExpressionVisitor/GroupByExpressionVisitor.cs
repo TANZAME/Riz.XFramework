@@ -9,32 +9,34 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// Group By 表达式解析器
     /// </summary>
-    public class GroupByExpressionVisitor : LinqExpressionVisitor
+    internal class GroupByExpressionVisitor : DbExpressionVisitor
     {
+        private ISqlBuilder _builder = null;
+
         /// <summary>
         /// 初始化 <see cref="GroupByExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="groupBy">GROUP BY 子句</param>
-        public GroupByExpressionVisitor(AliasGenerator aliasGenerator, DbExpression groupBy)
-            : base(aliasGenerator, groupBy != null ? groupBy.Expressions[0] : null)
+        /// <param name="builder">SQL 语句生成器</param>
+        public GroupByExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
+            : base(aliasGenerator, builder)
         {
-
+            _builder = builder;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="groupBy">分组表达式</param>
+        public override Expression Visit(DbExpression groupBy)
         {
-            if (base.Expression != null)
+            if (groupBy != null)
             {
-                builder.AppendNewLine();
-                builder.Append("GROUP BY ");
+                _builder.AppendNewLine();
+                _builder.Append("GROUP BY ");
+                base.Visit(groupBy);
             }
-
-            base.Write(builder);
+            return null;
         }
 
         /// <summary>

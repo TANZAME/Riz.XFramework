@@ -1,68 +1,55 @@
-﻿using System.Linq.Expressions;
+﻿
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Riz.XFramework.Data
 {
     /// <summary>
     /// HAVING 表达式解析器
     /// </summary>
-    public class HavingExpressionVisitor : LinqExpressionVisitor
+    internal class HavingExpressionVisitor : DbExpressionVisitor
     {
+        private ISqlBuilder _builder = null;
         private DbExpression _groupBy = null;
 
         /// <summary>
         /// 初始化 <see cref="HavingExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="having">HAVING 子句</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">GROUP BY 子句</param>
-        public HavingExpressionVisitor(AliasGenerator aliasGenerator, DbExpression having, DbExpression groupBy)
-            : base(aliasGenerator, having != null && having.Expressions != null ? having.Expressions[0] : null)
+        public HavingExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy)
+            : base(aliasGenerator, builder)
         {
             _groupBy = groupBy;
+            _builder = builder;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入 SQL 生成器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="havings">分组筛选表达式</param>
+        public override Expression Visit(List<DbExpression> havings)
         {
-            if (base.Expression != null)
+            if (havings != null && havings.Count > 0)
             {
-                builder.AppendNewLine();
-                builder.Append("Having ");
+                _builder.AppendNewLine();
+                _builder.Append("Having ");
+
+                for (int index = 0; index < havings.Count; index++)
+                {
+                    DbExpression d = havings[index];
+                    if (d.Expressions == null || d.Expressions.Length == 0) continue;
+                    var node = d.Expressions[0];
+                    if (node.NodeType == ExpressionType.Lambda)
+                        node = ((LambdaExpression)node).Body;
+                    node = FixBinary(node);
+
+                    base.Visit(node);
+                }
             }
 
-            base.Write(builder);
-        }
-
-        /// <summary>
-        /// 遍历表达式
-        /// </summary>
-        /// <param name="node">要访问的表达式</param>
-        /// <returns></returns>
-        public override Expression Visit(Expression node)
-        {
-            if (node == null) return null;
-
-            // 如果初始表达式是 a=>a.Allowused && xxx 这种形式，则将 a.Allowused 解析成 a.Allowused == 1
-            if (node == base.Expression) node = Binary(node);
-            return base.Visit(node);
-        }
-
-        /// <summary>
-        /// 访问 Lambda 表达式
-        /// </summary>
-        /// <typeparam name="T">Lambda 表达式返回的类型</typeparam>
-        /// <param name="node">Lambda 表达式</param>
-        /// <returns></returns>
-        protected override Expression VisitLambda<T>(Expression<T> node)
-        {
-            LambdaExpression lambda = node as LambdaExpression;
-            Expression expr = this.Binary(lambda.Body);
-            if (expr != lambda.Body) node = Expression.Lambda<T>(expr, lambda.Parameters);
-
-            return base.VisitLambda<T>(node);
+            return null;
         }
 
         /// <summary>

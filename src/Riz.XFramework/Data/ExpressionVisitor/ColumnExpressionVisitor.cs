@@ -10,19 +10,19 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 选择列表达式解析器
     /// </summary>
-    public class ColumnExpressionVisitor : LinqExpressionVisitor
+    internal class ColumnExpressionVisitor : DbExpressionVisitor
     {
-        private DbQuerySelectTree _tree = null;
+        private ISqlBuilder _builder = null;
         private DbExpression _groupBy = null;
-        private List<DbExpression> _include = null;
+        private List<DbExpression> _includes = null;
         private AliasGenerator _aliasGenerator = null;
-        private static IDictionary<DbExpressionType, string> _aggregateMethods = null;
 
-        private ColumnDescriptorCollection _pickColumns = null;
-        private NavDescriptorCollection _navDescriptors = null;
-        private List<string> _navDescriptorKeys = null;
         private int _startLength = 0;
         private string _pickColumnText = null;
+        private ColumnDescriptorCollection _pickColumns = null;
+        private List<string> _navDescriptorKeys = null;
+        private NavDescriptorCollection _navDescriptors = null;
+        private MemberVisitedStack _visitedStack = null;
 
         /// <summary>
         /// 选中字段，Column 对应实体的原始属性
@@ -60,55 +60,41 @@ namespace Riz.XFramework.Data
         /// <remarks>只有选择语义才需要字段-实体映射描述。所以 Navigations</remarks>
         public NavDescriptorCollection PickNavDescriptors => _navDescriptors;
 
-        static ColumnExpressionVisitor()
-        {
-            _aggregateMethods = new Dictionary<DbExpressionType, string>
-            {
-                { DbExpressionType.Count, "COUNT" },
-                { DbExpressionType.Max, "MAX" },
-                { DbExpressionType.Min, "MIN" },
-                { DbExpressionType.Average, "AVG" },
-                { DbExpressionType.Sum, "SUM" }
-            };
-        }
-
         /// <summary>
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="tree">查询语义</param>
-        public ColumnExpressionVisitor(AliasGenerator aliasGenerator, DbQuerySelectTree tree)
-            : base(aliasGenerator, tree.Select.Expressions != null ? tree.Select.Expressions[0] : null)
+        public ColumnExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbQuerySelectTree tree)
+            : base(aliasGenerator, builder)
         {
-            _tree = tree;
+            _builder = builder;
             _groupBy = tree.GroupBy;
-            _include = tree.Includes;
+            _includes = tree.Includes;
             _aliasGenerator = aliasGenerator;
-
-            if (_pickColumns == null) _pickColumns = new ColumnDescriptorCollection();
-            _navDescriptors = new NavDescriptorCollection();
-            _navDescriptorKeys = new List<string>(10);
+            _pickColumns = new ColumnDescriptorCollection();
+            _visitedStack = base.VisitedStack;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="select">选择表达式</param>
+        public override Expression Visit(DbExpression select)
         {
-            this.Initialize(builder);
-            if (base.Expression != null)
+            if (select != null)
             {
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
 
                 // SELECT 表达式解析
-                if (base.Expression.NodeType != ExpressionType.Constant) base.Visit(base.Expression);
+                if (select.Expressions[0].NodeType != ExpressionType.Constant) base.Visit(select.Expressions[0]);
                 else
                 {
                     // 选择所有字段
-                    Type type = (base.Expression as ConstantExpression).Value as Type;
-                    this.VisitAllMember(type, "t0", base.Expression);
+                    Type type = (select.Expressions[0] as ConstantExpression).Value as Type;
+                    this.VisitAllMember(type, "t0", select.Expressions[0]);
                 }
 
                 // Include 表达式解析<导航属性>
@@ -116,6 +102,7 @@ namespace Riz.XFramework.Data
                 // 最后去掉空白字符
                 _builder.TrimEnd(' ', ',');
             }
+            return select != null ? select.Expressions[0] : null;
         }
 
         /// <summary>
@@ -202,13 +189,64 @@ namespace Riz.XFramework.Data
                 this.VisitNewImpl(node.NewExpression, false);
             // 赋值表达式
             var newBindings = node.Bindings.OrderBy(a => TypeUtils.IsPrimitive(a.Member) ? 0 : 1);
-            foreach (MemberAssignment m in newBindings)
-            {
-                Type newType = node.Type;
-                this.VisitWithoutRemark(_ => this.VisitMemberAssignmentImpl(newType, m));
-            }
+            newBindings.ForEach(m => this.VisitWithoutRemark(_ => this.VisitMemberAssignmentImpl(node.Type, (MemberAssignment)m)));
 
             return node;
+        }
+
+        // => Name = "Name" 
+        private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
+        {
+            // 先添加当前字段的访问痕迹标记
+            _visitedStack.Add(m.Member, newType);
+
+            if (TypeUtils.IsPrimitive(m.Member))
+            {
+                this.VisitMemberBinding(m);
+                // 选择字段
+                this.AddPickColumn(m.Member, newType);
+            }
+            else
+            {
+                // 非显式指定的导航属性需要有 ForeignKeyAttribute
+                if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable())
+                {
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(newType);
+                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
+                    // 不能当做导航属性的复杂字段
+                    if (attribute == null) return;
+                }
+
+                // 生成导航属性描述集合，以类名.属性名做为键值
+                if (_navDescriptorKeys == null)
+                    _navDescriptorKeys = new List<string>();
+                if (_navDescriptors == null)
+                    _navDescriptors = new NavDescriptorCollection();
+
+                int num = _navDescriptorKeys.Count;
+                string keyId = _navDescriptorKeys.Count > 0 ? _navDescriptorKeys[_navDescriptorKeys.Count - 1] : string.Empty;
+                keyId = !string.IsNullOrEmpty(keyId) ? keyId + "." + m.Member.Name : m.Member.Name;
+                
+                var nav = new NavDescriptor(keyId, m.Member);
+                if (!_navDescriptors.Contains(keyId))
+                {
+                    // Fix issue# spliton 列占一个位
+                    nav.StartIndex = _pickColumns.Count;
+                    nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
+                    _navDescriptors.Add(nav);
+                    _navDescriptorKeys.Add(keyId);
+                }
+
+                // 1.不显式指定导航属性，例：a.Client.ClientList
+                // 2.表达式里显式指定导航属性，例：b
+                if (m.Expression.NodeType == ExpressionType.MemberAccess) this.VisitNavigation(m.Expression as MemberExpression, m.Expression.Visitable());
+                else if (m.Expression.NodeType == ExpressionType.New) this.VisitNewImpl(m.Expression as NewExpression, false);
+                else if (m.Expression.NodeType == ExpressionType.MemberInit) this.VisitMemberInit(m.Expression as MemberInitExpression);
+
+                // 恢复访问链
+                // 在访问导航属性时可能是 Client.CloudServer，这时要恢复为 Client，以保证能访问 Client 的下一个导航属性
+                if (_navDescriptorKeys.Count != num) _navDescriptorKeys.RemoveAt(_navDescriptorKeys.Count - 1);
+            }
         }
 
         // => Client = a.Client.CloudServer
@@ -290,64 +328,12 @@ namespace Riz.XFramework.Data
             return node;
         }
 
-        // => Name = "Name" 
-        private void VisitMemberAssignmentImpl(Type newType, MemberAssignment m)
-        {
-            // 先添加当前字段的访问痕迹标记
-            _visitedStack.Add(m.Member, newType);
-
-            if (TypeUtils.IsPrimitive(m.Member))
-            {
-                this.VisitMemberBinding(m);
-                // 选择字段
-                this.AddPickColumn(m.Member, newType);
-            }
-            else
-            {
-                // 非显式指定的导航属性需要有 ForeignKeyAttribute
-                if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable())
-                {
-                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(newType);
-                    var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
-                    // 不能当做导航属性的复杂字段
-                    if (attribute == null) return;
-                }
-
-                // 生成导航属性描述集合，以类名.属性名做为键值
-                int n = _navDescriptorKeys.Count;
-                string keyId = _navDescriptorKeys.Count > 0 ? _navDescriptorKeys[_navDescriptorKeys.Count - 1] : string.Empty;
-                keyId = !string.IsNullOrEmpty(keyId) ? keyId + "." + m.Member.Name : m.Member.Name;
-                var nav = new NavDescriptor(keyId, m.Member);
-                if (!_navDescriptors.Contains(keyId))
-                {
-                    // Fix issue# spliton 列占一个位
-                    nav.StartIndex = _pickColumns.Count;
-                    nav.FieldCount = AggregateField(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
-                    _navDescriptors.Add(nav);
-                    _navDescriptorKeys.Add(keyId);
-                }
-
-                // 1.不显式指定导航属性，例：a.Client.ClientList
-                // 2.表达式里显式指定导航属性，例：b
-                if (m.Expression.NodeType == ExpressionType.MemberAccess) this.VisitNavigation(m.Expression as MemberExpression, m.Expression.Visitable());
-                else if (m.Expression.NodeType == ExpressionType.New) this.VisitNewImpl(m.Expression as NewExpression, false);
-                else if (m.Expression.NodeType == ExpressionType.MemberInit) this.VisitMemberInit(m.Expression as MemberInitExpression);
-
-                // 恢复访问链
-                // 在访问导航属性时可能是 Client.CloudServer，这时要恢复为 Client，以保证能访问 Client 的下一个导航属性
-                if (_navDescriptorKeys.Count != n) _navDescriptorKeys.RemoveAt(_navDescriptorKeys.Count - 1);
-            }
-        }
-
         /// <summary>
         /// 访问构造函数表达式，如 => new { Name = "Name" }
         /// </summary>
         /// <param name="node">构造函数调用的表达式</param>
         /// <returns></returns>
-        protected override Expression VisitNew(NewExpression node)
-        {
-            return this.VisitNewImpl(node, true);
-        }
+        protected override Expression VisitNew(NewExpression node) => this.VisitNewImpl(node, true);
 
         // 遍历New表达式的参数集
         private Expression VisitNewImpl(NewExpression node, bool checkArguments)
@@ -390,7 +376,6 @@ namespace Riz.XFramework.Data
                 //例： DateTime.Now
                 _builder.Append(argument.Evaluate().Value, _visitedStack.Current);
                 this.AddPickColumn(member, newType);
-                //this.AddPickColumn(member.Name);
             }
             else if (argument.NodeType == ExpressionType.MemberAccess || argument.NodeType == ExpressionType.Call)
             {
@@ -401,7 +386,6 @@ namespace Riz.XFramework.Data
                     // new Client(a.ClientId)
                     this.Visit(argument);
                     this.AddPickColumn(member, newType);
-                    //this.AddPickColumn(member.Name);
                 }
             }
             else
@@ -409,7 +393,6 @@ namespace Riz.XFramework.Data
                 if (member == null) throw new XFrameworkException("{0} is not support for NewExpression's arguments.");
                 base.Visit(argument);
                 this.AddPickColumn(member, newType);
-                //this.AddPickColumn(member.Name);
             }
 
             return argument;
@@ -539,7 +522,7 @@ namespace Riz.XFramework.Data
                 if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[1];
                 if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
 
-                _builder.Append(_aggregateMethods[dbExpressionType]);
+                _builder.Append(ExpressionExtensions.Aggregates[dbExpressionType]);
                 _builder.Append("(");
                 this.Visit(exp);
                 _builder.Append(")");
@@ -553,9 +536,9 @@ namespace Riz.XFramework.Data
         // 遍历 Include 包含的导航属性
         private void VisitInclude()
         {
-            if (_include == null || _include.Count == 0) return;
+            if (_includes == null || _includes.Count == 0) return;
 
-            foreach (var dbExpression in _include)
+            foreach (var dbExpression in _includes)
             {
                 Expression navExpression = dbExpression.Expressions[0];
                 Expression pickExpression = dbExpression.Expressions.Length > 1 ? dbExpression.Expressions[1] : null;
@@ -568,7 +551,7 @@ namespace Riz.XFramework.Data
 
                 // 例：Include(a => a.Client.AccountList[0].Client)
                 // 解析导航属性链
-                List<Expression> chain = new List<Expression>();
+                List<Expression> navStack = new List<Expression>();
                 while (memberExpression != null)
                 {
                     // a.Client 要求 <Client> 必须标明 ForeignKeyAttribute
@@ -578,30 +561,32 @@ namespace Riz.XFramework.Data
                         throw new XFrameworkException("ForeignKeyAttribute not found for include member {0}.{1}", typeRuntime.Type.Name, memberExpression.Member.Name);
 
                     MemberExpression m = null;
-                    chain.Add(memberExpression);
+                    navStack.Add(memberExpression);
                     if (memberExpression.Expression.NodeType == ExpressionType.MemberAccess) m = (MemberExpression)memberExpression.Expression;
                     else if (memberExpression.Expression.NodeType == ExpressionType.Call) m = (memberExpression.Expression as MethodCallExpression).Object as MemberExpression;
 
                     //var m = memberExpression.Expression as MemberExpression;
-                    if (m == null) chain.Add(memberExpression.Expression);
+                    if (m == null) navStack.Add(memberExpression.Expression);
                     memberExpression = m;
                 }
 
                 // 生成导航属性描述信息
                 string keyId = string.Empty;
-                for (int index = chain.Count - 1; index >= 0; index--)
+                for (int index = navStack.Count - 1; index >= 0; index--)
                 {
-                    Expression expression = chain[index];
+                    Expression expression = navStack[index];
                     memberExpression = expression as MemberExpression;
                     if (memberExpression == null) continue;
 
+                    if (_navDescriptors == null)
+                        _navDescriptors = new NavDescriptorCollection();
                     keyId = memberExpression.GetKeyWidthoutAnonymous(true);
                     if (!_navDescriptors.Contains(keyId))
                     {
                         // Fix issue# SplitOn 列占一个位
                         var nav = new NavDescriptor(keyId, memberExpression.Member);
                         nav.StartIndex = index == 0 ? _pickColumns.Count : -1;
-                        nav.FieldCount = index == 0 ? (AggregateField(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
+                        nav.FieldCount = index == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
                         _navDescriptors.Add(nav);
                     }
                 }
@@ -650,7 +635,7 @@ namespace Riz.XFramework.Data
         }
 
         // 累加表达式中数据库字段的数量
-        private static int AggregateField(Expression node)
+        private static int GetFieldCount(Expression node)
         {
             int num = 0;
             if (node.NodeType == ExpressionType.Lambda) node = (node as LambdaExpression).Body;

@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表示一项以命令目录树形式表示的查询操作
     /// </summary>
-    public class DbQuerySelectTree : DbQueryTree
+    internal class DbQuerySelectTree : DbQueryTree
     {
         /// <summary>
         /// SQL 命令是否含 DISTINCT 
@@ -87,7 +87,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 是否是由一对多导航产生的嵌套查询
         /// </summary>
-        public bool IsParsedByMany { get; set; }
+        public bool ParsedByMany { get; set; }
 
         /// <summary>
         /// 并集操作，翻译成 UNION ALL

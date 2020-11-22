@@ -9,10 +9,10 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    internal class MySqlDbFuncletizer : DbFuncletizer
+    internal class MySqlDbFuncletizer : SQLParser
     {
         /// <summary>
-        /// SQL字段值解析器实例
+        /// 值转SQL表达式解析器实例
         /// </summary>
         public static MySqlDbFuncletizer Instance = new MySqlDbFuncletizer();
 

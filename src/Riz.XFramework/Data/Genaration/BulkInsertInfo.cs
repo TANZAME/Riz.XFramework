@@ -4,7 +4,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 批量插入信息
     /// </summary>
-    public class BulkInsertInfo
+    internal class BulkInsertInfo
     {
         /// <summary>
         /// 标志在解析SQL时，是否仅解析 VALUE

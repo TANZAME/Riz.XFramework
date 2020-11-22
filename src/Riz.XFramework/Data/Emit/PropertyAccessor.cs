@@ -18,7 +18,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 字段元数据
         /// </summary>
-        public new PropertyInfo Member { get { return (PropertyInfo)base.Member; } }
+        public new PropertyInfo Member => (PropertyInfo)base.Member;
 
         /// <summary>
         /// 初始化 <see cref="PropertyAccessor"/> 类的新实例

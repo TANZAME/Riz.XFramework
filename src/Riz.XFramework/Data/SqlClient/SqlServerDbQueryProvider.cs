@@ -29,7 +29,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// SQL值片断生成器
         /// </summary>
-        public override DbFuncletizer Funcletizer { get { return SqlServerDbFuncletizer.Instance; } }
+        public override DbSQLParser SQLParser { get { return SqlServerDbFuncletizer.Instance; } }
 
         /// <summary>
         /// 实体转换映射委托生成器
@@ -112,7 +112,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
         /// <returns></returns>
-        public override MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor)
+        public override MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor)
         {
             return new SqlServerMethodCallExressionVisitor(visitor);
         }
@@ -153,7 +153,7 @@ namespace Riz.XFramework.Data.SqlClient
             // 第一层的表别名
             string alias = context != null && !string.IsNullOrEmpty(context.AliasPrefix) ? (context.AliasPrefix + "0") : "t0";
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
-            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.IsParsedByMany || (tree.Skip > 0 || tree.Take > 0));
+            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
             AliasGenerator aliasGenerator = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
             var result = new SqlServerDbSelectCommand(context, aliasGenerator);
@@ -173,8 +173,8 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy, alias);
-                visitor_.Write(jf);
+                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, jf, tree.GroupBy, alias);
+                visitor_.Visit(tree.Aggregate);
                 result.AddNavMembers(visitor_.NavMembers);
 
                 // SELECT COUNT(1) FROM
@@ -206,8 +206,8 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy);
-                visitor_.Write(jf);
+                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, jf, tree.GroupBy, null);
+                visitor_.Visit(tree.Aggregate);
                 result.AddNavMembers(visitor_.NavMembers);
             }
             else
@@ -215,7 +215,7 @@ namespace Riz.XFramework.Data.SqlClient
                 // DISTINCT 子句
                 if (tree.HasDistinct) jf.Append("DISTINCT ");
                 // TOP 子句
-                if (tree.Take > 0 && tree.Skip == 0) jf.AppendFormat("TOP({0})", this.Funcletizer.GetSqlValue(tree.Take, context));
+                if (tree.Take > 0 && tree.Skip == 0) jf.AppendFormat("TOP({0})", this.SQLParser.GetSqlValue(tree.Take, context));
                 // Any
                 if (tree.HasAny) jf.Append("TOP 1 1");
 
@@ -224,8 +224,8 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!tree.HasAny)
                 {
                     // SELECT 范围
-                    var visitor_ = new ColumnExpressionVisitor(aliasGenerator, tree);
-                    visitor_.Write(jf);
+                    var visitor_ = new ColumnExpressionVisitor(aliasGenerator, jf, tree);
+                    visitor_.Visit(tree.Select);
 
                     result.PickColumns = visitor_.PickColumns;
                     result.PickColumnText = visitor_.PickColumnText;
@@ -267,31 +267,31 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, tree.Joins);
-            visitor.Write(jf);
+            DbExpressionVisitor visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, jf);
+            visitor.Visit(tree.Joins);
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
-            visitor.Write(wf);
+            visitor = new WhereExpressionVisitor(aliasGenerator, wf);
+            visitor.Visit(tree.Wheres);
             result.AddNavMembers(visitor.NavMembers);
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(aliasGenerator, tree.GroupBy);
-            visitor.Write(wf);
+            visitor = new GroupByExpressionVisitor(aliasGenerator, wf);
+            visitor.Visit(tree.GroupBy);
             result.AddNavMembers(visitor.NavMembers);
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
-            visitor.Write(wf);
+            visitor = new HavingExpressionVisitor(aliasGenerator, wf, tree.GroupBy);
+            visitor.Visit(tree.Havings);
             result.AddNavMembers(visitor.NavMembers);
 
             // ORDER 子句
             if (tree.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(aliasGenerator, tree.OrderBys, tree.GroupBy);
-                visitor.Write(wf);
+                visitor = new OrderByExpressionVisitor(aliasGenerator, wf, tree.GroupBy, null);
+                visitor.Visit(tree.OrderBys);
                 result.AddNavMembers(visitor.NavMembers);
             }
 
@@ -304,13 +304,13 @@ namespace Riz.XFramework.Data.SqlClient
                 if (tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                 wf.AppendNewLine();
                 wf.Append("OFFSET ");
-                wf.Append(this.Funcletizer.GetSqlValue(tree.Skip, context));
+                wf.Append(this.SQLParser.GetSqlValue(tree.Skip, context));
                 wf.Append(" ROWS");
 
                 if (tree.Take > 0)
                 {
                     wf.Append(" FETCH NEXT ");
-                    wf.Append(this.Funcletizer.GetSqlValue(tree.Take, context));
+                    wf.Append(this.SQLParser.GetSqlValue(tree.Take, context));
                     wf.Append(" ROWS ONLY ");
                 }
             }
@@ -338,8 +338,8 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // TODO Include 从表，没分页，OrderBy 报错
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(aliasGenerator, subquery.OrderBys);
-                visitor.Write(jf);
+                visitor = new OrderByExpressionVisitor(aliasGenerator, jf, null, null);
+                visitor.Visit(subquery.OrderBys);
             }
 
             #endregion 嵌套导航
@@ -426,7 +426,7 @@ namespace Riz.XFramework.Data.SqlClient
                     var m = item as FieldAccessorBase;
                     if (m == null || !m.IsDbField) continue;
                     // 忽略行版本号列
-                    if (m.Column != null && m.Column.DbType is SqlDbType && (SqlDbType)m.Column.DbType == SqlDbType.Timestamp) continue; 
+                    if (m.Column != null && m.Column.DbType is SqlDbType && (SqlDbType)m.Column.DbType == SqlDbType.Timestamp) continue;
 
                     if (item != typeRuntime.Identity)
                     {
@@ -434,7 +434,7 @@ namespace Riz.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = item.Invoke(entity);
-                        string sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        string sqlExpression = this.SQLParser.GetSqlValueWidthDefault(value, context, m.Column);
                         valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
@@ -538,7 +538,7 @@ namespace Riz.XFramework.Data.SqlClient
                 foreach (var m in typeRuntime.KeyMembers)
                 {
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValue(value, context, ((FieldAccessorBase)m).Column);
+                    var sqlExpression = this.SQLParser.GetSqlValue(value, context, ((FieldAccessorBase)m).Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
@@ -553,11 +553,11 @@ namespace Riz.XFramework.Data.SqlClient
                 var cmd = new SqlServerDbSelectCommand(context, aliasGenerator);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
-                LinqExpressionVisitor visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                visitor.Write(cmd.JoinFragment);
+                DbExpressionVisitor visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, cmd.JoinFragment);
+                visitor.Visit(tree.SelectTree.Joins);
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor.Write(cmd.WhereFragment);
+                visitor = new WhereExpressionVisitor(aliasGenerator, cmd.WhereFragment);
+                visitor.Visit(tree.SelectTree.Wheres);
                 cmd.AddNavMembers(visitor.NavMembers);
 
                 builder.Append(cmd.CommandText);
@@ -593,16 +593,16 @@ namespace Riz.XFramework.Data.SqlClient
                     if (m == null || !m.IsDbField) continue;
 
                     // Fix issue# 自增列同时又是主键
-                    if (m.Column != null && m.Column.IsIdentity) goto LABEL; 
+                    if (m.Column != null && m.Column.IsIdentity) goto LABEL;
                     // 忽略行版本号列
                     if (m.Column != null && m.Column.DbType is SqlDbType && (SqlDbType)m.Column.DbType == SqlDbType.Timestamp) continue;
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                    LABEL:
+                LABEL:
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                    var sqlExpression = this.SQLParser.GetSqlValueWidthDefault(value, context, m.Column);
 
                     if (m.Column == null || !m.Column.IsIdentity)
                     {
@@ -639,9 +639,9 @@ namespace Riz.XFramework.Data.SqlClient
             else if (tree.Expression != null)
             {
                 AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                LinqExpressionVisitor visitor = null;
-                visitor = new UpdateExpressionVisitor(aliasGenerator, tree.Expression);
-                visitor.Write(builder);
+                DbExpressionVisitor visitor = null;
+                visitor = new UpdateExpressionVisitor(aliasGenerator, builder);
+                visitor.Visit(tree.Expression);
 
                 builder.AppendNewLine();
                 builder.Append("FROM ");
@@ -651,11 +651,11 @@ namespace Riz.XFramework.Data.SqlClient
                 var cmd = new SqlServerDbSelectCommand(context, aliasGenerator);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
-                visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                visitor.Write(cmd.JoinFragment);
+                visitor = new SqlServerJoinExpressionVisitor(aliasGenerator, cmd.JoinFragment);
+                visitor.Visit(tree.SelectTree.Joins);
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor.Write(cmd.WhereFragment);
+                visitor = new WhereExpressionVisitor(aliasGenerator, cmd.WhereFragment);
+                visitor.Visit(tree.SelectTree.Wheres);
                 cmd.AddNavMembers(visitor.NavMembers);
 
                 builder.Append(cmd.CommandText);

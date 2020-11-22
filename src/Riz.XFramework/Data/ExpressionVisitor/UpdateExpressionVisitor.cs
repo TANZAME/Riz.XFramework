@@ -8,16 +8,19 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// UPDATE 表达式解析器
     /// </summary>
-    public class UpdateExpressionVisitor : LinqExpressionVisitor
+    internal class UpdateExpressionVisitor : DbExpressionVisitor
     {
+        private ISqlBuilder _builder = null;
+
         /// <summary>
         /// 初始化 <see cref="UpdateExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="expression">要访问的表达式</param>
-        public UpdateExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
-            : base(aliasGenerator, expression)
+        /// <param name="builder">SQL 语句生成器</param>
+        public UpdateExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
+            : base(aliasGenerator, builder)
         {
+            _builder = builder;
         }
 
         /// <summary>
@@ -82,7 +85,7 @@ namespace Riz.XFramework.Data
         private Expression VisitObjectMember(Type newType, MemberInfo member, Expression expression)
         {
             // 先添加当前字段的访问痕迹标记
-            _visitedStack.Add(member, newType);
+            base.VisitedStack.Add(member, newType);
             return base.Visit(expression);
         }
     }

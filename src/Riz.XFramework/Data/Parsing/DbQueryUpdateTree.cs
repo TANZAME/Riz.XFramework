@@ -4,7 +4,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表示一项以命令目录树形式表示的更新操作
     /// </summary>
-    public class DbQueryUpdateTree : DbQueryTree
+    internal class DbQueryUpdateTree : DbQueryTree
     {
         /// <summary>
         /// 实体对象

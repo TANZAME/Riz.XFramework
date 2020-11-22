@@ -41,37 +41,6 @@ namespace Riz.XFramework.Data
         DbProviderFactory DbProvider { get; }
 
         /// <summary>
-        /// SQL值片断生成器
-        /// </summary>
-        DbFuncletizer Funcletizer { get; }
-
-        /// <summary>
-        /// <see cref="IDataReader"/> 转实体映射器
-        /// </summary>
-        TypeDeserializerImpl TypeDeserializerImpl { get; }
-
-        /// <summary>
-        /// 创建解析命令上下文
-        /// </summary>
-        /// <param name="context">当前查询上下文</param>
-        /// <returns></returns>
-        ITranslateContext CreateTranslateContext(IDbContext context);
-
-        /// <summary>
-        /// 创建 SQL 构造器
-        /// </summary>
-        /// <param name="context">解析SQL命令上下文</param>
-        /// <returns></returns>
-        ISqlBuilder CreateSqlBuilder(ITranslateContext context);
-
-        /// <summary>
-        /// 创建方法表达式访问器
-        /// </summary>
-        /// <param name="visitor">表达式解析器（装饰）</param>
-        /// <returns></returns>
-        MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor);
-
-        /// <summary>
         /// 解析 SQL 命令
         /// </summary>
         /// <param name="dbQueryables">查询语句</param>
@@ -83,15 +52,5 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="dbQueryable">查询语句</param>
         DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable);
-
-        /// <summary>
-        /// 创建 SQL 命令
-        /// </summary>
-        /// <param name="dbQueryable">查询语句</param>
-        /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
-        /// <param name="context">解析SQL命令上下文</param>
-        /// <returns></returns>
-        DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable, int indent, bool isOutQuery, ITranslateContext context);
     }
 }

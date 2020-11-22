@@ -15,7 +15,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 构造函数元数据
         /// </summary>
-        public new ConstructorInfo Member { get { return (ConstructorInfo)base.Member; } }
+        public new ConstructorInfo Member => (ConstructorInfo)base.Member;
 
         /// <summary>
         /// 初始化 <see cref="ConstructorAccessor"/> 类的新实例
@@ -43,10 +43,7 @@ namespace Riz.XFramework.Data
         /// <param name="target">拥有此成员的实例，固定传 null</param>
         /// <param name="parameters">构造函数参数</param>
         /// <returns></returns>
-        public override object Invoke(object target, params object[] parameters)
-        {
-            return this.Invoke(parameters);
-        }
+        public override object Invoke(object target, params object[] parameters) => this.Invoke(parameters);
 
         // 初始化访问器
         private static Func<object[], object> Initialize(ConstructorInfo ctor)

@@ -59,13 +59,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 是否临时表
         /// </summary>
-        public bool IsTemporary
-        {
-            get
-            {
-                return this.Table != null ? this.Table.IsTemporary : false;
-            }
-        }
+        public bool IsTemporary => this.Table != null ? this.Table.IsTemporary : false;
 
         /// <summary>
         /// 成员反射器集合
@@ -118,10 +112,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 类型声明
         /// </summary>
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
         /// <summary>
         /// 泛型参数列表
@@ -150,18 +141,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 是否为匿名类
         /// </summary>
-        public bool IsAnonymousType
-        {
-            get { return _isAnonymousType; }
-        }
+        public bool IsAnonymousType => _isAnonymousType;
 
         /// <summary>
         ///  获取一个值，该值指示当前类型是否是泛型类型。
         /// </summary>
-        public bool IsGenericType
-        {
-            get { return _type.IsGenericType; }
-        }
+        public bool IsGenericType => _type.IsGenericType;
 
         /// <summary>
         /// 判断当前类型是否编译生成的类型

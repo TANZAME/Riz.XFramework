@@ -3,7 +3,7 @@
     /// <summary>
     /// 表示一项以命令目录树形式表示的删除操作
     /// </summary>
-    public class DbQueryDeleteTree : DbQueryTree
+    internal class DbQueryDeleteTree : DbQueryTree
     {
         /// <summary>
         /// 实体对象

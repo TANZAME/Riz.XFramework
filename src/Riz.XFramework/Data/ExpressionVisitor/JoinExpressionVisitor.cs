@@ -7,71 +7,76 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 关联表达式解析器
     /// </summary>
-    public class JoinExpressionVisitor : LinqExpressionVisitor
+    internal class JoinExpressionVisitor : DbExpressionVisitor
     {
-        private List<DbExpression> _joins = null;
+        private ISqlBuilder _builder = null;
         private AliasGenerator _aliasGenerator = null;
 
         /// <summary>
         /// 初始化 <see cref="JoinExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="joins">JOIN 子句</param>
-        public JoinExpressionVisitor(AliasGenerator aliasGenerator, List<DbExpression> joins)
-            : base(aliasGenerator, null)
+        /// <param name="builder">SQL 语句生成器</param>
+        public JoinExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
+            : base(aliasGenerator, builder)
         {
-            _joins = joins;
+            _builder = builder;
             _aliasGenerator = aliasGenerator;
         }
 
         /// <summary>
-        /// 写入SQL片断
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="joins">关联表达式</param>
+        public override Expression Visit(List<DbExpression> joins)
         {
-            this.Initialize(builder);
-            foreach (DbExpression expression in _joins)
+            for (int index = 0; index < (joins != null ? joins.Count : -1); index++)
             {
-                builder.AppendNewLine();
+                DbExpression d = joins[index];
+                _builder.AppendNewLine();
 
-                // [INNER/LEFT JOIN]
-                if (expression.DbExpressionType == DbExpressionType.GroupJoin || expression.DbExpressionType == DbExpressionType.Join || 
-                    expression.DbExpressionType == DbExpressionType.GroupRightJoin)
+                if (d.DbExpressionType == DbExpressionType.GroupJoin || d.DbExpressionType == DbExpressionType.Join ||
+                    d.DbExpressionType == DbExpressionType.GroupRightJoin)
                 {
+                    // INNER/LEFT JOIN
                     JoinType joinType = JoinType.InnerJoin;
-                    if (expression.DbExpressionType == DbExpressionType.GroupJoin) joinType = JoinType.LeftJoin;
-                    else if (expression.DbExpressionType == DbExpressionType.GroupRightJoin) joinType = JoinType.RightJoin;
-                    this.AppendJoinType(builder, joinType);
-                    this.AppendLfInJoin(builder, expression, _aliasGenerator);
+                    if (d.DbExpressionType == DbExpressionType.GroupJoin) joinType = JoinType.LeftJoin;
+                    else if (d.DbExpressionType == DbExpressionType.GroupRightJoin) joinType = JoinType.RightJoin;
+                    this.AppendJoinType(_builder, joinType);
+                    this.AppendLfInJoin(d);
                 }
-                else if (expression.DbExpressionType == DbExpressionType.SelectMany)
+                else if (d.DbExpressionType == DbExpressionType.SelectMany)
                 {
-                    this.AppendJoinType(builder, JoinType.CrossJoin);
-                    this.AppendCrossJoin(builder, expression, _aliasGenerator);
+                    // CROSS JOIN
+                    this.AppendJoinType(_builder, JoinType.CrossJoin);
+                    this.AppendCrossJoin(d);
                 }
             }
+
+            return null;
         }
 
-        // LEFT OR INNER JOIN
-        private void AppendLfInJoin(ISqlBuilder builder, DbExpression dbExpression, AliasGenerator aliasGenerator)
+        /// <summary>
+        /// 解析左关联
+        /// </summary>
+        protected virtual void AppendLfInJoin(DbExpression dbExpression)
         {
-            builder.Append(' ');
+            _builder.Append(' ');
             IDbQueryable dbQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
             }
             else
             {
                 // 嵌套
-                var cmd = dbQuery.Translate(builder.Indent + 1, false, builder.TranslateContext);
-                builder.Append("(");
-                builder.Append(cmd.CommandText);
-                builder.AppendNewLine();
-                builder.Append(')');
+                var cmd = dbQuery.Translate(_builder.Indent + 1, false, _builder.TranslateContext);
+                _builder.Append("(");
+                _builder.Append(cmd.CommandText);
+                _builder.AppendNewLine();
+                _builder.Append(')');
             }
 
 
@@ -80,14 +85,14 @@ namespace Riz.XFramework.Data
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
-                ? aliasGenerator.GetTableAlias(dbExpression.Expressions[2])
-                : aliasGenerator.GetTableAlias(right.Parameters[0]);
-            builder.Append(' ');
-            builder.Append(alias);
-            builder.Append(' ');
+                ? _aliasGenerator.GetTableAlias(dbExpression.Expressions[2])
+                : _aliasGenerator.GetTableAlias(right.Parameters[0]);
+            _builder.Append(' ');
+            _builder.Append(alias);
+            _builder.Append(' ');
 
             // ON a.Name = b.Name AND a.Id = b.Id
-            builder.Append("ON ");
+            _builder.Append("ON ");
 
             if (left.Body.NodeType == ExpressionType.New)
             {
@@ -97,10 +102,10 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    builder.AppendMember(aliasGenerator, body1.Arguments[index]);
-                    builder.Append(" = ");
-                    builder.AppendMember(aliasGenerator, body2.Arguments[index]);
-                    if (index < body1.Arguments.Count - 1) builder.Append(" AND ");
+                    _builder.AppendMember(_aliasGenerator, body1.Arguments[index]);
+                    _builder.Append(" = ");
+                    _builder.AppendMember(_aliasGenerator, body2.Arguments[index]);
+                    if (index < body1.Arguments.Count - 1) _builder.Append(" AND ");
                 }
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
@@ -110,33 +115,35 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    builder.AppendMember(aliasGenerator, (body1.Bindings[index] as MemberAssignment).Expression);
-                    builder.Append(" = ");
-                    builder.AppendMember(aliasGenerator, (body2.Bindings[index] as MemberAssignment).Expression);
-                    if (index < body1.Bindings.Count - 1) builder.Append(" AND ");
+                    _builder.AppendMember(_aliasGenerator, (body1.Bindings[index] as MemberAssignment).Expression);
+                    _builder.Append(" = ");
+                    _builder.AppendMember(_aliasGenerator, (body2.Bindings[index] as MemberAssignment).Expression);
+                    if (index < body1.Bindings.Count - 1) _builder.Append(" AND ");
                 }
             }
             else
             {
-                builder.AppendMember(aliasGenerator, left.Body.ReduceUnary());
-                builder.Append(" = ");
-                builder.AppendMember(aliasGenerator, right.Body.ReduceUnary());
+                _builder.AppendMember(_aliasGenerator, left.Body.ReduceUnary());
+                _builder.Append(" = ");
+                _builder.AppendMember(_aliasGenerator, right.Body.ReduceUnary());
             }
         }
 
-        // Cross Join
-        private void AppendCrossJoin(ISqlBuilder builder, DbExpression exp, AliasGenerator aliasGenerator)
+        /// <summary>
+        /// 解析全关联
+        /// </summary>
+        protected virtual void AppendCrossJoin(DbExpression dbExpression)
         {
-            var lambdaExp = exp.Expressions[1] as LambdaExpression;
+            var lambdaExp = dbExpression.Expressions[1] as LambdaExpression;
             Type type = lambdaExp.Parameters[1].Type;
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-            builder.Append(' ');
-            builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            _builder.Append(' ');
+            _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
 
-            string alias = aliasGenerator.GetTableAlias(lambdaExp.Parameters[1]);
-            builder.Append(' ');
-            builder.Append(alias);
-            builder.Append(' ');
+            string alias = _aliasGenerator.GetTableAlias(lambdaExp.Parameters[1]);
+            _builder.Append(' ');
+            _builder.Append(alias);
+            _builder.Append(' ');
         }
 
         /// <summary>

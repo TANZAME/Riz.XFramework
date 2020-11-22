@@ -118,8 +118,8 @@ namespace Riz.XFramework.Data
                 if (nav.Predicate != null)
                 {
                     string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
-                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, nav.Predicate, alias);
-                    visitor.Write(builder);
+                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, builder, alias);
+                    visitor.Visit(nav.Predicate);
                 }
             }
         }

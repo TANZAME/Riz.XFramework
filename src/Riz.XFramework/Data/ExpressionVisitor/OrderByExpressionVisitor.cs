@@ -7,60 +7,57 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// Order By 表达式解析器
     /// </summary>
-    public class OrderByExpressionVisitor : LinqExpressionVisitor
+    internal class OrderByExpressionVisitor : DbExpressionVisitor
     {
-        private List<DbExpression> _orderBys = null;
-        private DbExpression _groupBy = null;
         private string _alias = null;
+        private ISqlBuilder _builder = null;
+        private DbExpression _groupBy = null;
 
         /// <summary>
         /// 初始化 <see cref="OrderByExpressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="orderBys">ORDER BY 子句</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">GROUP BY 子句</param>
         /// <param name="alias">指定的表别名</param>
-        public OrderByExpressionVisitor(AliasGenerator aliasGenerator, List<DbExpression> orderBys, DbExpression groupBy = null, string alias = null)
+        public OrderByExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy, string alias)
             : base(aliasGenerator, null)
         {
-            _orderBys = orderBys;
-            _groupBy = groupBy;
             _alias = alias;
+            _builder = builder;
+            _groupBy = groupBy;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入 SQL 生成器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        /// <param name="newLine">表示是否需要强制换行</param>
-        public void Write(ISqlBuilder builder, bool newLine)
+        /// <param name="orderBys">排序表达式</param>
+        public override Expression Visit(List<DbExpression> orderBys) => this.Visit(orderBys, true);
+
+        /// <summary>
+        /// 访问表达式节点
+        /// </summary>
+        /// <param name="orderBys">排序表达式</param>
+        /// <param name="newLine">是否需要换行</param>
+        public Expression Visit(List<DbExpression> orderBys, bool newLine)
         {
-            if (_builder == null) this.Initialize(builder);
-            if (_orderBys.Count > 0)
+            if (orderBys != null && orderBys.Count > 0)
             {
                 if (newLine) _builder.AppendNewLine();
                 _builder.Append("ORDER BY ");
 
-                for (int i = 0; i < _orderBys.Count; i++)
+                for (int i = 0; i < orderBys.Count; i++)
                 {
-                    this.VisitWithoutRemark(_ => this.Visit(_orderBys[i].Expressions[0]));
-                    if (_orderBys[i].DbExpressionType == DbExpressionType.OrderByDescending || _orderBys[i].DbExpressionType == DbExpressionType.ThenByDescending)
+                    this.VisitWithoutRemark(_ => this.Visit(orderBys[i].Expressions[0]));
+                    if (orderBys[i].DbExpressionType == DbExpressionType.OrderByDescending || orderBys[i].DbExpressionType == DbExpressionType.ThenByDescending)
                     {
-                        builder.Append(" DESC");
+                        _builder.Append(" DESC");
                     }
-                    if (i < _orderBys.Count - 1) builder.Append(',');
+                    if (i < orderBys.Count - 1) _builder.Append(',');
                 }
             }
-        }
 
-        /// <summary>
-        /// 将表达式所表示的SQL片断写入 SQL 生成器
-        /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
-        {
-            this.Initialize(builder);
-            this.Write(builder, true);
+            return null;
         }
 
         /// <summary>
@@ -127,16 +124,16 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         protected override Expression VisitNew(NewExpression node)
         {
-            if (node != null)
+            if (node.Arguments.Count == 0) throw new XFrameworkException("'NewExpression' do not have any arguments.");
+            else
             {
-                if (node.Arguments.Count == 0) throw new XFrameworkException("'NewExpression' do not have any arguments.");
-
                 for (int i = 0; i < node.Arguments.Count; i++)
                 {
                     this.Visit(node.Arguments[i]);
                     if (i < node.Arguments.Count - 1) _builder.Append(',');
                 }
             }
+
 
             return node;
         }

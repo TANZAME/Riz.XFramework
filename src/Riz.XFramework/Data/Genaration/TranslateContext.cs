@@ -8,9 +8,11 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 解析SQL命令上下文
     /// </summary>
-    public abstract class TranslateContext : ITranslateContext
+    internal class TranslateContext : ITranslateContext
     {
         private readonly IDbContext _context = null;
+        private readonly IDbQueryProvider _provider = null;
+        private readonly DbSQLParser _funcletizer = null;
         //private DbExpressionType? _srcDbExpressionType = null;
         //private bool? _srcIsOutQuery = null;
 
@@ -39,7 +41,17 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前查询上下文
         /// </summary>
-        public IDbContext DbContext { get { return _context; } }
+        public IDbContext DbContext => _context;
+
+        /// <summary>
+        ///  查询语义提供者。代理 DbContext 的 Provider
+        /// </summary>
+        public IDbQueryProvider Provider => _provider;
+
+        /// <summary>
+        /// 值转SQL表达式解析器。代理 Provider 的 Funcletizer
+        /// </summary>
+        public DbSQLParser Funcletizer => _funcletizer;
 
         /// <summary>
         /// 实例化 <see cref="TranslateContext"/> 类的新实例
@@ -47,7 +59,10 @@ namespace Riz.XFramework.Data
         /// <param name="context">当前查询上下文</param>
         public TranslateContext(IDbContext context)
         {
+            XFrameworkException.Check.NotNull(context, nameof(context));
             _context = context;
+            _provider = _context.Provider;
+            _funcletizer = _provider.Funcletizer;
         }
 
         /// <summary>
@@ -57,7 +72,7 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         public virtual ITranslateContext Clone(string newPrefix)
         {
-            var context = _context.Provider.CreateTranslateContext(_context);
+            var context = _provider.CreateTranslateContext(_context);
             context.Parameters = this.Parameters;
             context.AliasPrefix = newPrefix;
             return context;
