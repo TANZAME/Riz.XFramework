@@ -274,7 +274,7 @@ namespace Riz.XFramework.Data
         {
             Type type = m.Method.ReflectedType != null ? m.Method.ReflectedType : m.Method.DeclaringType;
             if (type == typeof(string)) return this.VisitStringContains(m);
-            else if (type == typeof(ExpressionExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(m);
+            else if (type == typeof(DbQueryableExtensions) || type == typeof(IDbQueryable)) return this.VisitQueryableContains(m);
             else if (type == typeof(Enumerable) || typeof(IEnumerable).IsAssignableFrom(type)) return this.VisitEnumerableContains(m);
             else throw new XFrameworkException("{0}.{1} is not supported.", m.Method.DeclaringType, m.Method.Name);
         }

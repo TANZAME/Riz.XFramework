@@ -77,7 +77,7 @@ namespace Riz.XFramework.UnitTest
                     DemoEnum2 = Model.State.Executing,
                 };
             var result0 = dynamicQuery.ToList();
-            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
+            context.Database.ExecuteNonQuery(dynamicQuery.Sql);
             //SQL=>
             //SELECT 
             //12 AS [DemoId],
@@ -110,7 +110,7 @@ namespace Riz.XFramework.UnitTest
                     DemoEnum2 = Model.State.Executing
                 });
             result0 = dynamicQuery.ToList();
-            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
+            context.Database.ExecuteNonQuery(dynamicQuery.Sql);
 #if !net40
             result0 = dynamicQuery.ToListAsync().Result;
 #endif
@@ -138,7 +138,7 @@ namespace Riz.XFramework.UnitTest
                 where a.DemoId <= 10 && a.DemoDate > sDate && a.DemoDateTime >= sDate && a.DemoDateTime2 > sDate
                 select a;
             var result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -170,7 +170,7 @@ namespace Riz.XFramework.UnitTest
                         DemoDateTime2 = sDate
                     };
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -189,7 +189,7 @@ namespace Riz.XFramework.UnitTest
                     DemoDateTime2 = sDate,
                 });
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=> 
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -204,12 +204,12 @@ namespace Riz.XFramework.UnitTest
 
             query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && context.GetTable<TDemo>().Select(e => e.DemoName).Contains(a.DemoName));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
             query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && !queryFilters.Contains(a.DemoName));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             // 带参数构造函数
             Parameterized();
@@ -231,11 +231,11 @@ namespace Riz.XFramework.UnitTest
 
             var query6 = context.GetTable<TDemo>().Select(a => a.DemoCode ?? "N");
             var result6 = query6.ToList();
-            context.Database.ExecuteNonQuery(query6.ToString());
+            context.Database.ExecuteNonQuery(query6.Sql);
 
             query6 = context.GetTable<TDemo>().Select(a => a.DemoCode + a.DemoName);
             result6 = query6.ToList();
-            context.Database.ExecuteNonQuery(query6.ToString());
+            context.Database.ExecuteNonQuery(query6.Sql);
 
             //分页查询（非微软api）
             query = from a in context.GetTable<TDemo>() select a;
@@ -273,7 +273,7 @@ namespace Riz.XFramework.UnitTest
                     select a;
             query = query.Skip(1).Take(18);
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -335,7 +335,7 @@ namespace Riz.XFramework.UnitTest
             query = query.Where(a => a.DemoId <= 10);
             query = query.OrderBy(a => a.DemoCode).Skip(1).Take(1);
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -383,7 +383,7 @@ namespace Riz.XFramework.UnitTest
             query = context.GetTable<TDemo>().Where(a =>
                 a.DemoCode.StartsWith(a.DemoName ?? "C0000009") || a.DemoCode.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
@@ -421,7 +421,7 @@ namespace Riz.XFramework.UnitTest
                         (a.DemoName == "STATE" && a.DemoName == "REMARK" && a.DemoName == _demoNameList[0]));               // OR 查询
 
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             //SQL=>            
             //SELECT
@@ -472,7 +472,7 @@ namespace Riz.XFramework.UnitTest
                 RowNumber = Data.DbFunction.PartitionRowNumber(a.ClientId, a.AccountId)
             });
             reuslt1 = query1.ToList();
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
             query2 =
                 context
             .GetTable<Model.ClientAccount>()
@@ -551,7 +551,7 @@ namespace Riz.XFramework.UnitTest
                                 a.DemoDateTime_Nullable == null ? "NULL" : "NOT NULL")      // 三元表达式
                         select a;
             var result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             var query1 =
                 context
                 .GetTable<TDemo>()
@@ -573,7 +573,7 @@ namespace Riz.XFramework.UnitTest
                     DateTimeOffset = a.DemoDatetimeOffset_Nullable.ToString()
                 });
             var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
             Debug.Assert(obj1.DemoCode.Length == 20);
             Debug.Assert(obj1.LowerName == myDemo.DemoName.ToLower());
             Debug.Assert(obj1.Index1 > 0);
@@ -617,7 +617,7 @@ namespace Riz.XFramework.UnitTest
                         a.DemoInt == (int)state
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             var query2 =
                 context
                 .GetTable<TDemo>()
@@ -755,7 +755,7 @@ namespace Riz.XFramework.UnitTest
                         DateTime.Now.ToString() == ""
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             #endregion
 
@@ -1169,7 +1169,7 @@ namespace Riz.XFramework.UnitTest
                 orderby a.ClientId, a.Accounts[0].Markets[0].MarketId
                 select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -1233,7 +1233,7 @@ namespace Riz.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[ClientId] AS [ClientId],
@@ -1311,7 +1311,7 @@ namespace Riz.XFramework.UnitTest
                 .Take(20)
                 ;
             var result1 = query1.ToList();
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
 
             query1 =
                 from a in
@@ -1493,7 +1493,7 @@ namespace Riz.XFramework.UnitTest
                     CloudServerCode = c.CloudServerCode
                 });
             var result5 = query5.ToList();
-            context.Database.ExecuteNonQuery(query5.ToString());
+            context.Database.ExecuteNonQuery(query5.Sql);
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
@@ -1656,7 +1656,7 @@ namespace Riz.XFramework.UnitTest
                  };
             query8 = query8.Skip(2).Take(3);
             var result8 = query8.ToList();
-            context.Database.ExecuteNonQuery(query8.ToString());
+            context.Database.ExecuteNonQuery(query8.Sql);
             //SQL=> 
             //SELECT
             //t0.[ClientId] AS[Id],
@@ -1701,7 +1701,7 @@ namespace Riz.XFramework.UnitTest
                     join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             var subQuery3 =
                 from a in context.GetTable<Model.Client>()
@@ -1755,7 +1755,7 @@ namespace Riz.XFramework.UnitTest
             query = query.AsSubquery();
             query = query.Select(a => new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //var result10 = query.ToPagedList(1, 20);
         }
 
@@ -1989,7 +1989,7 @@ namespace Riz.XFramework.UnitTest
                     Qty = a.Qty,
                 };
             context.Insert(nQuery);
-            context.Database.ExecuteNonQuery(nQuery.ToString());
+            context.Database.ExecuteNonQuery(nQuery.Sql);
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -2695,7 +2695,7 @@ namespace Riz.XFramework.UnitTest
                     .Where(a => a.ClientId > 0 && a.CloudServer.CloudServerId > 0)
                     .Skip(10)
                     .Take(20);
-                var sql = query.ToString();
+                var sql = query.Sql;
 
                 //Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
             }
