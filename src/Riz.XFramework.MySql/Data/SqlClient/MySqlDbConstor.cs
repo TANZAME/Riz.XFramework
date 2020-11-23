@@ -9,17 +9,17 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    internal class MySqlDbFuncletizer : SQLParser
+    internal class MySqlDbConstor : DbConstor
     {
         /// <summary>
-        /// 值转SQL表达式解析器实例
+        /// 常量值转SQL表达式解析器实例
         /// </summary>
-        public static MySqlDbFuncletizer Instance = new MySqlDbFuncletizer();
+        public static MySqlDbConstor Instance = new MySqlDbConstor();
 
         /// <summary>
-        /// 实例化 <see cref="MySqlDbFuncletizer"/> 类的新实例
+        /// 实例化 <see cref="MySqlDbConstor"/> 类的新实例
         /// </summary>
-        protected MySqlDbFuncletizer()
+        protected MySqlDbConstor()
             : base(MySqlDbQueryProvider.Instance)
         {
 
@@ -85,7 +85,7 @@ namespace Riz.XFramework.Data.SqlClient
             int hours = (int)ts.TotalHours;
             // 默认精度为7
             string format = @"mm\:ss\.ffffff";
-            if (DbTypeUtils.IsTime(dbType))
+            if (MySqlUtils.IsTime(dbType))
             {
                 string s = string.Empty;
                 if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
@@ -109,8 +109,8 @@ namespace Riz.XFramework.Data.SqlClient
         {
             // 默认精度为0
             string format = "yyyy-MM-dd HH:mm:ss";
-            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
-            else if (DbTypeUtils.IsDateTime(dbType))
+            if (MySqlUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (MySqlUtils.IsDateTime(dbType))
             {
                 string s = string.Empty;
                 if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 6 ? 6 : scale.Value, 'f');
@@ -130,7 +130,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfDateTimeOffset(object value, object dbType, int? scale = null)
         {
-            DbTypeUtils.IsDateTimeOffset(dbType);
+            MySqlUtils.IsDateTimeOffset(dbType);
             return null;
         }
 

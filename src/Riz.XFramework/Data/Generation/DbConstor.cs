@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace Riz.XFramework.Data
 {
     /// <summary>
-    /// 值转SQL表达式解析器
+    /// 常量值转SQL表达式解析器
     /// </summary>
-    internal abstract class DbSQLParser
+    public abstract class DbConstor
     {
         private string _escCharLeft;
         private string _escCharRight;
@@ -18,10 +18,10 @@ namespace Riz.XFramework.Data
         private IDbQueryProvider _provider = null;
 
         /// <summary>
-        /// 实例化 <see cref="DbSQLParser"/> 类的新实例
+        /// 实例化 <see cref="DbConstor"/> 类的新实例
         /// </summary>
         /// <param name="provider">查询语义提供者</param>
-        public DbSQLParser(IDbQueryProvider provider)
+        public DbConstor(IDbQueryProvider provider)
         {
             _provider = provider;
             _escCharLeft = _provider.QuotePrefix;

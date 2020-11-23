@@ -8,11 +8,11 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 解析SQL命令上下文
     /// </summary>
-    internal class TranslateContext : ITranslateContext
+    public class TranslateContext : ITranslateContext
     {
         private readonly IDbContext _context = null;
-        private readonly IDbQueryProvider _provider = null;
-        private readonly DbSQLParser _funcletizer = null;
+        private readonly DbQueryProvider _provider = null;
+        private readonly DbConstor _constParser = null;
         //private DbExpressionType? _srcDbExpressionType = null;
         //private bool? _srcIsOutQuery = null;
 
@@ -49,11 +49,6 @@ namespace Riz.XFramework.Data
         public IDbQueryProvider Provider => _provider;
 
         /// <summary>
-        /// 值转SQL表达式解析器。代理 Provider 的 Funcletizer
-        /// </summary>
-        public DbSQLParser SQLParser => _funcletizer;
-
-        /// <summary>
         /// 实例化 <see cref="TranslateContext"/> 类的新实例
         /// </summary>
         /// <param name="context">当前查询上下文</param>
@@ -61,8 +56,8 @@ namespace Riz.XFramework.Data
         {
             XFrameworkException.Check.NotNull(context, nameof(context));
             _context = context;
-            _provider = _context.Provider;
-            _funcletizer = _provider.Funcletizer;
+            _provider = (DbQueryProvider)_context.Provider;
+            _constParser = _provider.Constor;
         }
 
         /// <summary>

@@ -9,11 +9,12 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// UPDATE 表达式解析器
     /// </summary>
-    class SQLiteUpdateExpressionVisitor : UpdateExpressionVisitor
+    internal class SQLiteUpdateExpressionVisitor : UpdateExpressionVisitor
     {
         private string _alias = null;
-        private Expression _expression = null;
+        private ISqlBuilder _builder = null;
         private DbQueryUpdateTree _tree = null;
+        private MemberVisitedStack _visitedStack = null;
 
         /// <summary>
         /// SQL 命令解析器
@@ -23,15 +24,17 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="SQLiteUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="tree">更新语义</param>
         /// <param name="alias">指定的表达式别名</param>
-        internal SQLiteUpdateExpressionVisitor(AliasGenerator aliasGenerator, DbQueryUpdateTree tree, string alias)
-            : base(aliasGenerator, tree.Expression)
+        internal SQLiteUpdateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbQueryUpdateTree tree, string alias)
+            : base(ag, builder)
         {
-            _alias = alias;
             _tree = tree;
-            _expression = base.Expression;
+            _alias = alias;
+            _builder = builder;
+            _visitedStack = base.VisitedStack;
         }
 
         /// <summary>

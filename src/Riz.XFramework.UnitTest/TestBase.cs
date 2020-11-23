@@ -487,13 +487,13 @@ namespace Riz.XFramework.UnitTest
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
-            var result3 = query.Execute<DataTable>(); //context.Database.ExecuteDataTable(query);
+            var result3 = query.ToDataTable(); //query.Execute<DataTable>(); //context.Database.ExecuteDataTable(query);
 #if !net40
             query = from a in context.GetTable<TDemo>()
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
-            result3 = query.ExecuteAsync<DataTable>().Result; //context.Database.ExecuteDataTableAsync(query).Result;
+            result3 = query.ToDataTableAsync().Result; //query.ExecuteAsync<DataTable>().Result; //context.Database.ExecuteDataTableAsync(query).Result;
 #endif
             // DataSet
             //var cmd = query.Resolve();

@@ -33,12 +33,8 @@ namespace Riz.XFramework.Data.SqlClient
         {
             get
             {
-                var provider = this.Provider;
-                if (_database == null) _database = new OracleDatabase(provider.ParameterPrefix, _connString, provider.DbProvider, provider.TypeDeserializerImpl)
-                {
-                    CommandTimeout = _commandTimeout,
-                    IsolationLevel = this.IsolationLevel
-                };
+                if (_database == null)
+                    _database = new OracleDatabase(this);
                 return _database;
             }
         }
@@ -91,7 +87,7 @@ namespace Riz.XFramework.Data.SqlClient
             Func<IDbCommand, object> doExecute = cmd =>
             {
                 reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, null);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, null);
                 do
                 {
                     List<int> autoIncrements = null;
@@ -148,7 +144,7 @@ namespace Riz.XFramework.Data.SqlClient
             Func<IDbCommand, object> doExecute = cmd =>
             {
                 reader = this.Database.ExecuteReader(cmd);
-                TypeDeserializer deserializer = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, null);
+                TypeDeserializer deserializer = new TypeDeserializer(this, reader, null);
                 do
                 {
                     List<int> autoIncrements = null;
@@ -222,7 +218,7 @@ namespace Riz.XFramework.Data.SqlClient
                     {
                         // 先查第一个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 0 ? maps[0] : null);
+                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps.Count > 0 ? maps[0] : null);
                         var collection = deserializer1.Deserialize<T1>(out autoIncrements);
 
                         if (collection != null)
@@ -244,7 +240,7 @@ namespace Riz.XFramework.Data.SqlClient
                     {
                         // 再查第二个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 1 ? maps[1] : null);
+                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps.Count > 1 ? maps[1] : null);
                         var collection = deserializer2.Deserialize<T2>(out autoIncrements);
 
                         if (collection != null)
@@ -306,7 +302,7 @@ namespace Riz.XFramework.Data.SqlClient
                 Func<IDbCommand, Task<object>> func = async cmd =>
                 {
                     reader = await base.Database.ExecuteReaderAsync(cmd);
-                    TypeDeserializer deserializer = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, null);
+                    TypeDeserializer deserializer = new TypeDeserializer(this, reader, null);
                     do
                     {
                         var result = deserializer.Deserialize<int>();

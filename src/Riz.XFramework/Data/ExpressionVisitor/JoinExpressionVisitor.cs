@@ -9,19 +9,19 @@ namespace Riz.XFramework.Data
     /// </summary>
     internal class JoinExpressionVisitor : DbExpressionVisitor
     {
+        private AliasGenerator _ag = null;
         private ISqlBuilder _builder = null;
-        private AliasGenerator _aliasGenerator = null;
 
         /// <summary>
         /// 初始化 <see cref="JoinExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
-        public JoinExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
-            : base(aliasGenerator, builder)
+        public JoinExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
+            _ag = ag;
             _builder = builder;
-            _aliasGenerator = aliasGenerator;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Riz.XFramework.Data
         protected virtual void AppendLfInJoin(DbExpression dbExpression)
         {
             _builder.Append(' ');
-            IDbQueryable dbQuery = (IDbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
@@ -85,8 +85,8 @@ namespace Riz.XFramework.Data
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
-                ? _aliasGenerator.GetTableAlias(dbExpression.Expressions[2])
-                : _aliasGenerator.GetTableAlias(right.Parameters[0]);
+                ? _ag.GetTableAlias(dbExpression.Expressions[2])
+                : _ag.GetTableAlias(right.Parameters[0]);
             _builder.Append(' ');
             _builder.Append(alias);
             _builder.Append(' ');
@@ -102,9 +102,9 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    _builder.AppendMember(_aliasGenerator, body1.Arguments[index]);
+                    _builder.AppendMember(_ag, body1.Arguments[index]);
                     _builder.Append(" = ");
-                    _builder.AppendMember(_aliasGenerator, body2.Arguments[index]);
+                    _builder.AppendMember(_ag, body2.Arguments[index]);
                     if (index < body1.Arguments.Count - 1) _builder.Append(" AND ");
                 }
             }
@@ -115,17 +115,17 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    _builder.AppendMember(_aliasGenerator, (body1.Bindings[index] as MemberAssignment).Expression);
+                    _builder.AppendMember(_ag, (body1.Bindings[index] as MemberAssignment).Expression);
                     _builder.Append(" = ");
-                    _builder.AppendMember(_aliasGenerator, (body2.Bindings[index] as MemberAssignment).Expression);
+                    _builder.AppendMember(_ag, (body2.Bindings[index] as MemberAssignment).Expression);
                     if (index < body1.Bindings.Count - 1) _builder.Append(" AND ");
                 }
             }
             else
             {
-                _builder.AppendMember(_aliasGenerator, left.Body.ReduceUnary());
+                _builder.AppendMember(_ag, left.Body.ReduceUnary());
                 _builder.Append(" = ");
-                _builder.AppendMember(_aliasGenerator, right.Body.ReduceUnary());
+                _builder.AppendMember(_ag, right.Body.ReduceUnary());
             }
         }
 
@@ -140,7 +140,7 @@ namespace Riz.XFramework.Data
             _builder.Append(' ');
             _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
 
-            string alias = _aliasGenerator.GetTableAlias(lambdaExp.Parameters[1]);
+            string alias = _ag.GetTableAlias(lambdaExp.Parameters[1]);
             _builder.Append(' ');
             _builder.Append(alias);
             _builder.Append(' ');

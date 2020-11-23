@@ -13,10 +13,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="WhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
-        public WhereExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
-            : base(aliasGenerator, builder)
+        public WhereExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
             _builder = builder;
         }
@@ -48,41 +48,5 @@ namespace Riz.XFramework.Data
 
             return null;
         }
-
-        ///// <summary>
-        ///// 遍历表达式
-        ///// </summary>
-        //public override Expression Visit(Expression node)
-        //{
-        //    if (node == null) return null;
-
-        //    // 如果初始表达式是 a=>a.Allowused && xxx 这种形式，则将 a.Allowused 解析成 a.Allowused == 1
-        //    if (node == _expression)
-        //    {
-        //        node = FixBinary(node);
-        //        _expression = node;
-        //    }
-        //    return base.Visit(node);
-        //}
-
-        ///// <summary>
-        ///// 访问 Lambda 表达式
-        ///// </summary>
-        //protected override Expression VisitLambda<T>(Expression<T> node)
-        //{
-        //    LambdaExpression lambda = node as LambdaExpression;
-        //    Expression expr = this.FixBinary(lambda.Body);
-        //    if (expr != lambda.Body) node = Expression.Lambda<T>(expr, lambda.Parameters);
-
-        //    return base.VisitLambda<T>(node);
-        //}
-
-        ///// <summary>
-        ///// 写入SQL字符
-        ///// </summary>
-        //protected virtual void WriteImpl(ISqlBuilder builder)
-        //{
-        //    base.Write(builder);
-        //}
     }
 }

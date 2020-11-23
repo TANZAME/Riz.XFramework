@@ -15,7 +15,7 @@ namespace Riz.XFramework.Data
         private ISqlBuilder _builder = null;
         private DbExpression _groupBy = null;
         private List<DbExpression> _includes = null;
-        private AliasGenerator _aliasGenerator = null;
+        private AliasGenerator _ag = null;
 
         private int _startLength = 0;
         private string _pickColumnText = null;
@@ -63,16 +63,16 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
         /// <param name="tree">查询语义</param>
-        public ColumnExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbQuerySelectTree tree)
-            : base(aliasGenerator, builder)
+        public ColumnExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbQuerySelectTree tree)
+            : base(ag, builder)
         {
+            _ag = ag;
             _builder = builder;
             _groupBy = tree.GroupBy;
             _includes = tree.Includes;
-            _aliasGenerator = aliasGenerator;
             _pickColumns = new ColumnDescriptorCollection();
             _visitedStack = base.VisitedStack;
         }
@@ -102,6 +102,7 @@ namespace Riz.XFramework.Data
                 // 最后去掉空白字符
                 _builder.TrimEnd(' ', ',');
             }
+
             return select != null ? select.Expressions[0] : null;
         }
 
@@ -118,7 +119,7 @@ namespace Riz.XFramework.Data
             {
                 // 例： a=> a
                 Type type = lambda.Body.Type;
-                string alias = _aliasGenerator.GetTableAlias(lambda);
+                string alias = _ag.GetTableAlias(lambda);
                 this.VisitAllMember(type, alias);
                 return node;
             }
@@ -137,7 +138,7 @@ namespace Riz.XFramework.Data
                 // 例： t=> t.a
                 // => SELECT a.ClientId
                 Type type = lambda.Body.Type;
-                if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _aliasGenerator.GetTableAlias(lambda.Body), node);
+                if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _ag.GetTableAlias(lambda.Body), node);
                 else
                 {
                     var newNode = this.VisitWithoutRemark(_ => base.VisitLambda(node));
@@ -269,10 +270,10 @@ namespace Riz.XFramework.Data
                     foreach (var nav in this.NavMembers)
                     {
                         index += 1;
-                        if (index < this.NavMembers.Count && index > num) alias = _aliasGenerator.GetNavTableAlias(nav.Key);
+                        if (index < this.NavMembers.Count && index > num) alias = _ag.GetNavTableAlias(nav.Key);
                         else
                         {
-                            alias = _aliasGenerator.GetNavTableAlias(nav.Key);
+                            alias = _ag.GetNavTableAlias(nav.Key);
                             type = nav.Expression.Type;
                             if (index == this.NavMembers.Count) nav.Predicate = predicate;
                         }
@@ -285,7 +286,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // 例： Client = b
-                alias = _aliasGenerator.GetTableAlias(node);
+                alias = _ag.GetTableAlias(node);
                 type = node.Type;
             }
 
@@ -368,7 +369,7 @@ namespace Riz.XFramework.Data
             if (argument.NodeType == ExpressionType.Parameter)
             {
                 //例： new Client(a)
-                string alias = _aliasGenerator.GetTableAlias(argument);
+                string alias = _ag.GetTableAlias(argument);
                 this.VisitAllMember(argument.Type, alias);
             }
             else if (argument.CanEvaluate())

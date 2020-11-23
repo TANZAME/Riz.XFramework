@@ -14,8 +14,8 @@ namespace Riz.XFramework.Data.SqlClient
     internal class NpgMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private SQLParser _funcletizer = null;
-        private LinqExpressionVisitor _visitor = null;
+        private DbConstor _constor = null;
+        private DbExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
 
@@ -37,13 +37,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 实例化 <see cref="NpgMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
-        public NpgMethodCallExressionVisitor(LinqExpressionVisitor visitor)
+        public NpgMethodCallExressionVisitor(DbExpressionVisitor visitor)
             : base(visitor)
         {
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _funcletizer = _builder.TranslateContext.DbContext.Provider.Funcletizer;
+            _constor = ((DbQueryProvider)_builder.Provider).Constor;
         }
 
         #endregion
@@ -94,13 +94,13 @@ namespace Riz.XFramework.Data.SqlClient
 
                 string format = string.Empty;
                 ColumnAttribute c = _visitedMark.Current != null ? TypeUtils.GetColumnAttribute(_visitedMark.Current.Member, _visitedMark.Current.ReflectedType) : null;
-                if (c != null && DbTypeUtils.IsTime(c.DbType))
+                if (c != null && NpgUtils.IsTime(c.DbType))
                     format = "hh24:mi:ss.us";
-                else if (c != null && DbTypeUtils.IsDate(c.DbType))
+                else if (c != null && NpgUtils.IsDate(c.DbType))
                     format = "yyyy-mm-dd";
-                else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType)))
+                else if (c != null && (NpgUtils.IsDateTime(c.DbType) || NpgUtils.IsDateTime2(c.DbType)))
                     format = "yyyy-mm-dd hh24:mi:ss.us";
-                else if (c != null && DbTypeUtils.IsDateTimeOffset(c.DbType))
+                else if (c != null && NpgUtils.IsDateTimeOffset(c.DbType))
                     format = "yyyy-mm-dd hh24:mi:ss.us TZH:TZM";
 
                 // 没有显式指定数据类型，则根据表达式的类型来判断
@@ -150,8 +150,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = NpgUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -189,8 +189,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = NpgUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -230,8 +230,8 @@ namespace Riz.XFramework.Data.SqlClient
                 if (m.Arguments[0].CanEvaluate())
                 {
                     ColumnAttribute column = null;
-                    bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                    string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                    bool isUnicode = NpgUtils.IsUnicode(_visitedMark.Current, out column);
+                    string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                     if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                     if (_builder.Parameterized)

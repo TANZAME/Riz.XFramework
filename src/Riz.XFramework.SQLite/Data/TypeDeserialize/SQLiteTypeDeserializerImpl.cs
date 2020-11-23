@@ -9,7 +9,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// <see cref="IDataReader"/> 转实体映射
     /// </summary>
-    sealed class SQLiteTypeDeserializerImpl : TypeDeserializerImpl
+    internal sealed class SQLiteTypeDeserializerImpl : TypeDeserializerImpl
     {
         static readonly MethodInfo _dateTimeOffsetParse = typeof(DateTimeOffset).GetMethod("Parse", new Type[] { typeof(string) });
         static readonly MethodInfo _timeSpanParse = typeof(TimeSpan).GetMethod("Parse", new Type[] { typeof(string) });

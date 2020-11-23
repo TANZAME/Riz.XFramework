@@ -8,16 +8,23 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// UPDATE 表达式解析器
     /// </summary>
-    internal class NpgUpdateExpressionVisitor : LinqExpressionVisitor
+    internal class NpgUpdateExpressionVisitor : DbExpressionVisitor
     {
+        private AliasGenerator _ag = null;
+        private ISqlBuilder _builder = null;
+        private MemberVisitedStack _visitedStack = null;
+
         /// <summary>
         /// 初始化 <see cref="NpgUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="expression">要访问的表达式</param>
-        public NpgUpdateExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
-            : base(aliasGenerator, expression)
+        /// <param name="ag">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
+        public NpgUpdateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
+            _ag = ag;
+            _builder = builder;
+            _visitedStack = base.VisitedStack;
         }
 
         /// <summary>

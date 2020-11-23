@@ -11,8 +11,8 @@ namespace Riz.XFramework.Data.SqlClient
     internal class OracleMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private SQLParser _funcletizer = null;
-        private LinqExpressionVisitor _visitor = null;
+        private DbConstor _constor = null;
+        private DbExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
 
@@ -35,13 +35,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// 实例化 <see cref="OracleMethodCallExressionVisitor"/> 类的新实例
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
-        public OracleMethodCallExressionVisitor(LinqExpressionVisitor visitor)
+        public OracleMethodCallExressionVisitor(DbExpressionVisitor visitor)
             : base(visitor)
         {
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _funcletizer = _builder.TranslateContext.DbContext.Provider.Funcletizer;
+            _constor = ((DbQueryProvider)_builder.Provider).Constor;
         }
 
         #endregion
@@ -110,7 +110,7 @@ namespace Riz.XFramework.Data.SqlClient
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
             ColumnAttribute column = null;
-            bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+            bool isUnicode = OracleUtils.IsUnicode(_visitedMark.Current, out column);
             bool isBytes = node.Type == typeof(byte[]);
             bool isDate = node.Type == typeof(DateTime) ||
                 node.Type == typeof(DateTime?) ||
@@ -134,11 +134,11 @@ namespace Riz.XFramework.Data.SqlClient
 
                 string format = string.Empty;
                 ColumnAttribute c = _visitedMark.Current != null ? TypeUtils.GetColumnAttribute(_visitedMark.Current.Member, _visitedMark.Current.ReflectedType) : null;
-                if (c != null && DbTypeUtils.IsDate(c.DbType))
+                if (c != null && OracleUtils.IsDate(c.DbType))
                     format = "yyyy-mm-dd";
-                else if (c != null && (DbTypeUtils.IsDateTime(c.DbType) || DbTypeUtils.IsDateTime2(c.DbType)))
+                else if (c != null && (OracleUtils.IsDateTime(c.DbType) || OracleUtils.IsDateTime2(c.DbType)))
                     format = "yyyy-mm-dd hh24:mi:ss.ff";
-                else if (c != null && DbTypeUtils.IsDateTimeOffset(c.DbType))
+                else if (c != null && OracleUtils.IsDateTimeOffset(c.DbType))
                     format = "yyyy-mm-dd hh24:mi:ss.ff tzh:tzm";
 
                 // 没有显式指定数据类型，则根据表达式的类型来判断
@@ -191,8 +191,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = OracleUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -230,8 +230,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = OracleUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -269,8 +269,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = OracleUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)

@@ -15,11 +15,11 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="HavingExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">GROUP BY 子句</param>
-        public HavingExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy)
-            : base(aliasGenerator, builder)
+        public HavingExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbExpression groupBy)
+            : base(ag, builder)
         {
             _groupBy = groupBy;
             _builder = builder;

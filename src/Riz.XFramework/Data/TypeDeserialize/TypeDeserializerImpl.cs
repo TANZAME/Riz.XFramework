@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// <see cref="IDataReader"/> 转实体映射器
     /// </summary>
-    internal class TypeDeserializerImpl
+    public class TypeDeserializerImpl
     {
         // 这个类的代码在 Dapper.NET 的基础上修改的，实体映射确实强悍得一匹
         // https://github.com/StackExchange/Dapper
@@ -50,7 +50,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 私有构造函数
         /// </summary>
-        protected TypeDeserializerImpl() 
+        protected TypeDeserializerImpl()
         {
         }
 

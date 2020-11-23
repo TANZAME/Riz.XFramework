@@ -14,23 +14,20 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 上下文适配器
     /// </summary>
-    internal sealed partial class OracleDatabase : Database
+    public sealed partial class OracleDatabase : Database
     {
+        private IDbContext _context = null;
         private DbProviderFactory _provider = null;
-        private TypeDeserializerImpl _desrializerImpl = null;
 
         /// <summary>
         /// 初始化 <see cref="OracleDatabase"/> 类的新实例
         /// </summary>
-        /// <param name="parameterPrefix">参数名称前缀</param>
-        /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="provider">数据源类提供者</param>
-        /// <param name="desrializerImpl">实体映射实现</param>
-        public OracleDatabase(string parameterPrefix, string connectionString, DbProviderFactory provider, TypeDeserializerImpl desrializerImpl)
-            : base(parameterPrefix, connectionString, provider, desrializerImpl)
+        /// <param name="context">当前查询上下文</param>
+        public OracleDatabase(IDbContext context)
+            : base(context)
         {
-            _provider = provider;
-            _desrializerImpl = desrializerImpl;
+            _context = context;
+            _provider = _context.Provider.DbProvider;
         }
 
         /// <summary>
@@ -70,17 +67,17 @@ namespace Riz.XFramework.Data
                 {
                     if (q1 == null)
                     {
-                        deserializer1 = new TypeDeserializer(_desrializerImpl, reader, maps.Count > 0 ? maps[0] : null);
+                        deserializer1 = new TypeDeserializer(_context, reader, maps.Count > 0 ? maps[0] : null);
                         q1 = deserializer1.Deserialize<List<T1>>();
                     }
                     else if (q2 == null)
                     {
-                        deserializer2 = new TypeDeserializer(_desrializerImpl, reader, maps.Count > 1 ? maps[1] : null);
+                        deserializer2 = new TypeDeserializer(_context, reader, maps.Count > 1 ? maps[1] : null);
                         q2 = deserializer2.Deserialize<List<T2>>();
                     }
                     else if (q3 == null)
                     {
-                        deserializer3 = new TypeDeserializer(_desrializerImpl, reader, maps.Count > 2 ? maps[2] : null);
+                        deserializer3 = new TypeDeserializer(_context, reader, maps.Count > 2 ? maps[2] : null);
                         q3 = deserializer3.Deserialize<List<T3>>();
                     }
                 }
@@ -153,37 +150,37 @@ namespace Riz.XFramework.Data
                     {
                         if (q1 == null)
                         {
-                            deserializer1 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 0 ? maps[0] : null);
+                            deserializer1 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 0 ? maps[0] : null);
                             q1 = deserializer1.Deserialize<List<T1>>();
                         }
                         else if (q2 == null)
                         {
-                            deserializer2 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 1 ? maps[1] : null);
+                            deserializer2 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 1 ? maps[1] : null);
                             q2 = deserializer2.Deserialize<List<T2>>();
                         }
                         else if (q3 == null)
                         {
-                            deserializer3 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 2 ? maps[2] : null);
+                            deserializer3 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 2 ? maps[2] : null);
                             q3 = deserializer3.Deserialize<List<T3>>();
                         }
                         else if (q4 == null)
                         {
-                            deserializer4 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 3 ? maps[3] : null);
+                            deserializer4 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 3 ? maps[3] : null);
                             q4 = deserializer4.Deserialize<List<T4>>();
                         }
                         else if (q5 == null)
                         {
-                            deserializer5 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 4 ? maps[4] : null);
+                            deserializer5 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 4 ? maps[4] : null);
                             q5 = deserializer5.Deserialize<List<T5>>();
                         }
                         else if (q6 == null)
                         {
-                            deserializer6 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 5 ? maps[5] : null);
+                            deserializer6 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 5 ? maps[5] : null);
                             q6 = deserializer6.Deserialize<List<T6>>();
                         }
                         else if (q7 == null)
                         {
-                            deserializer7 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > 6 ? maps[6] : null);
+                            deserializer7 = new TypeDeserializer(_context, reader, maps != null && maps.Count > 6 ? maps[6] : null);
                             q7 = deserializer7.Deserialize<List<T7>>();
                         }
                     }
@@ -355,19 +352,19 @@ namespace Riz.XFramework.Data
             // 创建新命令
             Func<string, bool, DbRawCommand> newCommand = (sql, isQuery) =>
             {
-                DbRawCommand cmd = new DbRawCommand(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"));
+                List<IDbDataParameter> parameters = null;
                 if (collection != null && collection.Count > 0)
                 {
-                    var myParameters = new List<IDbDataParameter>();
-                    MatchCollection matches = regex.Matches(cmd.CommandText);
+                    parameters = new List<IDbDataParameter>();
+                    MatchCollection matches = regex.Matches(sql);
                     foreach (Match m in matches)
                     {
                         var p = (IDbDataParameter)collection[m.Groups["ParameterName"].Value];
-                        myParameters.Add(p);
+                        parameters.Add(p);
                     }
-                    cmd.Parameters = myParameters;
                 }
 
+                DbRawCommand cmd = new DbRawCommand(string.Format("{0}{1}", sql, isQuery ? string.Empty : ";"), parameters);
                 return cmd;
             };
 

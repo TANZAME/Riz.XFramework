@@ -11,7 +11,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// <see cref="IDataReader"/> 转实体映射
     /// </summary>
-    sealed class OracleTypeDeserializerImpl : TypeDeserializerImpl
+    internal sealed class OracleTypeDeserializerImpl : TypeDeserializerImpl
     {
         static readonly MethodInfo _getValue = typeof(OracleTimeStampTZ).GetProperty("Value", BindingFlags.Public | BindingFlags.Instance).GetGetMethod();
         static readonly MethodInfo _getTimeZoneOffset = typeof(OracleTimeStampTZ).GetMethod("GetTimeZoneOffset");

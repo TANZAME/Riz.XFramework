@@ -14,20 +14,17 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 上下文适配器
     /// </summary>
-    internal sealed partial class SQLiteDatabase : Database
+    public sealed partial class SQLiteDatabase : Database
     {
-        static FieldInfo _disposed = typeof(SQLiteConnection).GetField("disposed", BindingFlags.NonPublic | BindingFlags.Instance);
         static MemberAccessorBase _disposedAccessor = new FieldAccessor(_disposed);
+        static FieldInfo _disposed = typeof(SQLiteConnection).GetField("disposed", BindingFlags.NonPublic | BindingFlags.Instance);
 
         /// <summary>
         /// 初始化 <see cref="SQLiteDatabase"/> 类的新实例
         /// </summary>
-        /// <param name="parameterPrefix">参数名称前缀</param>
-        /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="provider">数据源类提供者</param>
-        /// <param name="desrializerImpl">实体映射实现</param>
-        public SQLiteDatabase(string parameterPrefix, string connectionString, DbProviderFactory provider, TypeDeserializerImpl desrializerImpl)
-            : base(parameterPrefix, connectionString, provider, desrializerImpl)
+        /// <param name="context">当前查询上下文</param>
+        public SQLiteDatabase(IDbContext context)
+            : base(context)
         {
         }
 

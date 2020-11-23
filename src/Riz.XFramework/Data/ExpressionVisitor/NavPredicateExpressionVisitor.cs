@@ -13,11 +13,11 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="NavPredicateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
         /// <param name="alias">指定的表别名</param>
-        public NavPredicateExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, string alias)
-            : base(aliasGenerator, builder)
+        public NavPredicateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, string alias)
+            : base(ag, builder)
         {
             _alias = alias;
             _builder = builder;

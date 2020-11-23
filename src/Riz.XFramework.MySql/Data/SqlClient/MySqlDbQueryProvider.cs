@@ -11,7 +11,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// MYSQL 数据查询提供者
     /// </summary>
-    internal sealed class MySqlDbQueryProvider : DbQueryProvider
+    public sealed class MySqlDbQueryProvider : DbQueryProvider
     {
         /// <summary>
         /// 查询语义提供者实例
@@ -21,72 +21,42 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 数据源类的提供程序实现的实例
         /// </summary>
-        public override DbProviderFactory DbProvider { get { return MySqlClientFactory.Instance; } }
+        public override DbProviderFactory DbProvider => MySqlClientFactory.Instance;
 
         /// <summary>
-        /// 值转SQL表达式解析器
+        /// 常量值转SQL表达式解析器
         /// </summary>
-        public override SQLParser Funcletizer { get { return MySqlDbFuncletizer.Instance; } }
+        protected internal override DbConstor Constor => MySqlDbConstor.Instance;
 
         /// <summary>
         /// SQL值片断生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
+        protected internal override TypeDeserializerImpl TypeDeserializerImpl => TypeDeserializerImpl.Instance;
 
         /// <summary>
         /// 数据库安全字符 左
         /// </summary>
-        public override string QuotePrefix
-        {
-            get
-            {
-                return "`";
-            }
-        }
+        public override string QuotePrefix => "`";
 
         /// <summary>
         /// 数据库安全字符 右
         /// </summary>
-        public override string QuoteSuffix
-        {
-            get
-            {
-                return "`";
-            }
-        }
+        public override string QuoteSuffix => "`";
 
         /// <summary>
         /// 字符串引号
         /// </summary>
-        public override string SingleQuoteChar
-        {
-            get
-            {
-                return "'";
-            }
-        }
+        public override string SingleQuoteChar => "'";
 
         /// <summary>
         /// 数据查询提供者 名称
         /// </summary>
-        public override string ProviderName
-        {
-            get
-            {
-                return "MySql";
-            }
-        }
+        public override string ProviderName => "MySql";
 
         /// <summary>
         /// 命令参数前缀
         /// </summary>
-        public override string ParameterPrefix
-        {
-            get
-            {
-                return "?"; // mssql@ mysql? oracel:
-            }
-        }
+        public override string ParameterPrefix => "?"; // mssql@ mysql? oracel:
 
         /// <summary>
         /// 实例化 <see cref="MySqlDbQueryProvider"/> 类的新实例
@@ -102,20 +72,14 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="context">当前查询上下文</param>
         /// <returns></returns>
-        public override ITranslateContext CreateTranslateContext(IDbContext context)
-        {
-            return new MySqlTranslateContext(context);
-        }
+        protected internal override ITranslateContext CreateTranslateContext(IDbContext context) => new MySqlTranslateContext(context);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
         /// <returns></returns>
-        public override MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor)
-        {
-            return new MySqlMethodCallExressionVisitor(visitor);
-        }
+        protected internal override MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor) => new MySqlMethodCallExressionVisitor(visitor);
 
         /// <summary>
         /// 解析 SELECT 命令
@@ -127,13 +91,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override DbRawCommand TranslateSelectCommand(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
         {
-            var cmd = (DbSelectCommand)this.ResolveSelectCommandImpl(tree, indent, isOutQuery, context);
+            var cmd = (DbSelectCommand)this.TranslateSelectCommandImpl(tree, indent, isOutQuery, context);
             cmd.CombineFragments();
             if (isOutQuery) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
-        DbRawCommand ResolveSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -184,9 +148,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(ag, tree.Aggregate, tree.GroupBy, alias);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, alias);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -218,8 +182,8 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(ag, tree.Aggregate, tree.GroupBy);
-                visitor_.Write(jf);
+                var visitor_ = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, null);
+                visitor_.Visit(tree.Aggregate);
                 result.AddNavMembers(visitor_.NavMembers);
             }
             else
@@ -232,19 +196,25 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!tree.HasAny)
                 {
                     // SELECT 范围
-                    var visitor_ = new ColumnExpressionVisitor(ag, tree);
+                    ColumnExpressionVisitor visitor = null;
                     if (tree.Skip > 0 && tree.Take == 0)
                     {
                         sf = this.CreateSqlBuilder(context);
                         sf.Indent = jf.Indent + 1;
-                        visitor_.Write(sf);
-                    }
-                    else visitor_.Write(jf);
 
-                    result.PickColumns = visitor_.PickColumns;
-                    result.PickColumnText = visitor_.PickColumnText;
-                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
-                    result.AddNavMembers(visitor_.NavMembers);
+                        visitor = new ColumnExpressionVisitor(ag, sf, tree);
+                        visitor.Visit(tree.Select);
+                    }
+                    else
+                    {
+                        visitor = new ColumnExpressionVisitor(ag, jf, tree);
+                        visitor.Visit(tree.Select);
+                    }
+
+                    result.PickColumns = visitor.PickColumns;
+                    result.PickColumnText = visitor.PickColumnText;
+                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.AddNavMembers(visitor.NavMembers);
 
                     if (sf != null)
                     {
@@ -275,10 +245,10 @@ namespace Riz.XFramework.Data.SqlClient
                         jf.Append(',');
                         jf.AppendNewLine();
 
-                        if (tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
+                        if (tree.OrderBys == null || tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                         jf.Append("ROW_NUMBER() OVER(");
-                        var visitor3 = new OrderByExpressionVisitor(ag, tree.OrderBys, tree.GroupBy);
-                        visitor3.Write(jf, false);
+                        var visitor3 = new OrderByExpressionVisitor(ag, jf, tree.GroupBy, null);
+                        visitor3.Visit(tree.OrderBys, false);
                         result.AddNavMembers(visitor3.NavMembers);
                         jf.Append(") Row_Number0");
                     }
@@ -298,7 +268,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 子查询
                 jf.Append("(");
-                var cmd = this.ResolveSelectCommandImpl(tree.Subquery, indent + 1, false, context);
+                var cmd = this.TranslateSelectCommandImpl(tree.Subquery, indent + 1, false, context);
                 jf.Append(cmd.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -315,31 +285,43 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new JoinExpressionVisitor(ag, tree.Joins);
-            visitor.Write(jf);
+            if (tree.Joins != null)
+            {
+                var visitor = new DbExpressionVisitor(ag, jf);
+                visitor.Visit(tree.Joins);
+            }
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(ag, tree.Wheres);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Wheres != null)
+            {
+                var visitor = new WhereExpressionVisitor(ag, wf);
+                visitor.Visit(tree.Wheres);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(ag, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.GroupBy != null)
+            {
+                var visitor = new GroupByExpressionVisitor(ag, wf);
+                visitor.Visit(tree.GroupBy);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(ag, tree.Havings, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Havings != null)
+            {
+                var visitor = new HavingExpressionVisitor(ag, wf, tree.GroupBy);
+                visitor.Visit(tree.Havings);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // ORDER 子句
-            if (tree.OrderBys.Count > 0 && useOrderBy)// && !groupByPaging)
+            if (tree.OrderBys != null && tree.OrderBys.Count > 0 && useOrderBy)// && !groupByPaging)
             {
-                visitor = new OrderByExpressionVisitor(ag, tree.OrderBys, tree.GroupBy);
-                visitor.Write(wf);
+                var visitor = new OrderByExpressionVisitor(ag, wf, tree.GroupBy, null);
+                visitor.Visit(tree.OrderBys);
                 result.AddNavMembers(visitor.NavMembers);
             }
 
@@ -354,8 +336,8 @@ namespace Riz.XFramework.Data.SqlClient
 
             if (tree.Take > 0)
             {
-                wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Funcletizer.GetSqlValue(tree.Take, context));
-                wf.AppendFormat(" OFFSET {0}", this.Funcletizer.GetSqlValue(tree.Skip, context));
+                wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Constor.GetSqlValue(tree.Take, context));
+                wf.AppendFormat(" OFFSET {0}", this.Constor.GetSqlValue(tree.Skip, context));
             }
 
             #endregion
@@ -377,11 +359,13 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
+            //if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
+            if (tree.HasMany && subquery.Aggregate == null &&
+                subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(ag, subquery.OrderBys);//, null, "t0");
-                visitor.Write(jf);
+                var visitor = new OrderByExpressionVisitor(ag, jf, null, null);
+                visitor.Visit(subquery.OrderBys);
             }
 
             #endregion
@@ -397,7 +381,7 @@ namespace Riz.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    DbRawCommand cmd = this.ResolveSelectCommandImpl(tree.Unions[index], indent, isOutQuery, context);
+                    DbRawCommand cmd = this.TranslateSelectCommandImpl(tree.Unions[index], indent, isOutQuery, context);
                     jf.Append(cmd.CommandText);
                 }
             }
@@ -423,7 +407,7 @@ namespace Riz.XFramework.Data.SqlClient
                 {
                     jf.AppendMember(alias, "Row_Number0");
                     jf.Append(" > ");
-                    jf.Append(this.Funcletizer.GetSqlValue(tree.Skip, context));
+                    jf.Append(this.Constor.GetSqlValue(tree.Skip, context));
                 }
             }
 
@@ -508,7 +492,7 @@ namespace Riz.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = m.Invoke(entity);
-                        string sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        string sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
                         valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
@@ -552,7 +536,7 @@ namespace Riz.XFramework.Data.SqlClient
                 context.DbExpressionType = DbExpressionType.Insert;
                 context.IsOutQuery = true;
 
-                var cmd = this.ResolveSelectCommandImpl(tree.SelectTree, 0, true, context) as DbSelectCommand;
+                var cmd = this.TranslateSelectCommandImpl(tree.SelectTree, 0, true, context) as DbSelectCommand;
 
                 context.DbExpressionType = srcDbExpressionType;
                 context.IsOutQuery = srcIsOutQuery;
@@ -602,7 +586,7 @@ namespace Riz.XFramework.Data.SqlClient
                 foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValue(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
@@ -613,27 +597,31 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.SelectTree != null)
             {
-                AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                var cmd = new DbSelectCommand(context, aliasGenerator);
+                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                var cmd = new DbSelectCommand(context, ag);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
                 // 标记当前解析上下文是删除语句产生的
                 var isDelete = ((MySqlTranslateContext)context).IsDelete;
-                if (context != null)
-                    ((MySqlTranslateContext)context).IsDelete = true;
+                ((MySqlTranslateContext)context).IsDelete = true;
 
-                LinqExpressionVisitor visitor = new JoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                visitor.Write(cmd.JoinFragment);
+                if (tree.SelectTree.Joins != null)
+                {
+                    var visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                    visitor.Visit(tree.SelectTree.Joins);
+                }
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor.Write(cmd.WhereFragment);
-                cmd.AddNavMembers(visitor.NavMembers);
+                if (tree.SelectTree.Wheres != null)
+                {
+                    var visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                    visitor.Visit(tree.SelectTree.Wheres);
+                    cmd.AddNavMembers(visitor.NavMembers);
+                }
 
                 builder.Append(cmd.CommandText);
 
                 // 恢复当前解析上下文的删除标记
-                if (context != null)
-                    ((MySqlTranslateContext)context).IsDelete = isDelete;
+                ((MySqlTranslateContext)context).IsDelete = isDelete;
             }
 
             builder.Append(';');
@@ -672,9 +660,9 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                    LABEL:
+                LABEL:
                     var value = m.Invoke(entity);
-                    var seg = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                    var seg = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
 
                     if (m.Column == null || !m.Column.IsIdentity)
                     {
@@ -706,23 +694,29 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.Expression != null)
             {
-                AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                LinqExpressionVisitor visitor = null;
+                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                DbExpressionVisitor visitor = null;
 
-                var cmd = new DbSelectCommand(context, aliasGenerator);
+                var cmd = new DbSelectCommand(context, ag);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
-                visitor = new JoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                visitor.Write(cmd.JoinFragment);
+                if (tree.SelectTree.Joins != null)
+                {
+                    visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                    visitor.Visit(tree.SelectTree.Joins);
+                }
 
                 cmd.WhereFragment.AppendNewLine();
                 cmd.WhereFragment.AppendNewLine("SET");
-                visitor = new UpdateExpressionVisitor(aliasGenerator, tree.Expression);
-                visitor.Write(cmd.WhereFragment);
+                visitor = new UpdateExpressionVisitor(ag, cmd.WhereFragment);
+                visitor.Visit( tree.Expression);
 
-                visitor = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor.Write(cmd.WhereFragment);
-                cmd.AddNavMembers(visitor.NavMembers);
+                if (tree.SelectTree.Wheres != null)
+                {
+                    visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                    visitor.Visit(tree.SelectTree.Wheres);
+                    cmd.AddNavMembers(visitor.NavMembers);
+                }
 
                 builder.Append(cmd.CommandText);
             }

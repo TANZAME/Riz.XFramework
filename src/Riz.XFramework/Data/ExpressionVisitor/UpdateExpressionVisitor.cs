@@ -15,10 +15,10 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="UpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
-        public UpdateExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
-            : base(aliasGenerator, builder)
+        public UpdateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
             _builder = builder;
         }

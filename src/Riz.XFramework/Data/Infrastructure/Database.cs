@@ -21,12 +21,14 @@ namespace Riz.XFramework.Data
         private int _commandExecuteSize = 200;
         private string _connString = string.Empty;
         private string _parameterPrefix = string.Empty;
+        // 当前连接对象
         private IDbConnection _connection = null;
+        // 当前事务对象
         private IDbTransaction _transaction = null;
         // 如果不是外部调用BeginTransaction，则执行完命令后需要自动提交-释放事务
         private bool _autoComplete = false;
+        private IDbContext _context = null;
         private DbProviderFactory _provider = null;
-        private TypeDeserializerImpl _desrializerImpl = null;
 
         #endregion
 
@@ -46,11 +48,6 @@ namespace Riz.XFramework.Data
         /// 事务隔离级别
         /// </summary>
         public IsolationLevel? IsolationLevel { get; set; }
-
-        /// <summary>
-        /// 实体转换映射委托生成器
-        /// </summary>
-        protected virtual TypeDeserializerImpl TypeDeserializerImpl { get { return TypeDeserializerImpl.Instance; } }
 
         /// <summary>
         /// ~批次执行的SQL数量，默认200个查询语句
@@ -92,16 +89,16 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="Database"/> 类的新实例
         /// </summary>
-        /// <param name="parameterPrefix">参数名称前缀</param>
-        /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="provider">数据源类提供者</param>
-        /// <param name="desrializerImpl">实体映射实现</param>
-        public Database(string parameterPrefix, string connectionString, DbProviderFactory provider, TypeDeserializerImpl desrializerImpl)
+        /// <param name="context">当前查询上下文</param>
+        public Database(IDbContext context)
         {
-            _parameterPrefix = parameterPrefix;
-            _connString = connectionString;
-            _provider = provider;
-            _desrializerImpl = desrializerImpl;
+            _context = context;
+            _parameterPrefix = _context.Provider.ParameterPrefix;
+            _connString = _context.ConnectionString;
+            _provider = _context.Provider.DbProvider;
+
+            this.CommandTimeout = _context.CommandTimeout;
+            this.IsolationLevel = _context.IsolationLevel;
         }
 
         #endregion
@@ -432,7 +429,7 @@ namespace Riz.XFramework.Data
             }
             else
             {
-                TypeDeserializer deserializer = new TypeDeserializer(_desrializerImpl, reader, map);
+                TypeDeserializer deserializer = new TypeDeserializer(_context, reader, map);
                 result = deserializer.Deserialize<T>();
             }
             return result;
@@ -520,48 +517,48 @@ namespace Riz.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q1 = deserializer1.Deserialize<List<T1>>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q2 = deserializer2.Deserialize<List<T2>>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q3 = deserializer3.Deserialize<List<T3>>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q4 = deserializer4.Deserialize<List<T4>>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q5 = deserializer5.Deserialize<List<T5>>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q6 = deserializer6.Deserialize<List<T6>>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q7 = deserializer7.Deserialize<List<T7>>();
 
                             break;
 
-                        #endregion
+                            #endregion
                     }
                 }
                 while (reader.NextResult());

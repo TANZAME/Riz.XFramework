@@ -20,72 +20,42 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 数据源类的提供程序实现的实例
         /// </summary>
-        public override DbProviderFactory DbProvider { get { return NpgsqlFactory.Instance; } }
+        public override DbProviderFactory DbProvider => NpgsqlFactory.Instance;
 
         /// <summary>
-        /// 值转SQL表达式解析器
+        /// 常量值转SQL表达式解析器
         /// </summary>
-        public override SQLParser Funcletizer { get { return NpgDbFuncletizer.Instance; } }
+        protected internal override DbConstor Constor => NpgDbConstor.Instance;
 
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return NpgTypeDeserializerImpl.Instance; } }
+        protected internal override TypeDeserializerImpl TypeDeserializerImpl => NpgTypeDeserializerImpl.Instance;
 
         /// <summary>
         /// 数据库安全字符 左
         /// </summary>
-        public override string QuotePrefix
-        {
-            get
-            {
-                return "\"";
-            }
-        }
+        public override string QuotePrefix => "\"";
 
         /// <summary>
         /// 数据库安全字符 右
         /// </summary>
-        public override string QuoteSuffix
-        {
-            get
-            {
-                return "\"";
-            }
-        }
+        public override string QuoteSuffix => "\"";
 
         /// <summary>
         /// 字符串引号
         /// </summary>
-        public override string SingleQuoteChar
-        {
-            get
-            {
-                return "'";
-            }
-        }
+        public override string SingleQuoteChar => "'";
 
         /// <summary>
         /// 数据查询提供者 名称
         /// </summary>
-        public override string ProviderName
-        {
-            get
-            {
-                return "Postgre";
-            }
-        }
+        public override string ProviderName => "Postgre";
 
         /// <summary>
         /// 命令参数前缀
         /// </summary>
-        public override string ParameterPrefix
-        {
-            get
-            {
-                return "@";
-            }
-        }
+        public override string ParameterPrefix => "@";
 
         /// <summary>
         /// 实例化 <see cref="NpgDbQueryProvider"/> 类的新实例
@@ -101,19 +71,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        public override ISqlBuilder CreateSqlBuilder(ITranslateContext context)
-        {
-            return new NpgSqlBuilder(context);
-        }
+        protected internal override ISqlBuilder CreateSqlBuilder(ITranslateContext context) => new NpgSqlBuilder(context);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <returns></returns>
-        public override MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor)
-        {
-            return new NpgMethodCallExressionVisitor(visitor);
-        }
+        protected internal override MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor) => new NpgMethodCallExressionVisitor(visitor);
 
         /// <summary>
         /// 解析 SELECT 命令
@@ -163,8 +127,8 @@ namespace Riz.XFramework.Data.SqlClient
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
             bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
-            AliasGenerator aliasGenerator = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, aliasGenerator);
+            AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
+            var result = new DbSelectCommand(context, ag);
             result.HasMany = tree.HasMany;
 
             ISqlBuilder jf = result.JoinFragment;
@@ -182,9 +146,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy, alias);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, alias);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -217,9 +181,9 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, null);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
             }
             else
             {
@@ -232,13 +196,13 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!tree.HasAny)
                 {
                     // SELECT 范围
-                    var visitor_ = new ColumnExpressionVisitor(aliasGenerator, tree);
-                    visitor_.Write(jf);
+                    var visitor = new ColumnExpressionVisitor(ag, jf, tree);
+                    visitor.Visit(tree.Select);
 
-                    result.PickColumns = visitor_.PickColumns;
-                    result.PickColumnText = visitor_.PickColumnText;
-                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
-                    result.AddNavMembers(visitor_.NavMembers);
+                    result.PickColumns = visitor.PickColumns;
+                    result.PickColumnText = visitor.PickColumnText;
+                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.AddNavMembers(visitor.NavMembers);
                 }
 
                 #endregion
@@ -272,31 +236,43 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new JoinExpressionVisitor(aliasGenerator, tree.Joins);
-            visitor.Write(jf);
+            if (tree.Joins != null)
+            {
+                var visitor = new SqlServerJoinExpressionVisitor(ag, jf);
+                visitor.Visit(tree.Joins);
+            }
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Wheres != null)
+            {
+                var visitor = new WhereExpressionVisitor(ag, wf);
+                visitor.Visit(tree.Wheres);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(aliasGenerator, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.GroupBy != null)
+            {
+                var visitor = new GroupByExpressionVisitor(ag, wf);
+                visitor.Visit(tree.GroupBy);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Havings != null)
+            {
+                var visitor = new HavingExpressionVisitor(ag, wf, tree.GroupBy);
+                visitor.Visit(tree.Havings);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // ORDER 子句
-            if (tree.OrderBys.Count > 0 && useOrderBy)
+            if (tree.OrderBys != null && tree.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(aliasGenerator, tree.OrderBys, tree.GroupBy);
-                visitor.Write(wf);
+                var visitor = new OrderByExpressionVisitor(ag, wf, tree.GroupBy, null);
+                visitor.Visit(tree.OrderBys);
                 result.AddNavMembers(visitor.NavMembers);
             }
 
@@ -304,8 +280,8 @@ namespace Riz.XFramework.Data.SqlClient
 
             #region 分页查询
 
-            if (tree.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Funcletizer.GetSqlValue(tree.Take, context));
-            if (tree.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Funcletizer.GetSqlValue(tree.Skip, context));
+            if (tree.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Constor.GetSqlValue(tree.Take, context));
+            if (tree.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Constor.GetSqlValue(tree.Skip, context));
 
             #endregion
 
@@ -326,11 +302,12 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
+            if (tree.HasMany && subquery.Aggregate == null &&
+                subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(aliasGenerator, subquery.OrderBys);//, null, "t0");
-                visitor.Write(jf);
+                var visitor = new OrderByExpressionVisitor(ag, jf, null, null);
+                visitor.Visit(subquery.OrderBys);
             }
 
             #endregion
@@ -434,7 +411,7 @@ namespace Riz.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = m.Invoke(entity);
-                        string sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        string sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
                         valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
@@ -532,7 +509,7 @@ namespace Riz.XFramework.Data.SqlClient
                 foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValue(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
@@ -543,16 +520,23 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.SelectTree != null)
             {
-                AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                var cmd = new NpgDbSelectCommand(context, aliasGenerator, DbExpressionType.Delete);
+                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Delete);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
-                var visitor = new NpgJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins, DbExpressionType.Delete);
-                visitor.Write(cmd);
+                if (tree.SelectTree.Joins != null)
+                {
+                    var visitor = new NpgJoinExpressionVisitor(ag, null, DbExpressionType.Delete, cmd);
+                    visitor.Visit(tree.SelectTree.Joins);
+                }
 
-                var visitor_ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor_.Write(cmd.WhereFragment);
-                cmd.AddNavMembers(visitor_.NavMembers);
+                if (tree.SelectTree.Wheres != null)
+                {
+                    var visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
+                    visitor.Visit(tree.SelectTree.Wheres);
+                    cmd.AddNavMembers(visitor.NavMembers);
+                }
+
                 builder.Append(cmd.CommandText);
             }
 
@@ -593,9 +577,9 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendMember(null, m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                    LABEL:
+                LABEL:
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
 
                     if (m.Column == null || !m.Column.IsIdentity)
                     {
@@ -627,19 +611,27 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.Expression != null)
             {
-                AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                var visitor = new NpgUpdateExpressionVisitor(aliasGenerator, tree.Expression);
-                visitor.Write(builder);
+                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                DbExpressionVisitor visitor = null;
+                visitor = new NpgUpdateExpressionVisitor(ag, builder);
+                visitor.Visit(tree.Expression);
 
-                var cmd = new NpgDbSelectCommand(context, aliasGenerator, DbExpressionType.Update);
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Update);
                 cmd.HasMany = tree.SelectTree.HasMany;
 
-                var visitor_ = new NpgJoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins, DbExpressionType.Update);
-                visitor_.Write(cmd);
+                if (tree.SelectTree.Joins != null)
+                {
+                    visitor = new NpgJoinExpressionVisitor(ag, null, DbExpressionType.Update, cmd);
+                    visitor.Visit(tree.SelectTree.Joins);
+                }
 
-                var visitor__ = new NpgWhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                visitor__.Write(cmd.WhereFragment);
-                cmd.AddNavMembers(visitor__.NavMembers);
+                if (tree.SelectTree.Wheres != null)
+                {
+                    visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
+                    visitor.Visit(tree.SelectTree.Wheres);
+                    cmd.AddNavMembers(visitor.NavMembers);
+                }
+
                 builder.Append(cmd.CommandText);
             }
 

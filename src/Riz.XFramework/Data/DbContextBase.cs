@@ -23,7 +23,7 @@ namespace Riz.XFramework.Data
         private int? _commandTimeout = null;
         private IsolationLevel? _isolationLevel = null;
         private bool _isDebug = false;
-        //private readonly object _oLock = new object();
+        private DbQueryProvider _provider = null;
 
         /// <summary>
         /// 查询语义集合
@@ -46,12 +46,8 @@ namespace Riz.XFramework.Data
         {
             get
             {
-                var provider = this.Provider;
-                if (_database == null) _database = new Database(provider.ParameterPrefix, _connString, provider.DbProvider, provider.TypeDeserializerImpl)
-                {
-                    CommandTimeout = _commandTimeout,
-                    IsolationLevel = this.IsolationLevel
-                };
+                if (_database == null)
+                    _database = new Database(this);
                 return _database;
             }
         }
@@ -129,6 +125,7 @@ namespace Riz.XFramework.Data
             _commandTimeout = commandTimeout;
             _isDebug = false;
             _isolationLevel = null;
+            _provider = (DbQueryProvider)this.Provider;
         }
 
         #endregion
@@ -522,7 +519,7 @@ namespace Riz.XFramework.Data
                 Func<IDbCommand, Task<object>> func = async cmd =>
                 {
                     reader = await this.Database.ExecuteReaderAsync(cmd);
-                    TypeDeserializer deserializer = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, null);
+                    TypeDeserializer deserializer = new TypeDeserializer(this, reader, null);
                     do
                     {
                         List<int> result = null;
@@ -537,7 +534,7 @@ namespace Riz.XFramework.Data
                     return null;
                 };
 
-                await ((Database)this.Database).ExecuteAsync<object>(sqlList, func);
+                await this.Database.ExecuteAsync<object>(sqlList, func);
                 this.SetIdentityValue(_dbQueryables, identitys);
                 return rowCount;
             }
@@ -676,7 +673,7 @@ namespace Riz.XFramework.Data
                     {
                         // 先查第一个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 0 ? maps[0] : null);
+                        if (deserializer1 == null) deserializer1 = new TypeDeserializer(this, reader, maps.Count > 0 ? maps[0] : null);
                         var collection = deserializer1.Deserialize<T1>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -693,7 +690,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第二个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 1 ? maps[1] : null);
+                        if (deserializer2 == null) deserializer2 = new TypeDeserializer(this, reader, maps.Count > 1 ? maps[1] : null);
                         var collection = deserializer2.Deserialize<T2>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -710,7 +707,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第三个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer3 == null) deserializer3 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 2 ? maps[2] : null);
+                        if (deserializer3 == null) deserializer3 = new TypeDeserializer(this, reader, maps.Count > 2 ? maps[2] : null);
                         var collection = deserializer3.Deserialize<T3>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -727,7 +724,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第四个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer4 == null) deserializer4 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 3 ? maps[3] : null);
+                        if (deserializer4 == null) deserializer4 = new TypeDeserializer(this, reader, maps.Count > 3 ? maps[3] : null);
                         var collection = deserializer4.Deserialize<T4>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -744,7 +741,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第五个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer5 == null) deserializer5 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 4 ? maps[4] : null);
+                        if (deserializer5 == null) deserializer5 = new TypeDeserializer(this, reader, maps.Count > 4 ? maps[4] : null);
                         var collection = deserializer5.Deserialize<T5>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -761,7 +758,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第六个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer6 == null) deserializer6 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 5 ? maps[5] : null);
+                        if (deserializer6 == null) deserializer6 = new TypeDeserializer(this, reader, maps.Count > 5 ? maps[5] : null);
                         var collection = deserializer6.Deserialize<T6>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -778,7 +775,7 @@ namespace Riz.XFramework.Data
                     {
                         // 再查第七个类型集合
                         List<int> autoIncrements = null;
-                        if (deserializer7 == null) deserializer7 = new TypeDeserializer(this.Provider.TypeDeserializerImpl, reader, maps.Count > 6 ? maps[6] : null);
+                        if (deserializer7 == null) deserializer7 = new TypeDeserializer(this, reader, maps.Count > 6 ? maps[6] : null);
                         var collection = deserializer7.Deserialize<T7>(out autoIncrements);
 
                         if (autoIncrements != null)
@@ -911,10 +908,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 解析 SQL 命令
         /// </summary>
-        public List<DbRawCommand> Translate()
-        {
-            return this.Provider.Translate(this._dbQueryables);
-        }
+        public List<DbRawCommand> Translate() => _provider.Translate(this._dbQueryables);
 
         /// <summary>
         /// 释放由 <see cref="DbContextBase"/> 类的当前实例占用的所有资源
@@ -928,11 +922,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 释放由 <see cref="DbContextBase"/> 类的当前实例占用的所有资源
         /// </summary>
-        protected void InternalDispose()
-        {
-            //lock (this._oLock) 
-            this._dbQueryables.Clear();
-        }
+        protected void InternalDispose() => this._dbQueryables.Clear();
 
         #endregion
 

@@ -5,16 +5,19 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// UPDATE 表达式解析器
     /// </summary>
-    public class OracleUpdateExpressionVisitor : UpdateExpressionVisitor
+    internal class OracleUpdateExpressionVisitor : UpdateExpressionVisitor
     {
+        private ISqlBuilder _builder = null;
+
         /// <summary>
         /// 初始化 <see cref="OracleUpdateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="expression">查询语义</param>
-        public OracleUpdateExpressionVisitor(AliasGenerator aliasGenerator, Expression expression)
-            : base(aliasGenerator, expression)
+        /// <param name="ag">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
+        public OracleUpdateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
+            _builder = builder;
         }
 
         /// <summary>

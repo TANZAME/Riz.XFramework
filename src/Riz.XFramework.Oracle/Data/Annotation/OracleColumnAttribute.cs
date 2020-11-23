@@ -27,10 +27,5 @@ namespace Riz.XFramework.Data
             get { return !string.IsNullOrEmpty(SEQName); }
             set { _isIdentity = value; }
         }
-
-        ///// <summary>
-        ///// 字段名强制使用双引号 "
-        ///// </summary>
-        //public bool ForceQuote { get; set; }
     }
 }

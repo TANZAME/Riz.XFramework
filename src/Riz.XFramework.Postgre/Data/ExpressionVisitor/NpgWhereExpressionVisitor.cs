@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Riz.XFramework.Data
 {
@@ -7,26 +9,28 @@ namespace Riz.XFramework.Data
     /// </summary>
     internal class NpgWhereExpressionVisitor : WhereExpressionVisitor
     {
-        Expression _expression = null;
+        private ISqlBuilder _builder = null;
+
         /// <summary>
         /// 初始化 <see cref="NpgWhereExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
-        /// <param name="dbExpression">要访问的表达式</param>
-        public NpgWhereExpressionVisitor(AliasGenerator aliasGenerator, DbExpression dbExpression)
-            : base( aliasGenerator, dbExpression)
+        /// <param name="ag">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
+        public NpgWhereExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
+            : base(ag, builder)
         {
-            _expression = dbExpression != null && dbExpression.Expressions != null ? dbExpression.Expressions[0] : null;
+            _builder = builder;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="wheres">筛选表达式</param>
+        public override Expression Visit(List<DbExpression> wheres)
         {
-            if (builder.Length > 0 && _expression != null) builder.Append(" AND ");
-            base.WriteImpl(builder);
+            if (_builder.Length > 0 && wheres != null) _builder.Append(" AND ");
+            base.Visit(wheres);
+            return null;
         }
     }
 }

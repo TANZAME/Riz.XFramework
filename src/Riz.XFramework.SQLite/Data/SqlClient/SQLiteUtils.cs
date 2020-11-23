@@ -8,7 +8,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// 数据类型公用方法
     /// </summary>
-    static class DbTypeUtils
+    internal static class SQLiteUtils
     {
         /// <summary>
         /// 设置命令参数对象的 DbType属性
@@ -22,7 +22,7 @@ namespace Riz.XFramework.Data.SqlClient
                 if (dbType is DbType)
                     parameter.DbType = (DbType)dbType;
                 else
-                    DbTypeUtils.ThrowException(dbType);
+                    SQLiteUtils.ThrowException(dbType);
             }
         }
 
@@ -37,7 +37,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.Time;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return SQLiteUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.Date;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return SQLiteUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTime;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return SQLiteUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTime2;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return SQLiteUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return SQLiteUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Riz.XFramework.Data.SqlClient
         public static bool IsUnicode(MemberVisitedStack.VisitedMember m)
         {
             ColumnAttribute column = null;
-            return DbTypeUtils.IsUnicode(m, out column);
+            return SQLiteUtils.IsUnicode(m, out column);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Riz.XFramework.Data.SqlClient
         public static bool IsUnicode(MemberVisitedStack.VisitedMember m, out ColumnAttribute column)
         {
             column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
-            return DbTypeUtils.IsUnicode(column == null ? null : column.DbType);
+            return SQLiteUtils.IsUnicode(column == null ? null : column.DbType);
         }
 
         /// <summary>

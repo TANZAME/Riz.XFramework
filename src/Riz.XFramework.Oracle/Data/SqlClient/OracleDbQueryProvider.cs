@@ -12,7 +12,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// 数据查询提供者
     /// </summary>
-    internal sealed class OracleDbQueryProvider : DbQueryProvider
+    public sealed class OracleDbQueryProvider : DbQueryProvider
     {
         /// <summary>
         /// 查询语义提供者实例
@@ -22,72 +22,42 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 数据源类的提供程序实现的实例
         /// </summary>
-        public override DbProviderFactory DbProvider { get { return OracleClientFactory.Instance; } }
+        public override DbProviderFactory DbProvider => OracleClientFactory.Instance;
 
         /// <summary>
-        /// 值转SQL表达式解析器
+        /// 常量值转SQL表达式解析器
         /// </summary>
-        public override SQLParser Funcletizer { get { return OracleDbFuncletizer.Instance; } }
+        protected internal override DbConstor Constor => OracleDbConstor.Instance;
 
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return OracleTypeDeserializerImpl.Instance; } }
+        protected internal override TypeDeserializerImpl TypeDeserializerImpl => OracleTypeDeserializerImpl.Instance;
 
         /// <summary>
         /// 数据库安全字符 左
         /// </summary>
-        public override string QuotePrefix
-        {
-            get
-            {
-                return "\"";
-            }
-        }
+        public override string QuotePrefix => "\"";
 
         /// <summary>
         /// 数据库安全字符 右
         /// </summary>
-        public override string QuoteSuffix
-        {
-            get
-            {
-                return "\"";
-            }
-        }
+        public override string QuoteSuffix => "\"";
 
         /// <summary>
         /// 字符串引号
         /// </summary>
-        public override string SingleQuoteChar
-        {
-            get
-            {
-                return "'";
-            }
-        }
+        public override string SingleQuoteChar => "'";
 
         /// <summary>
         /// 数据查询提供者 名称
         /// </summary>
-        public override string ProviderName
-        {
-            get
-            {
-                return "Oracle";
-            }
-        }
+        public override string ProviderName => "Oracle";
 
         /// <summary>
         /// 命令参数前缀
         /// </summary>
-        public override string ParameterPrefix
-        {
-            get
-            {
-                return ":";
-            }
-        }
+        public override string ParameterPrefix => ":";
 
         /// <summary>
         /// 实例化 <see cref="OracleDbQueryProvider"/> 类的新实例
@@ -103,20 +73,14 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        public override ISqlBuilder CreateSqlBuilder(ITranslateContext context)
-        {
-            return new OracleSqlBuilder(context);
-        }
+        protected internal override ISqlBuilder CreateSqlBuilder(ITranslateContext context) => new OracleSqlBuilder(context);
 
         /// <summary>
         /// 创建方法表达式访问器
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
         /// <returns></returns>
-        public override MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor)
-        {
-            return new OracleMethodCallExressionVisitor(visitor);
-        }
+        protected internal override MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor) => new OracleMethodCallExressionVisitor(visitor);
 
         /// <summary>
         /// 解析 SQL 命令
@@ -139,7 +103,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 if (obj is IDbQueryable)
                 {
-                    IDbQueryable dbQuery = (IDbQueryable)obj;
+                    DbQueryable dbQuery = (DbQueryable)obj;
                     dbQuery.Parameterized = true;
                     if (context == null) context = this.CreateTranslateContext(dbQuery.DbContext);
                     if (context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
@@ -183,7 +147,7 @@ namespace Riz.XFramework.Data.SqlClient
                             bool isQuery = false;
                             if (dbQueryables[i + 1] is IDbQueryable)
                             {
-                                var tree = ((IDbQueryable)dbQueryables[i + 1]).Parse();
+                                var tree = ((DbQueryable)dbQueryables[i + 1]).Parse();
                                 isQuery = tree is DbQuerySelectTree;
                             }
                             else if ((dbQueryables[i + 1] is string))
@@ -227,7 +191,7 @@ namespace Riz.XFramework.Data.SqlClient
                         // 解析参数
                         object[] args = null;
                         if (rawSql.Parameters != null)
-                            args = rawSql.Parameters.Select(x => this.Funcletizer.GetSqlValue(x, context)).ToArray();
+                            args = rawSql.Parameters.Select(x => this.Constor.GetSqlValue(x, context)).ToArray();
                         sql = rawSql.CommandText;
                         if (args != null && args.Length > 0) sql = string.Format(sql, args);
                     }
@@ -322,8 +286,8 @@ namespace Riz.XFramework.Data.SqlClient
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
             bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
-            AliasGenerator aliasGenerator = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, aliasGenerator);
+            AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
+            var result = new DbSelectCommand(context, ag);
             result.HasMany = tree.HasMany;
 
             ISqlBuilder jf = result.JoinFragment;
@@ -341,9 +305,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy, alias);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, alias);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -376,9 +340,9 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, null);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
             }
             else
             {
@@ -394,13 +358,13 @@ namespace Riz.XFramework.Data.SqlClient
                     sf.Indent = jf.Indent + ((tree.Skip > 0 || tree.Take > 0) ? 2 : 0);
                     (sf as OracleSqlBuilder).UseQuote = (tree.Skip > 0 || tree.Take > 0) ? false : (jf as OracleSqlBuilder).UseQuote;
 
-                    var visitor_ = new OracleColumnExpressionVisitor(aliasGenerator, tree);
-                    visitor_.Write(sf);
+                    var visitor = new ColumnExpressionVisitor(ag, sf, tree);
+                    visitor.Visit(tree.Select);
 
-                    result.PickColumns = visitor_.PickColumns;
-                    result.PickColumnText = visitor_.PickColumnText;
-                    result.PickNavDescriptors = visitor_.PickNavDescriptors;
-                    result.AddNavMembers(visitor_.NavMembers);
+                    result.PickColumns = visitor.PickColumns;
+                    result.PickColumnText = visitor.PickColumnText;
+                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.AddNavMembers(visitor.NavMembers);
 
                     // 分页，产生两层嵌套
                     if (tree.Skip > 0 || tree.Take > 0)
@@ -486,31 +450,43 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new JoinExpressionVisitor(aliasGenerator, tree.Joins);
-            visitor.Write(jf);
+            if (tree.Joins != null)
+            {
+                var visitor = new JoinExpressionVisitor(ag, jf);
+                visitor.Visit(tree.Joins);
+            }
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Wheres != null)
+            {
+                var visitor = new WhereExpressionVisitor(ag, wf);
+                visitor.Visit(tree.Wheres);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(aliasGenerator, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.GroupBy != null)
+            {
+                var visitor = new GroupByExpressionVisitor(ag, wf);
+                visitor.Visit(tree.GroupBy);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Havings != null)
+            {
+                var visitor = new HavingExpressionVisitor(ag, wf, tree.GroupBy);
+                visitor.Visit(tree.Havings);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // ORDER 子句
-            if (tree.OrderBys.Count > 0 && useOrderBy)
+            if (tree.OrderBys != null && tree.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(aliasGenerator, tree.OrderBys, tree.GroupBy);
-                visitor.Write(wf);
+                var visitor = new OrderByExpressionVisitor(ag, wf, tree.GroupBy, null);
+                visitor.Visit(tree.OrderBys);
                 result.AddNavMembers(visitor.NavMembers);
             }
 
@@ -533,12 +509,13 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
+            if (tree.HasMany && subquery.Aggregate == null &&
+                subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(aliasGenerator, subquery.OrderBys);//, null, "t0");
-                visitor.Write(jf);
+                var visitor = new OrderByExpressionVisitor(ag, jf, null, null);
+                visitor.Visit(subquery.OrderBys);
             }
 
             #endregion
@@ -586,14 +563,14 @@ namespace Riz.XFramework.Data.SqlClient
                 {
                     jf.AppendMember(alias, "Row_Number0");
                     jf.Append(" > ");
-                    jf.Append(this.Funcletizer.GetSqlValue(tree.Skip, context));
+                    jf.Append(this.Constor.GetSqlValue(tree.Skip, context));
                 }
                 if (tree.Take > 0)
                 {
                     if (tree.Skip > 0) jf.Append(" AND ");
                     jf.AppendMember(alias, "Row_Number0");
                     jf.Append(" <= ");
-                    jf.Append(this.Funcletizer.GetSqlValue((tree.Skip + tree.Take), context));
+                    jf.Append(this.Constor.GetSqlValue((tree.Skip + tree.Take), context));
                 }
             }
 
@@ -609,7 +586,7 @@ namespace Riz.XFramework.Data.SqlClient
                 // 如果没有分页，则显式指定只查一笔记录
                 if (tree.Take == 0 && tree.Skip == 0)
                 {
-                    if (tree.Wheres != null && tree.Wheres.Expressions != null) jf.Append(" AND ROWNUM <= 1");
+                    if (tree.Wheres != null && tree.Wheres.Count > 0) jf.Append(" AND ROWNUM <= 1");
                     else
                     {
                         jf.AppendNewLine();
@@ -693,7 +670,6 @@ namespace Riz.XFramework.Data.SqlClient
                         {
                             // 非批量INSERT，产生一个 OUTPUT 类型的参数
                             string parameterName = string.Format("{0}{1}{2}", this.ParameterPrefix, AppConst.PARAMETER_NAME_PRIFIX, context.Parameters.Count);
-                            var database = context.DbContext.Database;
                             seqParameter = this.DbProvider.CreateParameter(parameterName, -1, direction: ParameterDirection.Output);
                             context.Parameters.Add(seqParameter);
                             valuesBuilder.Append(seqParameter.ParameterName);
@@ -709,7 +685,7 @@ namespace Riz.XFramework.Data.SqlClient
                     else
                     {
                         var value = m.Invoke(entity);
-                        string sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        string sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
                         valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
@@ -831,7 +807,7 @@ namespace Riz.XFramework.Data.SqlClient
                 foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValue(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember("t0", m.Member, typeRuntime.Type);
                     builder.Append(" = ");
@@ -865,12 +841,18 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                    var visitor = new JoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                    visitor.Write(builder);
+                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                    if (tree.SelectTree.Joins != null)
+                    {
+                        var visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                        visitor.Visit(tree.SelectTree.Joins);
+                    }
 
-                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                    visitor_.Write(builder);
+                    if (tree.SelectTree.Wheres != null)
+                    {
+                        var visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                        visitor.Visit(tree.SelectTree.Wheres);
+                    }
                 }
             }
 
@@ -911,11 +893,11 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendMember(null, m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                    LABEL:
+                LABEL:
                     if (m.Column == null || !m.Column.IsIdentity)
                     {
                         var value = m.Invoke(entity);
-                        var sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        var sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
 
                         builder.Append(sqlExpression);
                         length = builder.Length;
@@ -935,7 +917,7 @@ namespace Riz.XFramework.Data.SqlClient
                 {
                     var column = m.Column;
                     var value = m.Invoke(entity);
-                    var seg = this.Funcletizer.GetSqlValueWidthDefault(value, context, column);
+                    var seg = this.Constor.GetSqlValueWidthDefault(value, context, column);
                     index += 1;
 
                     whereBuilder.AppendMember(null, m.Member, typeRuntime.Type);
@@ -997,7 +979,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 // 解析查询以确定是否需要嵌套
                 tree.SelectTree.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext));//, token);
+                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext));
 
                 if (tree.SelectTree.Joins.Count > 0 || (cmd.NavMembers != null && cmd.NavMembers.Count > 0))
                 {
@@ -1031,18 +1013,22 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendNewLine("WHEN MATCHED THEN UPDATE SET ");
 
                     // SET 字段
-                    var visitor = new OracleUpdateExpressionVisitor(null, tree.Expression);
-                    visitor.Write(builder);
+                    var visitor = new OracleUpdateExpressionVisitor(null, builder);
+                    visitor.Visit(tree.Expression);
                 }
                 else
                 {
                     // 直接 SQL 的 UPDATE 语法
-                    AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                    var visitor = new UpdateExpressionVisitor(aliasGenerator, tree.Expression);
-                    visitor.Write(builder);
+                    DbExpressionVisitor visitor = null;
+                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                    visitor = new UpdateExpressionVisitor(ag, builder);
+                    visitor.Visit(tree.Expression);
 
-                    var visitor_ = new WhereExpressionVisitor(aliasGenerator, tree.SelectTree.Wheres);
-                    visitor_.Write(builder);
+                    if (tree.SelectTree.Wheres != null)
+                    {
+                        visitor = new WhereExpressionVisitor(ag, builder);
+                        visitor.Visit(tree.SelectTree.Wheres);
+                    }
                 }
             }
 

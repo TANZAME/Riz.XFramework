@@ -10,32 +10,37 @@ namespace Riz.XFramework.Data
     /// </summary>
     internal class OracleColumnExpressionVisitor : ColumnExpressionVisitor
     {
+        private ISqlBuilder _builder = null;
         DbQuerySelectTree _tree = null;
 
         /// <summary>
         /// 初始化 <see cref="OracleColumnExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
+        /// <param name="builder">SQL 语句生成器</param>
         /// <param name="tree">查询语义</param>
-        public OracleColumnExpressionVisitor(AliasGenerator aliasGenerator, DbQuerySelectTree tree)
-            : base(aliasGenerator, tree)
+        public OracleColumnExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbQuerySelectTree tree)
+            : base(ag, builder, tree)
         {
             _tree = tree;
+            _builder = builder;
         }
 
         /// <summary>
-        /// 将表达式所表示的SQL片断写入SQL构造器
+        /// 访问表达式节点
         /// </summary>
-        /// <param name="builder">SQL 语句生成器</param>
-        public override void Write(ISqlBuilder builder)
+        /// <param name="select">选择表达式</param>
+        public override Expression Visit(DbExpression select)
         {
-            base.Write(builder);
+            base.Visit(select);
             if (_tree is IWithRowId)
             {
                 if (_builder.Length == 0) _builder.Append(',');
                 _builder.AppendNewLine();
                 _builder.Append("t0.RowId");
             }
+
+            return select != null ? select.Expressions[0] : null;
         }
 
         /// <summary>

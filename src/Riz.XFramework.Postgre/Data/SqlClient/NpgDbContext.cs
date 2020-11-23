@@ -16,7 +16,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者
         /// </summary>
-        public override IDbQueryProvider Provider { get { return NpgDbQueryProvider.Instance; } }
+        public override IDbQueryProvider Provider => NpgDbQueryProvider.Instance;
 
         /// <summary>
         /// 初始化 <see cref="NpgDbContext"/> 类的新实例

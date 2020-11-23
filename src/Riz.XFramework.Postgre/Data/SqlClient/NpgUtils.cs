@@ -2,30 +2,31 @@
 using System;
 using System.Data;
 using System.Reflection;
-using Oracle.ManagedDataAccess.Client;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace Riz.XFramework.Data.SqlClient
 {
     /// <summary>
     /// 数据类型公用方法
     /// </summary>
-    static class DbTypeUtils
+    internal static class NpgUtils
     {
         /// <summary>
         /// 设置命令参数对象的 DbType属性
         /// </summary>
         /// <param name="parameter">命令参数对象</param>
         /// <param name="dbType">DbType属性</param>
-        public static void DbType(this OracleParameter parameter, object dbType)
+        public static void DbType(this NpgsqlParameter parameter, object dbType)
         {
             if (dbType != null)
             {
                 if (dbType is DbType)
                     parameter.DbType = (DbType)dbType;
-                else if (dbType is OracleDbType)
-                    parameter.OracleDbType = (OracleDbType)dbType;
+                else if (dbType is NpgsqlDbType)
+                    parameter.NpgsqlDbType = (NpgsqlDbType)dbType;
                 else
-                    DbTypeUtils.ThrowException(dbType);
+                    NpgUtils.ThrowException(dbType);
             }
         }
 
@@ -39,10 +40,10 @@ namespace Riz.XFramework.Data.SqlClient
                 return false;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.Time;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.IntervalDS;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.Time;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return NpgUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -55,10 +56,10 @@ namespace Riz.XFramework.Data.SqlClient
                 return false;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.Date;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.Date;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.Date;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return NpgUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -71,10 +72,10 @@ namespace Riz.XFramework.Data.SqlClient
                 return false;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTime;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.TimeStamp;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.Timestamp;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return NpgUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -87,10 +88,10 @@ namespace Riz.XFramework.Data.SqlClient
                 return false;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTime2;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.TimeStamp;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.Timestamp;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return NpgUtils.ThrowException(dbType);
         }
 
         /// <summary>
@@ -99,14 +100,28 @@ namespace Riz.XFramework.Data.SqlClient
         /// <param name="dbType">DbType属性</param>
         public static bool IsDateTimeOffset(object dbType)
         {
+#if netcore
+
             if (dbType == null)
                 return false;
             else if (dbType is DbType)
                 return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.TimeStampTZ;// || ((OracleDbType)dbType) == OracleDbType.TimeStampLTZ;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.TimestampTz;
             else
-                return DbTypeUtils.ThrowException(dbType);
+                return NpgUtils.ThrowException(dbType);
+
+#endif
+#if !netcore
+            if (dbType == null)
+                return false;
+            else if (dbType is DbType)
+                return ((DbType)dbType) == System.Data.DbType.DateTimeOffset;
+            else if (dbType is NpgsqlDbType)
+                return ((NpgsqlDbType)dbType) == NpgsqlDbType.TimestampTZ;
+            else
+                return NpgUtils.ThrowException(dbType);
+#endif
         }
 
         /// <summary>
@@ -117,7 +132,7 @@ namespace Riz.XFramework.Data.SqlClient
         public static bool IsUnicode(MemberVisitedStack.VisitedMember m)
         {
             ColumnAttribute column = null;
-            return DbTypeUtils.IsUnicode(m, out column);
+            return NpgUtils.IsUnicode(m, out column);
         }
 
         /// <summary>
@@ -129,7 +144,7 @@ namespace Riz.XFramework.Data.SqlClient
         public static bool IsUnicode(MemberVisitedStack.VisitedMember m, out ColumnAttribute column)
         {
             column = m != null ? TypeUtils.GetColumnAttribute(m.Member, m.ReflectedType) : null;
-            return DbTypeUtils.IsUnicode(column == null ? null : column.DbType);
+            return NpgUtils.IsUnicode(column == null ? null : column.DbType);
         }
 
         /// <summary>
@@ -138,20 +153,13 @@ namespace Riz.XFramework.Data.SqlClient
         /// <param name="dbType">DbType属性</param>
         public static bool IsUnicode(object dbType)
         {
-            if (dbType == null)
-                return true;
-            else if (dbType is DbType)
-                return ((DbType)dbType) == System.Data.DbType.String || ((DbType)dbType) == System.Data.DbType.StringFixedLength;
-            else if (dbType is OracleDbType)
-                return ((OracleDbType)dbType) == OracleDbType.NVarchar2 || ((OracleDbType)dbType) == OracleDbType.NChar || ((OracleDbType)dbType) == OracleDbType.NClob;
-            else
-                return DbTypeUtils.ThrowException(dbType);
+            return false;
         }
 
         // 抛出异常
         static bool ThrowException(object dbType)
         {
-            throw new NotSupportedException(string.Format("{0} is not a {1} or {2} type.", dbType, typeof(DbType).FullName, typeof(OracleDbType).FullName));
+            throw new NotSupportedException(string.Format("{0} is not a {1} or {2} type.", dbType, typeof(DbType).FullName, typeof(NpgsqlDbType).FullName));
         }
     }
 }

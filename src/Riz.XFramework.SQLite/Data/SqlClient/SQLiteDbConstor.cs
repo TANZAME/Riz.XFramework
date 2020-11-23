@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 
 namespace Riz.XFramework.Data.SqlClient
 {
     /// <summary>
-    /// MSSQL 值转SQL表达式解析器
+    /// SQLite 常量值转SQL表达式解析器
     /// </summary>
-    internal class SqlServerDbFuncletizer : DbSQLParser
+    internal class SQLiteDbConstor : DbConstor
     {
         /// <summary>
-        /// 值转SQL表达式解析器实例
+        /// 常量值转SQL表达式解析器实例
         /// </summary>
-        internal static SqlServerDbFuncletizer Instance = new SqlServerDbFuncletizer();
+        public static SQLiteDbConstor Instance = new SQLiteDbConstor();
 
         /// <summary>
-        /// 实例化 <see cref="SqlServerDbFuncletizer"/> 类的新实例
+        /// 实例化 <see cref="SQLiteDbConstor"/> 类的新实例
         /// </summary>
-        protected SqlServerDbFuncletizer()
-            : base(SqlServerDbQueryProvider.Instance)
+        protected SQLiteDbConstor()
+            : base(SQLiteDbQueryProvider.Instance)
         {
 
         }
@@ -38,10 +37,42 @@ namespace Riz.XFramework.Data.SqlClient
         protected override IDbDataParameter CreateParameter(object value, ITranslateContext context,
             object dbType, int? size = null, int? precision = null, int? scale = null, ParameterDirection? direction = null)
         {
+            if (value is Guid)
+            {
+                // 转换一下GUID，否则保存后会出现乱码~
+                value = ((Guid)value).ToString();
+            }
+            else if (value is TimeSpan || value is DateTime || value is DateTimeOffset)
+            {
+                string result = null;
+                if (value is TimeSpan)
+                    result = this.GetSqlValueOfTime(value, dbType, scale);
+                else if (value is DateTime)
+                    result = this.GetSqlValueOfDateTime(value, dbType, scale);
+                else if (value is DateTimeOffset)
+                    result = this.GetSqlValueOfDateTimeOffset(value, dbType, scale);
+
+                result = result.Trim('\'');
+                value = result;
+                dbType = DbType.String;
+            }
+
             // 补充 DbType
-            SqlParameter sqlParameter = (SqlParameter)base.CreateParameter(value, context, dbType, size, precision, scale, direction);
-            sqlParameter.DbType(dbType);
-            return sqlParameter;
+            SQLiteParameter sqliteParameter = (SQLiteParameter)base.CreateParameter(value, context, dbType, size, precision, scale, direction);
+            sqliteParameter.DbType(dbType);
+            return sqliteParameter;
+        }
+
+        /// <summary>
+        /// 获取 byte[] 类型的 SQL 片断
+        /// </summary>
+        /// <param name="value">SQL值</param>
+        protected override string GetSqlValueOfBytes(object value)
+        {
+            byte[] bytes = (byte[])value;
+            string hex = Common.BytesToHex(bytes, false, true);
+            hex = string.Format(@"X'{0}'", hex);
+            return hex;
         }
 
         /// <summary>
@@ -53,8 +84,8 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override string GetSqlValueOfString(object value, object dbType, int? size = null)
         {
-            bool isUnicode = DbTypeUtils.IsUnicode(dbType);
-            string result = this.EscapeQuote(value.ToString(), isUnicode, true);
+            bool unicode = SQLiteUtils.IsUnicode(dbType);
+            string result = this.EscapeQuote(value.ToString(), unicode, true);
             return result;
         }
 
@@ -72,7 +103,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             // 默认精度为7
             string format = @"hh\:mm\:ss\.fffffff";
-            if (DbTypeUtils.IsTime(dbType))
+            if (SQLiteUtils.IsTime(dbType))
             {
                 string s = string.Empty;
                 if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
@@ -94,9 +125,9 @@ namespace Riz.XFramework.Data.SqlClient
         {
             // 默认精度为3
             string format = "yyyy-MM-dd HH:mm:ss.fff";
-            if (DbTypeUtils.IsDate(dbType)) format = "yyyy-MM-dd";
-            else if (DbTypeUtils.IsDateTime(dbType)) format = "yyyy-MM-dd HH:mm:ss.fff";
-            else if (DbTypeUtils.IsDateTime2(dbType))
+            if (SQLiteUtils.IsDate(dbType)) format = "yyyy-MM-dd";
+            else if (SQLiteUtils.IsDateTime(dbType)) format = "yyyy-MM-dd HH:mm:ss.fff";
+            else if (SQLiteUtils.IsDateTime2(dbType))
             {
                 string s = string.Empty;
                 format = "yyyy-MM-dd HH:mm:ss.fffffff";
@@ -119,24 +150,23 @@ namespace Riz.XFramework.Data.SqlClient
         {
             // 默认精度为7
             string format = "yyyy-MM-dd HH:mm:ss.fffffff";
-            if (DbTypeUtils.IsDateTimeOffset(dbType))
+            if (SQLiteUtils.IsDateTimeOffset(dbType))
             {
                 string s = string.Empty;
                 if (scale != null && scale.Value > 0) s = string.Empty.PadLeft(scale.Value > 7 ? 7 : scale.Value, 'f');
                 if (!string.IsNullOrEmpty(s)) format = string.Format("yyyy-MM-dd HH:mm:ss.{0}", s);
             }
 
-            string myDateTime = this.EscapeQuote(((DateTimeOffset)value).DateTime.ToString(format), false, false);
+            string myDateTime = ((DateTimeOffset)value).DateTime.ToString(format);
             string myOffset = ((DateTimeOffset)value).Offset.ToString(@"hh\:mm");
             myOffset = string.Format("{0}{1}", ((DateTimeOffset)value).Offset < TimeSpan.Zero ? '-' : '+', myOffset);
-            myOffset = this.EscapeQuote(myOffset, false, false);
 
-            string result = string.Format("TODATETIMEOFFSET({0},{1})", myDateTime, myOffset);
+            string result = string.Format("'{0} {1}'", myDateTime, myOffset);
             return result;
         }
 
+
         // 如果用SQL的日期函数进行赋值，DateTime字段类型要用GETDATE()，DateTime2字段类型要用SYSDATETIME()。
         // https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql?view=sql-server-2017
-        // 数据类型转换优先级： https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/data-type-precedence-transact-sql?redirectedfrom=MSDN&view=sql-server-ver15
     }
 }

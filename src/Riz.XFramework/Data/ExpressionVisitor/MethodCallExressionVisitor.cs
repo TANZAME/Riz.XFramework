@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Riz.XFramework.Data
-{  
+{
     /// <summary>
     /// <see cref="MethodCallExpressionVisitor"/> 表达式访问器
     /// </summary>
@@ -1317,7 +1317,7 @@ namespace Riz.XFramework.Data
         protected virtual Expression VisitQueryableContains(MethodCallExpression m)
         {
             ITranslateContext context = _builder.TranslateContext;
-            var subquery = m.Arguments[0].Evaluate().Value as IDbQueryable;
+            var subquery = m.Arguments[0].Evaluate().Value as DbQueryable;
             subquery.Parameterized = _builder.Parameterized;
 
             var clone = context != null ? context.Clone("s") : null;
@@ -1325,6 +1325,7 @@ namespace Riz.XFramework.Data
 
             if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");
+
             _builder.Append(cmd.CommandText);
 
             if (cmd.WhereFragment.Length > 0)

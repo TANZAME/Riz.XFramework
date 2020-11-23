@@ -22,12 +22,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="AggregateExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">Group by 子句</param>
         /// <param name="alias">指定的别名</param>
-        public AggregateExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy, string alias)
-            : base(aliasGenerator, builder)
+        public AggregateExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbExpression groupBy, string alias)
+            : base(ag, builder)
         {
             _alias = alias;
             _builder = builder;

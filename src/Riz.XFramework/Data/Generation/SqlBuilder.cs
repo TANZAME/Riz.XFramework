@@ -10,14 +10,14 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// SQL 语句建造器
     /// </summary>
-    internal class SqlBuilder : ISqlBuilder
+    public class SqlBuilder : ISqlBuilder
     {
         private string _escCharLeft;
         private string _escCharRight;
         private string _escCharQuote;
         private StringBuilder _innerBuilder = null;
         private ITranslateContext _context = null;
-        private DbSQLParser _funcletizer = null;
+        private DbConstor _constParser = null;
 
         /// <summary>
         /// TAB 制表符
@@ -59,6 +59,16 @@ namespace Riz.XFramework.Data
         public ITranslateContext TranslateContext => _context;
 
         /// <summary>
+        /// 当前查询上下文。代理 TranslateContext 的 DbContext
+        /// </summary>
+        public IDbContext DbContext => _context.DbContext;
+
+        /// <summary>
+        ///  查询语义提供者。代理 DbContext 的 Provider
+        /// </summary>
+        public IDbQueryProvider Provider => _context.Provider;
+
+        /// <summary>
         /// 实例化 <see cref="SqlBuilder"/> 类的新实例
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
@@ -68,7 +78,7 @@ namespace Riz.XFramework.Data
             _innerBuilder = new StringBuilder(128);
 
             var provider = _context.Provider;
-            _funcletizer = provider.Funcletizer;
+            _constParser = ((DbQueryProvider)provider).Constor;
             _escCharLeft = provider.QuotePrefix;
             _escCharRight = provider.QuoteSuffix;
             _escCharQuote = provider.SingleQuoteChar;
@@ -77,26 +87,26 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 追加列名
         /// </summary>
-        /// <param name="aliasGenerator">表别名</param>
+        /// <param name="ag">表别名</param>
         /// <param name="node">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        public string AppendMember(AliasGenerator aliasGenerator, Expression node)
+        public string AppendMember(AliasGenerator ag, Expression node)
         {
             Expression expression = node;
             LambdaExpression lambdaExpression = expression as LambdaExpression;
             if (lambdaExpression != null) expression = lambdaExpression.Body;
 
-            if (node.CanEvaluate())
+            if (expression.CanEvaluate())
             {
-                ConstantExpression c = node.Evaluate();
-                string value = _funcletizer.GetSqlValue(c.Value, _context);
+                ConstantExpression c = expression.Evaluate();
+                string value = _constParser.GetSqlValue(c.Value, _context);
                 _innerBuilder.Append(value);
                 return value;
             }
             else
             {
-                MemberExpression m = node.ReduceUnary() as MemberExpression;
-                string alias = aliasGenerator == null ? null : aliasGenerator.GetTableAlias(m);
+                MemberExpression m = expression.ReduceUnary() as MemberExpression;
+                string alias = ag == null ? null : ag.GetTableAlias(m);
                 this.AppendMember(alias, m.Member, m.Expression != null ? m.Expression.Type : null);
                 return alias;
             }
@@ -194,7 +204,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         public ISqlBuilder Append(object value, MemberVisitedStack.VisitedMember m)
         {
-            var sqlExpression = _funcletizer.GetSqlValue(value, _context, m);
+            var sqlExpression = _constParser.GetSqlValue(value, _context, m);
             return this.Append(sqlExpression);
         }
 

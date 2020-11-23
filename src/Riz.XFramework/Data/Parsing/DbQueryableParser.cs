@@ -296,7 +296,7 @@ namespace Riz.XFramework.Data
                         result_Insert.EntityColumns = (insert.Expressions[1] as ConstantExpression).Value as IList<Expression>;
                 }
                 result_Insert.SelectTree = result_Query;
-                result_Insert.Bulk = source.Bulk;
+                result_Insert.Bulk = ((DbQueryable)source).Bulk;
                 return result_Insert;
             }
 
@@ -304,7 +304,7 @@ namespace Riz.XFramework.Data
 
             #region 选择语义
 
-            else if (select != null)
+            else if (pickExpression != null)
             {
                 // 检查嵌套查询语义
                 result_Query = DbQueryableParser.ParseOutQuery(result_Query);
@@ -421,8 +421,8 @@ namespace Riz.XFramework.Data
                 var result_Query = new DbQuerySelectTree();
                 result_Query.From = fromType;
                 result_Query.Subquery = tree;
-                result_Query.Joins = new List<DbExpression>(0);
-                result_Query.OrderBys = new List<DbExpression>(0);
+                result_Query.Joins = null;
+                result_Query.OrderBys = null;
                 result_Query.Includes = includes;
                 result_Query.HasMany = true;
                 result_Query.Select = new DbExpression(DbExpressionType.Select, select);
@@ -563,6 +563,8 @@ namespace Riz.XFramework.Data
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
         private static bool HasMany(List<DbExpression> includes)
         {
+            if (includes == null) return false;
+
             bool result = false;
             foreach (DbExpression dbExpression in includes)
             {

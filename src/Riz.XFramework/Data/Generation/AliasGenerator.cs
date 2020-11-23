@@ -6,7 +6,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表别名解析器
     /// </summary>
-    internal sealed class AliasGenerator
+    public sealed class AliasGenerator
     {
         // 1.表别名缓存项（包含显示指定的和导航属性产生的）
         private readonly NormalCache<string, string> _globals = new NormalCache<string, string>();
@@ -109,8 +109,8 @@ namespace Riz.XFramework.Data
         /// <param name="key">键值</param>
         public string GetTableAlias(string key)
         {
-            return !string.IsNullOrEmpty(key) 
-                ? this._globals.GetOrAdd(key, k => (!string.IsNullOrEmpty(_prefix) ? _prefix : "t") + this._globals.Count.ToString()) 
+            return !string.IsNullOrEmpty(key)
+                ? this._globals.GetOrAdd(key, k => (!string.IsNullOrEmpty(_prefix) ? _prefix : "t") + this._globals.Count.ToString())
                 : EMPTYNAME;
         }
 
@@ -121,7 +121,7 @@ namespace Riz.XFramework.Data
         public string GetNavTableAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
-            return this._navigations.GetOrAdd(key, 
+            return this._navigations.GetOrAdd(key,
                 k => (!string.IsNullOrEmpty(_prefix) ? _prefix : "t") + (this._navigations.Count + _reserveQty).ToString());
         }
 

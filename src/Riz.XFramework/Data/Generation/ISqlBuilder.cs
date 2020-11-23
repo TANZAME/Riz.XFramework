@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// SQL 语句生成器
     /// </summary>
-    internal interface ISqlBuilder
+    public interface ISqlBuilder
     {
         /// <summary>
         /// 获取或设置当前 <see cref="ISqlBuilder"/> 对象的长度。
@@ -35,12 +35,22 @@ namespace Riz.XFramework.Data
         ITranslateContext TranslateContext { get; }
 
         /// <summary>
+        /// 当前查询上下文。代理 TranslateContext 的 DbContext
+        /// </summary>
+        IDbContext DbContext { get; }
+
+        /// <summary>
+        ///  查询语义提供者。代理 DbContext 的 Provider
+        /// </summary>
+        IDbQueryProvider Provider { get; }
+
+        /// <summary>
         /// 追加列名
         /// </summary>
-        /// <param name="aliasGenerator">表别名</param>
+        /// <param name="ag">表别名</param>
         /// <param name="expression">列名表达式</param>
         /// <returns>返回解析到的表别名</returns>
-        string AppendMember(AliasGenerator aliasGenerator, Expression expression);
+        string AppendMember(AliasGenerator ag, Expression expression);
 
         /// <summary>
         /// 追加列名

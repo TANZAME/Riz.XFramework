@@ -9,13 +9,13 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表达式解析器基类，提供公共的表达式处理方式
     /// </summary>
-    internal class DbExpressionVisitor : ExpressionVisitor
+    public class DbExpressionVisitor : ExpressionVisitor
     {
         #region 私有字段
 
+        private AliasGenerator _ag = null;
         private ISqlBuilder _builder = null;
-        private IDbQueryProvider _provider = null;
-        private AliasGenerator _aliasGenerator = null;
+        private DbQueryProvider _provider = null;
         private MemberVisitedStack _visitedStack = null;
         private HashCollection<NavMember> _navMembers = null;
         private MethodCallExpressionVisitor _methodCallVisitor = null;
@@ -60,13 +60,13 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="DbExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
-        public DbExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder)
+        public DbExpressionVisitor(AliasGenerator ag, ISqlBuilder builder)
         {
+            _ag = ag;
             _builder = builder;
-            _aliasGenerator = aliasGenerator;
-            _provider = _builder.TranslateContext.Provider;
+            _provider = (DbQueryProvider)_builder.Provider;
             _visitedStack = new MemberVisitedStack();
         }
 
@@ -225,7 +225,7 @@ namespace Riz.XFramework.Data
             // => <>h__3.b.ClientName
             if (!node.Expression.Visitable())
             {
-                _builder.AppendMember(_aliasGenerator, node);
+                _builder.AppendMember(_ag, node);
                 return node;
             }
             // => a.Accounts[0].Markets[0].MarketId
@@ -380,16 +380,16 @@ namespace Riz.XFramework.Data
 
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
                     // 检查表达式是否由 GetTable<,>(path) 显式指定过别名
-                    alias = _aliasGenerator.GetGetTableAlias(nav.Key);
+                    alias = _ag.GetGetTableAlias(nav.Key);
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，检查查询表达式是否显示指定该表关联
-                        alias = _aliasGenerator.GetJoinTableAlias(typeRuntime.TableName);
+                        alias = _ag.GetJoinTableAlias(typeRuntime.TableName);
                     }
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，则使用导航属性别名
-                        alias = _aliasGenerator.GetNavTableAlias(nav.Key);
+                        alias = _ag.GetNavTableAlias(nav.Key);
                         if (!this.NavMembers.Contains(nav.Key)) this.NavMembers.Add(nav);
                     }
 
@@ -400,7 +400,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // => SelectMany 也会产生类似 'b.Client.Address.AddressName' 这样的表达式
-                alias = _aliasGenerator.GetTableAlias(expression);
+                alias = _ag.GetTableAlias(expression);
                 _builder.AppendMember(alias, memberName);
             }
 

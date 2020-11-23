@@ -55,7 +55,7 @@ namespace Riz.XFramework.Data
             : base(context, aliasGenerator)
         {
             _aliasGenerator = aliasGenerator;
-            _onPhrase = context.DbContext.Provider.CreateSqlBuilder(context);
+            _onPhrase = ((DbQueryProvider)context.Provider).CreateSqlBuilder(context);
             _dbExpressionType = dbExpressionType;
 
             if (_dbExpressionType == DbExpressionType.Delete) _keywordName = "USING ";
@@ -159,8 +159,8 @@ namespace Riz.XFramework.Data
                 if (nav.Predicate != null)
                 {
                     string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
-                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, nav.Predicate, alias);
-                    visitor.Write(_onPhrase);
+                    var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, _onPhrase, alias);
+                    visitor.Visit(nav.Predicate);
                 }
 
                 if (index < this.NavMembers.Count - 1)

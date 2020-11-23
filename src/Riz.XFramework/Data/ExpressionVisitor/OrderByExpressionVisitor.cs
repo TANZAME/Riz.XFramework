@@ -16,12 +16,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 初始化 <see cref="OrderByExpressionVisitor"/> 类的新实例
         /// </summary>
-        /// <param name="aliasGenerator">表别名解析器</param>
+        /// <param name="ag">表别名解析器</param>
         /// <param name="builder">SQL 语句生成器</param>
         /// <param name="groupBy">GROUP BY 子句</param>
         /// <param name="alias">指定的表别名</param>
-        public OrderByExpressionVisitor(AliasGenerator aliasGenerator, ISqlBuilder builder, DbExpression groupBy, string alias)
-            : base(aliasGenerator, null)
+        public OrderByExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbExpression groupBy, string alias)
+            : base(ag, null)
         {
             _alias = alias;
             _builder = builder;

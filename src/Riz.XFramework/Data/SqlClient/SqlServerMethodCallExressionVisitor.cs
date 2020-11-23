@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data.SqlClient
     internal class SqlServerMethodCallExressionVisitor : MethodCallExpressionVisitor
     {
         private ISqlBuilder _builder = null;
-        private DbSQLParser _funcletizer = null;
+        private DbConstor _constor = null;
         private DbExpressionVisitor _visitor = null;
         private MemberVisitedStack _visitedMark = null;
         private static TypeRuntimeInfo _typeRuntime = null;
@@ -38,7 +38,7 @@ namespace Riz.XFramework.Data.SqlClient
             _visitor = visitor;
             _builder = visitor.SqlBuilder;
             _visitedMark = _visitor.VisitedStack;
-            _funcletizer = _builder.TranslateContext.SQLParser;
+            _constor = ((DbQueryProvider)_builder.Provider).Constor;
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool unicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool unicode = SqlServerUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -93,8 +93,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = SqlServerUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -137,8 +137,8 @@ namespace Riz.XFramework.Data.SqlClient
             if (m.Arguments[0].CanEvaluate())
             {
                 ColumnAttribute column = null;
-                bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
-                string value = _funcletizer.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
+                bool isUnicode = SqlServerUtils.IsUnicode(_visitedMark.Current, out column);
+                string value = _constor.GetSqlValue(m.Arguments[0].Evaluate().Value, _builder.TranslateContext, column);
                 if (!_builder.Parameterized && value != null) value = value.TrimStart('N').Trim('\'');
 
                 if (_builder.Parameterized)
@@ -175,7 +175,7 @@ namespace Riz.XFramework.Data.SqlClient
             _builder.Append("ISNULL(");
             _visitor.Visit(m.Arguments[0]);
             _builder.Append(",");
-            bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current);
+            bool isUnicode = SqlServerUtils.IsUnicode(_visitedMark.Current);
             string empty = isUnicode ? "N''" : "''";
             _builder.Append(empty);
             _builder.Append(") = ");
@@ -193,7 +193,7 @@ namespace Riz.XFramework.Data.SqlClient
             if (node == null || node.Type == typeof(string)) return _visitor.Visit(node);
 
             ColumnAttribute column = null;
-            bool isUnicode = DbTypeUtils.IsUnicode(_visitedMark.Current, out column);
+            bool isUnicode = SqlServerUtils.IsUnicode(_visitedMark.Current, out column);
             string native = isUnicode ? "NVARCHAR" : "VARCHAR";
 
             // 其它类型转字符串

@@ -11,7 +11,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// SQL 语句构造器
     /// </summary>
-    public class NpgSqlBuilder : SqlBuilder
+    internal class NpgSqlBuilder : SqlBuilder
     {
         private bool _caseSensitive = false;
         private string _escCharLeft;
@@ -29,7 +29,7 @@ namespace Riz.XFramework.Data.SqlClient
         public NpgSqlBuilder(ITranslateContext context)
             : base(context)
         {
-            var provider = context.DbContext.Provider;
+            var provider = context.Provider;
             _escCharLeft = provider.QuotePrefix;
             _escCharRight = provider.QuoteSuffix;
             _caseSensitive = context != null && context.DbContext != null ? ((NpgDbContext)context.DbContext).CaseSensitive : false;

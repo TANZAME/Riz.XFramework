@@ -7,7 +7,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 解析SQL命令上下文接口
     /// </summary>
-    internal interface ITranslateContext
+    public interface ITranslateContext
     {
         /// <summary>
         /// 当前正在翻译的表达式类型
@@ -40,11 +40,6 @@ namespace Riz.XFramework.Data
         /// 查询语义提供者。代理 DbContext 的 Provider
         /// </summary>
         IDbQueryProvider Provider { get; }
-
-        /// <summary>
-        /// 值转SQL表达式解析器。代理 Provider 的 Funcletizer
-        /// </summary>
-        DbSQLParser SQLParser { get; }
 
         /// <summary>
         /// 复制一个实例，简化创建代码 

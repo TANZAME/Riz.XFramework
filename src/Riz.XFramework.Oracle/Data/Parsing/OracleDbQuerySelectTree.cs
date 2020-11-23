@@ -4,7 +4,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 提供对数据类型未知的特定数据源进行 &lt;查&gt; 操作的语义表示
     /// </summary>
-    internal class OracleDbQuerySelectTree : DbQuerySelectTree, IWithRowId
+    public class OracleDbQuerySelectTree : DbQuerySelectTree, IWithRowId
     {
         /// <summary>
         /// 初始化 <see cref="OracleDbQuerySelectTree"/> 类的新实例

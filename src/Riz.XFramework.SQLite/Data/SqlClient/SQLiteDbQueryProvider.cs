@@ -12,7 +12,7 @@ namespace Riz.XFramework.Data.SqlClient
     /// <summary>
     /// 查询语义提供者，用来构建、解析查询语义
     /// </summary>
-    internal sealed class SQLiteDbQueryProvider : DbQueryProvider
+    public sealed class SQLiteDbQueryProvider : DbQueryProvider
     {
         /// <summary>
         /// 查询语义提供者实例
@@ -22,72 +22,42 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 数据源类的提供程序实现的实例
         /// </summary>
-        public override DbProviderFactory DbProvider { get { return SQLiteFactory.Instance; } }
+        public override DbProviderFactory DbProvider => SQLiteFactory.Instance;
 
         /// <summary>
-        /// 值转SQL表达式解析器
+        /// 常量值转SQL表达式解析器
         /// </summary>
-        public override SQLParser Funcletizer { get { return SQLiteDbFuncletizer.Instance; } }
+        protected internal override DbConstor Constor => SQLiteDbConstor.Instance;
 
         /// <summary>
         /// 实体转换映射委托生成器
         /// </summary>
-        public override TypeDeserializerImpl TypeDeserializerImpl { get { return SQLiteTypeDeserializerImpl.Instance; } }
+        protected internal override TypeDeserializerImpl TypeDeserializerImpl => SQLiteTypeDeserializerImpl.Instance;
 
         /// <summary>
         /// 数据库安全字符 左
         /// </summary>
-        public override string QuotePrefix
-        {
-            get
-            {
-                return "[";
-            }
-        }
+        public override string QuotePrefix => "[";
 
         /// <summary>
         /// 数据库安全字符 右
         /// </summary>
-        public override string QuoteSuffix
-        {
-            get
-            {
-                return "]";
-            }
-        }
+        public override string QuoteSuffix => "]";
 
         /// <summary>
         /// 字符串引号
         /// </summary>
-        public override string SingleQuoteChar
-        {
-            get
-            {
-                return "'";
-            }
-        }
+        public override string SingleQuoteChar => "'";
 
         /// <summary>
         /// 数据查询提供者 名称
         /// </summary>
-        public override string ProviderName
-        {
-            get
-            {
-                return "SQLite";
-            }
-        }
+        public override string ProviderName => "SQLite";
 
         /// <summary>
         /// 命令参数前缀
         /// </summary>
-        public override string ParameterPrefix
-        {
-            get
-            {
-                return "@";
-            }
-        }
+        public override string ParameterPrefix => "@";
 
         /// <summary>
         /// 实例化 <see cref="SqlServerDbQueryProvider"/> 类的新实例
@@ -102,7 +72,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="context">当前查询上下文</param>
         /// <returns></returns>
-        public override ITranslateContext CreateTranslateContext(IDbContext context)
+        protected internal override ITranslateContext CreateTranslateContext(IDbContext context)
         {
             return new SQLiteTranslateContext(context);
         }
@@ -112,10 +82,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="visitor">表达式访问器</param>
         /// <returns></returns>
-        public override MethodCallExpressionVisitor CreateMethodCallVisitor(LinqExpressionVisitor visitor)
-        {
-            return new SQLiteMethodCallExressionVisitor(visitor);
-        }
+        protected internal override MethodCallExpressionVisitor CreateMethodCallVisitor(DbExpressionVisitor visitor) => new SQLiteMethodCallExressionVisitor(visitor);
 
         /// <summary>
         /// 解析 SELECT 命令
@@ -134,7 +101,7 @@ namespace Riz.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        private DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -165,8 +132,8 @@ namespace Riz.XFramework.Data.SqlClient
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
             bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
 
-            AliasGenerator aliasGenerator = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, aliasGenerator);
+            AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
+            var result = new DbSelectCommand(context, ag);
             result.HasMany = tree.HasMany;
 
             ISqlBuilder jf = result.JoinFragment;
@@ -183,9 +150,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.AppendNewLine();
 
                 // SELECT COUNT(1)
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy, alias);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, alias);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
 
                 // SELECT COUNT(1) FROM
                 jf.AppendNewLine();
@@ -217,9 +184,9 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 如果有聚合函数，并且不是嵌套的话，则直接使用SELECT <MAX,MIN...>，不需要解析选择的字段
                 jf.AppendNewLine();
-                var visitor_ = new AggregateExpressionVisitor(aliasGenerator, tree.Aggregate, tree.GroupBy);
-                visitor_.Write(jf);
-                result.AddNavMembers(visitor_.NavMembers);
+                var visitor = new AggregateExpressionVisitor(ag, jf, tree.GroupBy, null);
+                visitor.Visit(tree.Aggregate);
+                result.AddNavMembers(visitor.NavMembers);
             }
             else
             {
@@ -232,13 +199,13 @@ namespace Riz.XFramework.Data.SqlClient
                 if (!tree.HasAny)
                 {
                     // SELECT 范围
-                    var visitor2 = new SQLiteColumnExpressionVisitor(aliasGenerator, tree);
-                    visitor2.Write(jf);
+                    var visitor = new SQLiteColumnExpressionVisitor(ag, jf, tree);
+                    visitor.Visit(tree.Select);
 
-                    result.PickColumns = visitor2.PickColumns;
-                    result.PickColumnText = visitor2.PickColumnText;
-                    result.PickNavDescriptors = visitor2.PickNavDescriptors;
-                    result.AddNavMembers(visitor2.NavMembers);
+                    result.PickColumns = visitor.PickColumns;
+                    result.PickColumnText = visitor.PickColumnText;
+                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.AddNavMembers(visitor.NavMembers);
                 }
 
                 #endregion
@@ -272,31 +239,43 @@ namespace Riz.XFramework.Data.SqlClient
             }
 
             // LEFT<INNER> JOIN 子句
-            LinqExpressionVisitor visitor = new JoinExpressionVisitor(aliasGenerator, tree.Joins);
-            visitor.Write(jf);
+            if (tree.Joins != null)
+            {
+                var visitor = new SqlServerJoinExpressionVisitor(ag, jf);
+                visitor.Visit(tree.Joins);
+            }
 
             wf.Indent = jf.Indent;
 
             // WHERE 子句
-            visitor = new WhereExpressionVisitor(aliasGenerator, tree.Wheres);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Wheres != null)
+            {
+                var visitor = new WhereExpressionVisitor(ag, wf);
+                visitor.Visit(tree.Wheres);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // GROUP BY 子句
-            visitor = new GroupByExpressionVisitor(aliasGenerator, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.GroupBy != null)
+            {
+                var visitor = new GroupByExpressionVisitor(ag, wf);
+                visitor.Visit(tree.GroupBy);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // HAVING 子句
-            visitor = new HavingExpressionVisitor(aliasGenerator, tree.Havings, tree.GroupBy);
-            visitor.Write(wf);
-            result.AddNavMembers(visitor.NavMembers);
+            if (tree.Havings != null)
+            {
+                var visitor = new HavingExpressionVisitor(ag, wf, tree.GroupBy);
+                visitor.Visit(tree.Havings);
+                result.AddNavMembers(visitor.NavMembers);
+            }
 
             // ORDER 子句
-            if (tree.OrderBys.Count > 0 && useOrderBy)
+            if (tree.OrderBys != null && tree.OrderBys.Count > 0 && useOrderBy)
             {
-                visitor = new OrderByExpressionVisitor(aliasGenerator, tree.OrderBys, tree.GroupBy);
-                visitor.Write(wf);
+                var visitor = new OrderByExpressionVisitor(ag, wf, tree.GroupBy, null);
+                visitor.Visit(tree.OrderBys);
                 result.AddNavMembers(visitor.NavMembers);
             }
 
@@ -304,9 +283,9 @@ namespace Riz.XFramework.Data.SqlClient
 
             #region 分页查询
 
-            if (tree.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Funcletizer.GetSqlValue(tree.Take, context));
-            else if (tree.Take == 0 && tree.Skip > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Funcletizer.GetSqlValue(-1, context));
-            if (tree.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Funcletizer.GetSqlValue(tree.Skip, context));
+            if (tree.Take > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Constor.GetSqlValue(tree.Take, context));
+            else if (tree.Take == 0 && tree.Skip > 0) wf.AppendNewLine().AppendFormat("LIMIT {0}", this.Constor.GetSqlValue(-1, context));
+            if (tree.Skip > 0) wf.AppendFormat(" OFFSET {0}", this.Constor.GetSqlValue(tree.Skip, context));
 
             #endregion
 
@@ -327,11 +306,12 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
+            if (tree.HasMany && subquery.Aggregate == null &&
+                subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 result.CombineFragments();
-                visitor = new OrderByExpressionVisitor(aliasGenerator, subquery.OrderBys);//, null, "t0");
-                visitor.Write(jf);
+                var visitor = new OrderByExpressionVisitor(ag, jf, null, null);
+                visitor.Visit(subquery.OrderBys);
             }
 
             #endregion
@@ -436,7 +416,7 @@ namespace Riz.XFramework.Data.SqlClient
                         columnsBuilder.Append(',');
 
                         var value = m.Invoke(entity);
-                        string sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                        string sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
                         valuesBuilder.Append(sqlExpression);
                         valuesBuilder.Append(',');
                     }
@@ -534,7 +514,7 @@ namespace Riz.XFramework.Data.SqlClient
                 foreach (FieldAccessorBase m in typeRuntime.KeyMembers)
                 {
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValue(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValue(value, context, m.Column);
 
                     builder.AppendMember(null, m.Member, typeRuntime.Type);
                     builder.Append(" = ");
@@ -576,19 +556,22 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                    LinqExpressionVisitor visitor = null;
+                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                    if (tree.SelectTree.Joins != null)
+                    {
+                        var visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                        visitor.Visit(tree.SelectTree.Joins);
+                    }
 
-                    visitor = new JoinExpressionVisitor(aliasGenerator, tree.SelectTree.Joins);
-                    visitor.Write(builder);
-
-                    visitor = new WhereExpressionVisitor(null, tree.SelectTree.Wheres);
-                    visitor.Write(builder);
+                    if (tree.SelectTree.Wheres != null)
+                    {
+                        var visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                        visitor.Visit(tree.SelectTree.Wheres);
+                    }
                 }
 
                 // 恢复当前解析上下文的删除标记
-                if (context != null)
-                    ((SQLiteTranslateContext)context).IsDelete = isDelete;
+                ((SQLiteTranslateContext)context).IsDelete = isDelete;
             }
 
             builder.Append(';');
@@ -629,9 +612,9 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendMember(null, m.Member, typeRuntime.Type);
                     builder.Append(" = ");
 
-                    LABEL:
+                LABEL:
                     var value = m.Invoke(entity);
-                    var sqlExpression = this.Funcletizer.GetSqlValueWidthDefault(value, context, m.Column);
+                    var sqlExpression = this.Constor.GetSqlValueWidthDefault(value, context, m.Column);
 
                     if (m.Column == null || !m.Column.IsIdentity)
                     {
@@ -715,9 +698,9 @@ namespace Riz.XFramework.Data.SqlClient
                         throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
 
                     // SET 字段
-                    var visitor = new SQLiteUpdateExpressionVisitor(null, tree, null);
+                    var visitor = new SQLiteUpdateExpressionVisitor(null, builder, tree, null);
                     visitor.Translator = this.TranslateSelectCommand;
-                    visitor.Write(builder);
+                    visitor.Visit(tree.Expression);
 
                     // WHERE部分
                     builder.AppendNewLine();
@@ -727,13 +710,17 @@ namespace Riz.XFramework.Data.SqlClient
                 else
                 {
                     // 直接 SQL 的 UPDATE 语法
-                    AliasGenerator aliasGenerator = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                    var visitor = new SQLiteUpdateExpressionVisitor(aliasGenerator, tree, null);
-                    visitor.Translator = this.TranslateSelectCommand;
-                    visitor.Write(builder);
+                    DbExpressionVisitor visitor = null;
+                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                    visitor = new SQLiteUpdateExpressionVisitor(ag, builder, tree, null);
+                    ((SQLiteUpdateExpressionVisitor)visitor).Translator = this.TranslateSelectCommand;
+                    visitor.Visit(tree.Expression);
 
-                    var visitor2 = new WhereExpressionVisitor(null, tree.SelectTree.Wheres);
-                    visitor2.Write(builder);
+                    if (tree.SelectTree.Wheres != null)
+                    {
+                        visitor = new WhereExpressionVisitor(ag, builder);
+                        visitor.Visit(tree.SelectTree.Wheres);
+                    }
                 }
             }
 

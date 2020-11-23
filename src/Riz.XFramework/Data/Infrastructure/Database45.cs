@@ -318,43 +318,43 @@ namespace Riz.XFramework.Data
                         #region 元组赋值
 
                         case 1:
-                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer1 == null) deserializer1 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q1 = deserializer1.Deserialize<List<T1>>();
 
                             break;
 
                         case 2:
-                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer2 == null) deserializer2 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q2 = deserializer2.Deserialize<List<T2>>();
 
                             break;
 
                         case 3:
-                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer3 == null) deserializer3 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q3 = deserializer3.Deserialize<List<T3>>();
 
                             break;
 
                         case 4:
-                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer4 == null) deserializer4 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q4 = deserializer4.Deserialize<List<T4>>();
 
                             break;
 
                         case 5:
-                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer5 == null) deserializer5 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q5 = deserializer5.Deserialize<List<T5>>();
 
                             break;
 
                         case 6:
-                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer6 == null) deserializer6 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q6 = deserializer6.Deserialize<List<T6>>();
 
                             break;
 
                         case 7:
-                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(_desrializerImpl, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
+                            if (deserializer7 == null) deserializer7 = new TypeDeserializer(_context, reader, maps != null && maps.Count > i - 1 ? maps[i - 1] : null);
                             q7 = deserializer7.Deserialize<List<T7>>();
 
                             break;

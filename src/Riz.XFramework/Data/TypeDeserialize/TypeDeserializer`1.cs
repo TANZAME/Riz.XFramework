@@ -15,13 +15,14 @@ namespace Riz.XFramework.Data
     /// </summary>
     internal class TypeDeserializer_Internal
     {
+        private IDbContext _context = null;
         private IDataRecord _reader = null;
         private IMapInfo _map = null;
         private TypeDeserializerImpl _deserializerImpl = null;
         // 所有反序列化器
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
         // 主表反序列化器
-        private Func<IDataRecord, object> _modelDeserializer = null;
+        private Func<IDataRecord, object> _entityDeserializer = null;
         // 一对多导航属性键
         private Dictionary<string, HashSet<string>> _manyNavigationKeys = null;
         // 一对多导航属性数量
@@ -29,26 +30,27 @@ namespace Riz.XFramework.Data
 
         private bool? _isPrimitive = null;
         private bool _isDynamic = false;
-        private Type _modelType = null;
+        private Type _entityType = null;
         private TypeRuntimeInfo _typeRuntime = null;
 
         /// <summary>
         /// 实例化<see cref="TypeDeserializer"/> 类的新实例
         /// </summary>
-        /// <param name="deserializerImpl">实体映射器</param>
+        /// <param name="context">当前查询上下文</param>
         /// <param name="reader">DataReader</param>
         /// <param name="map">SQL 命令描述</param>
-        /// <param name="modelType">单个实体类型</param>
-        internal TypeDeserializer_Internal(TypeDeserializerImpl deserializerImpl, IDataReader reader, IMapInfo map, Type modelType)
+        /// <param name="entityType">单个实体类型</param>
+        internal TypeDeserializer_Internal(IDbContext context, IDataReader reader, IMapInfo map, Type entityType)
         {
             _map = map;
             _reader = reader;
-            _deserializerImpl = deserializerImpl;
+            _context = context;
             _deserializers = new Dictionary<string, Func<IDataRecord, object>>(8);
             _manyNavigationKeys = new Dictionary<string, HashSet<string>>(8);
-            _modelType = modelType;
-            _isDynamic = _modelType == typeof(ExpandoObject) || _modelType == typeof(object);
-            _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(modelType);
+            _entityType = entityType;
+            _isDynamic = _entityType == typeof(ExpandoObject) || _entityType == typeof(object);
+            _typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(entityType);
+            _deserializerImpl = ((DbQueryProvider)context.Provider).TypeDeserializerImpl;
         }
 
         /// <summary>
@@ -63,21 +65,21 @@ namespace Riz.XFramework.Data
 
             #region 基元类型
 
-            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(_modelType) || _reader.GetName(0) == AppConst.AUTO_INCREMENT_NAME;
+            if (_isPrimitive == null) _isPrimitive = TypeUtils.IsPrimitiveType(_entityType) || _reader.GetName(0) == AppConst.AUTO_INCREMENT_NAME;
             if (_isPrimitive.Value)
             {
-                if (_reader.IsDBNull(0)) return TypeUtils.GetNullValue(_modelType); //default(T);
+                if (_reader.IsDBNull(0)) return TypeUtils.GetNullValue(_entityType); //default(T);
 
                 var obj = _reader.GetValue(0);
-                if (obj.GetType() != _modelType)
+                if (obj.GetType() != _entityType)
                 {
                     // fix#Nullable<T> issue
-                    if (!_modelType.IsGenericType) obj = Convert.ChangeType(obj, _modelType);
+                    if (!_entityType.IsGenericType) obj = Convert.ChangeType(obj, _entityType);
                     else
                     {
-                        Type type2 = _modelType.GetGenericTypeDefinition();
+                        Type type2 = _entityType.GetGenericTypeDefinition();
                         if (type2 != typeof(Nullable<>)) throw new NotSupportedException(string.Format("type {0} not suppored.", type2.FullName));
-                        obj = Convert.ChangeType(obj, Nullable.GetUnderlyingType(_modelType));
+                        obj = Convert.ChangeType(obj, Nullable.GetUnderlyingType(_entityType));
                     }
                 }
 
@@ -109,14 +111,14 @@ namespace Riz.XFramework.Data
             if (_map == null || _map.PickNavDescriptors == null || _map.PickNavDescriptors.Count == 0)
             {
                 // 没有字段映射说明或者没有导航属性
-                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map != null ? _map.PickColumns : null, 0);
-                model = _modelDeserializer(_reader);
+                if (_entityDeserializer == null) _entityDeserializer = _deserializerImpl.GetTypeDeserializer(_entityType, _reader, _map != null ? _map.PickColumns : null, 0);
+                model = _entityDeserializer(_reader);
             }
             else
             {
                 // 第一层
-                if (_modelDeserializer == null) _modelDeserializer = _deserializerImpl.GetTypeDeserializer(_modelType, _reader, _map.PickColumns, 0, _map.PickNavDescriptors.MinIndex);
-                model = _modelDeserializer(_reader);
+                if (_entityDeserializer == null) _entityDeserializer = _deserializerImpl.GetTypeDeserializer(_entityType, _reader, _map.PickColumns, 0, _map.PickNavDescriptors.MinIndex);
+                model = _entityDeserializer(_reader);
                 // 若有 1:n 的导航属性，判断当前行数据与上一行数据是否相同
                 if (prevModel != null && _map.HasMany)
                 {
@@ -219,7 +221,7 @@ namespace Riz.XFramework.Data
                             // 判断如果属于同一个主表，则合并到上一行的当前明细列表
                             // 例：CRM_SaleOrder.Client.AccountList
                             string[] keys = keyName.Split('.');
-                            TypeRuntimeInfo curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_modelType);
+                            TypeRuntimeInfo curTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_entityType);
                             Type curType = curTypeRuntime.Type;
                             MemberAccessorBase curAccessor = null;
                             object curModel = prevModel;

@@ -13,7 +13,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者
         /// </summary>
-        public override IDbQueryProvider Provider { get { return SQLiteDbQueryProvider.Instance; } }
+        public override IDbQueryProvider Provider => SQLiteDbQueryProvider.Instance;
 
         /// <summary>
         /// 数据库对象，持有当前上下文的会话
@@ -22,12 +22,8 @@ namespace Riz.XFramework.Data.SqlClient
         {
             get
             {
-                var provider = this.Provider;
-                if (_database == null) _database = new SQLiteDatabase(provider.ParameterPrefix, _connString, provider.DbProvider, provider.TypeDeserializerImpl)
-                {
-                    CommandTimeout = _commandTimeout,
-                    IsolationLevel = this.IsolationLevel
-                };
+                if (_database == null)
+                    _database = new SQLiteDatabase(this);
                 return _database;
             }
         }
