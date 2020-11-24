@@ -84,7 +84,7 @@ namespace Riz.XFramework.Data
         /// 访问表达式节点
         /// </summary>
         /// <param name="dbExpression">将访问的表达式</param>
-        public virtual Expression Visit(DbExpression dbExpression) => dbExpression != null ? base.Visit(dbExpression.Expressions[0]) : null;
+        public virtual Expression Visit(DbExpression dbExpression) => base.Visit(dbExpression != null && dbExpression.HasExpression ? dbExpression.Expressions[0] : null);
 
         /// <summary>
         /// 访问表达式节点
@@ -95,7 +95,7 @@ namespace Riz.XFramework.Data
             for (int index = 0; index < (dbExpressions != null ? dbExpressions.Count : -1); index++)
             {
                 DbExpression d = dbExpressions[index];
-                base.Visit(d.Expressions[0]);
+                base.Visit(d != null && d.HasExpression ? d.Expressions[0] : null);
             }
 
             return null;

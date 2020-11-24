@@ -19,6 +19,11 @@ namespace Riz.XFramework.Data
         public Expression[] Expressions { get; internal set; }
 
         /// <summary>
+        /// 指示是否有表达式
+        /// </summary>
+        public bool HasExpression => this.Expressions != null && this.Expressions.Length > 0;
+
+        /// <summary>
         /// 实例化<see cref="DbExpression"/>类的新实例
         /// </summary>
         public DbExpression()

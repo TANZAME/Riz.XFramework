@@ -21,7 +21,7 @@ namespace Riz.XFramework.Data
         /// <param name="groupBy">GROUP BY 子句</param>
         /// <param name="alias">指定的表别名</param>
         public OrderByExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbExpression groupBy, string alias)
-            : base(ag, null)
+            : base(ag, builder)
         {
             _alias = alias;
             _builder = builder;

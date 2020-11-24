@@ -647,7 +647,7 @@ namespace Riz.XFramework.UnitTest
                     Truncate = Math.Truncate(a.DemoDecimal)
                 });
             var obj2 = query2.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query2.Where(a => a.DemoId == 1).ToString());
+            context.Database.ExecuteNonQuery(query2.Where(a => a.DemoId == 1).Sql);
             Debug.Assert(myDemo.DemoId % 2 == obj2.Mod);
             Debug.Assert(Math.Acos(myDemo.DemoId / 2.00) == obj2.Acos);
             Debug.Assert(Math.Asin(myDemo.DemoId / 2.00) == obj2.Asin);
@@ -837,7 +837,7 @@ namespace Riz.XFramework.UnitTest
                     ToString3 = DateTime.Now.ToString(),
                 });
             var obj3 = query3.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query3.Where(a => a.DemoId == 1).ToString());
+            context.Database.ExecuteNonQuery(query3.Where(a => a.DemoId == 1).Sql);
             Debug.Assert(obj3.AddYears == myDemo.DemoDate.AddYears(12));
             Debug.Assert(obj3.AddYears2 == myDemo.DemoDateTime.AddYears(12));
             Debug.Assert(obj3.AddYears3 == myDemo.DemoDateTime2.AddYears(12));
@@ -917,6 +917,7 @@ namespace Riz.XFramework.UnitTest
                     IsLeapYear = DateTime.IsLeapYear(a.DemoByte) ? true : false,
                     IsLeapYear2 = DateTime.IsLeapYear(a.DemoByte) ? true : false,
                 };
+            var newResult = newQuery.ToList();
         }
 
         // 多表查询

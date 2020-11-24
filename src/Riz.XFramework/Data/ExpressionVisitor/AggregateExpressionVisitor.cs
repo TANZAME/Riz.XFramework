@@ -57,7 +57,7 @@ namespace Riz.XFramework.Data
                 base.Visit(expression);
                 _builder.Append(")");
             }
-            return aggregate != null ? aggregate.Expressions[0] : null;
+            return aggregate != null && aggregate.HasExpression ? aggregate.Expressions[0] : null;
         }
 
         /// <summary>
