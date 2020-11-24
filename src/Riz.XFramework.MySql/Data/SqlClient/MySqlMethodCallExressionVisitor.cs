@@ -769,6 +769,9 @@ namespace Riz.XFramework.Data.SqlClient
             var cmd = subquery.Translate(_builder.Indent + 1, false, clone) as DbSelectCommand;
             bool isDelete = context != null && ((MySqlTranslateContext)context).IsDelete;
 
+            if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
+            _builder.Append("EXISTS(");
+
             if (isDelete)
             {
                 _builder.Append("SELECT 1 FROM(");

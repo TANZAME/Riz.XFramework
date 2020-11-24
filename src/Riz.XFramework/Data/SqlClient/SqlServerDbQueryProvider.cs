@@ -277,7 +277,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             if (tree.Skip > 0)
             {
-                if (tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
+                if (tree.OrderBys == null || tree.OrderBys.Count == 0) throw new XFrameworkException("The method 'OrderBy' must be called before 'Skip'.");
                 wf.AppendNewLine();
                 wf.Append("OFFSET ");
                 wf.Append(this.Constor.GetSqlValue(tree.Skip, context));

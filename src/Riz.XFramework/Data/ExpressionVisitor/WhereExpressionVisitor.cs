@@ -43,6 +43,8 @@ namespace Riz.XFramework.Data
                     node = FixBinary(node);
 
                     base.Visit(node);
+
+                    if (index < wheres.Count - 1) _builder.Append(" AND ");
                 }
             }
 

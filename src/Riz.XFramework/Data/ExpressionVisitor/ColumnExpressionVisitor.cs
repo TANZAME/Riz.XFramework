@@ -277,7 +277,7 @@ namespace Riz.XFramework.Data
                         {
                             alias = _ag.GetNavTableAlias(nav.Key);
                             type = nav.Expression.Type;
-                            if (index == this.NavMembers.Count) nav.Predicate = predicate;
+                            if (index == this.NavMembers.Count) nav.Predicate = new DbExpression(DbExpressionType.None, predicate);
                         }
                     }
                 }

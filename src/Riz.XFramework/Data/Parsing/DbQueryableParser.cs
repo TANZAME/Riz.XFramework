@@ -360,7 +360,7 @@ namespace Riz.XFramework.Data
                         var myOutQuery = iterator as DbQuerySelectTree;
                         var mySubquery = iterator.Subquery as DbQuerySelectTree;
                         // 没有分页的嵌套统计，不需要排序
-                        if (myOutQuery.Aggregate != null && !(mySubquery.Take > 0 || mySubquery.Skip > 0) && mySubquery.OrderBys.Count > 0)
+                        if (myOutQuery.Aggregate != null && !(mySubquery.Take > 0 || mySubquery.Skip > 0) && mySubquery.OrderBys != null && mySubquery.OrderBys.Count > 0)
                             mySubquery.OrderBys = new List<DbExpression>(0);
                         // 继续下一轮迭代
                         iterator = iterator.Subquery;
@@ -429,7 +429,7 @@ namespace Riz.XFramework.Data
 
                 #region 排序
 
-                if (tree.OrderBys.Count > 0)
+                if (tree.OrderBys != null && tree.OrderBys.Count > 0)
                 {
                     // 是否有分页
                     bool havePaging = (tree.Take > 0 || tree.Skip > 0);

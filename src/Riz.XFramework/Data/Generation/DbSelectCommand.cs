@@ -100,9 +100,8 @@ namespace Riz.XFramework.Data
         public DbSelectCommand(ITranslateContext context, AliasGenerator ag)
             : base(string.Empty, context != null ? context.Parameters : null, System.Data.CommandType.Text)
         {
-            _context = context;
             _ag = ag;
-            _navMembers = new HashCollection<NavMember>();
+            _context = context;
 
             var provider = (DbQueryProvider)_context.DbContext.Provider;
             _joinFragment = provider.CreateSqlBuilder(context);
@@ -116,6 +115,7 @@ namespace Riz.XFramework.Data
         {
             if (navMembers != null && navMembers.Count > 0)
             {
+                if (_navMembers == null) _navMembers = new HashCollection<NavMember>();
                 foreach (var nav in navMembers)
                 {
                     if (!_navMembers.Contains(nav.Key)) _navMembers.Add(nav);

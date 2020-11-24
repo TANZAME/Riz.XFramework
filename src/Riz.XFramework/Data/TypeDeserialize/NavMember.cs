@@ -26,7 +26,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 筛选谓词（在 LEFT JOIN 片断中使用，其它地方忽略）
         /// </summary>
-        public Expression Predicate { get; set; }
+        public DbExpression Predicate { get; set; }
 
         /// <summary>
         /// 实例化 <see cref="NavMember"/> 类的新实例

@@ -77,12 +77,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 访问表达式节点
         /// </summary>
-        /// <param name="node">表达式节点</param>
-        public override Expression Visit(Expression node) => base.Visit(node);
-
-        /// <summary>
-        /// 访问表达式节点
-        /// </summary>
         /// <param name="dbExpression">将访问的表达式</param>
         public virtual Expression Visit(DbExpression dbExpression) => base.Visit(dbExpression != null && dbExpression.HasExpression ? dbExpression.Expressions[0] : null);
 

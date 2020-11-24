@@ -27,15 +27,22 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 访问表达式节点
         /// </summary>
-        /// <param name="node">表达式节点</param>
-        public override Expression Visit(Expression node)
+        /// <param name="dbExpression">表达式节点</param>
+        public override Expression Visit(DbExpression dbExpression)
         {
-            if (node != null)
+            if (dbExpression != null && dbExpression.HasExpression)
             {
                 _builder.Append(" AND ");
+
+                var node = dbExpression.Expressions[0];
+                if (node.NodeType == ExpressionType.Lambda)
+                    node = ((LambdaExpression)node).Body;
+                node = FixBinary(node);
+
                 base.Visit(node);
             }
-            return node;
+
+            return dbExpression != null && dbExpression.HasExpression ? dbExpression.Expressions[0] : null;
         }
 
         /// <summary>
