@@ -28,8 +28,23 @@ namespace Riz.XFramework.Data
         /// <param name="wheres">筛选表达式</param>
         public override Expression Visit(List<DbExpression> wheres)
         {
-            if (_builder.Length > 0 && wheres != null) _builder.Append(" AND ");
-            base.Visit(wheres);
+            if (wheres != null && wheres.Count > 0)
+            {
+                if (_builder.Length > 0) _builder.Append(" AND ");
+
+                for (int index = 0; index < wheres.Count; index++)
+                {
+                    DbExpression d = wheres[index];
+                    var node = d.Expressions[0];
+                    if (node.NodeType == ExpressionType.Lambda)
+                        node = ((LambdaExpression)node).Body;
+                    node = FixBinary(node);
+
+                    base.Visit(node);
+                    if (index < wheres.Count - 1) _builder.Append(" AND ");
+                }
+            }
+
             return null;
         }
     }

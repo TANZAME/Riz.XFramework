@@ -533,7 +533,7 @@ namespace Riz.XFramework.Data.SqlClient
                 if (context != null)
                     ((SQLiteTranslateContext)context).IsDelete = true;
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || tree.SelectTree.Joins.Count > 0)
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
                 {
                     // 最外层仅选择 RowID 列
                     var outQuery = tree.SelectTree;
@@ -559,13 +559,13 @@ namespace Riz.XFramework.Data.SqlClient
                     AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
                     if (tree.SelectTree.Joins != null)
                     {
-                        var visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                        var visitor = new JoinExpressionVisitor(ag, builder);
                         visitor.Visit(tree.SelectTree.Joins);
                     }
 
                     if (tree.SelectTree.Wheres != null)
                     {
-                        var visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                        var visitor = new WhereExpressionVisitor(null, builder);
                         visitor.Visit(tree.SelectTree.Wheres);
                     }
                 }
@@ -692,7 +692,7 @@ namespace Riz.XFramework.Data.SqlClient
                 tree.SelectTree.Select = new DbExpression(DbExpressionType.Select, expression);
                 var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext));
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || tree.SelectTree.Joins.Count > 0)
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
                 {
                     if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                         throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
@@ -718,7 +718,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                     if (tree.SelectTree.Wheres != null)
                     {
-                        visitor = new WhereExpressionVisitor(ag, builder);
+                        visitor = new WhereExpressionVisitor(null, builder);
                         visitor.Visit(tree.SelectTree.Wheres);
                     }
                 }

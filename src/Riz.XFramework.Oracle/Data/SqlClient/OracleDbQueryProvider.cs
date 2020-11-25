@@ -844,13 +844,13 @@ namespace Riz.XFramework.Data.SqlClient
                     AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
                     if (tree.SelectTree.Joins != null)
                     {
-                        var visitor = new JoinExpressionVisitor(ag, cmd.JoinFragment);
+                        var visitor = new JoinExpressionVisitor(ag, builder);
                         visitor.Visit(tree.SelectTree.Joins);
                     }
 
                     if (tree.SelectTree.Wheres != null)
                     {
-                        var visitor = new WhereExpressionVisitor(ag, cmd.WhereFragment);
+                        var visitor = new WhereExpressionVisitor(ag, builder);
                         visitor.Visit(tree.SelectTree.Wheres);
                     }
                 }

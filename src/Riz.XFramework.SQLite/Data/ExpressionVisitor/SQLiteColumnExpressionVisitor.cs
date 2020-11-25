@@ -39,7 +39,7 @@ namespace Riz.XFramework.Data
                 _builder.Append("t0.RowId");
             }
 
-            return select != null ? select.Expressions[0] : null;
+            return select != null && select.HasExpression ? select.Expressions[0] : null;
         }
 
         /// <summary>

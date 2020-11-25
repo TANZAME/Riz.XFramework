@@ -526,7 +526,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 if (tree.SelectTree.Joins != null)
                 {
-                    var visitor = new NpgJoinExpressionVisitor(ag, null, DbExpressionType.Delete, cmd);
+                    var visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Delete, cmd);
                     visitor.Visit(tree.SelectTree.Joins);
                 }
 
@@ -621,7 +621,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 if (tree.SelectTree.Joins != null)
                 {
-                    visitor = new NpgJoinExpressionVisitor(ag, null, DbExpressionType.Update, cmd);
+                    visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Update, cmd);
                     visitor.Visit(tree.SelectTree.Joins);
                 }
 

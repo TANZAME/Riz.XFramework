@@ -16,8 +16,8 @@ namespace Riz.XFramework.Data
     /// </summary>
     public sealed partial class SQLiteDatabase : Database
     {
-        static MemberAccessorBase _disposedAccessor = new FieldAccessor(_disposed);
         static FieldInfo _disposed = typeof(SQLiteConnection).GetField("disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+        static MemberAccessorBase _disposedAccessor = new FieldAccessor(_disposed);
 
         /// <summary>
         /// 初始化 <see cref="SQLiteDatabase"/> 类的新实例
