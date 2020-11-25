@@ -42,9 +42,7 @@ namespace Riz.XFramework.Data
         {
             if (aggregate != null)
             {
-                Expression expression = aggregate.DbExpressionType == DbExpressionType.Count
-                    ? Expression.Constant(1)
-                    : aggregate.Expressions[0];
+                Expression expression = aggregate.DbExpressionType == DbExpressionType.Count ? Expression.Constant(1) : aggregate.Expressions[0];
                 if (expression.NodeType == ExpressionType.Lambda)
                     expression = (expression as LambdaExpression).Body;
                 // q.Average(a => a);

@@ -358,7 +358,7 @@ namespace Riz.XFramework.Data.SqlClient
                     sf.Indent = jf.Indent + ((tree.Skip > 0 || tree.Take > 0) ? 2 : 0);
                     (sf as OracleSqlBuilder).UseQuote = (tree.Skip > 0 || tree.Take > 0) ? false : (jf as OracleSqlBuilder).UseQuote;
 
-                    var visitor = new ColumnExpressionVisitor(ag, sf, tree);
+                    var visitor = new OracleColumnExpressionVisitor(ag, sf, tree);
                     visitor.Visit(tree.Select);
 
                     result.PickColumns = visitor.PickColumns;
@@ -820,7 +820,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 // 解析查询用来确定是否需要嵌套
                 var cmd = this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext)) as DbSelectCommand;
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || tree.SelectTree.Joins.Count > 0)
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
                 {
                     // 最外层仅选择 RowID 列
                     var outQuery = tree.SelectTree;
@@ -981,7 +981,7 @@ namespace Riz.XFramework.Data.SqlClient
                 tree.SelectTree.Select = new DbExpression(DbExpressionType.Select, expression);
                 var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext));
 
-                if (tree.SelectTree.Joins.Count > 0 || (cmd.NavMembers != null && cmd.NavMembers.Count > 0))
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
                 {
                     // 无法使用 DISTINCT, GROUP BY 等子句从视图中选择 ROWID 或采样。UPDATE 不能用rowid
                     // 有导航属性或者关联查询，使用 MERGE INTO 语法。要求必须有主键

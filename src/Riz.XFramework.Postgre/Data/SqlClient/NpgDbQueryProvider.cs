@@ -238,7 +238,7 @@ namespace Riz.XFramework.Data.SqlClient
             // LEFT<INNER> JOIN 子句
             if (tree.Joins != null)
             {
-                var visitor = new SqlServerJoinExpressionVisitor(ag, jf);
+                var visitor = new JoinExpressionVisitor(ag, jf);
                 visitor.Visit(tree.Joins);
             }
 

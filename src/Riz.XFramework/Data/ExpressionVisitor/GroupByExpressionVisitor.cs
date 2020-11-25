@@ -30,7 +30,7 @@ namespace Riz.XFramework.Data
         /// <param name="groupBy">分组表达式</param>
         public override Expression Visit(DbExpression groupBy)
         {
-            if (groupBy != null)
+            if (groupBy != null && groupBy.HasExpression)
             {
                 _builder.AppendNewLine();
                 _builder.Append("GROUP BY ");

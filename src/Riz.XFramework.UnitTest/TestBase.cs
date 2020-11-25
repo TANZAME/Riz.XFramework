@@ -1307,6 +1307,8 @@ namespace Riz.XFramework.UnitTest
                 };
             query1 = query1
                 .Where(a => a.ClientId > 0)
+                .Where(a => a.ClientId > 1)
+                .Where(a => a.ClientId > 2)
                 .OrderBy(a => a.ClientId)
                 .Skip(10)
                 .Take(20)
@@ -1907,15 +1909,15 @@ namespace Riz.XFramework.UnitTest
             context.SubmitChanges();
 
             // 指定ID，默认值支持
-            int maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            context.Delete<Model.Client>(x => x.ClientId > maxClientId);
-            context.Delete<Model.ClientAccount>(x => x.ClientId > maxClientId);
-            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > maxClientId);
+            int max = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            context.Delete<Model.Client>(x => x.ClientId > max);
+            context.Delete<Model.ClientAccount>(x => x.ClientId > max);
+            context.Delete<Model.ClientAccountMarket>(x => x.ClientId > max);
             context.SubmitChanges();
 
             Model.Client client = new Model.Client
             {
-                ClientId = maxClientId + 1,
+                ClientId = max + 1,
                 ClientCode = "ABC",
                 ClientName = "啊啵呲",
                 Remark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
@@ -1926,7 +1928,7 @@ namespace Riz.XFramework.UnitTest
 
             var account = new Model.ClientAccount
             {
-                ClientId = maxClientId + 1,
+                ClientId = max + 1,
                 AccountId = "1",
                 AccountCode = "ABC+",
                 AccountName = "ABC+",
@@ -1936,7 +1938,7 @@ namespace Riz.XFramework.UnitTest
 
             var market = new Model.ClientAccountMarket
             {
-                ClientId = maxClientId + 1,
+                ClientId = max + 1,
                 AccountId = "1",
                 MarketId = 1,
                 MarketCode = "ABC+",
@@ -1952,7 +1954,7 @@ namespace Riz.XFramework.UnitTest
                 where a.ClientId <= 5
                 select new Model.Client
                 {
-                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 2),
+                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (max + 2),
                     ClientCode = "ABC2",
                     ClientName = "啊啵呲2",
                     CloudServerId = 3,
@@ -1974,7 +1976,7 @@ namespace Riz.XFramework.UnitTest
                 };
             sum = sum.AsSubquery();
 
-            maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            max = context.GetTable<Model.Client>().Max(x => x.ClientId);
             var nQuery =
                 from a in sum
                 join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId into u_b
@@ -1982,7 +1984,7 @@ namespace Riz.XFramework.UnitTest
                 where b.ClientId == null
                 select new Model.Client
                 {
-                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (maxClientId + 1),
+                    ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (max + 1),
                     ClientCode = "XFramework100+",
                     ClientName = "XFramework100+",
                     CloudServerId = 3,
@@ -2042,14 +2044,14 @@ namespace Riz.XFramework.UnitTest
             //VALUES(...),(),()...
 
             // 指定ID，无自增列批量增加
-            maxClientId = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            max = context.GetTable<Model.Client>().Max(x => x.ClientId);
             List<Model.Client> clients = new List<Model.Client>();
             for (int index = 0; index < 1002; index++)
             {
-                maxClientId++;
+                max++;
                 client = new Model.Client
                 {
-                    ClientId = maxClientId,
+                    ClientId = max,
                     ClientCode = "XFramework1000+",
                     ClientName = "XFramework1000+",
                     Remark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
@@ -2062,7 +2064,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     var account2 = new Model.ClientAccount
                     {
-                        ClientId = maxClientId,
+                        ClientId = max,
                         AccountId = j.ToString(),
                         AccountCode = "XFrameworkAccount1000+",
                         AccountName = "XFrameworkAccount1000+",
@@ -2074,7 +2076,7 @@ namespace Riz.XFramework.UnitTest
                     {
                         var market2 = new Model.ClientAccountMarket
                         {
-                            ClientId = maxClientId,
+                            ClientId = max,
                             AccountId = j.ToString(),
                             MarketId = m,
                             MarketCode = "XFrameworkAccountMarket1000+",
@@ -2086,9 +2088,7 @@ namespace Riz.XFramework.UnitTest
             }
             context.Insert<Model.Client>(clients);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<Model.Client>().Max(x => x.ClientId) == maxClientId);
-
-
+            Debug.Assert(context.GetTable<Model.Client>().Max(x => x.ClientId) == max);
         }
 
         // 更新记录

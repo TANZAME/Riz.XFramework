@@ -38,16 +38,13 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < havings.Count; index++)
                 {
-                    DbExpression d = havings[index];
-                    if (d.Expressions == null || d.Expressions.Length == 0) continue;
-                    
+                    DbExpression d = havings[index];                    
                     var node = d.Expressions[0];
                     if (node.NodeType == ExpressionType.Lambda)
                         node = ((LambdaExpression)node).Body;
                     node = FixBinary(node);
 
                     base.Visit(node);
-
                     if (index < havings.Count - 1) _builder.Append(" AND ");
                 }
             }

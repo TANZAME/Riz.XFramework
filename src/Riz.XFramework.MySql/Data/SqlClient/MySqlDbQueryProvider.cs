@@ -97,7 +97,7 @@ namespace Riz.XFramework.Data.SqlClient
             return cmd;
         }
 
-        DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        private DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -287,7 +287,7 @@ namespace Riz.XFramework.Data.SqlClient
             // LEFT<INNER> JOIN 子句
             if (tree.Joins != null)
             {
-                var visitor = new DbExpressionVisitor(ag, jf);
+                var visitor = new JoinExpressionVisitor(ag, jf);
                 visitor.Visit(tree.Joins);
             }
 
@@ -709,7 +709,7 @@ namespace Riz.XFramework.Data.SqlClient
                 cmd.WhereFragment.AppendNewLine();
                 cmd.WhereFragment.AppendNewLine("SET");
                 visitor = new UpdateExpressionVisitor(ag, cmd.WhereFragment);
-                visitor.Visit( tree.Expression);
+                visitor.Visit(tree.Expression);
 
                 if (tree.SelectTree.Wheres != null)
                 {

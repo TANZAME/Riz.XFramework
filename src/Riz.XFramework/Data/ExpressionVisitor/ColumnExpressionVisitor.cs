@@ -83,7 +83,7 @@ namespace Riz.XFramework.Data
         /// <param name="select">选择表达式</param>
         public override Expression Visit(DbExpression select)
         {
-            if (select != null)
+            if (select != null && select.HasExpression)
             {
                 _builder.AppendNewLine();
                 _startLength = _builder.Length;
@@ -103,7 +103,7 @@ namespace Riz.XFramework.Data
                 _builder.TrimEnd(' ', ',');
             }
 
-            return select != null ? select.Expressions[0] : null;
+            return select != null && select.HasExpression ? select.Expressions[0] : null;
         }
 
         /// <summary>
