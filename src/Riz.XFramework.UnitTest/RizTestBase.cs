@@ -81,7 +81,7 @@ namespace Riz.XFramework.UnitTest
                     DemoEnum2 = RizModel.State.Executing,
                 };
             var result0 = dynamicQuery.ToList();
-            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
+            context.Database.ExecuteNonQuery(dynamicQuery.Sql);
             //SQL=>
             //SELECT 
             //12 AS [RizDemoId],
@@ -114,7 +114,7 @@ namespace Riz.XFramework.UnitTest
                     DemoEnum2 = RizModel.State.Executing
                 });
             result0 = dynamicQuery.ToList();
-            context.Database.ExecuteNonQuery(dynamicQuery.ToString());
+            context.Database.ExecuteNonQuery(dynamicQuery.Sql);
 #if !net40
             result0 = dynamicQuery.ToListAsync().Result;
 #endif
@@ -142,7 +142,11 @@ namespace Riz.XFramework.UnitTest
                 where a.RizDemoId <= 10 && a.RizDemoDate > sDate && a.RizDemoDateTime >= sDate && a.RizDemoDateTime2 > sDate
                 select a;
             var result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            var nonQuery = context.Database.ExecuteNonQuery(query.Sql);
+            var result1_1 = context.Database.Execute<List<TDemo>>(query.Sql);
+            Debug.Assert(result1.Count == result1_1.Count);
+            if (result1.Count > 0) Debug.Assert(result1[0].RizDemoCode == result1_1[0].RizDemoCode);
+            DbRawCommand rawCommand = query.Translate();
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -174,7 +178,7 @@ namespace Riz.XFramework.UnitTest
                         RizDemoDateTime2 = sDate
                     };
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -193,7 +197,7 @@ namespace Riz.XFramework.UnitTest
                     RizDemoDateTime2 = sDate,
                 });
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=> 
             //SELECT 
             //t0.[RizDemoId] AS [RizDemoId],
@@ -208,12 +212,12 @@ namespace Riz.XFramework.UnitTest
 
             query = context.GetTable<TDemo>().Where(a => a.RizDemoId <= 10 && context.GetTable<TDemo>().Select(e => e.RizDemoName).Contains(a.RizDemoName));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             var queryFilters = context.GetTable<TDemo>().Where(a => a.RizDemoBoolean && a.RizDemoByte != 2).Select(a => a.RizDemoName);
             query = context.GetTable<TDemo>().Where(a => a.RizDemoId <= 10 && !queryFilters.Contains(a.RizDemoName));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             // 带参数构造函数
             Parameterized();
@@ -235,11 +239,11 @@ namespace Riz.XFramework.UnitTest
 
             var query6 = context.GetTable<TDemo>().Select(a => a.RizDemoCode ?? "N");
             var result6 = query6.ToList();
-            context.Database.ExecuteNonQuery(query6.ToString());
+            context.Database.ExecuteNonQuery(query6.Sql);
 
             query6 = context.GetTable<TDemo>().Select(a => a.RizDemoCode + a.RizDemoName);
             result6 = query6.ToList();
-            context.Database.ExecuteNonQuery(query6.ToString());
+            context.Database.ExecuteNonQuery(query6.Sql);
 
             //分页查询（非微软api）
             query = from a in context.GetTable<TDemo>() select a;
@@ -277,7 +281,7 @@ namespace Riz.XFramework.UnitTest
                     select a;
             query = query.Skip(1).Take(18);
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
                 .GetTable<TDemo>()
@@ -339,7 +343,7 @@ namespace Riz.XFramework.UnitTest
             query = query.Where(a => a.RizDemoId <= 10);
             query = query.OrderBy(a => a.RizDemoCode).Skip(1).Take(1);
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[RizDemoId] AS [RizDemoId],
@@ -387,7 +391,7 @@ namespace Riz.XFramework.UnitTest
             query = context.GetTable<TDemo>().Where(a =>
                 a.RizDemoCode.StartsWith(a.RizDemoName ?? "C0000009") || a.RizDemoCode.StartsWith(a.RizDemoName.Length > 0 ? "C0000009" : "C0000010"));
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[RizDemoId] AS [RizDemoId],
@@ -425,7 +429,7 @@ namespace Riz.XFramework.UnitTest
                         (a.RizDemoName == "STATE" && a.RizDemoName == "REMARK" && a.RizDemoName == _demoNameList[0]));               // OR 查询
 
             result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             //SQL=>            
             //SELECT
@@ -476,7 +480,7 @@ namespace Riz.XFramework.UnitTest
                 RowNumber = Data.DbFunction.PartitionRowNumber(a.RizClientId, a.RizAccountId)
             });
             reuslt1 = query1.ToList();
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
             query2 =
                 context
             .GetTable<RizModel.ClientAccount>()
@@ -555,7 +559,7 @@ namespace Riz.XFramework.UnitTest
                                 a.RizDemoDateTime_Nullable == null ? "NULL" : "NOT NULL")      // 三元表达式
                         select a;
             var result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             var query1 =
                 context
                 .GetTable<TDemo>()
@@ -577,7 +581,7 @@ namespace Riz.XFramework.UnitTest
                     DateTimeOffset = a.RizDemoDatetimeOffset_Nullable.ToString()
                 });
             var obj1 = query1.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
             Debug.Assert(obj1.DemoCode.Length == 20);
             Debug.Assert(obj1.LowerName == myDemo.RizDemoName.ToLower());
             Debug.Assert(obj1.Index1 > 0);
@@ -621,7 +625,7 @@ namespace Riz.XFramework.UnitTest
                         a.RizDemoInt == (int)state
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             var query2 =
                 context
                 .GetTable<TDemo>()
@@ -651,7 +655,7 @@ namespace Riz.XFramework.UnitTest
                     Truncate = Math.Truncate(a.RizDemoDecimal)
                 });
             var obj2 = query2.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query2.Where(a => a.DemoId == 1).ToString());
+            context.Database.ExecuteNonQuery(query2.Where(a => a.DemoId == 1).Sql);
             Debug.Assert(myDemo.RizDemoId % 2 == obj2.Mod);
             Debug.Assert(Math.Acos(myDemo.RizDemoId / 2.00) == obj2.Acos);
             Debug.Assert(Math.Asin(myDemo.RizDemoId / 2.00) == obj2.Asin);
@@ -759,7 +763,7 @@ namespace Riz.XFramework.UnitTest
                         DateTime.Now.ToString() == ""
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             #endregion
 
@@ -841,7 +845,7 @@ namespace Riz.XFramework.UnitTest
                     ToString3 = DateTime.Now.ToString(),
                 });
             var obj3 = query3.FirstOrDefault(a => a.DemoId == 1);
-            context.Database.ExecuteNonQuery(query3.Where(a => a.DemoId == 1).ToString());
+            context.Database.ExecuteNonQuery(query3.Where(a => a.DemoId == 1).Sql);
             Debug.Assert(obj3.AddYears == myDemo.RizDemoDate.AddYears(12));
             Debug.Assert(obj3.AddYears2 == myDemo.RizDemoDateTime.AddYears(12));
             Debug.Assert(obj3.AddYears3 == myDemo.RizDemoDateTime2.AddYears(12));
@@ -921,6 +925,7 @@ namespace Riz.XFramework.UnitTest
                     IsLeapYear = DateTime.IsLeapYear(a.RizDemoByte) ? true : false,
                     IsLeapYear2 = DateTime.IsLeapYear(a.RizDemoByte) ? true : false,
                 };
+            var newResult = newQuery.ToList();
         }
 
         // 多表查询
@@ -936,12 +941,19 @@ namespace Riz.XFramework.UnitTest
                 where a.RizClientId > 0
                 select a;
             var result = query.ToList();
-            // 点标记
-            query = context
-                .GetTable<RizModel.Client>()
-                .Join(context.GetTable<RizModel.CloudServer>(), a => a.RizCloudServerId, b => b.RizCloudServerId, (a, b) => a)
-                .Where(a => a.RizClientId > 0);
+            query = from a in context.GetTable<RizModel.Client>()
+                    join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
+                    select a;
             result = query.ToList();
+            //// 点标记 TODO（未实现）
+            //query = context
+            //    .GetTable<Model.Client>()
+            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a, CloudServer = b })
+            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServer.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a.Client, CloudServer = b })
+            //    .Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
+            //    .Select(a => a.Client);
+            //result = query.ToList();
+            // 点标记
             query =
                 from a in context.GetTable<RizModel.Client>()
                 join b in context.GetTable<RizModel.Client, RizModel.CloudServer>(a => a.CloudServer) on a.RizCloudServerId equals b.RizCloudServerId
@@ -1168,7 +1180,7 @@ namespace Riz.XFramework.UnitTest
                 orderby a.RizClientId, a.Accounts[0].Markets[0].RizMarketId
                 select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT
             //t0.[RizClientId] AS[RizClientId],
@@ -1232,7 +1244,7 @@ namespace Riz.XFramework.UnitTest
                 .Skip(10)
                 .Take(20);
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //SQL=>
             //SELECT 
             //t0.[RizClientId] AS [RizClientId],
@@ -1305,12 +1317,14 @@ namespace Riz.XFramework.UnitTest
                 };
             query1 = query1
                 .Where(a => a.RizClientId > 0)
+                .Where(a => a.RizClientId > 1)
+                .Where(a => a.RizClientId > 2)
                 .OrderBy(a => a.RizClientId)
                 .Skip(10)
                 .Take(20)
                 ;
             var result1 = query1.ToList();
-            context.Database.ExecuteNonQuery(query1.ToString());
+            context.Database.ExecuteNonQuery(query1.Sql);
 
             query1 =
                 from a in
@@ -1493,7 +1507,7 @@ namespace Riz.XFramework.UnitTest
                     CloudServerCode = c.RizCloudServerCode
                 });
             var result5 = query5.ToList();
-            context.Database.ExecuteNonQuery(query5.ToString());
+            context.Database.ExecuteNonQuery(query5.Sql);
             //SQL=>
             //SELECT
             //t0.[RizClientId] AS[RizClientId],
@@ -1656,7 +1670,7 @@ namespace Riz.XFramework.UnitTest
                  };
             query8 = query8.Skip(2).Take(3);
             var result8 = query8.ToList();
-            context.Database.ExecuteNonQuery(query8.ToString());
+            context.Database.ExecuteNonQuery(query8.Sql);
             //SQL=> 
             //SELECT
             //t0.[RizClientId] AS[Id],
@@ -1701,7 +1715,7 @@ namespace Riz.XFramework.UnitTest
                     join b in context.GetTable<RizModel.Client>() on a.RizClientId equals b.RizClientId
                     select a;
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
 
             var subQuery3 =
                 from a in context.GetTable<RizModel.Client>()
@@ -1755,7 +1769,7 @@ namespace Riz.XFramework.UnitTest
             query = query.AsSubquery();
             query = query.Select(a => new RizModel.Client { RizClientId = a.RizClientId, RizClientName = a.RizClientName, RizQty = a.RizQty }).OrderBy(a => a.RizQty);
             result = query.ToList();
-            context.Database.ExecuteNonQuery(query.ToString());
+            context.Database.ExecuteNonQuery(query.Sql);
             //var result10 = query.ToPagedList(1, 20);
         }
 
@@ -1906,15 +1920,15 @@ namespace Riz.XFramework.UnitTest
             context.SubmitChanges();
 
             // 指定ID，默认值支持
-            int maxClientId = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
-            context.Delete<RizModel.Client>(x => x.RizClientId > maxClientId);
-            context.Delete<RizModel.ClientAccount>(x => x.RizClientId > maxClientId);
-            context.Delete<RizModel.ClientAccountMarket>(x => x.RizClientId > maxClientId);
+            int max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
+            context.Delete<RizModel.Client>(x => x.RizClientId > max);
+            context.Delete<RizModel.ClientAccount>(x => x.RizClientId > max);
+            context.Delete<RizModel.ClientAccountMarket>(x => x.RizClientId > max);
             context.SubmitChanges();
 
             RizModel.Client client = new RizModel.Client
             {
-                RizClientId = maxClientId + 1,
+                RizClientId = max + 1,
                 RizClientCode = "ABC",
                 RizClientName = "啊啵呲",
                 RizRemark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
@@ -1925,7 +1939,7 @@ namespace Riz.XFramework.UnitTest
 
             var account = new RizModel.ClientAccount
             {
-                RizClientId = maxClientId + 1,
+                RizClientId = max + 1,
                 RizAccountId = "1",
                 RizAccountCode = "ABC+",
                 RizAccountName = "ABC+",
@@ -1935,7 +1949,7 @@ namespace Riz.XFramework.UnitTest
 
             var market = new RizModel.ClientAccountMarket
             {
-                RizClientId = maxClientId + 1,
+                RizClientId = max + 1,
                 RizAccountId = "1",
                 RizMarketId = 1,
                 RizMarketCode = "ABC+",
@@ -1951,7 +1965,7 @@ namespace Riz.XFramework.UnitTest
                 where a.RizClientId <= 5
                 select new RizModel.Client
                 {
-                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (maxClientId + 2),
+                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 2),
                     RizClientCode = "ABC2",
                     RizClientName = "啊啵呲2",
                     RizCloudServerId = 3,
@@ -1973,7 +1987,7 @@ namespace Riz.XFramework.UnitTest
                 };
             sum = sum.AsSubquery();
 
-            maxClientId = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
+            max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
             var nQuery =
                 from a in sum
                 join b in context.GetTable<RizModel.Client>() on a.RizClientId equals b.RizClientId into u_b
@@ -1981,7 +1995,7 @@ namespace Riz.XFramework.UnitTest
                 where b.RizClientId == null
                 select new RizModel.Client
                 {
-                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (maxClientId + 1),
+                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 1),
                     RizClientCode = "XFramework100+",
                     RizClientName = "XFramework100+",
                     RizCloudServerId = 3,
@@ -1989,7 +2003,7 @@ namespace Riz.XFramework.UnitTest
                     RizQty = a.RizQty,
                 };
             context.Insert(nQuery);
-            context.Database.ExecuteNonQuery(nQuery.ToString());
+            context.Database.ExecuteNonQuery(nQuery.Sql);
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
@@ -2041,14 +2055,14 @@ namespace Riz.XFramework.UnitTest
             //VALUES(...),(),()...
 
             // 指定ID，无自增列批量增加
-            maxClientId = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
+            max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
             List<RizModel.Client> clients = new List<RizModel.Client>();
             for (int index = 0; index < 1002; index++)
             {
-                maxClientId++;
+                max++;
                 client = new RizModel.Client
                 {
-                    RizClientId = maxClientId,
+                    RizClientId = max,
                     RizClientCode = "XFramework1000+",
                     RizClientName = "XFramework1000+",
                     RizRemark = "在批处理、名称作用域和数据库上下文方面，sp_executesql 与 EXECUTE 的行为相同。",
@@ -2061,7 +2075,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     var account2 = new RizModel.ClientAccount
                     {
-                        RizClientId = maxClientId,
+                        RizClientId = max,
                         RizAccountId = j.ToString(),
                         RizAccountCode = "XFrameworkAccount1000+",
                         RizAccountName = "XFrameworkAccount1000+",
@@ -2073,7 +2087,7 @@ namespace Riz.XFramework.UnitTest
                     {
                         var market2 = new RizModel.ClientAccountMarket
                         {
-                            RizClientId = maxClientId,
+                            RizClientId = max,
                             RizAccountId = j.ToString(),
                             RizMarketId = m,
                             RizMarketCode = "XFrameworkAccountMarket1000+",
@@ -2085,7 +2099,7 @@ namespace Riz.XFramework.UnitTest
             }
             context.Insert<RizModel.Client>(clients);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<RizModel.Client>().Max(x => x.RizClientId) == maxClientId);
+            Debug.Assert(context.GetTable<RizModel.Client>().Max(x => x.RizClientId) == max);
 
 
         }
