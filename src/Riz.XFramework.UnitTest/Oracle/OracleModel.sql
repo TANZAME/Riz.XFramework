@@ -135,10 +135,11 @@ TRUNCATE TABLE Sys_Rabbit;
 COMMIT;
 
 DECLARE rowIndex INT;
-        rowCount2 INT;
+        rowCount_ INT;
+        nextVal_ INT;
 BEGIN
     rowIndex := 1;
-    rowCount2 := 1000000;
+    rowCount_ := 1000000;
     
     Delete FROM Sys_CloudServer;
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (1,'0181',N'181服务器');
@@ -146,7 +147,8 @@ BEGIN
     Insert Into Sys_CloudServer (CloudServerId,CloudServerCode,CloudServerName) Values (3,'0183',N'183服务器');    
    
   
-    WHILE(rowIndex <= rowCount2) LOOP
+    WHILE(rowIndex <= rowCount_) LOOP
+      nextVal_ := SYS_DEMO_DEMOID_SEQ.nextval;
       IF rowIndex <= 100 THEN
       INSERT INTO Sys_Demo
           (DemoId
@@ -181,9 +183,9 @@ BEGIN
           ,DemoLong_Nullable
           ,DemoTime_Nullable
           ,DemoDatetimeOffset_Nullable)
-          VALUES(SYS_DEMO_DEMOID_SEQ.nextval
-              ,RPAD('C',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
-              ,RPAD('N',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+          VALUES(nextVal_
+              ,RPAD('C',LENGTH(TO_CHAR(rowCount_)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+              ,RPAD('N',LENGTH(TO_CHAR(rowCount_)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
               ,CASE WHEN mod(rowIndex,2) = 0 THEN 'A' ELSE 'B' END
@@ -248,9 +250,9 @@ BEGIN
       ,DemoLong
       ,DemoLong_Nullable)
       VALUES
-          (SYS_DEMO_DEMOID_SEQ.nextval
-          ,RPAD('C',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
-          ,RPAD('N',LENGTH(TO_CHAR(rowCount2)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+          (nextVal_
+          ,RPAD('C',LENGTH(TO_CHAR(rowCount_)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
+          ,RPAD('N',LENGTH(TO_CHAR(rowCount_)) - LENGTH(TO_CHAR(rowIndex)) + 1,'0') || TO_CHAR(rowIndex)
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE 0 END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 1 ELSE NULL END
           ,CASE WHEN mod(rowIndex,2) = 0 THEN 'CN' ELSE 'TW' END

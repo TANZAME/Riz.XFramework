@@ -130,6 +130,7 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[DemoId] <= 10
 
             var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
+            //Debug.Assert(result5.Count == 10);
             if (!this.CaseSensitive) result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
@@ -138,7 +139,12 @@ namespace Riz.XFramework.UnitTest
                 where a.DemoId <= 10 && a.DemoDate > sDate && a.DemoDateTime >= sDate && a.DemoDateTime2 > sDate
                 select a;
             var result1 = query.ToList();
-            context.Database.ExecuteNonQuery(query.Sql);
+            var nonQuery = context.Database.ExecuteNonQuery(query.Sql);
+            var result1_1 = context.Database.Execute<List<TDemo>>(query.Sql);
+            Debug.Assert(result1.Count == result1_1.Count);
+            if (result1.Count > 0) Debug.Assert(result1[0].DemoCode == result1_1[0].DemoCode);
+            DbRawCommand rawCommand = query.Translate();
+
             // 点标记
             query = context
                 .GetTable<TDemo>()
