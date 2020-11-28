@@ -938,7 +938,7 @@ namespace Riz.XFramework.UnitTest
                 join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-            var result = query.ToList();
+             var result = query.ToList();
             query = from a in context.GetTable<Model.Client>()
                     join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                     select a;
