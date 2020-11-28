@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Riz.XFramework.Data;
 using System.Data;
+using System.Collections.Generic;
 
 namespace Riz.XFramework.UnitTest
 {
@@ -12,12 +13,6 @@ namespace Riz.XFramework.UnitTest
         //[STAThread]
         public static void Main(string[] args)
         {
-            // fase 表示忽略 ColumnAttribute.Name，否则翻译时会使用 ColumnAttribute.Name（参考 RizModel）
-            bool withNameAttribute = true;
-            // 是否调式模式，调试模式下生成的 SQL 会有格式化
-            bool isDebug = true;
-            // 是否区分大小写，适用 ORCACLE 和 POSTGRESQL
-            bool caseSensitive = false;
             ITest test = null;
             string fileName = string.Empty;
             DatabaseType databaseType = DatabaseType.None;
@@ -78,25 +73,48 @@ namespace Riz.XFramework.UnitTest
                 fileName = baseDirectory + @"\Log_" + myDatabaseType + ".sql";
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
-                var obj = Activator.CreateInstance(null, string.Format("Riz.XFramework.UnitTest.{0}.{1}{0}Test", myDatabaseType, withNameAttribute ? "Riz" : string.Empty));
-                test = (ITest)(obj.Unwrap());
-                test.IsDebug = isDebug;
-                test.CaseSensitive = caseSensitive;
-
-
-                if (test != null)
+                List<Option> options = new List<Option>
                 {
+                    new Option { WithNameAttribute = true, IsDebug = true, CaseSensitive = false },
+                    new Option { WithNameAttribute = false, IsDebug = false, CaseSensitive = false }
+                };
+                foreach (var opt in options)
+                {
+                    var obj = Activator.CreateInstance(null, string.Format("Riz.XFramework.UnitTest.{0}.{1}{0}Test", myDatabaseType, opt.WithNameAttribute ? "Riz" : string.Empty));
+                    test = (ITest)(obj.Unwrap());
+                    test.IsDebug = opt.IsDebug;
+                    test.CaseSensitive = opt.CaseSensitive;
+
                     Console.WriteLine("================ " + myDatabaseType + " Begin ================");
+                    Console.WriteLine(string.Format("WithNameAttribute => {0}，IsDebug => {1}，CaseSensitive => {2} ", opt.WithNameAttribute, opt.IsDebug, opt.CaseSensitive));
                     test.Run(myDatabaseType);
                     Console.WriteLine("================ " + myDatabaseType + " END   ================");
                     Console.WriteLine(string.Empty);
-                }
 
-                if (!string.IsNullOrEmpty(s)) break;
+                    if (!string.IsNullOrEmpty(s)) break;
+                }
             }
 
             Console.WriteLine("回车退出~");
             Console.ReadLine();
+        }
+
+        class Option
+        {
+            /// <summary>
+            /// 成员属性使用 Name 特性
+            /// </summary>
+            public bool WithNameAttribute { get; set; }
+
+            /// <summary>
+            /// 调试模式
+            /// </summary>
+            public bool IsDebug { get; set; }
+
+            /// <summary>
+            /// 是否区分大小写，适用 ORCACLE 和 POSTGRESQL
+            /// </summary>
+            public bool CaseSensitive { get; set; }
         }
     }
 }

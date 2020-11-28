@@ -129,7 +129,7 @@ namespace Riz.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>().ToList();
+            var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>(x => x).ToList();
             //Debug.Assert(result5.Count == 10);
             if (!this.CaseSensitive) result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
@@ -943,14 +943,21 @@ namespace Riz.XFramework.UnitTest
                     join b in context.GetTable<Model.CloudServer>() on a.CloudServerId equals b.CloudServerId
                     select a;
             result = query.ToList();
-            //// 点标记 TODO（未实现）
-            //query = context
-            //    .GetTable<Model.Client>()
-            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a, CloudServer = b })
-            //    .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServer.CloudServerId, b => b.CloudServerId, (a, b) => new { Client = a.Client, CloudServer = b })
-            //    .Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
-            //    .Select(a => a.Client);
-            //result = query.ToList();
+            // 点标记
+            query = context
+                .GetTable<Model.Client>()
+                //.Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
+                .Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a);
+            query = query.Where(a => a.ClientId > 0);
+            query = query.Where<Model.Client, Model.CloudServer>((a, b) => a.ClientId > 0 && b.CloudServerName != null);
+            query = query.Select<Model.Client, Model.CloudServer, Model.Client>((a, b) => new Model.Client
+            {
+                ClientId = a.ClientId,
+                CloudServerId = b.CloudServerId
+            });
+            //.Where(a => a.Client.ClientId > 0 && a.CloudServer.CloudServerName != null)
+            //.Select(a => a.Client);
+            result = query.ToList();
             query =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.Client, Model.CloudServer>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId

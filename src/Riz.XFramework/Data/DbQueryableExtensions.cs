@@ -611,17 +611,17 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">用于从元素中提取键的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> OrderByDescending<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) 
+        public static IDbQueryable<TSource> OrderByDescending<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
             => source.CreateQuery<TSource>(DbExpressionType.OrderByDescending, keySelector);
 
-        /// <summary>
-        ///  通过合并元素的索引将序列的每个元素投影到新表中
-        /// </summary>
-        /// <typeparam name="TSource">source 的元素类型</typeparam>
-        /// <typeparam name="TResult">返回的值的类型</typeparam>
-        /// <param name="source">查询序列</param>
-        /// <returns></returns>
-        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source) => source.Select<TSource, TResult>(null);
+        ///// <summary>
+        /////  通过合并元素的索引将序列的每个元素投影到新表中
+        ///// </summary>
+        ///// <typeparam name="TSource">source 的元素类型</typeparam>
+        ///// <typeparam name="TResult">返回的值的类型</typeparam>
+        ///// <param name="source">查询序列</param>
+        ///// <returns></returns>
+        //public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source) => source.Select<TSource, TResult>(null);
 
         /// <summary>
         ///  通过合并元素的索引将序列的每个元素投影到新表中
@@ -631,7 +631,94 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector) 
+        public static IDbQueryable<TResult> Select<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TSource3, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TSource3, TSource4, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TSource3, TSource4, TSource5, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource6">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TResult>> keySelector)
+            => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+
+        /// <summary>
+        ///  通过合并元素的索引将序列的每个元素投影到新表中
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource3">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource4">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource5">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource6">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TSource7">source 中的关联语义的元素类型</typeparam>
+        /// <typeparam name="TResult">返回的值的类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">一个应用于每个源元素的转换函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TResult> Select<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7, TResult>> keySelector)
             => source.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
 
         /// <summary>
@@ -645,7 +732,7 @@ namespace Riz.XFramework.Data
         /// <param name="resultSelector">应用于中间序列的每个元素的转换函数</param>
         /// <returns></returns>
         public static IDbQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IDbQueryable<TSource> source,
-            Expression<Func<TSource, IDbQueryable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector) 
+            Expression<Func<TSource, IDbQueryable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
             => source.CreateQuery<TResult>(new DbExpression(DbExpressionType.SelectMany, new Expression[] { collectionSelector, resultSelector }));
 
         /// <summary>
@@ -655,7 +742,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="count">返回剩余元素前要跳过的元素数量</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Skip<TSource>(this IDbQueryable<TSource> source, int count) 
+        public static IDbQueryable<TSource> Skip<TSource>(this IDbQueryable<TSource> source, int count)
             => source.CreateQuery<TSource>(DbExpressionType.Skip, Expression.Constant(count));
 
         /// <summary>
@@ -674,7 +761,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="second">第二个查询序列</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Union<TSource>(this IDbQueryable<TSource> source, IDbQueryable<TSource> second) 
+        public static IDbQueryable<TSource> Union<TSource>(this IDbQueryable<TSource> source, IDbQueryable<TSource> second)
             => source.CreateQuery<TSource>(DbExpressionType.Union, Expression.Constant(second));
 
         /// <summary>
@@ -685,7 +772,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">用于从每个元素中提取键的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> ThenBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) 
+        public static IDbQueryable<TSource> ThenBy<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
             => source.CreateQuery<TSource>(DbExpressionType.ThenBy, keySelector);
 
         /// <summary>
@@ -696,7 +783,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="keySelector">用于从每个元素中提取键的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> ThenByDescending<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector) 
+        public static IDbQueryable<TSource> ThenByDescending<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
             => source.CreateQuery<TSource>(DbExpressionType.ThenByDescending, keySelector);
 
         /// <summary>
@@ -706,7 +793,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -717,7 +804,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -729,7 +816,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -742,7 +829,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -756,7 +843,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -771,7 +858,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
@@ -787,7 +874,7 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7, bool>> predicate) 
+        public static IDbQueryable<TSource> Where<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7>(this IDbQueryable<TSource> source, Expression<Func<TSource, TSource2, TSource3, TSource4, TSource5, TSource6, TSource7, bool>> predicate)
             => source.CreateQuery<TSource>(DbExpressionType.Where, predicate);
 
         /// <summary>
