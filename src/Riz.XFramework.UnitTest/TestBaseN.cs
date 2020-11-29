@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Riz.XFramework.UnitTest
 {
-    public abstract class RizTestBase<TDemo> : ITest where TDemo : RizModel.Demo, new()
+    public abstract class TestBaseN<TDemo> : ITest where TDemo : ModelN.Demo, new()
     {
         private string _demoName = "002F";
         private int[] _demoIdList = new int[] { 2, 3 };
@@ -28,7 +28,7 @@ namespace Riz.XFramework.UnitTest
         /// </summary>
         public bool CaseSensitive { get; set; }
 
-        public RizTestBase()
+        public TestBaseN()
         {
             _newContext = this.CreateDbContext;
 
@@ -77,8 +77,8 @@ namespace Riz.XFramework.UnitTest
                     DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = guid,
-                    DemoEnum = RizModel.State.Complete,
-                    DemoEnum2 = RizModel.State.Executing,
+                    DemoEnum = ModelN.State.Complete,
+                    DemoEnum2 = ModelN.State.Executing,
                 };
             var result0 = dynamicQuery.ToList();
             context.Database.ExecuteNonQuery(dynamicQuery.Sql);
@@ -110,8 +110,8 @@ namespace Riz.XFramework.UnitTest
                     DemoDateTime = DateTime.Now,
                     DemoDateTime2 = sDate_null,
                     DemoGuid = Guid.NewGuid(),
-                    DemoEnum = RizModel.State.Complete,
-                    DemoEnum2 = RizModel.State.Executing
+                    DemoEnum = ModelN.State.Complete,
+                    DemoEnum2 = ModelN.State.Executing
                 });
             result0 = dynamicQuery.ToList();
             context.Database.ExecuteNonQuery(dynamicQuery.Sql);
@@ -407,7 +407,7 @@ namespace Riz.XFramework.UnitTest
             // 支持的字符串操作=> Trim | TrimStart | TrimEnd | ToString | Length 等
 
             int m_byte = 16;
-            RizModel.State state = RizModel.State.Complete;
+            ModelN.State state = ModelN.State.Complete;
 
             // 点标记
             query = context.GetTable<TDemo>().Where(a =>
@@ -423,8 +423,8 @@ namespace Riz.XFramework.UnitTest
                         _demoNameList.Contains(a.RizDemoCode) &&
                         _demoNameList.Contains(a.RizDemoName) &&
                         a.RizDemoByte == (byte)m_byte &&
-                        a.RizDemoByte == (byte)RizModel.State.Complete ||
-                        a.RizDemoInt == (int)RizModel.State.Complete ||
+                        a.RizDemoByte == (byte)ModelN.State.Complete ||
+                        a.RizDemoInt == (int)ModelN.State.Complete ||
                         a.RizDemoInt == (int)state ||
                         (a.RizDemoName == "STATE" && a.RizDemoName == "REMARK" && a.RizDemoName == _demoNameList[0]));               // OR 查询
 
@@ -474,7 +474,7 @@ namespace Riz.XFramework.UnitTest
 
             query1 =
             context
-            .GetTable<RizModel.ClientAccount>()
+            .GetTable<ModelN.Account>()
             .Select(a => new
             {
                 RowNumber = Data.DbFunction.PartitionRowNumber(a.RizClientId, a.RizAccountId)
@@ -483,7 +483,7 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query1.Sql);
             query2 =
                 context
-            .GetTable<RizModel.ClientAccount>()
+            .GetTable<ModelN.Account>()
                 .Select(a => new
                 {
                     RowNumber = Data.DbFunction.PartitionRowNumber<long, int, string>(a.RizClientId, a.RizAccountId, OrderBy.DESC)
@@ -522,7 +522,7 @@ namespace Riz.XFramework.UnitTest
             Console.WriteLine("2. DbFunction ");
             var context = _newContext();
             int m_byte = 16;
-            RizModel.State state = RizModel.State.Complete;
+            ModelN.State state = ModelN.State.Complete;
             TimeSpan ts = new TimeSpan(1000000000);
             var myDemo = context.GetTable<TDemo>().FirstOrDefault(x => x.RizDemoId == 1);
 
@@ -620,7 +620,7 @@ namespace Riz.XFramework.UnitTest
                         Math.Tan((double)a.RizDemoDecimal) == 12 &&
                         Math.Truncate(a.RizDemoDecimal) == 12 &&
                         a.RizDemoByte == (byte)m_byte &&
-                        a.RizDemoByte == (byte)RizModel.State.Complete ||
+                        a.RizDemoByte == (byte)ModelN.State.Complete ||
                         a.RizDemoInt == 409600000 ||
                         a.RizDemoInt == (int)state
                     select a;
@@ -936,23 +936,23 @@ namespace Riz.XFramework.UnitTest
 
             // INNER JOIN
             var query =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
                 where a.RizClientId > 0
                 select a;
             var result = query.ToList();
-            query = from a in context.GetTable<RizModel.Client>()
-                    join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
+            query = from a in context.GetTable<ModelN.Client>()
+                    join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
                     select a;
             result = query.ToList();
             // 点标记
             query = context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 //.Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
-                .Join(context.GetTable<RizModel.CloudServer>(), a => a.RizCloudServerId, b => b.RizCloudServerId, (a, b) => a);
+                .Join(context.GetTable<ModelN.Server>(), a => a.RizCloudServerId, b => b.RizCloudServerId, (a, b) => a);
             query = query.Where(a => a.RizClientId > 0);
-            query = query.Where<RizModel.Client, RizModel.CloudServer>((a, b) => a.RizClientId > 0 && b.RizCloudServerName != null);
-            query = query.Select<RizModel.Client, RizModel.CloudServer, RizModel.Client>((a, b) => new RizModel.Client
+            query = query.Where<ModelN.Client, ModelN.Server>((a, b) => a.RizClientId > 0 && b.RizCloudServerName != null);
+            query = query.Select<ModelN.Client, ModelN.Server, ModelN.Client>((a, b) => new ModelN.Client
             {
                 RizClientId = a.RizClientId,
                 RizCloudServerId = b.RizCloudServerId
@@ -961,8 +961,8 @@ namespace Riz.XFramework.UnitTest
             //.Select(a => a.Client);
             result = query.ToList();
             query =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.Client, RizModel.CloudServer>(a => a.CloudServer) on a.RizCloudServerId equals b.RizCloudServerId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Client, ModelN.Server>(a => a.CloudServer) on a.RizCloudServerId equals b.RizCloudServerId
                 where a.RizClientId > 0
                 select a;
             result = query.ToList();
@@ -983,11 +983,11 @@ namespace Riz.XFramework.UnitTest
             // 更简单的赋值方式 
             // 适用场景：在显示列表时只想显示外键表的一两个字段
             query =
-                from a in context.GetTable<RizModel.Client>()
-                select new RizModel.Client(a)
+                from a in context.GetTable<ModelN.Client>()
+                select new ModelN.Client(a)
                 {
                     CloudServer = a.CloudServer,
-                    LocalServer = new RizModel.CloudServer
+                    LocalServer = new ModelN.Server
                     {
                         RizCloudServerId = a.RizCloudServerId,
                         RizCloudServerCode = "LocalCode",
@@ -1012,10 +1012,10 @@ namespace Riz.XFramework.UnitTest
 
             // 1：1关系，1：n关系
             query =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId > 0
                 orderby a.RizClientId
-                select new RizModel.Client(a)
+                select new ModelN.Client(a)
                 {
                     CloudServer = a.CloudServer,
                     Accounts = a.Accounts,
@@ -1024,7 +1024,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             var single = query.FirstOrDefault();
 
-            query = context.GetTable<RizModel.Client>()
+            query = context.GetTable<ModelN.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets2);
             result = query.ToList();
@@ -1057,12 +1057,12 @@ namespace Riz.XFramework.UnitTest
             //// Include 语法
             query =
                context
-               .GetTable<RizModel.Client>()
+               .GetTable<ModelN.Client>()
                .Include(a => a.CloudServer);
             result = query.ToList();
             query =
             context
-            .GetTable<RizModel.Client>()
+            .GetTable<ModelN.Client>()
             .Include(a => a.CloudServer, a => new 
             {
                 RizCloudServerId = a.CloudServer.RizCloudServerId,
@@ -1072,7 +1072,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.CloudServer, a => new
                 {
                     Ok = _demoName,
@@ -1082,7 +1082,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
             context
-            .GetTable<RizModel.Client>()
+            .GetTable<ModelN.Client>()
             .Include(a => a.CloudServer, a => new
             {
                 a.CloudServer.RizCloudServerCode
@@ -1090,8 +1090,8 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<RizModel.Client>()
-                .Include(a => a.CloudServer, a => new RizModel.CloudServer
+                .GetTable<ModelN.Client>()
+                .Include(a => a.CloudServer, a => new ModelN.Server
                 {
                     RizCloudServerId = a.RizCloudServerId,
                     RizCloudServerCode = a.CloudServer.RizCloudServerCode
@@ -1099,8 +1099,8 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<RizModel.Client>()
-                .Include(a => a.CloudServer, a => new RizModel.CloudServer
+                .GetTable<ModelN.Client>()
+                .Include(a => a.CloudServer, a => new ModelN.Server
                 {
                     RizCloudServerId = a.RizCloudServerId,
                     RizCloudServerCode = a.CloudServer.RizCloudServerCode
@@ -1108,13 +1108,13 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<RizModel.Client>()
-                .Include(a => a.CloudServer, a => new RizModel.CloudServer
+                .GetTable<ModelN.Client>()
+                .Include(a => a.CloudServer, a => new ModelN.Server
                 {
                     RizCloudServerId = a.RizCloudServerId,
                     RizCloudServerCode = a.CloudServer.RizCloudServerCode
                 })
-                .Include(a => a.Accounts, a => new RizModel.ClientAccount
+                .Include(a => a.Accounts, a => new ModelN.Account
                 {
                     RizAccountId = a.Accounts[0].RizAccountId,
                     RizAccountCode = a.Accounts[0].RizAccountCode,
@@ -1122,13 +1122,13 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<RizModel.Client>()
-                .Include(a => a.CloudServer, a => new RizModel.CloudServer
+                .GetTable<ModelN.Client>()
+                .Include(a => a.CloudServer, a => new ModelN.Server
                 {
                     RizCloudServerId = a.RizCloudServerId,
                     RizCloudServerCode = a.CloudServer.RizCloudServerCode
                 })
-                .Include(a => a.Accounts, a => new RizModel.ClientAccount
+                .Include(a => a.Accounts, a => new ModelN.Account
                 {
                     RizAccountId = a.Accounts[0].RizAccountId,
                     RizAccountCode = a.Accounts[0].RizAccountCode,
@@ -1137,13 +1137,13 @@ namespace Riz.XFramework.UnitTest
 
             query =
                 context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.CloudServer);
             query =
                 from a in query
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
                 orderby a.RizClientId
-                select new RizModel.Client(a)
+                select new ModelN.Client(a)
                 {
                     CloudServer = a.CloudServer
                 };
@@ -1168,7 +1168,7 @@ namespace Riz.XFramework.UnitTest
             // 还是Include，无限主从孙 ### 
             query =
             from a in context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.Accounts)
                 //.Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1178,7 +1178,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 from a in context
-                    .GetTable<RizModel.Client>()
+                    .GetTable<ModelN.Client>()
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1208,7 +1208,7 @@ namespace Riz.XFramework.UnitTest
             // Include 分页
             query =
             from a in context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1224,7 +1224,7 @@ namespace Riz.XFramework.UnitTest
             // Include 分页
             query =
             from a in context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1238,7 +1238,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
             from a in context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1276,7 +1276,7 @@ namespace Riz.XFramework.UnitTest
 
             query =
                from a in context
-                   .GetTable<RizModel.Client>()
+                   .GetTable<ModelN.Client>()
                    .Include(a => a.CloudServer)
                    .Include(a => a.Accounts)
                where a.RizClientId > 0
@@ -1305,13 +1305,13 @@ namespace Riz.XFramework.UnitTest
             var query1 =
                 from a in
                     context
-                    .GetTable<RizModel.Client>()
+                    .GetTable<ModelN.Client>()
                     .Include(a => a.CloudServer)
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
                 group a.RizQty by new { RizClientId = a.RizClientId, a.RizClientCode, a.RizClientName, a.CloudServer.RizCloudServerId } into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key.RizClientId,
                     RizClientCode = g.Key.RizClientCode,
@@ -1335,13 +1335,13 @@ namespace Riz.XFramework.UnitTest
             query1 =
                 from a in
                     context
-                    .GetTable<RizModel.Client>()
+                    .GetTable<ModelN.Client>()
                     .Include(a => a.CloudServer)
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
                 group a by new { RizClientId = a.RizClientId, a.RizClientCode, a.RizClientName, a.CloudServer.RizCloudServerId } into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key.RizClientId,
                     RizClientCode = g.Key.RizClientCode,
@@ -1407,7 +1407,7 @@ namespace Riz.XFramework.UnitTest
 
             // 分组后再统计
             var query2 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 group a by a.RizClientId into g
                 select new
                 {
@@ -1437,8 +1437,8 @@ namespace Riz.XFramework.UnitTest
             // ) t0
 
             var query3 =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId
                 group new { ClientId2 = a.RizClientId, b.RizAccountId } by new { ClientId = a.RizClientId, b.RizAccountId } into g
                 select new
                 {
@@ -1459,9 +1459,9 @@ namespace Riz.XFramework.UnitTest
             // CROSS JOIN
             var query4 =
                 context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Where(a => a.RizClientId <= 10)
-                .SelectMany(a => context.GetTable<RizModel.Client>(), (a, b) => new
+                .SelectMany(a => context.GetTable<ModelN.Client>(), (a, b) => new
                 {
                     ClientId = a.RizClientId,
                     ClientName = b.RizClientName
@@ -1476,8 +1476,8 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN
             query =
-                  from a in context.GetTable<RizModel.Client>()
-                  join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId into u_b
+                  from a in context.GetTable<ModelN.Client>()
+                  join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId into u_b
                   from b in u_b.DefaultIfEmpty()
                   select a;
             query = query.Where(a => a.CloudServer.RizCloudServerName != null);
@@ -1485,8 +1485,8 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN
             query =
-                  from a in context.GetTable<RizModel.Client>()
-                  join b in context.GetTable<RizModel.CloudServer>() on new { a.RizCloudServerId, RizCloudServerCode = "567" } equals new { b.RizCloudServerId, b.RizCloudServerCode } into u_b
+                  from a in context.GetTable<ModelN.Client>()
+                  join b in context.GetTable<ModelN.Server>() on new { a.RizCloudServerId, RizCloudServerCode = "567" } equals new { b.RizCloudServerId, b.RizCloudServerCode } into u_b
                   from b in u_b.DefaultIfEmpty()
                   select a;
             query = query.Where(a => a.CloudServer.RizCloudServerName != null);
@@ -1501,12 +1501,12 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN + CROSS JOIN
             query =
-                 from a in context.GetTable<RizModel.Client>()
-                 join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId into u_c
+                 from a in context.GetTable<ModelN.Client>()
+                 join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId into u_c
                  from b in u_c.DefaultIfEmpty()
                  select a;
             var query5 =
-                query.SelectMany(c => context.GetTable<RizModel.CloudServer>(), (a, c) => new
+                query.SelectMany(c => context.GetTable<ModelN.Server>(), (a, c) => new
                 {
                     ClientId = a.RizClientId,
                     CloudServerName = a.CloudServer.RizCloudServerName,
@@ -1528,8 +1528,8 @@ namespace Riz.XFramework.UnitTest
             {
                 // RIGHT JOIN
                 query =
-                      from a in context.GetTable<RizModel.CloudServer>()
-                      join b in context.GetTable<RizModel.Client>() on a.RizCloudServerId equals b.RizCloudServerId into u_b
+                      from a in context.GetTable<ModelN.Server>()
+                      join b in context.GetTable<ModelN.Client>() on a.RizCloudServerId equals b.RizCloudServerId into u_b
                       from b in u_b.DefaultIfEmpty(true)
                       where a.RizCloudServerName == null
                       select b;
@@ -1544,9 +1544,9 @@ namespace Riz.XFramework.UnitTest
             }
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q1 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10);
-            var q2 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10);
-            var q3 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10);
+            var q1 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10);
+            var q2 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10);
+            var q3 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10);
             var query6 = q1.Union(q2).Union(q3);
             var result6 = query6.ToList();
             result6 = query6.OrderBy(a => a.RizActiveDate).ToList();
@@ -1582,9 +1582,9 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[RizClientId] = 1
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q4 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10).AsSubquery();//.OrderBy(x => x.RizClientName)
-            var q5 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10 && x.Accounts[0].RizAccountId != null).OrderBy(x => x.CloudServer.RizCloudServerId).Skip(5).AsSubquery();
-            var q6 = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 10 && x.Accounts[0].RizAccountId != null).OrderBy(x => x.CloudServer.RizCloudServerId).Skip(1).Take(2).AsSubquery();
+            var q4 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10).AsSubquery();//.OrderBy(x => x.RizClientName)
+            var q5 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10 && x.Accounts[0].RizAccountId != null).OrderBy(x => x.CloudServer.RizCloudServerId).Skip(5).AsSubquery();
+            var q6 = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 10 && x.Accounts[0].RizAccountId != null).OrderBy(x => x.CloudServer.RizCloudServerId).Skip(1).Take(2).AsSubquery();
             query6 = q4.Union(q5).Union(q6);
             result6 = query6.ToList();
             result6 = query6.Take(2).ToList();
@@ -1595,10 +1595,10 @@ namespace Riz.XFramework.UnitTest
             result6 = query6.ToList();
 
             // Any
-            var isAny = context.GetTable<RizModel.Client>().Any();
-            isAny = context.GetTable<RizModel.Client>().Any(a => a.RizActiveDate == DateTime.Now);
-            isAny = context.GetTable<RizModel.Client>().Distinct().Any(a => a.RizActiveDate == DateTime.Now);
-            isAny = context.GetTable<RizModel.Client>().OrderBy(a => a.RizClientId).Skip(2).Take(5).Any(a => a.RizActiveDate == DateTime.Now);
+            var isAny = context.GetTable<ModelN.Client>().Any();
+            isAny = context.GetTable<ModelN.Client>().Any(a => a.RizActiveDate == DateTime.Now);
+            isAny = context.GetTable<ModelN.Client>().Distinct().Any(a => a.RizActiveDate == DateTime.Now);
+            isAny = context.GetTable<ModelN.Client>().OrderBy(a => a.RizClientId).Skip(2).Take(5).Any(a => a.RizActiveDate == DateTime.Now);
             //SQL=> 
             //IF EXISTS(
             //    SELECT TOP 1 1
@@ -1607,7 +1607,7 @@ namespace Riz.XFramework.UnitTest
             //) SELECT 1 ELSE SELECT 0
 
             // FirstOrDefault
-            var f = context.GetTable<RizModel.Client>().FirstOrDefault();
+            var f = context.GetTable<ModelN.Client>().FirstOrDefault();
             //SQL=> 
             //SELECT TOP(1)
             //t0.[RizClientId] AS[RizClientId],
@@ -1619,7 +1619,7 @@ namespace Riz.XFramework.UnitTest
             //FROM[Bas_Client] t0
 
             // Max,Count,Min,Avg,Sum
-            var max = context.GetTable<RizModel.Client>().Where(a => a.RizClientId < -9).Max(a => a.RizClientId);
+            var max = context.GetTable<ModelN.Client>().Where(a => a.RizClientId < -9).Max(a => a.RizClientId);
             //SQL=> 
             //SELECT
             //MAX(t0.[RizClientId])
@@ -1628,7 +1628,7 @@ namespace Riz.XFramework.UnitTest
 
             // GROUP BY
             var query7 =
-                 from a in context.GetTable<RizModel.Client>()
+                 from a in context.GetTable<ModelN.Client>()
                  where a.RizClientName == "TAN"
                  group a by new { RizClientId = a.RizClientId, a.RizClientName } into g
                  where g.Key.RizClientId > 0
@@ -1641,9 +1641,9 @@ namespace Riz.XFramework.UnitTest
             var result7 = query7.ToList();
             // GROUP BY
             query7 =
-                 from a in context.GetTable<RizModel.Client>()
+                 from a in context.GetTable<ModelN.Client>()
                  where a.RizClientName == "TAN"
-                 group a by new RizModel.Client { RizClientId = a.RizClientId, RizClientName = a.RizClientName } into g
+                 group a by new ModelN.Client { RizClientId = a.RizClientId, RizClientName = a.RizClientName } into g
                  where g.Key.RizClientId > 0
                  orderby g.Key.RizClientName
                  select new
@@ -1664,7 +1664,7 @@ namespace Riz.XFramework.UnitTest
 
             // 分组后再分页
             var query8 =
-                 from a in context.GetTable<RizModel.Client>()
+                 from a in context.GetTable<ModelN.Client>()
                  where a.RizClientName == "XFramework1"
                  group a by new { RizClientId = a.RizClientId, a.RizClientName } into g
                  where g.Key.RizClientId > 0
@@ -1691,9 +1691,9 @@ namespace Riz.XFramework.UnitTest
             // DISTINCT 分组
             query =
                 context
-                .GetTable<RizModel.Client>()
+                .GetTable<ModelN.Client>()
                 .Distinct()
-                .Select(a => new RizModel.Client
+                .Select(a => new ModelN.Client
                 {
                     RizClientId = a.RizClientId,
                     RizClientName = a.RizClientName
@@ -1711,21 +1711,21 @@ namespace Riz.XFramework.UnitTest
 
             // 强制子查询
             query =
-                  from a in context.GetTable<RizModel.Client>()
-                  join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId into u_c
+                  from a in context.GetTable<ModelN.Client>()
+                  join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId into u_c
                   from b in u_c.DefaultIfEmpty()
                   select a;
             query = query.OrderBy(a => a.RizClientId).Skip(10).Take(10).AsSubquery();
             result = query.ToList();
             query = from a in query
-                    join b in context.GetTable<RizModel.Client>() on a.RizClientId equals b.RizClientId
+                    join b in context.GetTable<ModelN.Client>() on a.RizClientId equals b.RizClientId
                     select a;
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
 
             var subQuery3 =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId
                 select new
                 {
                     RizClientId = a.RizClientId,
@@ -1753,8 +1753,8 @@ namespace Riz.XFramework.UnitTest
             //INNER JOIN [Bas_Client] t1 ON t0.[RizClientId] = t1.[RizClientId]
 
             var subQuery =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId
                 select new
                 {
                     RizClientId = a.RizClientId,
@@ -1766,14 +1766,14 @@ namespace Riz.XFramework.UnitTest
             query =
                 from a in subQuery
                 group a by a.RizClientId into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key,
                     RizClientName = g.Max(a => a.RizClientName),
                     RizQty = g.Sum(a => a.RizQty)
                 };
             query = query.AsSubquery();
-            query = query.Select(a => new RizModel.Client { RizClientId = a.RizClientId, RizClientName = a.RizClientName, RizQty = a.RizQty }).OrderBy(a => a.RizQty);
+            query = query.Select(a => new ModelN.Client { RizClientId = a.RizClientId, RizClientName = a.RizClientName, RizQty = a.RizQty }).OrderBy(a => a.RizQty);
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
             //var result10 = query.ToPagedList(1, 20);
@@ -1859,7 +1859,7 @@ namespace Riz.XFramework.UnitTest
             {
                 RizDemoCode = "C0000102"
             }, a => a.RizDemoId == demo.RizDemoId);
-            var cQuery = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 100);
+            var cQuery = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
             context.Update<TDemo>(a => new TDemo
@@ -1867,12 +1867,12 @@ namespace Riz.XFramework.UnitTest
                 RizDemoCode = "C0000'102"
             }, a => a.RizDemoId == demo2.RizDemoId);
             context.Insert(demo3);
-            List<RizModel.Client> result = null;
+            List<ModelN.Client> result = null;
             context.SubmitChanges(out result);
             Debug.Assert(result.Count <= 100);
 
             context.Insert(demo);
-            cQuery = context.GetTable<RizModel.Client>().Where(x => x.RizClientId <= 100);
+            cQuery = context.GetTable<ModelN.Client>().Where(x => x.RizClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
             context.Update<TDemo>(a => new TDemo
@@ -1888,7 +1888,7 @@ namespace Riz.XFramework.UnitTest
             context.AddQuery(cQuery2);
             var cQuery3 = context.GetTable<TDemo>().Where(x => x.RizDemoId > 100);
             context.AddQuery(cQuery3);
-            List<RizModel.Client> result1 = null;
+            List<ModelN.Client> result1 = null;
             List<TDemo> result2 = null;
             context.SubmitChanges(out result1, out result2);
 
@@ -1918,7 +1918,7 @@ namespace Riz.XFramework.UnitTest
                 demos.Add(demo4);
                 if (index == 10)
                 {
-                    var query2 = context.GetTable<RizModel.Demo>().Where(x => x.RizDemoId < 100);
+                    var query2 = context.GetTable<ModelN.Demo>().Where(x => x.RizDemoId < 100);
                     context.AddQuery(query2);
                 }
                 context.Insert(demo4);
@@ -1926,13 +1926,13 @@ namespace Riz.XFramework.UnitTest
             context.SubmitChanges();
 
             // 指定ID，默认值支持
-            int max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
-            context.Delete<RizModel.Client>(x => x.RizClientId > max);
-            context.Delete<RizModel.ClientAccount>(x => x.RizClientId > max);
-            context.Delete<RizModel.ClientAccountMarket>(x => x.RizClientId > max);
+            int max = context.GetTable<ModelN.Client>().Max(x => x.RizClientId);
+            context.Delete<ModelN.Client>(x => x.RizClientId > max);
+            context.Delete<ModelN.Account>(x => x.RizClientId > max);
+            context.Delete<ModelN.Market>(x => x.RizClientId > max);
             context.SubmitChanges();
 
-            RizModel.Client client = new RizModel.Client
+            ModelN.Client client = new ModelN.Client
             {
                 RizClientId = max + 1,
                 RizClientCode = "ABC",
@@ -1941,9 +1941,9 @@ namespace Riz.XFramework.UnitTest
                 RizCloudServerId = 3,
                 RizState = 1
             };
-            context.Insert<RizModel.Client>(client);
+            context.Insert<ModelN.Client>(client);
 
-            var account = new RizModel.ClientAccount
+            var account = new ModelN.Account
             {
                 RizClientId = max + 1,
                 RizAccountId = "1",
@@ -1953,7 +1953,7 @@ namespace Riz.XFramework.UnitTest
             };
             context.Insert(account);
 
-            var market = new RizModel.ClientAccountMarket
+            var market = new ModelN.Market
             {
                 RizClientId = max + 1,
                 RizAccountId = "1",
@@ -1966,10 +1966,10 @@ namespace Riz.XFramework.UnitTest
 
             // Query 关联新增
             var query =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
                 where a.RizClientId <= 5
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 2),
                     RizClientCode = "ABC2",
@@ -1983,23 +1983,23 @@ namespace Riz.XFramework.UnitTest
 
             // 子查询增
             var sum =
-                from a in context.GetTable<RizModel.ClientAccount>()
+                from a in context.GetTable<ModelN.Account>()
                 where a.RizClientId > 0
                 group a by new { a.RizClientId } into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key.RizClientId,
                     RizQty = g.Sum(a => a.RizQty)
                 };
             sum = sum.AsSubquery();
 
-            max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
+            max = context.GetTable<ModelN.Client>().Max(x => x.RizClientId);
             var nQuery =
                 from a in sum
-                join b in context.GetTable<RizModel.Client>() on a.RizClientId equals b.RizClientId into u_b
+                join b in context.GetTable<ModelN.Client>() on a.RizClientId equals b.RizClientId into u_b
                 from b in u_b.DefaultIfEmpty()
                 where b.RizClientId == null
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 1),
                     RizClientCode = "XFramework100+",
@@ -2061,12 +2061,12 @@ namespace Riz.XFramework.UnitTest
             //VALUES(...),(),()...
 
             // 指定ID，无自增列批量增加
-            max = context.GetTable<RizModel.Client>().Max(x => x.RizClientId);
-            List<RizModel.Client> clients = new List<RizModel.Client>();
+            max = context.GetTable<ModelN.Client>().Max(x => x.RizClientId);
+            List<ModelN.Client> clients = new List<ModelN.Client>();
             for (int index = 0; index < 1002; index++)
             {
                 max++;
-                client = new RizModel.Client
+                client = new ModelN.Client
                 {
                     RizClientId = max,
                     RizClientCode = "XFramework1000+",
@@ -2079,7 +2079,7 @@ namespace Riz.XFramework.UnitTest
 
                 for (var j = 1; j <= 2; j++)
                 {
-                    var account2 = new RizModel.ClientAccount
+                    var account2 = new ModelN.Account
                     {
                         RizClientId = max,
                         RizAccountId = j.ToString(),
@@ -2091,7 +2091,7 @@ namespace Riz.XFramework.UnitTest
 
                     for (int m = 1; m <= 2; m++)
                     {
-                        var market2 = new RizModel.ClientAccountMarket
+                        var market2 = new ModelN.Market
                         {
                             RizClientId = max,
                             RizAccountId = j.ToString(),
@@ -2103,9 +2103,9 @@ namespace Riz.XFramework.UnitTest
                     }
                 }
             }
-            context.Insert<RizModel.Client>(clients);
+            context.Insert<ModelN.Client>(clients);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<RizModel.Client>().Max(x => x.RizClientId) == max);
+            Debug.Assert(context.GetTable<ModelN.Client>().Max(x => x.RizClientId) == max);
 
 
         }
@@ -2139,16 +2139,16 @@ namespace Riz.XFramework.UnitTest
 
             // 3.Query 关联批量更新
             var query =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.CloudServer.RizCloudServerId > 0
                 select a;
-            context.Update<RizModel.Client>(a => new
+            context.Update<ModelN.Client>(a => new
             {
                 Qty = -1,
                 Remark = a.RizClientCode + "Re'mark"
             }, query);
             context.SubmitChanges();
-            var result = context.GetTable<RizModel.Client>().Where(x => x.CloudServer.RizCloudServerId > 0).ToList();
+            var result = context.GetTable<ModelN.Client>().Where(x => x.CloudServer.RizCloudServerId > 0).ToList();
             // 断言更新成功
             Debug.Assert(result.All(x => x.RizRemark == x.RizClientCode + "Re'mark"));
             Debug.Assert(result.All(x => x.RizQty == -1));
@@ -2179,24 +2179,24 @@ namespace Riz.XFramework.UnitTest
 
             // 更新本表值等于从表的字段值
             query =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
-                join c in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals c.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
+                join c in context.GetTable<ModelN.Account>() on a.RizClientId equals c.RizClientId
                 where c.RizAccountId == "1"
                 select a;
-            context.Update<RizModel.Client, RizModel.CloudServer>((a, b) => new RizModel.Client
+            context.Update<ModelN.Client, ModelN.Server>((a, b) => new ModelN.Client
             {
                 RizCloudServerId = b.RizCloudServerId
             }, query);
 
             // 更新本表值等于从表的字段值
             query =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
-                join c in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals c.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
+                join c in context.GetTable<ModelN.Account>() on a.RizClientId equals c.RizClientId
                 where c.RizAccountId == "1"
                 select a;
-            context.Update<RizModel.Client, RizModel.CloudServer, RizModel.ClientAccount>((a, b, c) => new
+            context.Update<ModelN.Client, ModelN.Server, ModelN.Account>((a, b, c) => new
             {
                 CloudServerId = b.RizCloudServerId,
                 Qty = c.RizQty > 0 ? c.RizQty : 1,
@@ -2216,20 +2216,20 @@ namespace Riz.XFramework.UnitTest
 
             // 子查询更新
             var sum =
-                from a in context.GetTable<RizModel.ClientAccount>()
+                from a in context.GetTable<ModelN.Account>()
                 where a.RizClientId > 0
                 group a by new { a.RizClientId } into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key.RizClientId,
                     RizQty = g.Sum(a => a.RizQty)
                 };
             var uQuery =
-               from a in context.GetTable<RizModel.Client>()
+               from a in context.GetTable<ModelN.Client>()
                join b in sum on a.RizClientId equals b.RizClientId
                where a.RizClientId > 0 && b.RizClientId > 0
                select a;
-            context.Update<RizModel.Client, RizModel.Client>((a, b) => new RizModel.Client
+            context.Update<ModelN.Client, ModelN.Client>((a, b) => new ModelN.Client
             {
                 RizQty = b.RizQty
             }, uQuery);
@@ -2247,7 +2247,7 @@ namespace Riz.XFramework.UnitTest
             //) t1 ON t0.[RizClientId] = t1.[RizClientId]
             //WHERE t1.[RizClientId] > 0
 
-            var client = context.GetTable<RizModel.Client>().FirstOrDefault();
+            var client = context.GetTable<ModelN.Client>().FirstOrDefault();
             if (client != null) context.Update(client);
             // 一次性提交，里面自带事务
             context.SubmitChanges();
@@ -2297,7 +2297,7 @@ namespace Riz.XFramework.UnitTest
 #endif
 
             // 多主键删除
-            var account = context.GetTable<RizModel.ClientAccount>().FirstOrDefault(x => x.RizClientId > 100);
+            var account = context.GetTable<ModelN.Account>().FirstOrDefault(x => x.RizClientId > 100);
             if (account != null)
             {
                 context.Delete(account);
@@ -2320,78 +2320,78 @@ namespace Riz.XFramework.UnitTest
             // 3.Query 关联批量删除
             var query1 =
                 context
-                .GetTable<RizModel.Client>()
-                .SelectMany(a => context.GetTable<RizModel.ClientAccount>(), (a, b) => a)
+                .GetTable<ModelN.Client>()
+                .SelectMany(a => context.GetTable<ModelN.Account>(), (a, b) => a)
                 .Where(a => a.RizClientId == 200);
-            context.Delete<RizModel.Client>(query1);
+            context.Delete<ModelN.Client>(query1);
             // 删除不完整的数据
             query1 =
-                 from a in context.GetTable<RizModel.Client>()
-                 join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId into u_b
+                 from a in context.GetTable<ModelN.Client>()
+                 join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId into u_b
                  from b in u_b.DefaultIfEmpty()
-                 join c in context.GetTable<RizModel.ClientAccountMarket>() on new { b.RizClientId, b.RizAccountId } equals new { c.RizClientId, c.RizAccountId } into u_c
+                 join c in context.GetTable<ModelN.Market>() on new { b.RizClientId, b.RizAccountId } equals new { c.RizClientId, c.RizAccountId } into u_c
                  from c in u_c.DefaultIfEmpty()
                  where a.RizClientId > 100 && (b.RizClientId == null || c.RizClientId == null)
                  select a;
-            context.Delete<RizModel.Client>(query1);
+            context.Delete<ModelN.Client>(query1);
 
             query1 =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId
-                join c in context.GetTable<RizModel.ClientAccountMarket>() on new { b.RizClientId, b.RizAccountId } equals new { c.RizClientId, c.RizAccountId }
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId
+                join c in context.GetTable<ModelN.Market>() on new { b.RizClientId, b.RizAccountId } equals new { c.RizClientId, c.RizAccountId }
                 where c.RizClientId > 100 && c.RizAccountId == "1" && c.RizMarketId == 1
                 select a;
-            context.Delete<RizModel.Client>(query1);
+            context.Delete<ModelN.Client>(query1);
             context.SubmitChanges();
             // 断言
             Debug.Assert(query1.Count() == 0);
 
             // 3.Query contains
             var query3 =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.ClientAccount>() on a.RizClientId equals b.RizClientId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Account>() on a.RizClientId equals b.RizClientId
                 where a.RizClientId > 90 && a.CloudServer.RizCloudServerId >= 3 && a.LocalServer.RizCloudServerId >= 3
                 select a.RizClientId;
-            context.Delete<RizModel.Client>(a => query3.Contains(a.RizClientId));
+            context.Delete<ModelN.Client>(a => query3.Contains(a.RizClientId));
             context.SubmitChanges();
             Debug.Assert(query3.Count() == 0);
 
             // 4.Query 关联批量删除
             var query4 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId > 80 && a.CloudServer.RizCloudServerId >= 3 && a.LocalServer.RizCloudServerId >= 3
                 select a;
-            context.Delete<RizModel.Client>(query4);
+            context.Delete<ModelN.Client>(query4);
             context.SubmitChanges();
             Debug.Assert(query4.Count() == 0);
 
             // 5.子查询批量删除
             // 子查询更新
             var subquery =
-                from a in context.GetTable<RizModel.ClientAccount>()
+                from a in context.GetTable<ModelN.Account>()
                 where a.RizClientId > 70
                 group a by new { a.RizClientId } into g
-                select new RizModel.Client
+                select new ModelN.Client
                 {
                     RizClientId = g.Key.RizClientId,
                     RizQty = g.Sum(a => a.RizQty)
                 };
             var query5 =
-                from a in context.GetTable<RizModel.Client>()
-                join b in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals b.RizCloudServerId
-                join c in context.GetTable<RizModel.CloudServer>() on a.RizCloudServerId equals c.RizCloudServerId
+                from a in context.GetTable<ModelN.Client>()
+                join b in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals b.RizCloudServerId
+                join c in context.GetTable<ModelN.Server>() on a.RizCloudServerId equals c.RizCloudServerId
                 join d in subquery on a.RizClientId equals d.RizClientId
                 where a.RizClientId > 70 && a.RizCloudServerId > 0
                 select a;
-            context.Delete<RizModel.Client>(query5);
+            context.Delete<ModelN.Client>(query5);
             context.SubmitChanges();
             Debug.Assert(query5.Count() == 0);
 
             // 一次性保存，uow ~~
             context.Delete<TDemo>(x => x.RizDemoId > 100);
-            context.Delete<RizModel.Client>(x => x.RizClientId > 100);
-            context.Delete<RizModel.ClientAccount>(x => x.RizClientId > 100);
-            context.Delete<RizModel.ClientAccountMarket>(x => x.RizClientId > 100);
+            context.Delete<ModelN.Client>(x => x.RizClientId > 100);
+            context.Delete<ModelN.Account>(x => x.RizClientId > 100);
+            context.Delete<ModelN.Market>(x => x.RizClientId > 100);
 
             // 提交的同时查出数据
             // 适用场景：批量导入数据
@@ -2402,7 +2402,7 @@ namespace Riz.XFramework.UnitTest
             context.AddQuery(subquery);
             // context.AddQuery('Exec #存储过程#');
             // context.AddQuery('#文本脚本#');
-            List<RizModel.Client> result0 = null;
+            List<ModelN.Client> result0 = null;
             context.SubmitChanges(out result0);
             //SQL=> 
             //DELETE t0 FROM [Sys_Demo] t0 
@@ -2425,74 +2425,74 @@ namespace Riz.XFramework.UnitTest
             Console.WriteLine("7. API");
             var context = _newContext();
 
-            var any = context.GetTable<RizModel.Client>().Any();
-            any = context.GetTable<RizModel.Client>().Any(x => x.RizClientCode.Contains("XF"));
+            var any = context.GetTable<ModelN.Client>().Any();
+            any = context.GetTable<ModelN.Client>().Any(x => x.RizClientCode.Contains("XF"));
 
-            var count = context.GetTable<RizModel.Client>().Count();
-            count = context.GetTable<RizModel.Client>().Count(x => x.RizClientCode.Contains("XF"));
+            var count = context.GetTable<ModelN.Client>().Count();
+            count = context.GetTable<ModelN.Client>().Count(x => x.RizClientCode.Contains("XF"));
 #if !net40
-            count = context.GetTable<RizModel.Client>().CountAsync().Result;
-            count = context.GetTable<RizModel.Client>().CountAsync(x => x.RizClientCode.Contains("XF")).Result;
+            count = context.GetTable<ModelN.Client>().CountAsync().Result;
+            count = context.GetTable<ModelN.Client>().CountAsync(x => x.RizClientCode.Contains("XF")).Result;
 #endif
 
-            var firstOrDefault = context.GetTable<RizModel.Client>().FirstOrDefault();
-            firstOrDefault = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientCode.Contains("XF"));
+            var firstOrDefault = context.GetTable<ModelN.Client>().FirstOrDefault();
+            firstOrDefault = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientCode.Contains("XF"));
 #if !net40
-            firstOrDefault = context.GetTable<RizModel.Client>().FirstOrDefaultAsync(x => x.RizClientCode.Contains("XF")).Result;
+            firstOrDefault = context.GetTable<ModelN.Client>().FirstOrDefaultAsync(x => x.RizClientCode.Contains("XF")).Result;
 #endif
 
             // 适用于需要产生NULL的场景
-            var max = context.GetTable<RizModel.Client>().Where(a => a.RizClientId == -1).Max(a => (Nullable<int>)a.RizClientId);
+            var max = context.GetTable<ModelN.Client>().Where(a => a.RizClientId == -1).Max(a => (Nullable<int>)a.RizClientId);
             // 适用于不需要产生NULL的场景
-            max = context.GetTable<RizModel.Client>().Where(a => a.RizClientCode.Contains("XF")).Max(a => a.RizClientId);
+            max = context.GetTable<ModelN.Client>().Where(a => a.RizClientCode.Contains("XF")).Max(a => a.RizClientId);
             // 不需要忽略空值
-            max = context.GetTable<RizModel.Client>().Where(a => a.RizClientCode.Contains("XF")).Max(a => (Nullable<int>)a.RizClientId ?? 0);
+            max = context.GetTable<ModelN.Client>().Where(a => a.RizClientCode.Contains("XF")).Max(a => (Nullable<int>)a.RizClientId ?? 0);
 
-            var min = context.GetTable<RizModel.Client>().Min(a => a.RizClientId);
-            min = context.GetTable<RizModel.Client>().Where(a => a.RizClientCode.Contains("XF")).Min(a => a.RizClientId);
+            var min = context.GetTable<ModelN.Client>().Min(a => a.RizClientId);
+            min = context.GetTable<ModelN.Client>().Where(a => a.RizClientCode.Contains("XF")).Min(a => a.RizClientId);
 
-            var avg = context.GetTable<RizModel.Client>().Average(a => (double)a.RizQty);
-            var avg2 = context.GetTable<RizModel.Client>().Average(a => (decimal)a.RizQty);
-            avg = (double)context.GetTable<RizModel.Client>().Where(a => a.RizClientCode.Contains("XF")).Average(a => (float)a.RizClientId);
+            var avg = context.GetTable<ModelN.Client>().Average(a => (double)a.RizQty);
+            var avg2 = context.GetTable<ModelN.Client>().Average(a => (decimal)a.RizQty);
+            avg = (double)context.GetTable<ModelN.Client>().Where(a => a.RizClientCode.Contains("XF")).Average(a => (float)a.RizClientId);
 
-            var sum = context.GetTable<RizModel.Client>().Sum(a => (long)a.RizQty);
-            sum = context.GetTable<RizModel.Client>().Where(a => a.RizClientCode.Contains("XF")).Sum(a => a.RizClientId);
+            var sum = context.GetTable<ModelN.Client>().Sum(a => (long)a.RizQty);
+            sum = context.GetTable<ModelN.Client>().Where(a => a.RizClientCode.Contains("XF")).Sum(a => a.RizClientId);
 
-            var toArray = context.GetTable<RizModel.Client>().ToArray();
-            toArray = context.GetTable<RizModel.Client>().OrderBy(a => a.RizClientId).ToArray(2, 10);
+            var toArray = context.GetTable<ModelN.Client>().ToArray();
+            toArray = context.GetTable<ModelN.Client>().OrderBy(a => a.RizClientId).ToArray(2, 10);
 
-            var dataTalbe = context.GetTable<RizModel.Client>().ToDataTable();
-            var dataSet = context.GetTable<RizModel.Client>().ToDataSet();
+            var dataTalbe = context.GetTable<ModelN.Client>().ToDataTable();
+            var dataSet = context.GetTable<ModelN.Client>().ToDataSet();
 
-            var cQuery = context.GetTable<RizModel.Client>().Where(x => x.RizClientId > 100);
+            var cQuery = context.GetTable<ModelN.Client>().Where(x => x.RizClientId > 100);
             int rowCount = context.Database.ExecuteNonQuery(cQuery);
 
-            cQuery = context.GetTable<RizModel.Client>().Where(x => x.RizClientId > 100);
+            cQuery = context.GetTable<ModelN.Client>().Where(x => x.RizClientId > 100);
             object obj = context.Database.ExecuteScalar(cQuery);
 
-            context.Update<RizModel.Client>(x => new RizModel.Client
+            context.Update<ModelN.Client>(x => new ModelN.Client
             {
                 RizClientName = "蒙3"
             }, x => x.RizClientId == 3);
             var query =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId == 1
                 select 5;
             context.AddQuery(query);
             List<int> result1 = null;
             context.SubmitChanges(out result1);
 
-            context.Update<RizModel.Client>(x => new RizModel.Client
+            context.Update<ModelN.Client>(x => new ModelN.Client
             {
                 RizClientName = "蒙4"
             }, x => x.RizClientId == 4);
             query =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId == 1
                 select 5;
             context.AddQuery(query);
             var query2 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId == 1
                 select 6;
             context.AddQuery(query2);
@@ -2503,49 +2503,49 @@ namespace Riz.XFramework.UnitTest
 
             // 一性加载多个列表 ****
             var query3 =
-               from a in context.GetTable<RizModel.Client>()
+               from a in context.GetTable<ModelN.Client>()
                where a.RizClientId >= 1 && a.RizClientId <= 10
                select 5;
             var query4 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId >= 1 && a.RizClientId <= 10
                 select 6;
             var tuple = context.Database.Execute<int, int>(query3, query4);
 
             query3 =
-               from a in context.GetTable<RizModel.Client>()
+               from a in context.GetTable<ModelN.Client>()
                where a.RizClientId >= 1 && a.RizClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId >= 1 && a.RizClientId <= 10
                 select 6;
             var query5 =
-                 from a in context.GetTable<RizModel.Client>()
+                 from a in context.GetTable<ModelN.Client>()
                  where a.RizClientId >= 1 && a.RizClientId <= 10
                  select 7;
             var tuple2 = context.Database.Execute<int, int, int>(query3, query4, query5);
 #if !net40
             query3 =
-               from a in context.GetTable<RizModel.Client>()
+               from a in context.GetTable<ModelN.Client>()
                where a.RizClientId >= 1 && a.RizClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId >= 1 && a.RizClientId <= 10
                 select 6;
             tuple = context.Database.ExecuteAsync<int, int>(query3, query4).Result;
 
             query3 =
-               from a in context.GetTable<RizModel.Client>()
+               from a in context.GetTable<ModelN.Client>()
                where a.RizClientId >= 1 && a.RizClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<RizModel.Client>()
+                from a in context.GetTable<ModelN.Client>()
                 where a.RizClientId >= 1 && a.RizClientId <= 10
                 select 6;
             query5 =
-                 from a in context.GetTable<RizModel.Client>()
+                 from a in context.GetTable<ModelN.Client>()
                  where a.RizClientId >= 1 && a.RizClientId <= 10
                  select 6;
             tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
@@ -2556,20 +2556,20 @@ namespace Riz.XFramework.UnitTest
             {
                 using (var transaction = context.Database.BeginTransaction())
                 {
-                    var result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId <= 10);
-                    context.Update<RizModel.Client>(x => new RizModel.Client
+                    var result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId <= 10);
+                    context.Update<ModelN.Client>(x => new ModelN.Client
                     {
                         RizClientName = "事务1"
                     }, x => x.RizClientId == result.RizClientId);
                     context.SubmitChanges();
-                    result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
+                    result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
 
-                    context.Update<RizModel.Client>(x => new RizModel.Client
+                    context.Update<ModelN.Client>(x => new ModelN.Client
                     {
                         RizClientName = "事务2"
                     }, x => x.RizClientId == result.RizClientId);
                     context.SubmitChanges();
-                    result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
+                    result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
 
                     //throw new Exception("假装异常");
                     //transaction.Rollback();
@@ -2595,19 +2595,19 @@ namespace Riz.XFramework.UnitTest
                 // 指定事务
                 context.Database.Transaction = transaction2;
 
-                var result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId <= 10);
-                context.Update<RizModel.Client>(x => new RizModel.Client
+                var result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId <= 10);
+                context.Update<ModelN.Client>(x => new ModelN.Client
                 {
                     RizClientName = "事务3"
                 }, x => x.RizClientId == result.RizClientId);
                 context.SubmitChanges();
-                result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
+                result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
 
-                context.Update<RizModel.Client>(x => new RizModel.Client
+                context.Update<ModelN.Client>(x => new ModelN.Client
                 {
                     RizClientName = "事务4"
                 }, x => x.RizClientId == result.RizClientId);
-                result = context.GetTable<RizModel.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
+                result = context.GetTable<ModelN.Client>().FirstOrDefault(x => x.RizClientId == result.RizClientId);
 
                 if (!this.CaseSensitive)
                 {
@@ -2647,7 +2647,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<RizModel.Rabbit>()
+                    .GetTable<ModelN.Rabbit>()
                     .ToList();
 
                 //                string sql = @"
@@ -2849,7 +2849,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<RizModel.Client>()
+                    .GetTable<ModelN.Client>()
                     .Include(a => a.Accounts)
                     .ToList();
             }
@@ -2862,7 +2862,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<RizModel.Client>()
+                    .GetTable<ModelN.Client>()
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .ToList();

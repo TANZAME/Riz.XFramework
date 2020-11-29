@@ -298,13 +298,13 @@ namespace Riz.XFramework.UnitTest
             public virtual string Remark { get; set; }
 
             //[ForeignKey("CloudServerId")]
-            public virtual CloudServer CloudServer { get; set; }
+            public virtual Server CloudServer { get; set; }
 
             [ForeignKey("CloudServerId")]
-            public virtual CloudServer LocalServer { get; set; }
+            public virtual Server LocalServer { get; set; }
 
             [ForeignKey("ClientId")]
-            public virtual IList<ClientAccount> Accounts { get; set; }
+            public virtual IList<Account> Accounts { get; set; }
 
             /// <summary>
             /// 构造函数勾子
@@ -313,20 +313,20 @@ namespace Riz.XFramework.UnitTest
         }
 
         [Table(Name = "Bas_ClientAccount")]
-        public partial class ClientAccount
+        public partial class Account
         {
             /// <summary>
-            /// 初始化 <see cref="ClientAccount"/> 类的新实例
+            /// 初始化 <see cref="Account"/> 类的新实例
             /// </summary>
-            public ClientAccount()
+            public Account()
             {
                 this.HookConstructor();
             }
 
             /// <summary>
-            /// 初始化 <see cref="ClientAccount"/> 类的新实例
+            /// 初始化 <see cref="Account"/> 类的新实例
             /// </summary>
-            public ClientAccount(ClientAccount model)
+            public Account(Account model)
             {
                 this.HookConstructor();
             }
@@ -362,10 +362,10 @@ namespace Riz.XFramework.UnitTest
             [ForeignKey("ClientId")]
             public virtual Client Client { get; set; }
 
-            public virtual IList<ClientAccountMarket> Markets { get; set; }
+            public virtual IList<Market> Markets { get; set; }
 
             [ForeignKey(new[] { "ClientId", "AccountId" }, new[] { "ClientId", "{CONST}'2'" })]
-            public virtual ICollection<ClientAccountMarket> Markets2 { get; set; }
+            public virtual ICollection<Market> Markets2 { get; set; }
 
             /// <summary>
             /// 构造函数勾子
@@ -374,20 +374,20 @@ namespace Riz.XFramework.UnitTest
         }
 
         [Table(Name = "Bas_ClientAccountMarket")]
-        public partial class ClientAccountMarket
+        public partial class Market
         {
             /// <summary>
-            /// 初始化 <see cref="ClientAccountMarket"/> 类的新实例
+            /// 初始化 <see cref="Market"/> 类的新实例
             /// </summary>
-            public ClientAccountMarket()
+            public Market()
             {
                 this.HookConstructor();
             }
 
             /// <summary>
-            /// 初始化 <see cref="ClientAccountMarket"/> 类的新实例
+            /// 初始化 <see cref="Market"/> 类的新实例
             /// </summary>
-            public ClientAccountMarket(ClientAccountMarket model)
+            public Market(Market model)
             {
                 this.HookConstructor();
             }
@@ -430,20 +430,20 @@ namespace Riz.XFramework.UnitTest
         }
 
         [Table(Name = "Sys_CloudServer")]
-        public partial class CloudServer
+        public partial class Server
         {
             /// <summary>
-            /// 初始化 <see cref="CloudServer"/> 类的新实例
+            /// 初始化 <see cref="Server"/> 类的新实例
             /// </summary>
-            public CloudServer()
+            public Server()
             {
                 this.HookConstructor();
             }
 
             /// <summary>
-            /// 初始化 <see cref="CloudServer"/> 类的新实例
+            /// 初始化 <see cref="Server"/> 类的新实例
             /// </summary>
-            public CloudServer(CloudServer model)
+            public Server(Server model)
             {
                 this.HookConstructor();
             }

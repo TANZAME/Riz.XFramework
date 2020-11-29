@@ -10,20 +10,20 @@ namespace Riz.XFramework.UnitTest.Oracle
     public class OracleModel
     {
         [Table(Name = "Sys_Demo")]
-        public class OracleDemo : Model.Demo
+        public class Demo : Model.Demo
         {
-            public OracleDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public OracleDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public OracleDemo(OracleDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 
@@ -46,6 +46,24 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// </summary>
             [Column(DbType = OracleDbType.NVarchar2, Size = 32)]
             public override string DemoName { get; set; }
+
+            /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar")]
+            public override char DemoChar { get; set; }
+
+            /// <summary>
+            /// demochar
+            /// </summary>
+            [Column(DbType = OracleDbType.NChar, Size = 1, Name = "demonchar")]
+            public override char DemoNChar { get; set; }
+
+            /// <summary>
+            /// demochar_nullable
+            /// </summary>
+            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar_nullable")]
+            public override Nullable<char> DemoChar_Nullable { get; set; }
 
             /// <summary>
             /// demodate
@@ -82,9 +100,6 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// </summary>        
             [Column(DbType = OracleDbType.TimeStamp, Scale = 7)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
-
-            // ############################### 美丽的分隔线 ###################################
-
 
             /// <summary>
             /// Time 类型
@@ -173,7 +188,7 @@ namespace Riz.XFramework.UnitTest.Oracle
 
             }
 
-            public vwOracleDemo(OracleDemo model)
+            public vwOracleDemo(Demo model)
                 : base(model)
             {
 
@@ -307,14 +322,6 @@ namespace Riz.XFramework.UnitTest.Oracle
                     return this.DemoVarBinary_Nullable != null ? Encoding.UTF8.GetString(this.DemoVarBinary_Nullable) : null;
                 }
             }
-        }
-
-        [Table(Name = "bas_post")]
-        public class bas_post
-        {
-            public int id { get; set; }
-
-            public int post_id { get; set; }
         }
     }
 }

@@ -1,29 +1,30 @@
 ﻿
 using System;
+using System.Text;
+using System.Data.SqlTypes;
 
 using Riz.XFramework.Data;
-using MySql.Data.MySqlClient;
-using System.Text;
+using NpgsqlTypes;
 
-namespace Riz.XFramework.UnitTest.MySql
+namespace Riz.XFramework.UnitTest.Postgre
 {
-    public class RizMySqlModel
+    public class PostgreModelN
     {
         [Table(Name = "Sys_Demo")]
-        public class RizMySqlDemo : RizModel.Demo
+        public class Demo : ModelN.Demo
         {
-            public RizMySqlDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public RizMySqlDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public RizMySqlDemo(RizMySqlDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 
@@ -32,106 +33,100 @@ namespace Riz.XFramework.UnitTest.MySql
             /// <summary>
             /// democode
             /// </summary>        
-            [Column(DbType = MySqlDbType.VarChar, Size = 40, Name = "DemoCode")]
+            [Column(DbType = NpgsqlDbType.Varchar, Size = 32, Name = "DemoCode")]
             public override string RizDemoCode { get; set; }
 
             /// <summary>
             /// demoname
             /// </summary>
-            [Column(DbType = MySqlDbType.VarChar, Size = 32, Name = "DemoName")]
+            [Column(DbType = NpgsqlDbType.Varchar, Size = 32, Name = "DemoName")]
             public override string RizDemoName { get; set; }
-
-            /// <summary>
-            /// demochar
-            /// </summary>
-            [Column(DbType = System.Data.DbType.String, Size = 1, Name = "DemoChar")]
-            public override char RizDemoChar { get; set; }
-
-            /// <summary>
-            /// demochar
-            /// </summary>
-            [Column(DbType = System.Data.DbType.String, Size = 1, Name = "DemoNChar")]
-            public override char RizDemoNChar { get; set; }
-
-            /// <summary>
-            /// demochar_nullable
-            /// </summary>
-            [Column(DbType = System.Data.DbType.String, Size = 1, Name = "DemoChar_Nullable")]
-            public override Nullable<char> RizDemoChar_Nullable { get; set; }
 
             /// <summary>
             /// demodate
             /// </summary>        
-            [Column(DbType = MySqlDbType.Date, Name = "DemoDate")]
+            [Column(DbType = NpgsqlDbType.Date, Name = "DemoDate")]
             public override DateTime RizDemoDate { get; set; }
 
             /// <summary>
             /// demodate_nullable
             /// </summary>        
-            [Column(DbType = MySqlDbType.Date, Name = "DemoDate_Nullable")]
+            [Column(DbType = NpgsqlDbType.Date, Name = "DemoDate_Nullable")]
             public override Nullable<DateTime> RizDemoDate_Nullable { get; set; }
 
             /// <summary>
             /// demodatetime2
             /// </summary>    
-            [Column(DbType = MySqlDbType.DateTime, Scale = 6, Name = "DemoDateTime2")]
+            [Column(DbType = NpgsqlDbType.Timestamp, Scale = 6, Name = "DemoDateTime2")]
             public override DateTime RizDemoDateTime2 { get; set; }
 
             /// <summary>
             /// demodatetime2_nullable
             /// </summary>        
-            [Column(DbType = MySqlDbType.DateTime, Scale = 6, Name = "DemoDateTime2_Nullable")]
+            [Column(DbType = NpgsqlDbType.Timestamp, Scale = 6, Name = "DemoDateTime2_Nullable")]
             public override Nullable<DateTime> RizDemoDateTime2_Nullable { get; set; }
 
-            // ############################### 美丽的分隔线 ###################################
+            /// <summary>
+            /// Time 类型，映射到 .NET DateTime类型
+            /// <para>如果映射到TimeSpan类型会报错</para>
+            /// </summary>
+            [Column(DbType = NpgsqlDbType.Time, Scale = 2, Name = "DemoTime_Nullable")]
+            public override Nullable<TimeSpan> RizDemoTime_Nullable { get; set; }
 
             /// <summary>
             /// demotext_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.MediumText)]
+            [Column(DbType = NpgsqlDbType.Text)]
             public virtual string DemoText_Nullable { get; set; }
 
             /// <summary>
             /// demontext_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.LongText)]
+            [Column(DbType = NpgsqlDbType.Text)]
             public virtual string DemoNText_Nullable { get; set; }
 
-
+#if netcore
+            
             /// <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Time, Scale = 5, Name = "DemoTime_Nullable")]
-            public override Nullable<TimeSpan> RizDemoTime_Nullable { get; set; }
+            [Column(DbType = NpgsqlDbType.TimestampTz, Scale = 6, Name = "DemoDatetimeOffset_Nullable")]
+            public override Nullable<DateTimeOffset> RizDemoDatetimeOffset_Nullable { get; set; }
 
-            /// <summary>
+#endif
+#if !netcore
+
+            // <summary>
             /// demolong_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.DateTime, Name = "DemoDatetimeOffset_Nullable")]
-            public new Nullable<DateTime> RizDemoDatetimeOffset_Nullable { get; set; }
+            [Column(DbType = NpgsqlDbType.TimestampTZ, Scale = 6, Name = "DemoDatetimeOffset_Nullable")]
+            public override Nullable<DateTimeOffset> RizDemoDatetimeOffset_Nullable { get; set; }
+
+#endif
+
 
             /// <summary>
             /// demobinary_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.MediumBlob)]
+            [Column(DbType = NpgsqlDbType.Bytea)]
             public virtual byte[] DemoBinary_Nullable { get; set; }
 
             /// <summary>
             /// demvarbinary_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.LongBlob)]
+            [Column(DbType = NpgsqlDbType.Bytea)]
             public virtual byte[] DemoVarBinary_Nullable { get; set; }
 
             /// <summary>
             /// demotimestamp_nullable
             /// </summary>
-            [Column(DbType = MySqlDbType.Timestamp, Scale = 6)]
+            [Column(DbType = NpgsqlDbType.Timestamp)]
             public virtual Nullable<DateTime> DemoTimestamp_Nullable { get; set; }
 
             ///// <summary>
-            ///// MYSQL 没有xml，可用字符串代替
+            ///// Xml Npg .NET 不支持xml类型
             ///// </summary>
-            //[Column(DbType = System.Data.DbType.Xml)]
+            //[Column(DbType = NpgsqlDbType.Xml)]
             //public virtual SqlXml DemoXml_Nullable { get; set; }
 
             /// <summary>

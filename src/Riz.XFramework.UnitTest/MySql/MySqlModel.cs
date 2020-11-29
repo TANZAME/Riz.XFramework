@@ -83,8 +83,6 @@ namespace Riz.XFramework.UnitTest.MySql
             [Column(DbType = MySqlDbType.DateTime, Scale = 6)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
 
-            // ############################### 美丽的分隔线 ###################################
-
             /// <summary>
             /// demotext_nullable
             /// </summary>

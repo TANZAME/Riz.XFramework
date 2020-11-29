@@ -10,7 +10,7 @@ using Riz.XFramework.Data.SqlClient;
 
 namespace Riz.XFramework.UnitTest.Postgre
 {
-    public class PostgreTest : TestBase<PostgreModel.PostgreDemo>
+    public class PostgreTest : TestBase<PostgreModel.Demo>
     {
         const string connString = "Host=localhost;Database=Riz_XFramework;uid=postgres;pwd=123456;pooling=true;minpoolsize=1;maxpoolsize=1;";
 
@@ -31,14 +31,14 @@ namespace Riz.XFramework.UnitTest.Postgre
             var context = _newContext();
             // 构造函数
             var query =
-                 from a in context.GetTable<PostgreModel.PostgreDemo>()
+                 from a in context.GetTable<PostgreModel.Demo>()
                  where a.DemoId <= 10
-                 select new PostgreModel.PostgreDemo(a);
+                 select new PostgreModel.Demo(a);
             var r1 = query.ToList();
             query =
-               from a in context.GetTable<PostgreModel.PostgreDemo>()
+               from a in context.GetTable<PostgreModel.Demo>()
                where a.DemoId <= 10
-               select new PostgreModel.PostgreDemo(a.DemoId, a.DemoName);
+               select new PostgreModel.Demo(a.DemoId, a.DemoName);
             r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -56,10 +56,10 @@ namespace Riz.XFramework.UnitTest.Postgre
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<PostgreModel.PostgreDemo>();
+            var demos = new List<PostgreModel.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                PostgreModel.PostgreDemo d = new PostgreModel.PostgreDemo
+                PostgreModel.Demo d = new PostgreModel.Demo
                 {
                     DemoCode = "D0000001",
                     DemoName = "N0000001",
@@ -87,16 +87,16 @@ namespace Riz.XFramework.UnitTest.Postgre
                 };
                 demos.Add(d);
             }
-            context.Insert<PostgreModel.PostgreDemo>(demos);
+            context.Insert<PostgreModel.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<PostgreModel.PostgreDemo>()
+                .GetTable<PostgreModel.Demo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
             Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
-            var demo = new PostgreModel.PostgreDemo
+            var demo = new PostgreModel.Demo
             {
                 DemoCode = "D0000001",
                 DemoName = "N0000001",
@@ -124,10 +124,10 @@ namespace Riz.XFramework.UnitTest.Postgre
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<PostgreModel.PostgreDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            demo = context.GetTable<PostgreModel.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
-                .GetTable<PostgreModel.PostgreDemo>()
+                .GetTable<PostgreModel.Demo>()
                 .Where(x => x.DemoId == demo.DemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();

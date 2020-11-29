@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
+using Riz.XFramework;
 using Riz.XFramework.Data;
+using Riz.XFramework.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using System.Data;
-using System.Reflection;
 
-namespace Riz.XFramework.UnitTest
+namespace Riz.XFramework.UnitTest.Oracle
 {
-    public abstract class TestBase<TDemo> : ITest where TDemo : Model.Demo, new()
+    public class OracleTestS : ITest
     {
+        const string connString = "User Id=c##sa;Password=123456;Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ORACLE)))";
         private string _demoName = "002F";
         private int[] _demoIdList = new int[] { 2, 3 };
         private string[] _demoNameList = new string[] { "A", "B", "C" };
@@ -28,14 +34,25 @@ namespace Riz.XFramework.UnitTest
         /// </summary>
         public bool CaseSensitive { get; set; }
 
-        public TestBase()
+        public OracleTestS()
         {
             _newContext = this.CreateDbContext;
         }
 
-        public abstract IDbContext CreateDbContext();
+        public IDbContext CreateDbContext()
+        {
+            // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
+            // new OracleDbContext();
+            var context = new OracleDbContext(connString)
+            {
+                IsDebug = this.IsDebug,
+                CaseSensitive = this.CaseSensitive
+            };
 
-        public virtual void Run(DatabaseType dbType)
+            return context;
+        }
+
+        public void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
             Query();
@@ -49,7 +66,7 @@ namespace Riz.XFramework.UnitTest
         }
 
         // 单表查询
-        protected virtual void Query()
+        protected void Query()
         {
             Console.WriteLine("1. Query");
             var context = _newContext();
@@ -61,7 +78,7 @@ namespace Riz.XFramework.UnitTest
             //// 匿名类
             var guid = Guid.NewGuid();
             var dynamicQuery =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 where a.DemoId <= 10
                 select new
                 {
@@ -94,7 +111,7 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[DemoId] <= 10
             // 点标记
             dynamicQuery = context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Where(a => a.DemoId <= 10)
                 .Select(a => new
                 {
@@ -129,25 +146,25 @@ namespace Riz.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            var result5 = context.GetTable<TDemo>().Where(x => x.DemoId <= 10).Select<TDemo, dynamic>(x => x).ToList();
+            var result5 = context.GetTable<OracleModelS.Demo>().Where(x => x.DemoId <= 10).Select<OracleModelS.Demo, dynamic>(x => x).ToList();
             //Debug.Assert(result5.Count == 10);
             if (!this.CaseSensitive) result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 where a.DemoId <= 10 && a.DemoDate > sDate && a.DemoDateTime >= sDate && a.DemoDateTime2 > sDate
                 select a;
             var result1 = query.ToList();
             var nonQuery = context.Database.ExecuteNonQuery(query.Sql);
-            var result1_1 = context.Database.Execute<List<TDemo>>(query.Sql);
+            var result1_1 = context.Database.Execute<List<OracleModelS.Demo>>(query.Sql);
             Debug.Assert(result1.Count == result1_1.Count);
             if (result1.Count > 0) Debug.Assert(result1[0].DemoCode == result1_1[0].DemoCode);
             DbRawCommand rawCommand = query.Translate();
 
             // 点标记
             query = context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Where(a => a.DemoId <= 10 && a.DemoDate > sDate && a.DemoDateTime >= sDate && a.DemoDateTime2 > sDate);
             result1 = query.ToList();
 #if !net40
@@ -163,9 +180,9 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[DemoId] > 0 AND t0.[DemoDate] > '2010-04-03' AND t0.[DemoDateTime] >= '2010-04-03 17:12:03.378' AND t0.[DemoDateTime2] > '2010-04-03 17:12:03.378697'
 
             // 指定字段
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     where a.DemoId <= 10
-                    select new TDemo
+                    select new OracleModelS.Demo
                     {
                         DemoId = (int)a.DemoId,
                         DemoCode = (a.DemoCode ?? "C0000001"),
@@ -179,9 +196,9 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Where(a => a.DemoCode != a.DemoId.ToString() && a.DemoName != a.DemoId.ToString() && a.DemoChar == (a.DemoId == 0 ? 'A' : 'A') && a.DemoNChar == 'B')
-                .Select(a => new TDemo
+                .Select(a => new OracleModelS.Demo
                 {
                     DemoDate = a.DemoDateTime2_Nullable.Value,
                     DemoId = a.DemoId,
@@ -208,26 +225,26 @@ namespace Riz.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && context.GetTable<TDemo>().Select(e => e.DemoName).Contains(a.DemoName));
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoId <= 10 && context.GetTable<OracleModelS.Demo>().Select(e => e.DemoName).Contains(a.DemoName));
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
 
-            var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
-            query = context.GetTable<TDemo>().Where(a => a.DemoId <= 10 && !queryFilters.Contains(a.DemoName));
+            var queryFilters = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoId <= 10 && !queryFilters.Contains(a.DemoName));
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
 
             // 带参数构造函数
             Parameterized();
             //query =
-            //     from a in context.GetTable<TDemo>()
+            //     from a in context.GetTable<OracleModelS.Demo>()
             //     where a.DemoId <= 10
-            //     select new TDemo(a);   
+            //     select new OracleModelS.Demo(a);   
             //r1 = query.ToList();
             //query =
-            //   from a in context.GetTable<TDemo>()
+            //   from a in context.GetTable<OracleModelS.Demo>()
             //   where a.DemoId <= 10
-            //   select new TDemo(a.DemoId, a.DemoName);
+            //   select new OracleModelS.Demo(a.DemoId, a.DemoName);
             //r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -235,16 +252,16 @@ namespace Riz.XFramework.UnitTest
             //t0.[DemoName] AS [DemoName]
             //FROM [Sys_Demo] t0 
 
-            var query6 = context.GetTable<TDemo>().Select(a => a.DemoCode ?? "N");
+            var query6 = context.GetTable<OracleModelS.Demo>().Select(a => a.DemoCode ?? "N");
             var result6 = query6.ToList();
             context.Database.ExecuteNonQuery(query6.Sql);
 
-            query6 = context.GetTable<TDemo>().Select(a => a.DemoCode + a.DemoName);
+            query6 = context.GetTable<OracleModelS.Demo>().Select(a => a.DemoCode + a.DemoName);
             result6 = query6.ToList();
             context.Database.ExecuteNonQuery(query6.Sql);
 
             //分页查询（非微软api）
-            query = from a in context.GetTable<TDemo>() select a;
+            query = from a in context.GetTable<OracleModelS.Demo>() select a;
             var result2 = query.ToPagedList(1, 20);
 #if !net40
             result2 = query.ToPagedListAsync(1, 20).Result;
@@ -259,7 +276,7 @@ namespace Riz.XFramework.UnitTest
             //FROM [Sys_Demo] t0 
 
             // 如果页码大于1，必须指定 OrderBy ###
-            query = context.GetTable<TDemo>();
+            query = context.GetTable<OracleModelS.Demo>();
             result2 = query.OrderBy(a => a.DemoDecimal).ToPagedList(2, 1);
             //SQL=>
             //SELECT
@@ -274,7 +291,7 @@ namespace Riz.XFramework.UnitTest
             // 分页查询
             // 1.不是查询第一页的内容时，必须先OrderBy再分页，OFFSET ... Fetch Next 分页语句要求有 OrderBy
             // 2.OrderBy表达式里边的参数必须跟query里边的变量名一致，如此例里的 a。SQL解析时根据此变更生成表别名
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     orderby a.DemoCode
                     select a;
             query = query.Skip(1).Take(18);
@@ -282,7 +299,7 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query.Sql);
             // 点标记
             query = context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .OrderBy(a => a.DemoCode)
                 .Skip(1)
                 .Take(18);
@@ -299,7 +316,7 @@ namespace Riz.XFramework.UnitTest
             //OFFSET 1 ROWS FETCH NEXT 18 ROWS ONLY
 
             query =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 where a.DemoId <= 10
                 orderby a.DemoCode
                 select a;
@@ -317,7 +334,7 @@ namespace Riz.XFramework.UnitTest
             //OFFSET 1 ROWS
 
             query =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 orderby a.DemoCode
                 select a;
             query = query.Take(1);
@@ -334,7 +351,7 @@ namespace Riz.XFramework.UnitTest
 
             // 分页后查查询，结果会产生嵌套查询
             query =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 orderby a.DemoCode
                 select a;
             query = query.Skip(1);
@@ -365,28 +382,28 @@ namespace Riz.XFramework.UnitTest
             //OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY 
 
             // 过滤条件
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     where a.DemoName == "N0000002" || a.DemoCode == "C0000002" && a.DemoByte_Nullable.Value > 0
                     select a;
             result1 = query.ToList();
             // 点标记
-            query = context.GetTable<TDemo>().Where(a => a.DemoName == "N0000002" || a.DemoCode == "C0000002");
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoName == "N0000002" || a.DemoCode == "C0000002");
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a => a.DemoName.Contains("00"));
-            result1 = query.ToList();
-            Debug.Assert(result1.Count != 0);
-
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.StartsWith("C0000009"));
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoName.Contains("00"));
             result1 = query.ToList();
             Debug.Assert(result1.Count != 0);
 
-            query = context.GetTable<TDemo>().Where(a => a.DemoCode.EndsWith("C0000009") &&
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoCode.StartsWith("C0000009"));
+            result1 = query.ToList();
+            Debug.Assert(result1.Count != 0);
+
+            query = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoCode.EndsWith("C0000009") &&
                 a.DemoCode.Contains(a.DemoName) && a.DemoCode.StartsWith(a.DemoName) && a.DemoCode.EndsWith(a.DemoName));
             result1 = query.ToList();
 
-            query = context.GetTable<TDemo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + a.DemoByte * 12 == 12);
+            query = context.GetTable<OracleModelS.Demo>().Where(a => (a.DemoId + 2) * 12 == 12 && a.DemoId + a.DemoByte * 12 == 12);
             result1 = query.ToList();
-            query = context.GetTable<TDemo>().Where(a =>
+            query = context.GetTable<OracleModelS.Demo>().Where(a =>
                 a.DemoCode.StartsWith(a.DemoName ?? "C0000009") || a.DemoCode.StartsWith(a.DemoName.Length > 0 ? "C0000009" : "C0000010"));
             result1 = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
@@ -408,7 +425,7 @@ namespace Riz.XFramework.UnitTest
             Model.State state = Model.State.Complete;
 
             // 点标记
-            query = context.GetTable<TDemo>().Where(a =>
+            query = context.GetTable<OracleModelS.Demo>().Where(a =>
                         new[] { 1, 2, 3 }.Contains(a.DemoId) &&                         // IN(1,2,3)
                         new List<int> { 1, 2, 3 }.Contains(a.DemoId) &&                 // IN(1,2,3)
                         new List<int>(_demoIdList).Contains(a.DemoId) &&                // IN(1,2,3)
@@ -449,7 +466,7 @@ namespace Riz.XFramework.UnitTest
             // 行号
             var query1 =
                 context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Select(a => new
                 {
                     RowNumber = Data.DbFunction.RowNumber(a.DemoCode)
@@ -463,7 +480,7 @@ namespace Riz.XFramework.UnitTest
 
             var query2 =
                  context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Select(a => new
                 {
                     RowNumber = Data.DbFunction.RowNumber<long, string>(a.DemoCode, OrderBy.DESC)
@@ -472,7 +489,7 @@ namespace Riz.XFramework.UnitTest
 
             query1 =
             context
-            .GetTable<Model.Account>()
+            .GetTable<OracleModelS.Account>()
             .Select(a => new
             {
                 RowNumber = Data.DbFunction.PartitionRowNumber(a.ClientId, a.AccountId)
@@ -481,7 +498,7 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query1.Sql);
             query2 =
                 context
-            .GetTable<Model.Account>()
+            .GetTable<OracleModelS.Account>()
                 .Select(a => new
                 {
                     RowNumber = Data.DbFunction.PartitionRowNumber<long, int, string>(a.ClientId, a.AccountId, OrderBy.DESC)
@@ -489,13 +506,13 @@ namespace Riz.XFramework.UnitTest
             result2_0 = query2.ToList();
 
             // DataTable
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
             var result3 = query.ToDataTable(); //query.Execute<DataTable>(); //context.Database.ExecuteDataTable(query);
 #if !net40
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     orderby a.DemoCode
                     select a;
             query = query.Take(18);
@@ -515,19 +532,19 @@ namespace Riz.XFramework.UnitTest
         }
 
         // 数据库函数支持
-        protected virtual void DbFunction()
+        protected void DbFunction()
         {
             Console.WriteLine("2. DbFunction ");
             var context = _newContext();
             int m_byte = 16;
             Model.State state = Model.State.Complete;
             TimeSpan ts = new TimeSpan(1000000000);
-            var myDemo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == 1);
+            var myDemo = context.GetTable<OracleModelS.Demo>().FirstOrDefault(x => x.DemoId == 1);
 
             #region 字符类型
 
             // 字符串操作
-            var query = from a in context.GetTable<TDemo>()
+            var query = from a in context.GetTable<OracleModelS.Demo>()
                         where
                             string.IsNullOrEmpty(a.DemoCode) &&
                             string.IsNullOrEmpty(a.DemoName) &&
@@ -560,7 +577,7 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query.Sql);
             var query1 =
                 context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Select(a => new
                 {
                     DemoId = a.DemoId,
@@ -594,7 +611,7 @@ namespace Riz.XFramework.UnitTest
             #region 数字类型
 
             // 数值型操作
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     where
                         a.DemoId % 2 == 10 &&
                         a.DemoId / 2 == 10 &&
@@ -626,7 +643,7 @@ namespace Riz.XFramework.UnitTest
             context.Database.ExecuteNonQuery(query.Sql);
             var query2 =
                 context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Select(a => new
                 {
                     DemoId = a.DemoId,
@@ -681,12 +698,12 @@ namespace Riz.XFramework.UnitTest
             // 日期类型操作
             #region 条件
 
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     where a.DemoDate == DateTime.Now && !DateTime.IsLeapYear(2019)
                     select a;
             result = query.ToList();
 
-            query = from a in context.GetTable<TDemo>()
+            query = from a in context.GetTable<OracleModelS.Demo>()
                     where
                         a.DemoDate == DateTime.Now &&
                         a.DemoDateTime == DateTime.UtcNow &&
@@ -767,7 +784,7 @@ namespace Riz.XFramework.UnitTest
 
             var query3 =
                 context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Select(a => new
                 {
                     DemoId = a.DemoId,
@@ -907,9 +924,9 @@ namespace Riz.XFramework.UnitTest
             #endregion
 
 
-            var queryFilters = context.GetTable<TDemo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
+            var queryFilters = context.GetTable<OracleModelS.Demo>().Where(a => a.DemoBoolean && a.DemoByte != 2).Select(a => a.DemoName);
             var newQuery =
-                from a in context.GetTable<TDemo>()
+                from a in context.GetTable<OracleModelS.Demo>()
                 where
                     a.DemoName.StartsWith("5") && !a.DemoName.StartsWith("5") &&
                     queryFilters.Contains(a.DemoName) && !queryFilters.Contains(a.DemoName) &&
@@ -927,30 +944,30 @@ namespace Riz.XFramework.UnitTest
         }
 
         // 多表查询
-        protected virtual void Join()
+        protected void Join()
         {
             Console.WriteLine("3. Join ");
             var context = _newContext();
 
             // INNER JOIN
             var query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-             var result = query.ToList();
-            query = from a in context.GetTable<Model.Client>()
-                    join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+            var result = query.ToList();
+            query = from a in context.GetTable<OracleModelS.Client>()
+                    join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
                     select a;
             result = query.ToList();
             // 点标记
             query = context
-                .GetTable<Model.Client>()
-                //.Join(context.GetTable<Model.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
-                .Join(context.GetTable<Model.Server>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a);
+                .GetTable<OracleModelS.Client>()
+                //.Join(context.GetTable<OracleModelS.CloudServer>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a)
+                .Join(context.GetTable<OracleModelS.Server>(), a => a.CloudServerId, b => b.CloudServerId, (a, b) => a);
             query = query.Where(a => a.ClientId > 0);
-            query = query.Where<Model.Client, Model.Server>((a, b) => a.ClientId > 0 && b.CloudServerName != null);
-            query = query.Select<Model.Client, Model.Server, Model.Client>((a, b) => new Model.Client
+            query = query.Where<OracleModelS.Client, OracleModelS.Server>((a, b) => a.ClientId > 0 && b.CloudServerName != null);
+            query = query.Select<OracleModelS.Client, OracleModelS.Server, OracleModelS.Client>((a, b) => new OracleModelS.Client
             {
                 ClientId = a.ClientId,
                 CloudServerId = b.CloudServerId
@@ -959,8 +976,8 @@ namespace Riz.XFramework.UnitTest
             //.Select(a => a.Client);
             result = query.ToList();
             query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Client, Model.Server>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Client, OracleModelS.Server>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
             result = query.ToList();
@@ -981,13 +998,13 @@ namespace Riz.XFramework.UnitTest
             // 更简单的赋值方式 
             // 适用场景：在显示列表时只想显示外键表的一两个字段
             // CloudServer = a.CloudServer 语法相当于 Include 语法，如果左表是空，那么这个导航属性=null 
-            // 不同于 LocalServer = new Model.CloudServer 语法，这种语法导航属性一定不为空
+            // 不同于 LocalServer = new OracleModelS.CloudServer 语法，这种语法导航属性一定不为空
             query =
-                from a in context.GetTable<Model.Client>()
-                select new Model.Client(a)
+                from a in context.GetTable<OracleModelS.Client>()
+                select new OracleModelS.Client(a)
                 {
                     CloudServer = a.CloudServer,
-                    LocalServer = new Model.Server
+                    LocalServer = new OracleModelS.Server
                     {
                         CloudServerId = a.CloudServerId,
                         CloudServerName = a.LocalServer.CloudServerName,
@@ -1011,10 +1028,10 @@ namespace Riz.XFramework.UnitTest
 
             // 1：1关系，1：n关系
             query =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId > 0
                 orderby a.ClientId
-                select new Model.Client(a)
+                select new OracleModelS.Client(a)
                 {
                     CloudServer = a.CloudServer,
                     Accounts = a.Accounts,
@@ -1024,7 +1041,7 @@ namespace Riz.XFramework.UnitTest
             var single = query.FirstOrDefault();
 
 
-            query = context.GetTable<Model.Client>()
+            query = context.GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets2);
             result = query.ToList();
@@ -1057,12 +1074,12 @@ namespace Riz.XFramework.UnitTest
             // Include 语法
             query =
                context
-               .GetTable<Model.Client>()
+               .GetTable<OracleModelS.Client>()
                .Include(a => a.CloudServer);
             result = query.ToList();
             query =
             context
-            .GetTable<Model.Client>()
+            .GetTable<OracleModelS.Client>()
             .Include(a => a.CloudServer, a => new
             {
                 CloudServerId = a.CloudServer.CloudServerId,
@@ -1072,7 +1089,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.CloudServer, a => new
                 {
                     Ok = _demoName,
@@ -1082,13 +1099,13 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
             context
-            .GetTable<Model.Client>()
+            .GetTable<OracleModelS.Client>()
             .Include(a => a.CloudServer, a => new { a.CloudServer.CloudServerCode });
             result = query.ToList();
             query =
                 context
-                .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, a => new Model.Server
+                .GetTable<OracleModelS.Client>()
+                .Include(a => a.CloudServer, a => new OracleModelS.Server
                 {
                     CloudServerId = a.CloudServerId,
                     CloudServerCode = a.CloudServer.CloudServerCode
@@ -1096,8 +1113,8 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, a => new Model.Server
+                .GetTable<OracleModelS.Client>()
+                .Include(a => a.CloudServer, a => new OracleModelS.Server
                 {
                     CloudServerId = a.CloudServerId,
                     CloudServerCode = a.CloudServer.CloudServerCode
@@ -1105,13 +1122,13 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, a => new Model.Server
+                .GetTable<OracleModelS.Client>()
+                .Include(a => a.CloudServer, a => new OracleModelS.Server
                 {
                     CloudServerId = a.CloudServerId,
                     CloudServerCode = a.CloudServer.CloudServerCode
                 })
-                .Include(a => a.Accounts, a => new Model.Account
+                .Include(a => a.Accounts, a => new OracleModelS.Account
                 {
                     AccountId = a.Accounts[0].AccountId,
                     AccountCode = a.Accounts[0].AccountCode,
@@ -1119,13 +1136,13 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 context
-                .GetTable<Model.Client>()
-                .Include(a => a.CloudServer, a => new Model.Server
+                .GetTable<OracleModelS.Client>()
+                .Include(a => a.CloudServer, a => new OracleModelS.Server
                 {
                     CloudServerId = a.CloudServerId,
                     CloudServerCode = a.CloudServer.CloudServerCode
                 })
-                .Include(a => a.Accounts, a => new Model.Account
+                .Include(a => a.Accounts, a => new OracleModelS.Account
                 {
                     AccountId = a.Accounts[0].AccountId,
                     AccountCode = a.Accounts[0].AccountCode,
@@ -1134,13 +1151,13 @@ namespace Riz.XFramework.UnitTest
 
             query =
                 context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.CloudServer);
             query =
                 from a in query
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
                 orderby a.ClientId
-                select new Model.Client(a)
+                select new OracleModelS.Client(a)
                 {
                     CloudServer = a.CloudServer
                 };
@@ -1165,7 +1182,7 @@ namespace Riz.XFramework.UnitTest
             // 还是Include，无限主从孙 ### 
             query =
             from a in context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 //.Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1175,7 +1192,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
                 from a in context
-                    .GetTable<Model.Client>()
+                    .GetTable<OracleModelS.Client>()
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1205,7 +1222,7 @@ namespace Riz.XFramework.UnitTest
             // Include 分页
             query =
             from a in context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1221,7 +1238,7 @@ namespace Riz.XFramework.UnitTest
             // Include 分页
             query =
             from a in context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1235,7 +1252,7 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             query =
             from a in context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -1273,7 +1290,7 @@ namespace Riz.XFramework.UnitTest
 
             query =
                from a in context
-                   .GetTable<Model.Client>()
+                   .GetTable<OracleModelS.Client>()
                    .Include(a => a.CloudServer)
                    .Include(a => a.Accounts)
                where a.ClientId > 0
@@ -1302,13 +1319,13 @@ namespace Riz.XFramework.UnitTest
             var query1 =
                 from a in
                     context
-                    .GetTable<Model.Client>()
+                    .GetTable<OracleModelS.Client>()
                     .Include(a => a.CloudServer)
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
                 group a.Qty by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key.ClientId,
                     ClientCode = g.Key.ClientCode,
@@ -1332,13 +1349,13 @@ namespace Riz.XFramework.UnitTest
             query1 =
                 from a in
                     context
-                    .GetTable<Model.Client>()
+                    .GetTable<OracleModelS.Client>()
                     .Include(a => a.CloudServer)
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .Include(a => a.Accounts[0].Markets[0].Client)
                 group a by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key.ClientId,
                     ClientCode = g.Key.ClientCode,
@@ -1403,7 +1420,7 @@ namespace Riz.XFramework.UnitTest
 
             // 分组后再统计
             var query2 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 group a by a.ClientId into g
                 select new
                 {
@@ -1433,8 +1450,8 @@ namespace Riz.XFramework.UnitTest
             // ) t0
 
             var query3 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId
                 group new { ClientId = a.ClientId, b.AccountId } by new { ClientId = a.ClientId, b.AccountId } into g
                 select new
                 {
@@ -1455,9 +1472,9 @@ namespace Riz.XFramework.UnitTest
             // CROSS JOIN
             var query4 =
                 context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Where(a => a.ClientId <= 10)
-                .SelectMany(a => context.GetTable<Model.Client>(), (a, b) => new
+                .SelectMany(a => context.GetTable<OracleModelS.Client>(), (a, b) => new
                 {
                     RizClientId = a.ClientId,
                     b.ClientName
@@ -1472,8 +1489,8 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN
             query =
-                  from a in context.GetTable<Model.Client>()
-                  join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId into u_b
+                  from a in context.GetTable<OracleModelS.Client>()
+                  join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId into u_b
                   from b in u_b.DefaultIfEmpty()
                   select a;
             query = query.Where(a => a.CloudServer.CloudServerName != null);
@@ -1481,8 +1498,8 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN
             query =
-                  from a in context.GetTable<Model.Client>()
-                  join b in context.GetTable<Model.Server>() on new { a.CloudServerId, CloudServerCode = "567" } equals new { b.CloudServerId, b.CloudServerCode } into u_b
+                  from a in context.GetTable<OracleModelS.Client>()
+                  join b in context.GetTable<OracleModelS.Server>() on new { a.CloudServerId, CloudServerCode = "567" } equals new { b.CloudServerId, b.CloudServerCode } into u_b
                   from b in u_b.DefaultIfEmpty()
                   select a;
             query = query.Where(a => a.CloudServer.CloudServerName != null);
@@ -1497,12 +1514,12 @@ namespace Riz.XFramework.UnitTest
 
             // LEFT JOIN + CROSS JOIN
             query =
-                 from a in context.GetTable<Model.Client>()
-                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId into u_c
+                 from a in context.GetTable<OracleModelS.Client>()
+                 join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId into u_c
                  from b in u_c.DefaultIfEmpty()
                  select a;
             var query5 =
-                query.SelectMany(c => context.GetTable<Model.Server>(), (a, c) => new
+                query.SelectMany(c => context.GetTable<OracleModelS.Server>(), (a, c) => new
                 {
                     ClientId = a.ClientId,
                     CloudServerName = a.CloudServer.CloudServerName,
@@ -1524,8 +1541,8 @@ namespace Riz.XFramework.UnitTest
             {
                 // RIGHT JOIN
                 query =
-                      from a in context.GetTable<Model.Server>()
-                      join b in context.GetTable<Model.Client>() on a.CloudServerId equals b.CloudServerId into u_b
+                      from a in context.GetTable<OracleModelS.Server>()
+                      join b in context.GetTable<OracleModelS.Client>() on a.CloudServerId equals b.CloudServerId into u_b
                       from b in u_b.DefaultIfEmpty(true)
                       where a.CloudServerName == null
                       select b;
@@ -1540,9 +1557,9 @@ namespace Riz.XFramework.UnitTest
             }
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q1 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
-            var q2 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
-            var q3 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10);
+            var q1 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10);
+            var q2 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10);
+            var q3 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10);
             var query6 = q1.Union(q2).Union(q3);
             var result6 = query6.ToList();
             result6 = query6.OrderBy(a => a.ActiveDate).ToList();
@@ -1578,9 +1595,9 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[ClientId] = 1
 
             // UNION 注意UNION分页的写法，仅支持写在最后
-            var q4 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10).AsSubquery();//.OrderBy(x => x.ClientName)
-            var q5 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(5).AsSubquery();
-            var q6 = context.GetTable<Model.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(1).Take(2).AsSubquery();
+            var q4 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10).AsSubquery();//.OrderBy(x => x.ClientName)
+            var q5 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(5).AsSubquery();
+            var q6 = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 10 && x.Accounts[0].AccountId != null).OrderBy(x => x.CloudServer.CloudServerId).Skip(1).Take(2).AsSubquery();
             query6 = q4.Union(q5).Union(q6);
             result6 = query6.ToList();
             result6 = query6.Take(2).ToList();
@@ -1591,10 +1608,10 @@ namespace Riz.XFramework.UnitTest
             result6 = query6.ToList();
 
             // Any
-            var isAny = context.GetTable<Model.Client>().Any();
-            isAny = context.GetTable<Model.Client>().Any(a => a.ActiveDate == DateTime.Now);
-            isAny = context.GetTable<Model.Client>().Distinct().Any(a => a.ActiveDate == DateTime.Now);
-            isAny = context.GetTable<Model.Client>().OrderBy(a => a.ClientId).Skip(2).Take(5).Any(a => a.ActiveDate == DateTime.Now);
+            var isAny = context.GetTable<OracleModelS.Client>().Any();
+            isAny = context.GetTable<OracleModelS.Client>().Any(a => a.ActiveDate == DateTime.Now);
+            isAny = context.GetTable<OracleModelS.Client>().Distinct().Any(a => a.ActiveDate == DateTime.Now);
+            isAny = context.GetTable<OracleModelS.Client>().OrderBy(a => a.ClientId).Skip(2).Take(5).Any(a => a.ActiveDate == DateTime.Now);
             //SQL=> 
             //IF EXISTS(
             //    SELECT TOP 1 1
@@ -1603,7 +1620,7 @@ namespace Riz.XFramework.UnitTest
             //) SELECT 1 ELSE SELECT 0
 
             // FirstOrDefault
-            var f = context.GetTable<Model.Client>().FirstOrDefault();
+            var f = context.GetTable<OracleModelS.Client>().FirstOrDefault();
             //SQL=> 
             //SELECT TOP(1)
             //t0.[ClientId] AS[ClientId],
@@ -1615,7 +1632,7 @@ namespace Riz.XFramework.UnitTest
             //FROM[Bas_Client] t0
 
             // Max,Count,Min,Avg,Sum
-            var max = context.GetTable<Model.Client>().Where(a => a.ClientId < -9).Max(a => a.ClientId);
+            var max = context.GetTable<OracleModelS.Client>().Where(a => a.ClientId < -9).Max(a => a.ClientId);
             //SQL=> 
             //SELECT
             //MAX(t0.[ClientId])
@@ -1624,7 +1641,7 @@ namespace Riz.XFramework.UnitTest
 
             // GROUP BY
             var query7 =
-                 from a in context.GetTable<Model.Client>()
+                 from a in context.GetTable<OracleModelS.Client>()
                  where a.ClientName == "TAN"
                  group a by new { ClientId = a.ClientId, a.ClientName } into g
                  where g.Key.ClientId > 0
@@ -1637,9 +1654,9 @@ namespace Riz.XFramework.UnitTest
             var result7 = query7.ToList();
             // GROUP BY
             query7 =
-                 from a in context.GetTable<Model.Client>()
+                 from a in context.GetTable<OracleModelS.Client>()
                  where a.ClientName == "TAN"
-                 group a by new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName } into g
+                 group a by new OracleModelS.Client { ClientId = a.ClientId, ClientName = a.ClientName } into g
                  where g.Key.ClientId > 0
                  orderby g.Key.ClientName
                  select new
@@ -1660,7 +1677,7 @@ namespace Riz.XFramework.UnitTest
 
             // 分组后再分页
             var query8 =
-                 from a in context.GetTable<Model.Client>()
+                 from a in context.GetTable<OracleModelS.Client>()
                  where a.ClientName == "XFramework1"
                  group a by new { ClientId = a.ClientId, a.ClientName } into g
                  where g.Key.ClientId > 0
@@ -1687,9 +1704,9 @@ namespace Riz.XFramework.UnitTest
             // DISTINCT 分组
             query =
                 context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Distinct()
-                .Select(a => new Model.Client
+                .Select(a => new OracleModelS.Client
                 {
                     ClientId = a.ClientId,
                     ClientName = a.ClientName
@@ -1707,21 +1724,21 @@ namespace Riz.XFramework.UnitTest
 
             // 强制子查询
             query =
-                  from a in context.GetTable<Model.Client>()
-                  join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId into u_c
+                  from a in context.GetTable<OracleModelS.Client>()
+                  join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId into u_c
                   from b in u_c.DefaultIfEmpty()
                   select a;
             query = query.OrderBy(a => a.ClientId).Skip(10).Take(10).AsSubquery();
             result = query.ToList();
             query = from a in query
-                    join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
+                    join b in context.GetTable<OracleModelS.Client>() on a.ClientId equals b.ClientId
                     select a;
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
 
             var subQuery3 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId
                 select new
                 {
                     ClientId = a.ClientId,
@@ -1749,8 +1766,8 @@ namespace Riz.XFramework.UnitTest
             //INNER JOIN [Bas_Client] t1 ON t0.[ClientId] = t1.[ClientId]
 
             var subQuery =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId
                 select new
                 {
                     ClientId = a.ClientId,
@@ -1762,27 +1779,27 @@ namespace Riz.XFramework.UnitTest
             query =
                 from a in subQuery
                 group a by a.ClientId into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key,
                     ClientName = g.Max(a => a.ClientName),
                     Qty = g.Sum(a => a.Qty)
                 };
             query = query.AsSubquery();
-            query = query.Select(a => new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
+            query = query.Select(a => new OracleModelS.Client { ClientId = a.ClientId, ClientName = a.ClientName, Qty = a.Qty }).OrderBy(a => a.Qty);
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
             //var result10 = query.ToPagedList(1, 20);
         }
 
         // 新增记录
-        protected virtual void Insert()
+        protected void Insert()
         {
             Console.WriteLine("4. Insert ");
             var context = _newContext();
 
             // 带自增列
-            var demo = new TDemo
+            var demo = new OracleModelS.Demo
             {
                 DemoCode = "C0000101",
                 DemoName = "N0000101",
@@ -1804,7 +1821,7 @@ namespace Riz.XFramework.UnitTest
             context.Insert(demo);
             context.SubmitChanges();
 
-            var demo2 = new TDemo
+            var demo2 = new OracleModelS.Demo
             {
                 DemoCode = "C0000102",
                 DemoName = "N0000102",
@@ -1825,7 +1842,7 @@ namespace Riz.XFramework.UnitTest
             };
             context.Insert(demo2);
 
-            var demo3 = new TDemo
+            var demo3 = new OracleModelS.Demo
             {
                 DemoCode = "C0000103",
                 DemoName = "N0000103",
@@ -1851,48 +1868,48 @@ namespace Riz.XFramework.UnitTest
 
             // 适用场景：在新增/修改/删除数据的同时查出数据集合
             context.Insert(demo);
-            context.Update<TDemo>(a => new TDemo
+            context.Update<OracleModelS.Demo>(a => new OracleModelS.Demo
             {
                 DemoCode = "C0000102"
             }, a => a.DemoId == demo.DemoId);
-            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100);
+            var cQuery = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
-            context.Update<TDemo>(a => new TDemo
+            context.Update<OracleModelS.Demo>(a => new OracleModelS.Demo
             {
                 DemoCode = "C0000'102"
             }, a => a.DemoId == demo2.DemoId);
             context.Insert(demo3);
-            List<Model.Client> result = null;
+            List<OracleModelS.Client> result = null;
             context.SubmitChanges(out result);
             Debug.Assert(result.Count <= 100);
 
             context.Insert(demo);
-            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId <= 100);
+            cQuery = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId <= 100);
             context.AddQuery(cQuery);
             context.Insert(demo2);
-            context.Update<TDemo>(a => new TDemo
+            context.Update<OracleModelS.Demo>(a => new OracleModelS.Demo
             {
                 DemoCode = "C0000102"
             }, a => a.DemoId == demo2.DemoId);
-            context.Update<TDemo>(a => new TDemo
+            context.Update<OracleModelS.Demo>(a => new OracleModelS.Demo
             {
                 DemoCode = "C0000'102"
             }, a => a.DemoId == demo3.DemoId);
             context.Insert(demo3);
-            var cQuery2 = context.GetTable<TDemo>().Where(x => x.DemoId <= 20);
+            var cQuery2 = context.GetTable<OracleModelS.Demo>().Where(x => x.DemoId <= 20);
             context.AddQuery(cQuery2);
-            var cQuery3 = context.GetTable<TDemo>().Where(x => x.DemoId > 100);
+            var cQuery3 = context.GetTable<OracleModelS.Demo>().Where(x => x.DemoId > 100);
             context.AddQuery(cQuery3);
-            List<Model.Client> result1 = null;
-            List<TDemo> result2 = null;
+            List<OracleModelS.Client> result1 = null;
+            List<OracleModelS.Demo> result2 = null;
             context.SubmitChanges(out result1, out result2);
 
             // 参数超过1000个，自动分批执行
-            List<TDemo> demos = new List<TDemo>();
+            List<OracleModelS.Demo> demos = new List<OracleModelS.Demo>();
             for (var index = 0; index < 205; index++)
             {
-                var demo4 = new TDemo
+                var demo4 = new OracleModelS.Demo
                 {
                     DemoCode = "C0000205",
                     DemoName = "N0000205",
@@ -1914,7 +1931,7 @@ namespace Riz.XFramework.UnitTest
                 demos.Add(demo4);
                 if (index == 10)
                 {
-                    var query2 = context.GetTable<Model.Demo>().Where(x => x.DemoId < 100);
+                    var query2 = context.GetTable<OracleModelS.Demo>().Where(x => x.DemoId < 100);
                     context.AddQuery(query2);
                 }
                 context.Insert(demo4);
@@ -1922,13 +1939,13 @@ namespace Riz.XFramework.UnitTest
             context.SubmitChanges();
 
             // 指定ID，默认值支持
-            int max = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            context.Delete<Model.Client>(x => x.ClientId > max);
-            context.Delete<Model.Account>(x => x.ClientId > max);
-            context.Delete<Model.Market>(x => x.ClientId > max);
+            int max = context.GetTable<OracleModelS.Client>().Max(x => x.ClientId);
+            context.Delete<OracleModelS.Client>(x => x.ClientId > max);
+            context.Delete<OracleModelS.Account>(x => x.ClientId > max);
+            context.Delete<OracleModelS.Market>(x => x.ClientId > max);
             context.SubmitChanges();
 
-            Model.Client client = new Model.Client
+            OracleModelS.Client client = new OracleModelS.Client
             {
                 ClientId = max + 1,
                 ClientCode = "ABC",
@@ -1937,9 +1954,9 @@ namespace Riz.XFramework.UnitTest
                 CloudServerId = 3,
                 State = 1
             };
-            context.Insert<Model.Client>(client);
+            context.Insert<OracleModelS.Client>(client);
 
-            var account = new Model.Account
+            var account = new OracleModelS.Account
             {
                 ClientId = max + 1,
                 AccountId = "1",
@@ -1949,7 +1966,7 @@ namespace Riz.XFramework.UnitTest
             };
             context.Insert(account);
 
-            var market = new Model.Market
+            var market = new OracleModelS.Market
             {
                 ClientId = max + 1,
                 AccountId = "1",
@@ -1962,10 +1979,10 @@ namespace Riz.XFramework.UnitTest
 
             // Query 关联新增
             var query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId <= 5
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (max + 2),
                     ClientCode = "ABC2",
@@ -1979,23 +1996,23 @@ namespace Riz.XFramework.UnitTest
 
             // 子查询增
             var sum =
-                from a in context.GetTable<Model.Account>()
+                from a in context.GetTable<OracleModelS.Account>()
                 where a.ClientId > 0
                 group a by new { a.ClientId } into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
             sum = sum.AsSubquery();
 
-            max = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            max = context.GetTable<OracleModelS.Client>().Max(x => x.ClientId);
             var nQuery =
                 from a in sum
-                join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId into u_b
+                join b in context.GetTable<OracleModelS.Client>() on a.ClientId equals b.ClientId into u_b
                 from b in u_b.DefaultIfEmpty()
                 where b.ClientId == null
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = Data.DbFunction.RowNumber<int>(a.ClientId) + (max + 1),
                     ClientCode = "XFramework100+",
@@ -2009,10 +2026,10 @@ namespace Riz.XFramework.UnitTest
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            demos = new List<TDemo>();
+            demos = new List<OracleModelS.Demo>();
             for (int i = 0; i < 1002; i++)
             {
-                TDemo d = new TDemo
+                OracleModelS.Demo d = new OracleModelS.Demo
                 {
                     DemoCode = "D0000001",
                     DemoName = "N0000001",
@@ -2033,7 +2050,7 @@ namespace Riz.XFramework.UnitTest
                 };
                 demos.Add(d);
             }
-            context.Insert<TDemo>(demos);
+            context.Insert<OracleModelS.Demo>(demos);
             context.SubmitChanges();
             ////SQL=>
             //INSERT INTO [Bas_Client]
@@ -2057,12 +2074,12 @@ namespace Riz.XFramework.UnitTest
             //VALUES(...),(),()...
 
             // 指定ID，无自增列批量增加
-            max = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            List<Model.Client> clients = new List<Model.Client>();
+            max = context.GetTable<OracleModelS.Client>().Max(x => x.ClientId);
+            List<OracleModelS.Client> clients = new List<OracleModelS.Client>();
             for (int index = 0; index < 1002; index++)
             {
                 max++;
-                client = new Model.Client
+                client = new OracleModelS.Client
                 {
                     ClientId = max,
                     ClientCode = "XFramework1000+",
@@ -2075,7 +2092,7 @@ namespace Riz.XFramework.UnitTest
 
                 for (var j = 1; j <= 2; j++)
                 {
-                    var account2 = new Model.Account
+                    var account2 = new OracleModelS.Account
                     {
                         ClientId = max,
                         AccountId = j.ToString(),
@@ -2087,7 +2104,7 @@ namespace Riz.XFramework.UnitTest
 
                     for (int m = 1; m <= 2; m++)
                     {
-                        var market2 = new Model.Market
+                        var market2 = new OracleModelS.Market
                         {
                             ClientId = max,
                             AccountId = j.ToString(),
@@ -2099,18 +2116,18 @@ namespace Riz.XFramework.UnitTest
                     }
                 }
             }
-            context.Insert<Model.Client>(clients);
+            context.Insert<OracleModelS.Client>(clients);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<Model.Client>().Max(x => x.ClientId) == max);
+            Debug.Assert(context.GetTable<OracleModelS.Client>().Max(x => x.ClientId) == max);
         }
 
         // 更新记录
-        protected virtual void Update()
+        protected void Update()
         {
             Console.WriteLine("5. Update ");
             var context = _newContext();
             // 整个实体更新
-            var demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId > 0);
+            var demo = context.GetTable<OracleModelS.Demo>().FirstOrDefault(x => x.DemoId > 0);
             if (demo != null)
             {
                 demo.DemoByte = demo.DemoByte >= 100 && demo.DemoByte < 126 ? (byte)(demo.DemoByte + 1) : (byte)(demo.DemoByte - 1);
@@ -2118,12 +2135,12 @@ namespace Riz.XFramework.UnitTest
                 context.SubmitChanges();
 
                 int @byte = demo.DemoByte;
-                demo = context.GetTable<TDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+                demo = context.GetTable<OracleModelS.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
                 Debug.Assert(demo.DemoByte == @byte);
             }
 
             // 2.WHERE 条件批量更新
-            context.Update<TDemo>(x => new TDemo
+            context.Update<OracleModelS.Demo>(x => new OracleModelS.Demo
             {
                 DemoDateTime2 = DateTime.UtcNow,
                 DemoDateTime2_Nullable = null,
@@ -2133,16 +2150,16 @@ namespace Riz.XFramework.UnitTest
 
             // 3.Query 关联批量更新
             var query =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.CloudServer.CloudServerId > 0
                 select a;
-            context.Update<Model.Client>(a => new
+            context.Update<OracleModelS.Client>(a => new
             {
                 Qty = -1,
                 Remark = a.ClientCode + "Re'mark"
             }, query);
             context.SubmitChanges();
-            var result = context.GetTable<Model.Client>().Where(x => x.CloudServer.CloudServerId > 0).ToList();
+            var result = context.GetTable<OracleModelS.Client>().Where(x => x.CloudServer.CloudServerId > 0).ToList();
             // 断言更新成功
             Debug.Assert(result.All(x => x.Remark == x.ClientCode + "Re'mark"));
             Debug.Assert(result.All(x => x.Qty == -1));
@@ -2173,24 +2190,24 @@ namespace Riz.XFramework.UnitTest
 
             // 更新本表值等于从表的字段值
             query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.Account>() on a.ClientId equals c.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<OracleModelS.Account>() on a.ClientId equals c.ClientId
                 where c.AccountId == "1"
                 select a;
-            context.Update<Model.Client, Model.Server>((a, b) => new Model.Client
+            context.Update<OracleModelS.Client, OracleModelS.Server>((a, b) => new OracleModelS.Client
             {
                 CloudServerId = b.CloudServerId
             }, query);
 
             // 更新本表值等于从表的字段值
             query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.Account>() on a.ClientId equals c.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<OracleModelS.Account>() on a.ClientId equals c.ClientId
                 where c.AccountId == "1"
                 select a;
-            context.Update<Model.Client, Model.Server, Model.Account>((a, b, c) => new
+            context.Update<OracleModelS.Client, OracleModelS.Server, OracleModelS.Account>((a, b, c) => new
             {
                 CloudServerId = b.CloudServerId,
                 Qty = c.Qty > 0 ? c.Qty : 1,
@@ -2210,20 +2227,20 @@ namespace Riz.XFramework.UnitTest
 
             // 子查询更新
             var sum =
-                from a in context.GetTable<Model.Account>()
+                from a in context.GetTable<OracleModelS.Account>()
                 where a.ClientId > 0
                 group a by new { a.ClientId } into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
             var uQuery =
-               from a in context.GetTable<Model.Client>()
+               from a in context.GetTable<OracleModelS.Client>()
                join b in sum on a.ClientId equals b.ClientId
                where a.ClientId > 0 && b.ClientId > 0
                select a;
-            context.Update<Model.Client, Model.Client>((a, b) => new Model.Client
+            context.Update<OracleModelS.Client, OracleModelS.Client>((a, b) => new OracleModelS.Client
             {
                 Qty = b.Qty
             }, uQuery);
@@ -2241,7 +2258,7 @@ namespace Riz.XFramework.UnitTest
             //) t1 ON t0.[ClientId] = t1.[ClientId]
             //WHERE t1.[ClientId] > 0
 
-            var client = context.GetTable<Model.Client>().FirstOrDefault();
+            var client = context.GetTable<OracleModelS.Client>().FirstOrDefault();
             if (client != null) context.Update(client);
             // 一次性提交，里面自带事务
             context.SubmitChanges();
@@ -2272,26 +2289,26 @@ namespace Riz.XFramework.UnitTest
         }
 
         // 删除记录
-        protected virtual void Delete()
+        protected void Delete()
         {
             Console.WriteLine("6. Delete ");
             var context = _newContext();
 
             // 1. 删除单个记录
-            var demo = new TDemo { DemoId = 101 };
+            var demo = new OracleModelS.Demo { DemoId = 101 };
             context.Delete(demo);
             context.SubmitChanges();
             //SQL=> 
             //DELETE t0 FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] = 101
 #if !net40
-            demo = new TDemo { DemoId = 101 };
+            demo = new OracleModelS.Demo { DemoId = 101 };
             context.Delete(demo);
             var rowCount = context.SubmitChangesAsync().Result;
 #endif
 
             // 多主键删除
-            var account = context.GetTable<Model.Account>().FirstOrDefault(x => x.ClientId > 100);
+            var account = context.GetTable<OracleModelS.Account>().FirstOrDefault(x => x.ClientId > 100);
             if (account != null)
             {
                 context.Delete(account);
@@ -2299,93 +2316,93 @@ namespace Riz.XFramework.UnitTest
             }
 
             // 2.WHERE 条件批量删除
-            context.Delete<TDemo>(a => a.DemoId == 101 || a.DemoId == 102 || a.DemoName == "N0000101");
+            context.Delete<OracleModelS.Demo>(a => a.DemoId == 101 || a.DemoId == 102 || a.DemoName == "N0000101");
             context.SubmitChanges();
 
             var qeury =
                 context
-                .GetTable<TDemo>()
+                .GetTable<OracleModelS.Demo>()
                 .Where(a => a.DemoId > 100);
             // 2.WHERE 条件批量删除
-            context.Delete<TDemo>(qeury);
+            context.Delete<OracleModelS.Demo>(qeury);
             context.SubmitChanges();
-            Debug.Assert(context.GetTable<TDemo>().Count(a => a.DemoId > 100) == 0);
+            Debug.Assert(context.GetTable<OracleModelS.Demo>().Count(a => a.DemoId > 100) == 0);
 
             // 3.Query 关联批量删除
             var query1 =
                 context
-                .GetTable<Model.Client>()
-                .SelectMany(a => context.GetTable<Model.Account>(), (a, b) => a)
+                .GetTable<OracleModelS.Client>()
+                .SelectMany(a => context.GetTable<OracleModelS.Account>(), (a, b) => a)
                 .Where(a => a.ClientId == 200);
-            context.Delete<Model.Client>(query1);
+            context.Delete<OracleModelS.Client>(query1);
             // 删除不完整的数据
             query1 =
-                 from a in context.GetTable<Model.Client>()
-                 join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId into u_b
+                 from a in context.GetTable<OracleModelS.Client>()
+                 join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId into u_b
                  from b in u_b.DefaultIfEmpty()
-                 join c in context.GetTable<Model.Market>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId } into u_c
+                 join c in context.GetTable<OracleModelS.Market>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId } into u_c
                  from c in u_c.DefaultIfEmpty()
                  where a.ClientId > 100 && (b.ClientId == null || c.ClientId == null)
                  select a;
-            context.Delete<Model.Client>(query1);
+            context.Delete<OracleModelS.Client>(query1);
 
             query1 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId
-                join c in context.GetTable<Model.Market>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId
+                join c in context.GetTable<OracleModelS.Market>() on new { b.ClientId, b.AccountId } equals new { c.ClientId, c.AccountId }
                 where c.ClientId > 100 && c.AccountId == "1" && c.MarketId == 1
                 select a;
-            context.Delete<Model.Client>(query1);
+            context.Delete<OracleModelS.Client>(query1);
             context.SubmitChanges();
             // 断言
             Debug.Assert(query1.Count() == 0);
 
             // 3.Query contains
             var query3 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Account>() on a.ClientId equals b.ClientId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Account>() on a.ClientId equals b.ClientId
                 where a.ClientId > 90 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
                 select a.ClientId;
-            context.Delete<Model.Client>(a => query3.Contains(a.ClientId));
+            context.Delete<OracleModelS.Client>(a => query3.Contains(a.ClientId));
             context.SubmitChanges();
             Debug.Assert(query3.Count() == 0);
 
             // 4.Query 关联批量删除
             var query4 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId > 80 && a.CloudServer.CloudServerId >= 3 && a.LocalServer.CloudServerId >= 3
                 select a;
-            context.Delete<Model.Client>(query4);
+            context.Delete<OracleModelS.Client>(query4);
             context.SubmitChanges();
             Debug.Assert(query4.Count() == 0);
 
             // 5.子查询批量删除
             // 子查询更新
             var subquery =
-                from a in context.GetTable<Model.Account>()
+                from a in context.GetTable<OracleModelS.Account>()
                 where a.ClientId > 70
                 group a by new { a.ClientId } into g
-                select new Model.Client
+                select new OracleModelS.Client
                 {
                     ClientId = g.Key.ClientId,
                     Qty = g.Sum(a => a.Qty)
                 };
             var query5 =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
-                join c in context.GetTable<Model.Server>() on a.CloudServerId equals c.CloudServerId
+                from a in context.GetTable<OracleModelS.Client>()
+                join b in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<OracleModelS.Server>() on a.CloudServerId equals c.CloudServerId
                 join d in subquery on a.ClientId equals d.ClientId
                 where a.ClientId > 70 && a.CloudServerId > 0
                 select a;
-            context.Delete<Model.Client>(query5);
+            context.Delete<OracleModelS.Client>(query5);
             context.SubmitChanges();
             Debug.Assert(query5.Count() == 0);
 
             // 一次性保存，uow ~~
-            context.Delete<TDemo>(x => x.DemoId > 100);
-            context.Delete<Model.Client>(x => x.ClientId > 100);
-            context.Delete<Model.Account>(x => x.ClientId > 100);
-            context.Delete<Model.Market>(x => x.ClientId > 100);
+            context.Delete<OracleModelS.Demo>(x => x.DemoId > 100);
+            context.Delete<OracleModelS.Client>(x => x.ClientId > 100);
+            context.Delete<OracleModelS.Account>(x => x.ClientId > 100);
+            context.Delete<OracleModelS.Market>(x => x.ClientId > 100);
 
             // 提交的同时查出数据
             // 适用场景：批量导入数据
@@ -2396,7 +2413,7 @@ namespace Riz.XFramework.UnitTest
             context.AddQuery(subquery);
             // context.AddQuery('Exec #存储过程#');
             // context.AddQuery('#文本脚本#');
-            List<Model.Client> result0 = null;
+            List<OracleModelS.Client> result0 = null;
             context.SubmitChanges(out result0);
             //SQL=> 
             //DELETE t0 FROM [Sys_Demo] t0 
@@ -2414,79 +2431,79 @@ namespace Riz.XFramework.UnitTest
             //WHERE t2.[CloudServerId] = 20 AND t3.[CloudServerId] = 2
         }
 
-        protected virtual void API()
+        protected void API()
         {
             Console.WriteLine("7. API");
             var context = _newContext();
 
-            var any = context.GetTable<Model.Client>().Any();
-            any = context.GetTable<Model.Client>().Any(x => x.ClientCode.Contains("XF"));
+            var any = context.GetTable<OracleModelS.Client>().Any();
+            any = context.GetTable<OracleModelS.Client>().Any(x => x.ClientCode.Contains("XF"));
 
-            var count = context.GetTable<Model.Client>().Count();
-            count = context.GetTable<Model.Client>().Count(x => x.ClientCode.Contains("XF"));
+            var count = context.GetTable<OracleModelS.Client>().Count();
+            count = context.GetTable<OracleModelS.Client>().Count(x => x.ClientCode.Contains("XF"));
 #if !net40
-            count = context.GetTable<Model.Client>().CountAsync().Result;
-            count = context.GetTable<Model.Client>().CountAsync(x => x.ClientCode.Contains("XF")).Result;
+            count = context.GetTable<OracleModelS.Client>().CountAsync().Result;
+            count = context.GetTable<OracleModelS.Client>().CountAsync(x => x.ClientCode.Contains("XF")).Result;
 #endif
 
-            var firstOrDefault = context.GetTable<Model.Client>().FirstOrDefault();
-            firstOrDefault = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientCode.Contains("XF"));
+            var firstOrDefault = context.GetTable<OracleModelS.Client>().FirstOrDefault();
+            firstOrDefault = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientCode.Contains("XF"));
 #if !net40
-            firstOrDefault = context.GetTable<Model.Client>().FirstOrDefaultAsync(x => x.ClientCode.Contains("XF")).Result;
+            firstOrDefault = context.GetTable<OracleModelS.Client>().FirstOrDefaultAsync(x => x.ClientCode.Contains("XF")).Result;
 #endif
 
             // 适用于需要产生NULL的场景
-            var max = context.GetTable<Model.Client>().Where(a => a.ClientId == -1).Max(a => (Nullable<int>)a.ClientId);
+            var max = context.GetTable<OracleModelS.Client>().Where(a => a.ClientId == -1).Max(a => (Nullable<int>)a.ClientId);
             // 适用于不需要产生NULL的场景
-            max = context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Max(a => a.ClientId);
+            max = context.GetTable<OracleModelS.Client>().Where(a => a.ClientCode.Contains("XF")).Max(a => a.ClientId);
             // 不需要忽略空值
-            max = context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Max(a => (Nullable<int>)a.ClientId ?? 0);
+            max = context.GetTable<OracleModelS.Client>().Where(a => a.ClientCode.Contains("XF")).Max(a => (Nullable<int>)a.ClientId ?? 0);
 
-            var min = context.GetTable<Model.Client>().Min(a => a.ClientId);
-            min = context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Min(a => a.ClientId);
+            var min = context.GetTable<OracleModelS.Client>().Min(a => a.ClientId);
+            min = context.GetTable<OracleModelS.Client>().Where(a => a.ClientCode.Contains("XF")).Min(a => a.ClientId);
 
-            var avg = context.GetTable<Model.Client>().Average(a => (double)a.Qty);
-            var avg2 = context.GetTable<Model.Client>().Average(a => (decimal)a.Qty);
-            avg = (double)context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Average(a => (float)a.ClientId);
+            var avg = context.GetTable<OracleModelS.Client>().Average(a => (double)a.Qty);
+            var avg2 = context.GetTable<OracleModelS.Client>().Average(a => (decimal)a.Qty);
+            avg = (double)context.GetTable<OracleModelS.Client>().Where(a => a.ClientCode.Contains("XF")).Average(a => (float)a.ClientId);
 
-            var sum = context.GetTable<Model.Client>().Sum(a => (long)a.Qty);
-            sum = context.GetTable<Model.Client>().Where(a => a.ClientCode.Contains("XF")).Sum(a => a.ClientId);
+            var sum = context.GetTable<OracleModelS.Client>().Sum(a => (long)a.Qty);
+            sum = context.GetTable<OracleModelS.Client>().Where(a => a.ClientCode.Contains("XF")).Sum(a => a.ClientId);
 
-            var toArray = context.GetTable<Model.Client>().ToArray();
-            toArray = context.GetTable<Model.Client>().OrderBy(a => a.ClientId).ToArray(2, 10);
+            var toArray = context.GetTable<OracleModelS.Client>().ToArray();
+            toArray = context.GetTable<OracleModelS.Client>().OrderBy(a => a.ClientId).ToArray(2, 10);
 
-            var dataTalbe = context.GetTable<Model.Client>().ToDataTable();
-            var dataSet = context.GetTable<Model.Client>().ToDataSet();
+            var dataTalbe = context.GetTable<OracleModelS.Client>().ToDataTable();
+            var dataSet = context.GetTable<OracleModelS.Client>().ToDataSet();
 
-            var cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId > 100);
+            var cQuery = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId > 100);
             int rowCount = context.Database.ExecuteNonQuery(cQuery);
 
-            cQuery = context.GetTable<Model.Client>().Where(x => x.ClientId > 100);
+            cQuery = context.GetTable<OracleModelS.Client>().Where(x => x.ClientId > 100);
             object obj = context.Database.ExecuteScalar(cQuery);
 
-            context.Update<Model.Client>(x => new Model.Client
+            context.Update<OracleModelS.Client>(x => new OracleModelS.Client
             {
                 ClientName = "蒙3"
             }, x => x.ClientId == 3);
             var query =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId == 1
                 select 5;
             context.AddQuery(query);
             List<int> result1 = null;
             context.SubmitChanges(out result1);
 
-            context.Update<Model.Client>(x => new Model.Client
+            context.Update<OracleModelS.Client>(x => new OracleModelS.Client
             {
                 ClientName = "蒙4"
             }, x => x.ClientId == 4);
             query =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId == 1
                 select 5;
             context.AddQuery(query);
             var query2 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId == 1
                 select 6;
             context.AddQuery(query2);
@@ -2497,50 +2514,50 @@ namespace Riz.XFramework.UnitTest
 
             // 一性加载多个列表 ****
             var query3 =
-               from a in context.GetTable<Model.Client>()
+               from a in context.GetTable<OracleModelS.Client>()
                where a.ClientId >= 1 && a.ClientId <= 10
                select 5;
             var query4 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
             var tuple = context.Database.Execute<int, int>(query3, query4);
 
             query3 =
-               from a in context.GetTable<Model.Client>()
+               from a in context.GetTable<OracleModelS.Client>()
                where a.ClientId >= 1 && a.ClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
             var query5 =
-                 from a in context.GetTable<Model.Client>()
+                 from a in context.GetTable<OracleModelS.Client>()
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 7;
             var tuple2 = context.Database.Execute<int, int, int>(query3, query4, query5);
             string str = WebHelper.Get<string>("https://www.baidu.com/", new WebHelper.HttpConfiguration { Encoding = System.Text.Encoding.UTF8 });
 #if !net40
             query3 =
-               from a in context.GetTable<Model.Client>()
+               from a in context.GetTable<OracleModelS.Client>()
                where a.ClientId >= 1 && a.ClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
             tuple = context.Database.ExecuteAsync<int, int>(query3, query4).Result;
 
             query3 =
-               from a in context.GetTable<Model.Client>()
+               from a in context.GetTable<OracleModelS.Client>()
                where a.ClientId >= 1 && a.ClientId <= 10
                select 5;
             query4 =
-                from a in context.GetTable<Model.Client>()
+                from a in context.GetTable<OracleModelS.Client>()
                 where a.ClientId >= 1 && a.ClientId <= 10
                 select 6;
             query5 =
-                 from a in context.GetTable<Model.Client>()
+                 from a in context.GetTable<OracleModelS.Client>()
                  where a.ClientId >= 1 && a.ClientId <= 10
                  select 6;
             tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
@@ -2555,20 +2572,20 @@ namespace Riz.XFramework.UnitTest
             {
                 using (var transaction = context.Database.BeginTransaction())
                 {
-                    var result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId <= 10);
-                    context.Update<Model.Client>(x => new Model.Client
+                    var result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId <= 10);
+                    context.Update<OracleModelS.Client>(x => new OracleModelS.Client
                     {
                         ClientName = "事务1"
                     }, x => x.ClientId == result.ClientId);
                     context.SubmitChanges();
-                    result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
+                    result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
-                    context.Update<Model.Client>(x => new Model.Client
+                    context.Update<OracleModelS.Client>(x => new OracleModelS.Client
                     {
                         ClientName = "事务2"
                     }, x => x.ClientId == result.ClientId);
                     context.SubmitChanges();
-                    result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
+                    result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
                     //throw new Exception("假装异常");
                     //transaction.Rollback();
@@ -2594,19 +2611,19 @@ namespace Riz.XFramework.UnitTest
                 // 指定事务
                 context.Database.Transaction = transaction2;
 
-                var result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId <= 10);
-                context.Update<Model.Client>(x => new Model.Client
+                var result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId <= 10);
+                context.Update<OracleModelS.Client>(x => new OracleModelS.Client
                 {
                     ClientName = "事务3"
                 }, x => x.ClientId == result.ClientId);
                 context.SubmitChanges();
-                result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
+                result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
-                context.Update<Model.Client>(x => new Model.Client
+                context.Update<OracleModelS.Client>(x => new OracleModelS.Client
                 {
                     ClientName = "事务4"
                 }, x => x.ClientId == result.ClientId);
-                result = context.GetTable<Model.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
+                result = context.GetTable<OracleModelS.Client>().FirstOrDefault(x => x.ClientId == result.ClientId);
 
                 if (!this.CaseSensitive)
                 {
@@ -2636,7 +2653,7 @@ namespace Riz.XFramework.UnitTest
         }
 
         // 性能测试
-        protected virtual void Rabbit()
+        protected void Rabbit()
         {
             Console.WriteLine("8. Rabbit ");
             Stopwatch watch = new Stopwatch();
@@ -2648,7 +2665,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<Model.Rabbit>()
+                    .GetTable<OracleModelS.Rabbit>()
                     .ToList();
                 Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
 
@@ -2668,7 +2685,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<Model.Client>()
+                    .GetTable<OracleModelS.Client>()
                     .Include(a => a.Accounts)
                     .ToList();
             }
@@ -2681,7 +2698,7 @@ namespace Riz.XFramework.UnitTest
             {
                 DateTime sDate = DateTime.Now;
                 var result = context
-                    .GetTable<Model.Client>()
+                    .GetTable<OracleModelS.Client>()
                     .Include(a => a.Accounts)
                     .Include(a => a.Accounts[0].Markets)
                     .ToList();
@@ -2698,7 +2715,7 @@ namespace Riz.XFramework.UnitTest
 
                 var query =
                     from a in context
-                .GetTable<Model.Client>()
+                .GetTable<OracleModelS.Client>()
                 .Include(a => a.Accounts)
                 .Include(a => a.Accounts[0].Markets)
                 .Include(a => a.Accounts[0].Markets[0].Client)
@@ -2720,31 +2737,164 @@ namespace Riz.XFramework.UnitTest
         /// <summary>
         /// 有参构造函数查询
         /// </summary>
-        protected virtual void Parameterized()
+        protected void Parameterized()
         {
 
         }
-    }
 
-    /// <summary>
-    /// 测试接口
-    /// </summary>
-    public interface ITest
-    {
-        /// <summary>
-        /// 调式模式，调式模式下产生的SQL会换行
-        /// </summary>
-        bool IsDebug { get; set; }
+        protected override void Parameterized()
+        {
+            var context = _newContext();
 
-        /// <summary>
-        /// 大小写敏感
-        /// </summary>
-        bool CaseSensitive { get; set; }
 
-        /// <summary>
-        /// 运行测试
-        /// </summary>
-        /// <param name="dbType"></param>
-        void Run(DatabaseType dbType);
+            //var result2 = context.GetTable<Oracle.OracleModelS.vwOracleDemo>().ToList();
+
+            //DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
+            //DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            //string text = "大概就600个字符串";
+            //var demos = new List<OracleModelS.vwOracleDemo>();
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    OracleModelS.vwOracleDemo d = new OracleModelS.vwOracleDemo
+            //    {
+            //        DemoCode = "viewDemo",
+            //        DemoName = "viewDemo",
+            //        DemoBoolean = true,
+            //        DemoChar = 'A',
+            //        DemoNChar = 'B',
+            //        DemoByte = 64,
+            //        DemoDate = DateTime.Now,
+            //        DemoDateTime = DateTime.Now,
+            //        DemoDateTime2 = DateTime.Now,
+            //        DemoDecimal = 64,
+            //        DemoDouble = 64,
+            //        DemoFloat = 64,
+            //        DemoGuid = Guid.NewGuid(),
+            //        DemoShort = 64,
+            //        DemoInt = 64,
+            //        DemoLong = 64,
+            //        DemoTime_Nullable = new TimeSpan(-9, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+            //        DemoDatetimeOffset_Nullable = sDateOffset,
+            //        DemoTimestamp_Nullable = DateTime.Now,
+            //        DemoText_Nullable = "TEXT 类型",
+            //        DemoNText_Nullable = "NTEXT 类型",
+            //        DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+            //        DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+            //    };
+            //    demos.Add(d);
+            //}
+            //context.Insert<OracleModelS.vwOracleDemo>(demos);
+            //context.SubmitChanges();
+
+            // 构造函数
+            var query =
+                 from a in context.GetTable<OracleModelS.Demo>()
+                 where a.DemoId <= 10
+                 select new OracleModelS.Demo(a);
+            var r1 = query.ToList();
+            query =
+               from a in context.GetTable<OracleModelS.Demo>()
+               where a.DemoId <= 10
+               select new OracleModelS.Demo(a.DemoId, a.DemoName);
+            r1 = query.ToList();
+            //SQL=> 
+            //SELECT 
+            //t0.[DemoId] AS [DemoId],
+            //t0.[DemoName] AS [DemoName]
+            //FROM [Sys_Demo] t0 
+        }
+
+        protected override void API()
+        {
+            base.API();
+            var context = _newContext();
+            DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
+            DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
+            string text = LongText.LONGTEXT.Substring(0, 600); // 大概就600个字符串;
+
+            // 批量增加
+            // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
+            var demos = new List<OracleModelS.Demo>();
+            for (int i = 0; i < 5; i++)
+            {
+                OracleModelS.Demo d = new OracleModelS.Demo
+                {
+                    DemoCode = "D0000001",
+                    DemoName = "N0000001",
+                    DemoBoolean = true,
+                    DemoChar = 'A',
+                    DemoNChar = 'B',
+                    DemoByte = 64,
+                    DemoDate = DateTime.Now,
+                    DemoDateTime = DateTime.Now,
+                    DemoDateTime2 = DateTime.Now,
+                    DemoDecimal = 64,
+                    DemoDouble = 64,
+                    DemoFloat = 64,
+                    DemoGuid = Guid.NewGuid(),
+                    DemoShort = 64,
+                    DemoInt = 64,
+                    DemoLong = 64,
+                    DemoTime_Nullable = new TimeSpan(-9, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                    DemoDatetimeOffset_Nullable = sDateOffset,
+                    DemoTimestamp_Nullable = DateTime.Now,
+                    DemoText_Nullable = "TEXT 类型",
+                    DemoNText_Nullable = "NTEXT 类型",
+                    DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
+                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(text) : new byte[0],
+                };
+                demos.Add(d);
+            }
+            context.Insert<OracleModelS.Demo>(demos);
+            context.SubmitChanges();
+            var myList = context
+                .GetTable<OracleModelS.Demo>()
+                .OrderByDescending(x => x.DemoId)
+                .Take(5).ToList();
+            Debug.Assert(myList[0].DemVarBinary_s == text);
+
+            // byte[]
+            var demo = new OracleModelS.Demo
+            {
+                DemoCode = "D0000001",
+                DemoName = "N0000001",
+                DemoBoolean = true,
+                DemoChar = 'A',
+                DemoNChar = 'B',
+                DemoByte = 64,
+                DemoDate = DateTime.Now,
+                DemoDateTime = DateTime.Now,
+                DemoDateTime2 = DateTime.Now,
+                DemoDecimal = 64,
+                DemoDouble = 64,
+                DemoFloat = 64,
+                DemoGuid = Guid.NewGuid(),
+                DemoShort = 64,
+                DemoInt = 64,
+                DemoLong = 64,
+                DemoTime_Nullable = new TimeSpan(59, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
+                DemoTimestamp_Nullable = DateTime.Now,
+                DemoText_Nullable = "TEXT 类型",
+                DemoNText_Nullable = "NTEXT 类型",
+                DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
+                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(text),
+            };
+            context.Insert(demo);
+            context.SubmitChanges();
+
+            demo = context.GetTable<OracleModelS.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            Debug.Assert(demo.DemVarBinary_s == text);
+            var hex = context
+                .GetTable<OracleModelS.Demo>()
+                .Where(x => x.DemoId == demo.DemoId)
+                .Select(x => x.DemoVarBinary_Nullable.ToString())
+                .FirstOrDefault();
+        }
+
+        protected override void Rabbit()
+        {
+            return;
+        }
     }
 }

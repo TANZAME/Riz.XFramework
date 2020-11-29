@@ -15,20 +15,20 @@ namespace Riz.XFramework.UnitTest.SqlServer
         }
 
         [Table(Name = "Sys_Demo")]
-        public class SqlServerDemo : Model.Demo
+        public class Demo : Model.Demo
         {
-            public SqlServerDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public SqlServerDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public SqlServerDemo(SqlServerDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 

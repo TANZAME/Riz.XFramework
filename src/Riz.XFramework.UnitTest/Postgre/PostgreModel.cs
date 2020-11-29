@@ -11,20 +11,20 @@ namespace Riz.XFramework.UnitTest.Postgre
     public class PostgreModel
     {
         [Table(Name = "Sys_Demo")]
-        public class PostgreDemo : Model.Demo
+        public class Demo : Model.Demo
         {
-            public PostgreDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public PostgreDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public PostgreDemo(PostgreDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 
@@ -65,8 +65,6 @@ namespace Riz.XFramework.UnitTest.Postgre
             /// </summary>        
             [Column(DbType = NpgsqlDbType.Timestamp, Scale = 6)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
-
-            // ############################### 美丽的分隔线 ###################################
 
             /// <summary>
             /// Time 类型，映射到 .NET DateTime类型

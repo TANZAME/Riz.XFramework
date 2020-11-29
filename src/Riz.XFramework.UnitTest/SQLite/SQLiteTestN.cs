@@ -1,64 +1,103 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
 using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-using Riz.XFramework;
 using Riz.XFramework.Data;
 using Riz.XFramework.Data.SqlClient;
+using System.Text;
+using System.IO;
 
-namespace Riz.XFramework.UnitTest.MySql
+namespace Riz.XFramework.UnitTest.SQLite
 {
-    public class RizMySqlTest : RizTestBase<RizMySqlModel.RizMySqlDemo>
+    public class SQLiteTestN : TestBaseN<SQLiteModelN.Demo>
     {
-        const string connString = "Host=localhost;Database=Riz_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
+        // SQLite 需要将包里的 SQLite.Interop.dll 文件拷到运行目录下
+
+        static string connString = string.Empty;
+        public SQLiteTestN()
+            : base()
+        {
+            string source = string.Empty;
+            var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while (true)
+            {
+                if (Directory.Exists(Path.Combine(directory.FullName, ".nuget")) &&
+                    Directory.Exists(Path.Combine(directory.FullName, "lib")))
+                {
+                    connString = "DataSource=" + Path.Combine(directory.FullName, "lib") + "\\SQLite\\Riz_XFramework.db;Version=3;Pooling=False;Max Pool Size=100;";
+                    break;
+                }
+                else
+                {
+                    directory = directory.Parent;
+                }
+            }
+        }
 
         public override IDbContext CreateDbContext()
         {
             // 直接用无参构造函数时会使用默认配置项 XFrameworkConnString
-            // new MySqlDbContext();
-            var context = new MySqlDbContext(connString)
+            var context = new SQLiteDbContext(connString)
             {
                 IsDebug = base.IsDebug
             };
+
+
             return context;
         }
 
         protected override void Parameterized()
         {
             var context = _newContext();
-
             // 构造函数
             var query =
-                 from a in context.GetTable<RizMySqlModel.RizMySqlDemo>()
+                 from a in context.GetTable<SQLiteModelN.Demo>()
                  where a.RizDemoId <= 10
-                 select new RizMySqlModel.RizMySqlDemo(a);
+                 select new SQLiteModelN.Demo(a);
             var r1 = query.ToList();
-            query =
-               from a in context.GetTable<RizMySqlModel.RizMySqlDemo>()
-               where a.RizDemoId <= 10
-               select new RizMySqlModel.RizMySqlDemo(a.RizDemoId, a.RizDemoName);
-            r1 = query.ToList();
             //SQL=> 
+            //SELECT 
+            //t0.[DemoId] AS [DemoId],
+            //t0.[DemoCode] AS [DemoCode],
+            //t0.[DemoName] AS [DemoName],
+            //...
+            //FROM [Sys_Demo] t0 
+            //WHERE t0.[DemoId] <= 10
+            query =
+               from a in context.GetTable<SQLiteModelN.Demo>()
+               where a.RizDemoId <= 10
+               select new SQLiteModelN.Demo(a.RizDemoId, a.RizDemoName);
+            r1 = query.ToList();
+            //SQL=>
             //SELECT 
             //t0.[DemoId] AS [DemoId],
             //t0.[DemoName] AS [DemoName]
             //FROM [Sys_Demo] t0 
+            //WHERE t0.[DemoId] <= 10
+
+        }
+
+        protected override void DbFunction()
+        {
+            // sqlite 暂时不支持各种函数
+            //base.DbFunc();
         }
 
         protected override void API()
         {
             base.API();
+
             var context = _newContext();
+            DateTime sDate = new DateTime(2007, 6, 10, 0, 0, 0);
+            DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<RizMySqlModel.RizMySqlDemo>();
+            var demos = new List<SQLiteModelN.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                RizMySqlModel.RizMySqlDemo d = new RizMySqlModel.RizMySqlDemo
+                SQLiteModelN.Demo d = new SQLiteModelN.Demo
                 {
                     RizDemoCode = "D0000001",
                     RizDemoName = "N0000001",
@@ -76,26 +115,25 @@ namespace Riz.XFramework.UnitTest.MySql
                     RizDemoShort = 64,
                     RizDemoInt = 64,
                     RizDemoLong = 64,
-                    RizDemoTime_Nullable = i % 2 == 0 ? new TimeSpan(-34, -22, -59, -59) : new TimeSpan(34, 22, 59, 59),
-                    RizDemoDatetimeOffset_Nullable = DateTime.Now,
+                    RizDemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                    RizDemoDatetimeOffset_Nullable = sDateOffset,
                     DemoTimestamp_Nullable = DateTime.Now,
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
-                    DemoVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(LongText.LONGTEXT) : new byte[0],
+                    DemVarBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes(LongText.LONGTEXT) : new byte[0],
                 };
                 demos.Add(d);
             }
-            context.Insert<RizMySqlModel.RizMySqlDemo>(demos);
+            context.Insert<SQLiteModelN.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<RizMySqlModel.RizMySqlDemo>()
+                .GetTable<SQLiteModelN.Demo>()
                 .OrderByDescending(x => x.RizDemoId)
                 .Take(5).ToList();
-            Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
-            var demo = new RizMySqlModel.RizMySqlDemo
+            var demo = new SQLiteModelN.Demo
             {
                 RizDemoCode = "D0000001",
                 RizDemoName = "N0000001",
@@ -112,25 +150,18 @@ namespace Riz.XFramework.UnitTest.MySql
                 RizDemoGuid = Guid.NewGuid(),
                 RizDemoShort = 64,
                 RizDemoInt = 64,
-                RizDemoLong = 64,
                 RizDemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                RizDemoDatetimeOffset_Nullable = DateTime.Now,
+                RizDemoDatetimeOffset_Nullable = sDateOffset,//DateTimeOffset.Now,
                 DemoTimestamp_Nullable = DateTime.Now,
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
-                DemoVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
+                DemVarBinary_Nullable = Encoding.UTF8.GetBytes(LongText.LONGTEXT),
             };
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<RizMySqlModel.RizMySqlDemo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
-            Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
-            var hex = context
-                .GetTable<RizMySqlModel.RizMySqlDemo>()
-                .Where(x => x.RizDemoId == demo.RizDemoId)
-                .Select(x => x.DemoVarBinary_Nullable.ToString())
-                .FirstOrDefault();
+            demo = context.GetTable<SQLiteModelN.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
         }
     }
 }

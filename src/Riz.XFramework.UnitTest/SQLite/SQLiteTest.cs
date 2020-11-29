@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Riz.XFramework.UnitTest.SQLite
 {
-    public class SQLiteTest : TestBase<SQLiteModel.SQLiteDemo>
+    public class SQLiteTest : TestBase<SQLiteModel.Demo>
     {
         //// SQLite 需要将包里的 SQLite.Interop.dll 文件拷到运行目录下
 
@@ -52,9 +52,9 @@ namespace Riz.XFramework.UnitTest.SQLite
             var context = _newContext();
             // 构造函数
             var query =
-                 from a in context.GetTable<SQLiteModel.SQLiteDemo>()
+                 from a in context.GetTable<SQLiteModel.Demo>()
                  where a.DemoId <= 10
-                 select new SQLiteModel.SQLiteDemo(a);
+                 select new SQLiteModel.Demo(a);
             var r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -65,9 +65,9 @@ namespace Riz.XFramework.UnitTest.SQLite
             //FROM [Sys_Demo] t0 
             //WHERE t0.[DemoId] <= 10
             query =
-               from a in context.GetTable<SQLiteModel.SQLiteDemo>()
+               from a in context.GetTable<SQLiteModel.Demo>()
                where a.DemoId <= 10
-               select new SQLiteModel.SQLiteDemo(a.DemoId, a.DemoName);
+               select new SQLiteModel.Demo(a.DemoId, a.DemoName);
             r1 = query.ToList();
             //SQL=>
             //SELECT 
@@ -94,10 +94,10 @@ namespace Riz.XFramework.UnitTest.SQLite
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<SQLiteModel.SQLiteDemo>();
+            var demos = new List<SQLiteModel.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                SQLiteModel.SQLiteDemo d = new SQLiteModel.SQLiteDemo
+                SQLiteModel.Demo d = new SQLiteModel.Demo
                 {
                     DemoCode = "D0000001",
                     DemoName = "N0000001",
@@ -125,15 +125,15 @@ namespace Riz.XFramework.UnitTest.SQLite
                 };
                 demos.Add(d);
             }
-            context.Insert<SQLiteModel.SQLiteDemo>(demos);
+            context.Insert<SQLiteModel.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<SQLiteModel.SQLiteDemo>()
+                .GetTable<SQLiteModel.Demo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
 
             // byte[]
-            var demo = new SQLiteModel.SQLiteDemo
+            var demo = new SQLiteModel.Demo
             {
                 DemoCode = "D0000001",
                 DemoName = "N0000001",
@@ -161,7 +161,7 @@ namespace Riz.XFramework.UnitTest.SQLite
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<SQLiteModel.SQLiteDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            demo = context.GetTable<SQLiteModel.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
         }
     }
 }

@@ -6,7 +6,7 @@ using Riz.XFramework.Data;
 
 namespace Riz.XFramework.UnitTest.SqlServer
 {
-    public class RizSqlServerModel
+    public class SqlServerModelN
     {
         public enum MyEnum
         {
@@ -15,20 +15,20 @@ namespace Riz.XFramework.UnitTest.SqlServer
         }
 
         [Table(Name = "Sys_Demo")]
-        public class RizSqlServerDemo : RizModel.Demo
+        public class Demo : ModelN.Demo
         {
-            public RizSqlServerDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public RizSqlServerDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public RizSqlServerDemo(RizSqlServerDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 

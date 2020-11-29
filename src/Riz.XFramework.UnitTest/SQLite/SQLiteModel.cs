@@ -9,20 +9,20 @@ namespace Riz.XFramework.UnitTest.SQLite
     public class SQLiteModel
     {
         [Table(Name = "Sys_Demo")]
-        public class SQLiteDemo : Model.Demo
+        public class Demo : Model.Demo
         {
-            public SQLiteDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public SQLiteDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public SQLiteDemo(SQLiteDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 

@@ -9,6 +9,9 @@ namespace Riz.XFramework.UnitTest
 {
     public class Program
     {
+        // 如果在尝试进行 COM 上下文转换期间检测到一个死锁，将激活 contextSwitchDeadlock 托管调试助手 (MDA)。
+        // https://docs.microsoft.com/zh-cn/dotnet/framework/debug-trace-profile/contextswitchdeadlock-mda
+
         [MTAThread]
         //[STAThread]
         public static void Main(string[] args)
@@ -75,12 +78,16 @@ namespace Riz.XFramework.UnitTest
 
                 List<Option> options = new List<Option>
                 {
-                    new Option { WithNameAttribute = true, IsDebug = true, CaseSensitive = false },
-                    new Option { WithNameAttribute = false, IsDebug = false, CaseSensitive = false }
+                    new Option { WithNameAttribute = false, IsDebug = true, CaseSensitive = false },
+                    new Option { WithNameAttribute = true, IsDebug = false, CaseSensitive = false },
                 };
+                if (myDatabaseType == DatabaseType.Oracle || myDatabaseType == DatabaseType.Postgre)
+                    options.Insert(0, new Option { WithNameAttribute = true, IsDebug = true, CaseSensitive = true });
+
                 foreach (var opt in options)
                 {
-                    var obj = Activator.CreateInstance(null, string.Format("Riz.XFramework.UnitTest.{0}.{1}{0}Test", myDatabaseType, opt.WithNameAttribute ? "Riz" : string.Empty));
+                    var obj = Activator.CreateInstance(null, string.Format(
+                        "Riz.XFramework.UnitTest.{0}.{0}Test{1}", myDatabaseType, opt.CaseSensitive ? "S" : (opt.WithNameAttribute ? "N" : string.Empty)));
                     test = (ITest)(obj.Unwrap());
                     test.IsDebug = opt.IsDebug;
                     test.CaseSensitive = opt.CaseSensitive;

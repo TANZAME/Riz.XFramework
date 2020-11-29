@@ -6,23 +6,23 @@ using Riz.XFramework.Data;
 
 namespace Riz.XFramework.UnitTest.SQLite
 {
-    public class RizSQLiteModel
+    public class SQLiteModelN
     {
         [Table(Name = "Sys_Demo")]
-        public class RizSQLiteDemo : RizModel.Demo
+        public class Demo : ModelN.Demo
         {
-            public RizSQLiteDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public RizSQLiteDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public RizSQLiteDemo(RizSQLiteDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 
