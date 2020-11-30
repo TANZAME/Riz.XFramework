@@ -6,7 +6,10 @@ using Riz.XFramework.Data;
 
 namespace Riz.XFramework.UnitTest.SqlServer
 {
-    public class SqlServerModelN
+    /// <summary>
+    /// 属性名称与数据库字段名称不一致的实体
+    /// </summary>
+    public class SqlServerModel_NA
     {
         public enum MyEnum
         {
@@ -15,7 +18,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
         }
 
         [Table(Name = "Sys_Demo")]
-        public class Demo : ModelN.Demo
+        public class Demo : Model_NA.Demo
         {
             public Demo()
                 : base()

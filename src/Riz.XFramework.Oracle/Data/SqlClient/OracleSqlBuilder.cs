@@ -33,9 +33,9 @@ namespace Riz.XFramework.Data.SqlClient
         /// 追加成员名称
         /// </summary>
         /// <param name="name">成员名称</param>
-        /// <param name="quote">使用安全符号括起来，临时表不需要括</param>
+        /// <param name="quoteByEscChar">使用安全符号括起来，临时表不需要括</param>
         /// <returns></returns>
-        public override ISqlBuilder AppendMember(string name, bool quote)
+        public override ISqlBuilder AppendMember(string name, bool quoteByEscChar = true)
         {
             if (this._caseSensitive) base.InnerBuilder.Append(_escCharLeft);
             base.InnerBuilder.Append(name);

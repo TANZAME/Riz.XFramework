@@ -32,19 +32,19 @@ namespace Riz.XFramework.UnitTest.SqlServer
             var context = _newContext();
 
             // 声明表变量
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModelN.JoinKey>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel_NA.JoinKey>();
             context.AddQuery(string.Format("DECLARE {0} [{1}]", typeRuntime.TableName, typeRuntime.TableName.TrimStart('@')));
-            List<SqlServerModelN.JoinKey> keys = new List<SqlServerModelN.JoinKey>
+            List<SqlServerModel_NA.JoinKey> keys = new List<SqlServerModel_NA.JoinKey>
             {
-                new SqlServerModelN.JoinKey{ Key1 = 2 },
-                new SqlServerModelN.JoinKey{ Key1 = 3 },
+                new SqlServerModel_NA.JoinKey{ Key1 = 2 },
+                new SqlServerModel_NA.JoinKey{ Key1 = 3 },
             };
             // 向表变量写入数据
-            context.Insert<SqlServerModelN.JoinKey>(keys);
+            context.Insert<SqlServerModel_NA.JoinKey>(keys);
             // 像物理表一样操作表变量
             var query =
                 from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<SqlServerModelN.JoinKey>() on a.ClientId equals b.Key1
+                join b in context.GetTable<SqlServerModel_NA.JoinKey>() on a.ClientId equals b.Key1
                 select a;
             context.AddQuery(query);
             // 提交查询结果
@@ -103,7 +103,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
 
             // 单个插入
-            var demo = new SqlServerModelN.Demo
+            var demo = new SqlServerModel_NA.Demo
             {
                 RizDemoCode = "D0000001",
                 RizDemoName = "N0000001",
@@ -131,20 +131,20 @@ namespace Riz.XFramework.UnitTest.SqlServer
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<SqlServerModelN.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
+            demo = context.GetTable<SqlServerModel_NA.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
             Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
-                .GetTable<SqlServerModelN.Demo>()
+                .GetTable<SqlServerModel_NA.Demo>()
                 .Where(x => x.RizDemoId == demo.RizDemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var models = new List<SqlServerModelN.Demo>();
+            var models = new List<SqlServerModel_NA.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                SqlServerModelN.Demo d = new SqlServerModelN.Demo
+                SqlServerModel_NA.Demo d = new SqlServerModel_NA.Demo
                 {
                     RizDemoCode = string.Format("D000000{0}", i + 1),
                     RizDemoName = string.Format("N000000{0}", i + 1),
@@ -172,16 +172,16 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 models.Add(d);
             }
             // 批量插入
-            context.Insert<SqlServerModelN.Demo>(models);
+            context.Insert<SqlServerModel_NA.Demo>(models);
             // 写入数据的同时再查出数据
             var query1 = context
-                .GetTable<SqlServerModelN.Demo>()
+                .GetTable<SqlServerModel_NA.Demo>()
                 .Where(a => a.RizDemoId > 2)
                 .OrderBy(a => a.RizDemoId)
                 .Take(20);
             context.AddQuery(query1);
             // 单个插入
-            var demo1 = new SqlServerModelN.Demo
+            var demo1 = new SqlServerModel_NA.Demo
             {
                 RizDemoCode = "D0000006",
                 RizDemoName = "N0000006",
@@ -209,12 +209,12 @@ namespace Riz.XFramework.UnitTest.SqlServer
             context.Insert(demo1);
             context.Insert(demo1);
             // 提交修改并查出数据
-            List<SqlServerModelN.Demo> result1 = null;
+            List<SqlServerModel_NA.Demo> result1 = null;
             context.SubmitChanges(out result1);
 
             // 断言
             var myList = context
-                .GetTable<SqlServerModelN.Demo>()
+                .GetTable<SqlServerModel_NA.Demo>()
                 .OrderByDescending(a => a.RizDemoId)
                 .Take(7)
                 .OrderBy(a => a.RizDemoId)

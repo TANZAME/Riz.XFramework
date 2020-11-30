@@ -53,10 +53,6 @@
 	<PropertyGroup>
 		<NoWarn>1701;1702;0472;0618;1591;1570</NoWarn>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Remove="Oracle\CaseOracleModel.cs" />
-	  <Compile Remove="Oracle\CaseOracleTest.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Riz.XFramework.MySql\Riz.XFramework.MySql.csproj" />

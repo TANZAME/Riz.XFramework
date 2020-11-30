@@ -576,7 +576,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             #endregion
 
-            #region Any 子句
+            #region Any子句
 
             // 'Any' 子句
             if (tree.HasAny)
@@ -677,7 +677,7 @@ namespace Riz.XFramework.Data.SqlClient
                         }
                         else
                         {
-                            valuesBuilder.Append(((OracleColumnAttribute)m.Column).SEQName);
+                            valuesBuilder.AppendMember(((OracleColumnAttribute)m.Column).SEQName);
                             valuesBuilder.Append(".NEXTVAL");
                             valuesBuilder.Append(',');
                         }
@@ -701,7 +701,7 @@ namespace Riz.XFramework.Data.SqlClient
                         seqParameter.Direction = ParameterDirection.Output;
                         seqParameter.DbType = DbType.Int64;
                         builder.Append("SELECT ");
-                        builder.Append(((OracleColumnAttribute)seqColumn).SEQName);
+                        builder.AppendMember(((OracleColumnAttribute)seqColumn).SEQName);
                         builder.Append(".NEXTVAL INTO ");
                         builder.Append(seqParameter.ParameterName);
                         builder.Append(" FROM DUAL;");

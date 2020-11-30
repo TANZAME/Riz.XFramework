@@ -23,7 +23,10 @@ namespace Riz.XFramework.UnitTest
 
     // 代码生成模板说明
 
-    public class ModelN
+    /// <summary>
+    /// 属性名称与数据库字段名称不一致的实体
+    /// </summary>
+    public class Model_NA
     {
         [Table(Name = "Sys_Demo")]
         public partial class Demo

@@ -32,7 +32,7 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// <summary>
             /// democode
             /// </summary>        
-            [OracleColumn(IsKey = true, SEQName = "SYS_DEMO_DEMOID_SEQ")]
+            [OracleColumn(IsKey = true, SEQName = "Sys_Demo_DemoId_Seq")]
             public override int DemoId { get; set; }
 
             /// <summary>
@@ -50,19 +50,19 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// <summary>
             /// demochar
             /// </summary>
-            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar")]
+            [Column(DbType = OracleDbType.Char, Size = 1)]
             public override char DemoChar { get; set; }
 
             /// <summary>
             /// demochar
             /// </summary>
-            [Column(DbType = OracleDbType.NChar, Size = 1, Name = "demonchar")]
+            [Column(DbType = OracleDbType.NChar, Size = 1)]
             public override char DemoNChar { get; set; }
 
             /// <summary>
             /// demochar_nullable
             /// </summary>
-            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar_nullable")]
+            [Column(DbType = OracleDbType.Char, Size = 1)]
             public override Nullable<char> DemoChar_Nullable { get; set; }
 
             /// <summary>
@@ -197,7 +197,7 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// <summary>
             /// democode
             /// </summary>        
-            [OracleColumn(IsKey = true, SEQName = "SYS_DEMO_DEMOID_SEQ")]
+            [OracleColumn(IsKey = true, SEQName = "Sys_Demo_DemoId_Seq")]
             public override int DemoId { get; set; }
 
             /// <summary>
@@ -247,9 +247,6 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// </summary>        
             [Column(DbType = OracleDbType.TimeStamp, Scale = 7)]
             public override Nullable<DateTime> DemoDateTime2_Nullable { get; set; }
-
-            // ############################### 美丽的分隔线 ###################################
-
 
             /// <summary>
             /// Time 类型

@@ -8,10 +8,13 @@ using NpgsqlTypes;
 
 namespace Riz.XFramework.UnitTest.Postgre
 {
-    public class PostgreModelN
+    /// <summary>
+    /// 属性名称与数据库字段名称不一致的实体
+    /// </summary>
+    public class PostgreModel_NA
     {
         [Table(Name = "Sys_Demo")]
-        public class Demo : ModelN.Demo
+        public class Demo : Model_NA.Demo
         {
             public Demo()
                 : base()

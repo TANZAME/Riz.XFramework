@@ -82,12 +82,14 @@ namespace Riz.XFramework.UnitTest
                     new Option { WithNameAttribute = true, IsDebug = false, CaseSensitive = false },
                 };
                 if (myDatabaseType == DatabaseType.Oracle || myDatabaseType == DatabaseType.Postgre)
-                    options.Insert(0, new Option { WithNameAttribute = true, IsDebug = true, CaseSensitive = true });
+                {
+                    options.Add(new Option { WithNameAttribute = false, IsDebug = true, CaseSensitive = true });
+                    options.Add(new Option { WithNameAttribute = true, IsDebug = true, CaseSensitive = true });
+                }
 
                 foreach (var opt in options)
                 {
-                    var obj = Activator.CreateInstance(null, string.Format(
-                        "Riz.XFramework.UnitTest.{0}.{0}Test{1}", myDatabaseType, opt.CaseSensitive ? "S" : (opt.WithNameAttribute ? "N" : string.Empty)));
+                    var obj = Activator.CreateInstance(null, string.Format("Riz.XFramework.UnitTest.{0}.{0}Test{1}", myDatabaseType, opt.WithNameAttribute ? "_NA" : string.Empty));
                     test = (ITest)(obj.Unwrap());
                     test.IsDebug = opt.IsDebug;
                     test.CaseSensitive = opt.CaseSensitive;

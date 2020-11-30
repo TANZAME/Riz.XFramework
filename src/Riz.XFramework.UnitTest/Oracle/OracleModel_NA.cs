@@ -7,10 +7,13 @@ using Oracle.ManagedDataAccess.Client;
 
 namespace Riz.XFramework.UnitTest.Oracle
 {
-    public class OracleModelN
+    /// <summary>
+    /// 属性名称与数据库字段名称不一致的实体
+    /// </summary>
+    public class OracleModel_NA
     {
         [Table(Name = "Sys_Demo")]
-        public class Demo : ModelN.Demo
+        public class Demo : Model_NA.Demo
         {
             public Demo()
                 : base()
@@ -32,7 +35,7 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// <summary>
             /// democode
             /// </summary>        
-            [OracleColumn(IsKey = true, SEQName = "SYS_DEMO_DEMOID_SEQ", Name = "DemoId")]
+            [OracleColumn(IsKey = true, SEQName = "Sys_Demo_DemoId_Seq", Name = "DemoId")]
             public override int RizDemoId { get; set; }
 
             /// <summary>
@@ -50,19 +53,19 @@ namespace Riz.XFramework.UnitTest.Oracle
             /// <summary>
             /// demochar
             /// </summary>
-            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar")]
+            [Column(DbType = OracleDbType.Char, Size = 1, Name = "DemoChar")]
             public override char RizDemoChar { get; set; }
 
             /// <summary>
             /// demochar
             /// </summary>
-            [Column(DbType = OracleDbType.NChar, Size = 1, Name = "demonchar")]
+            [Column(DbType = OracleDbType.NChar, Size = 1, Name = "DemoNChar")]
             public override char RizDemoNChar { get; set; }
 
             /// <summary>
             /// demochar_nullable
             /// </summary>
-            [Column(DbType = OracleDbType.Char, Size = 1, Name = "demochar_nullable")]
+            [Column(DbType = OracleDbType.Char, Size = 1, Name = "DemoChar_Nullable")]
             public override Nullable<char> RizDemoChar_Nullable { get; set; }
 
             /// <summary>

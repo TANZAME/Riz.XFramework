@@ -7,10 +7,10 @@ using System.Text;
 
 namespace Riz.XFramework.UnitTest.MySql
 {
-    public class MySqlModelN
+    public class MySqlModel_NA
     {
         [Table(Name = "Sys_Demo")]
-        public class MySqlDemo : ModelN.Demo
+        public class MySqlDemo : Model_NA.Demo
         {
             public MySqlDemo()
                 : base()

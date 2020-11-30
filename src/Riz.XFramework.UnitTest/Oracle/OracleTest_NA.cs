@@ -13,7 +13,7 @@ using Oracle.ManagedDataAccess.Types;
 
 namespace Riz.XFramework.UnitTest.Oracle
 {
-    public class OracleTestN : TestBaseN<OracleModelN.Demo>
+    public class OracleTest_NA : TestBase_NA<OracleModel_NA.Demo>
     {
         // 如果在尝试进行 COM 上下文转换期间检测到一个死锁，将激活 contextSwitchDeadlock 托管调试助手 (MDA)。
         // https://docs.microsoft.com/zh-cn/dotnet/framework/debug-trace-profile/contextswitchdeadlock-mda
@@ -81,14 +81,14 @@ namespace Riz.XFramework.UnitTest.Oracle
 
             // 构造函数
             var query =
-                 from a in context.GetTable<OracleModelN.Demo>()
+                 from a in context.GetTable<OracleModel_NA.Demo>()
                  where a.RizDemoId <= 10
-                 select new OracleModelN.Demo(a);
+                 select new OracleModel_NA.Demo(a);
             var r1 = query.ToList();
             query =
-               from a in context.GetTable<OracleModelN.Demo>()
+               from a in context.GetTable<OracleModel_NA.Demo>()
                where a.RizDemoId <= 10
-               select new OracleModelN.Demo(a.RizDemoId, a.RizDemoName);
+               select new OracleModel_NA.Demo(a.RizDemoId, a.RizDemoName);
             r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -109,10 +109,10 @@ namespace Riz.XFramework.UnitTest.Oracle
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<OracleModelN.Demo>();
+            var demos = new List<OracleModel_NA.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                OracleModelN.Demo d = new OracleModelN.Demo
+                OracleModel_NA.Demo d = new OracleModel_NA.Demo
                 {
                     RizDemoCode = "D0000001",
                     RizDemoName = "N0000001",
@@ -140,16 +140,16 @@ namespace Riz.XFramework.UnitTest.Oracle
                 };
                 demos.Add(d);
             }
-            context.Insert<OracleModelN.Demo>(demos);
+            context.Insert<OracleModel_NA.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<OracleModelN.Demo>()
+                .GetTable<OracleModel_NA.Demo>()
                 .OrderByDescending(x => x.RizDemoId)
                 .Take(5).ToList();
             Debug.Assert(myList[0].DemVarBinary_s == text);
 
             // byte[]
-            var demo = new OracleModelN.Demo
+            var demo = new OracleModel_NA.Demo
             {
                 RizDemoCode = "D0000001",
                 RizDemoName = "N0000001",
@@ -178,10 +178,10 @@ namespace Riz.XFramework.UnitTest.Oracle
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<OracleModelN.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
+            demo = context.GetTable<OracleModel_NA.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
             Debug.Assert(demo.DemVarBinary_s == text);
             var hex = context
-                .GetTable<OracleModelN.Demo>()
+                .GetTable<OracleModel_NA.Demo>()
                 .Where(x => x.RizDemoId == demo.RizDemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();

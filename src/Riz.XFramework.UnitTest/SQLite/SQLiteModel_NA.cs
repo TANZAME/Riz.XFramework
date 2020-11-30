@@ -6,10 +6,13 @@ using Riz.XFramework.Data;
 
 namespace Riz.XFramework.UnitTest.SQLite
 {
-    public class SQLiteModelN
+    /// <summary>
+    /// 属性名称与数据库字段名称不一致的实体
+    /// </summary>
+    public class SQLiteModel_NA
     {
         [Table(Name = "Sys_Demo")]
-        public class Demo : ModelN.Demo
+        public class Demo : Model_NA.Demo
         {
             public Demo()
                 : base()
