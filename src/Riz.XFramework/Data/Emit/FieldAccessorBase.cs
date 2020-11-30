@@ -40,7 +40,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 实体定义的字段对应 CLR 类型
         /// </summary>
-        public Type MemberCLRType
+        public Type CLRType
         {
             get
             {

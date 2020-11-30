@@ -474,9 +474,9 @@ namespace Riz.XFramework.Data
                 }
 
                 // 区分一对一和一对多导航属性
-                var navEntityType = m.MemberCLRType.IsGenericType ? m.MemberCLRType.GetGenericArguments()[0] : m.MemberCLRType;
+                var navEntityType = m.CLRType.IsGenericType ? m.CLRType.GetGenericArguments()[0] : m.CLRType;
                 var navTypeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(navEntityType);
-                if (TypeUtils.IsCollectionType(m.MemberCLRType))
+                if (TypeUtils.IsCollectionType(m.CLRType))
                 {
                     // 1:n 关系，外键实体必须持有当前实体的所有主键属性
 

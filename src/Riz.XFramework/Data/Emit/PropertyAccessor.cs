@@ -45,7 +45,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // set
-                Set(target, parameters != null ? parameters[0] : TypeUtils.GetNullValue(base.MemberCLRType));
+                Set(target, parameters != null ? parameters[0] : TypeUtils.GetNullValue(base.CLRType));
                 return null;
             }
         }
