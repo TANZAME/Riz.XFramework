@@ -44,5 +44,11 @@ namespace Riz.XFramework.Data.SqlClient
         }
 
         // TODO MySqlBulkCopy
+
+        //配置my.ini文件
+        //bulk_insert_buffer_size=120M 或者更大
+        //将insert语句的长度设为最大。
+        //Max_allowed_packet=1M
+        //Net_buffer_length=8k
     }
 }
