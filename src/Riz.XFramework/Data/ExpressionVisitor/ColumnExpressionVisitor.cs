@@ -182,9 +182,9 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            //if (_navDescriptorKeys == null)
-            //    _navDescriptorKeys = new List<string>();
-            if (_navDescriptorKeys != null && _navDescriptorKeys.Count == 0)
+            if (_navDescriptorKeys == null)
+                _navDescriptorKeys = new List<string>();
+            if (_navDescriptorKeys.Count == 0)
                 _navDescriptorKeys.Add(node.Type.Name);
 
             // New 表达式

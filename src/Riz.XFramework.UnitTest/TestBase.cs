@@ -995,6 +995,10 @@ namespace Riz.XFramework.UnitTest
                 };
             result = query.ToList();
             result = query.OrderBy(a => a.ClientCode).ToList();
+            if (result.Count > 0)
+            {
+                Debug.Assert(result[0].LocalServer != null);
+            }
             //SQL=>
             //SELECT
             //t0.[ClientId] AS[ClientId],
