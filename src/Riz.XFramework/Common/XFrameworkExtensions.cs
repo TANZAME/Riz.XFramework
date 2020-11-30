@@ -57,6 +57,18 @@ namespace Riz.XFramework
             return Expression.Lambda<Func<T, bool>>(Expression.OrElse(left.Body, expression), left.Parameters);
         }
 
+        /// <summary>
+        /// 去掉一元表达式的操作符
+        /// </summary>
+        /// <returns></returns>
+        public static Expression ReduceUnary(this Expression exp)
+        {
+            var unaryExpression = exp as UnaryExpression;
+            return unaryExpression != null
+                ? unaryExpression.Operand.ReduceUnary()
+                : exp;
+        }
+
         #endregion
 
         #region 列表扩展

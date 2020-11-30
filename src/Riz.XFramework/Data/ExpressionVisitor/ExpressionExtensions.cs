@@ -114,20 +114,6 @@ namespace Riz.XFramework.Data
             return result;
         }
 
-
-
-        /// <summary>
-        /// 去掉一元表达式的操作符
-        /// </summary>
-        /// <returns></returns>
-        public static Expression ReduceUnary(this Expression exp)
-        {
-            var unaryExpression = exp as UnaryExpression;
-            return unaryExpression != null
-                ? unaryExpression.Operand.ReduceUnary()
-                : exp;
-        }
-
         /// <summary>
         /// 判断表达式链是否能通过动态计算，计算出它的值
         /// </summary>
