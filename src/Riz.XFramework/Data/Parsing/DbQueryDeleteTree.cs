@@ -8,11 +8,11 @@
         /// <summary>
         /// 实体对象
         /// </summary>
-        public object Entity { get; set; }
+        public object Entity { get; internal set; }
 
         /// <summary>
         /// 删除语义的查询部分，表示删除范围
         /// </summary>
-        public DbQuerySelectTree SelectTree { get; set; }
+        public DbQuerySelectTree SelectTree { get; internal set; }
     }
 }

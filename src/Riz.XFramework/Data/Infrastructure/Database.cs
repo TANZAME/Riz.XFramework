@@ -37,7 +37,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 数据库连接字符串
         /// </summary>
-        public string ConnectionString { get { return _connString; } }
+        public string ConnectionString => _connString;
 
         /// <summary>
         /// 执行命令超时时间
@@ -61,7 +61,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前连接会话
         /// </summary>
-        public IDbConnection Connection { get { return _connection; } }
+        public IDbConnection Connection => _connection;
 
         /// <summary>
         /// 获取或者设置当前会话事务
@@ -143,10 +143,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="cmd">命令描述</param>
         /// <returns></returns>
-        public IDbCommand CreateCommand(DbRawCommand cmd)
-        {
-            return this.CreateCommand(cmd.CommandText, cmd.CommandType, cmd.Parameters);
-        }
+        public IDbCommand CreateCommand(DbRawCommand cmd) => this.CreateCommand(cmd.CommandText, cmd.CommandType, cmd.Parameters);
 
         /// <summary>
         /// 创建 SQL 命令
@@ -260,20 +257,14 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(List<DbRawCommand> sqlList)
-        {
-            return this.DoExecute<object>(sqlList, this.ExecuteScalar);
-        }
+        public object ExecuteScalar(List<DbRawCommand> sqlList) => this.DoExecute<object>(sqlList, this.ExecuteScalar);
 
         /// <summary>
         /// 执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public object ExecuteScalar(IDbCommand command)
-        {
-            return this.DoExecute<object>(command, p => p.ExecuteScalar(), command.Transaction == null);
-        }
+        public object ExecuteScalar(IDbCommand command) => this.DoExecute<object>(command, p => p.ExecuteScalar(), command.Transaction == null);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -306,20 +297,15 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(List<DbRawCommand> sqlList)
-        {
-            return this.DoExecute<IDataReader>(sqlList, this.ExecuteReader);
-        }
+        public IDataReader ExecuteReader(List<DbRawCommand> sqlList) => this.DoExecute<IDataReader>(sqlList, this.ExecuteReader);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public IDataReader ExecuteReader(IDbCommand command)
-        {
-            return this.DoExecute<IDataReader>(command, p => p.ExecuteReader(CommandBehavior.SequentialAccess), false);
-        }
+        public IDataReader ExecuteReader(IDbCommand command) 
+            => this.DoExecute<IDataReader>(command, p => p.ExecuteReader(CommandBehavior.SequentialAccess), false);
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -356,10 +342,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public virtual T Execute<T>(List<DbRawCommand> sqlList)
-        {
-            return this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(x => x is IMapInfo) as IMapInfo));
-        }
+        public virtual T Execute<T>(List<DbRawCommand> sqlList) 
+            => this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(a => a is IMapInfo) as IMapInfo));
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -368,10 +352,7 @@ namespace Riz.XFramework.Data
         /// <param name="sqlList">查询语句</param>
         /// <param name="action">执行SQL命令动作</param>
         /// <returns></returns>
-        public virtual T Execute<T>(List<DbRawCommand> sqlList, Func<IDbCommand, T> action)
-        {
-            return this.DoExecute<T>(sqlList, action);
-        }
+        public virtual T Execute<T>(List<DbRawCommand> sqlList, Func<IDbCommand, T> action) => this.DoExecute<T>(sqlList, action);
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -379,10 +360,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public virtual T Execute<T>(IDbCommand command)
-        {
-            return this.Execute<T>(command, null);
-        }
+        public virtual T Execute<T>(IDbCommand command) => this.Execute<T>(command, null);
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -466,10 +444,8 @@ namespace Riz.XFramework.Data
         /// 执行 SQL 语句，并返回多个实体集合
         /// </summary>
         /// <param name="command">SQL 命令</param>
-        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command)
-        {
-            return this.Execute<T1, T2, T3, T4, T5, T6, T7>(command, null);
-        }
+        public virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command) 
+            => this.Execute<T1, T2, T3, T4, T5, T6, T7>(command, null);
 
         /// <summary>
         /// 执行 SQL 语句，并返回多个实体集合
@@ -839,10 +815,7 @@ namespace Riz.XFramework.Data
             {
             }
 
-            public int FillFromReader(DataSet result, IDataReader dataReader, int startRecord, int maxRecords)
-            {
-                return this.Fill(result, "Table", dataReader, startRecord, maxRecords);
-            }
+            public int FillFromReader(DataSet result, IDataReader dataReader, int startRecord, int maxRecords) => this.Fill(result, "Table", dataReader, startRecord, maxRecords);
         }
 
         /// <summary>

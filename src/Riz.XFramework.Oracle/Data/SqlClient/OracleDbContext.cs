@@ -24,7 +24,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者
         /// </summary>
-        public override IDbQueryProvider Provider { get { return OracleDbQueryProvider.Instance; } }
+        public override IDbQueryProvider Provider => OracleDbQueryProvider.Instance;
 
         /// <summary>
         /// 数据库对象，持有当前上下文的会话

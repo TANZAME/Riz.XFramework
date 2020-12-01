@@ -11,7 +11,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者
         /// </summary>
-        public override IDbQueryProvider Provider { get { return MySqlDbQueryProvider.Instance; } }
+        public override IDbQueryProvider Provider => MySqlDbQueryProvider.Instance;
 
         /// <summary>
         /// 初始化 <see cref="MySqlDbContext"/> 类的新实例

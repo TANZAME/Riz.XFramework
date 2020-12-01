@@ -67,10 +67,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 是否是外键成员
         /// </summary>
-        public virtual bool IsNavigation
-        {
-            get { return this.ForeignKey != null || ((this.Column == null || !this.Column.NoMapped) && !TypeUtils.IsPrimitive(this.Member)); }
-        }
+        public virtual bool IsNavigation => this.ForeignKey != null || ((this.Column == null || !this.Column.NoMapped) && !TypeUtils.IsPrimitive(this.Member));
 
         /// <summary>
         /// 是否是基元类的数据字段。

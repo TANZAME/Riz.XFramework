@@ -9,16 +9,16 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 实体对象
         /// </summary>
-        public object Entity { get; set; }
+        public object Entity { get; internal set; }
 
         /// <summary>
         /// 更新指定字段表达式
         /// </summary>
-        public System.Linq.Expressions.Expression Expression { get; set; }
+        public System.Linq.Expressions.Expression Expression { get; internal set; }
 
         /// <summary>
         /// 更新语义的查询部分，表示更新范围
         /// </summary>
-        public DbQuerySelectTree SelectTree { get; set; }
+        public DbQuerySelectTree SelectTree { get; internal set; }
     }
 }

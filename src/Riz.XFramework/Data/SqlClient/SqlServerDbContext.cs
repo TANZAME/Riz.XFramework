@@ -35,7 +35,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// <summary>
         /// 查询语义提供者
         /// </summary>
-        public override IDbQueryProvider Provider { get { return SqlServerDbQueryProvider.Instance; } }
+        public override IDbQueryProvider Provider => SqlServerDbQueryProvider.Instance;
 
         /// <summary>
         /// 初始化 <see cref="SqlServerDbContext"/> 类的新实例
@@ -115,10 +115,7 @@ namespace Riz.XFramework.Data.SqlClient
         /// 使用 SQLSERVER 的BulkCopy语法批量写入数据，其中 DestinationTableName 等于 DataTable.TableName
         /// </summary>
         /// <param name="table">数据源</param>
-        public void BulkCopy(DataTable table)
-        {
-            this.BulkCopy(table, null);
-        }
+        public void BulkCopy(DataTable table) => this.BulkCopy(table, null);
 
         /// <summary>
         /// 使用 SQLSERVER 的BulkCopy语法批量写入数据，其中 DestinationTableName 等于 DataTable.TableName

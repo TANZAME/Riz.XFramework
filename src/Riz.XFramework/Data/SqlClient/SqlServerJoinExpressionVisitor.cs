@@ -33,7 +33,7 @@ namespace Riz.XFramework.Data
         }
 
         // LEFT OR INNER JOIN
-        protected override void AppendLfInJoin( DbExpression dbExpression)
+        protected override void AppendLfInJoin(DbExpression dbExpression)
         {
             bool withNoLock = false;
             _builder.Append(' ');

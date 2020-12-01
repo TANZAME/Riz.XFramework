@@ -150,10 +150,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">给定实体的类型</typeparam>
         /// <param name="collection">要添加的实体集合</param>
-        public virtual void Insert<T>(IEnumerable<T> collection)
-        {
-            this.Insert<T>(collection, null);
-        }
+        public virtual void Insert<T>(IEnumerable<T> collection) => this.Insert<T>(collection, null);
 
         /// <summary>
         /// 批量将给定实体集合添加到基础上下文中，当调用 SubmitChanges 时，会将该实体插入到数据库中
@@ -268,10 +265,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T">给定实体的类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T>(Expression<Func<T, object>> updateExpression, IDbQueryable<T> source) => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -290,10 +284,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T1">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1>(Expression<Func<T, T1, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1>(Expression<Func<T, T1, object>> updateExpression, IDbQueryable<T> source) => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -313,10 +304,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T2">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2>(Expression<Func<T, T1, T2, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2>(Expression<Func<T, T1, T2, object>> updateExpression, IDbQueryable<T> source) => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -337,10 +325,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T3">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3>(Expression<Func<T, T1, T2, T3, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2, T3>(Expression<Func<T, T1, T2, T3, object>> updateExpression, IDbQueryable<T> source) => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -362,10 +347,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T4">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source) 
+            => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -388,10 +371,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T5">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source) 
+            => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -415,10 +396,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T6">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source) 
+            => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 批量将实体查询语义添加到基础上下文中，当调用 SubmitChanges 时，会将每一个满足条件的实体更新到数据库中
@@ -443,10 +422,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T7">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source)
-        {
-            this.Update<T>((Expression)updateExpression, source);
-        }
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source) 
+            => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
         /// 更新记录
@@ -478,10 +455,7 @@ namespace Riz.XFramework.Data
         /// 添加额外查询
         /// </summary>
         /// <param name="query">查询语义</param>
-        public void AddQuery(IDbQueryable query)
-        {
-            _dbQueryables.Add(query);
-        }
+        public void AddQuery(IDbQueryable query) => _dbQueryables.Add(query);
 
         /// <summary>
         /// 计算要插入、更新或删除的已修改对象的集，并执行相应命令以实现对数据库的更改
@@ -821,11 +795,8 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">对象的基类型</typeparam>
         /// <returns></returns>
-        public IDbQueryable<T> GetTable<T>()
-        {
-            DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
-            return query;
-        }
+        public IDbQueryable<T> GetTable<T>() 
+            => new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
 
         /// <summary>
         /// 返回特定类型的对象的集合，其中类型由 T 参数定义

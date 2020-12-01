@@ -40,7 +40,7 @@ namespace Riz.XFramework.Data
         {
             get
             {
-                if (_attribute == null) _attribute = GetCustomAttribute<TableAttribute>();
+                if (_attribute == null) _attribute = this.GetCustomAttribute<TableAttribute>();
                 return _attribute;
             }
         }
@@ -53,7 +53,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 类型对应的数据架构名，如果没有指定Table特性，则默认为空
         /// </summary>
-        public string SchemeName => this.Table != null ? this.Table.Scheme : string.Empty;
+        public string SchemaName => this.Table != null ? this.Table.Schema : string.Empty;
 
         /// <summary>
         /// 是否临时表

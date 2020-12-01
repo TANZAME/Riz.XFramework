@@ -47,10 +47,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// FROM 和 JOIN 表达式总数，别名系统会预留这个数量，在这个计数的基础上再分配导航属性关联的表别名
         /// </summary>
-        public int ReserveQty
-        {
-            get { return _reserveQty; }
-        }
+        public int ReserveQty => _reserveQty;
 
         /// <summary>
         /// 实例化 <see cref="AliasGenerator"/> 类的新实例

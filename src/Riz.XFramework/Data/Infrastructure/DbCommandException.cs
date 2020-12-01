@@ -15,7 +15,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前执行的 SQL 命令
         /// </summary>
-        public IDbCommand DbCommand { get; set; }
+        public IDbCommand DbCommand { get; private set; }
 
         /// <summary>
         /// 初始化 <see cref="DbCommandException"/> 类的新实例
@@ -29,18 +29,12 @@ namespace Riz.XFramework.Data
         /// 初始化 <see cref="DbCommandException"/> 类的新实例
         /// </summary>
         public DbCommandException(string message, IDbCommand command)
-            : base(message)
-        {
-            this.DbCommand = command;
-        }
+            : base(message) => this.DbCommand = command;
 
         /// <summary>
         /// 初始化 <see cref="DbCommandException"/> 类的新实例
         /// </summary>
         public DbCommandException(string message, Exception innerException, IDbCommand command)
-            : base(message, innerException)
-        {
-            this.DbCommand = command;
-        }
+            : base(message, innerException) => this.DbCommand = command;
     }
 }

@@ -20,23 +20,17 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="key">键</param>
         /// <returns></returns>
-        public T this[string key]
-        {
-            get { return _collection.ContainsKey(key) ? _collection[key] : default(T); }
-        }
+        public T this[string key] => _collection.ContainsKey(key) ? _collection[key] : default(T);
 
         /// <summary>
         /// 包含的元素数
         /// </summary>
-        public int Count { get { return _collection.Count; } }
+        public int Count => _collection.Count;
 
         /// <summary>
         /// 实例化<see cref="ColumnDescriptorCollection"/>类的新实例
         /// </summary>
-        public HashCollection()
-        {
-            _collection = new Dictionary<string, T>(8);
-        }
+        public HashCollection() => _collection = new Dictionary<string, T>(8);
 
         /// <summary>
         /// 返回一个循环访问集合的枚举数。
@@ -61,18 +55,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 在集合中添加一个带有所提供的键和值的元素
         /// </summary>
-        public virtual void Add(T value)
-        {
-            _collection.Add(value.Key, value);
-        }
+        public virtual void Add(T value) => _collection.Add(value.Key, value);
 
         /// <summary>
         /// 确定是否包含具有指定键的元素
         /// </summary>
-        public bool Contains(string key)
-        {
-            return _collection.ContainsKey(key);
-        }
+        public bool Contains(string key) => _collection.ContainsKey(key);
 
         /// <summary>
         /// 确定是否包含具有指定键的元素
@@ -86,9 +74,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 获取与指定的键相关联的值
         /// </summary>
-        public bool TryGetValue(string key, out T value)
-        {
-            return _collection.TryGetValue(key, out value);
-        }
+        public bool TryGetValue(string key, out T value) => _collection.TryGetValue(key, out value);
     }
 }

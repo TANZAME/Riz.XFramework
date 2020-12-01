@@ -16,12 +16,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 唯一键
         /// </summary>
-        public string Key { get { return _keyId; } }
+        public string Key => _keyId;
 
         /// <summary>
         /// 访问属性或字段的表达式
         /// </summary>
-        public MemberExpression Expression { get { return _expression; } }
+        public MemberExpression Expression => _expression;
 
         /// <summary>
         /// 筛选谓词（在 LEFT JOIN 片断中使用，其它地方忽略）

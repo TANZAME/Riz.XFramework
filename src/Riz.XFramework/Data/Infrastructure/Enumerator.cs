@@ -14,10 +14,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前项
         /// </summary>
-        public T Current
-        {
-            get { return _enumerator.Current.Value; }
-        }
+        public T Current => _enumerator.Current.Value;
 
         /// <summary>
         /// 当前项
@@ -37,10 +34,7 @@ namespace Riz.XFramework.Data
         /// 实例化迭代器的新实例
         /// </summary>
         /// <param name="enumerator">枚举字典中的的元素</param>
-        public Enumerator(Dictionary<string, T>.Enumerator enumerator)
-        {
-            _enumerator = enumerator;
-        }
+        public Enumerator(Dictionary<string, T>.Enumerator enumerator) => _enumerator = enumerator;
 
         /// <summary>
         /// 释放资源
@@ -53,10 +47,7 @@ namespace Riz.XFramework.Data
         /// 迭代下一项
         /// </summary>
         /// <returns></returns>
-        public bool MoveNext()
-        {
-            return _enumerator.MoveNext();
-        }
+        public bool MoveNext() => _enumerator.MoveNext();
 
         /// <summary>
         /// 重置

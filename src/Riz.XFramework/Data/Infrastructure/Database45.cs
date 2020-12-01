@@ -63,10 +63,8 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public async Task<int> ExecuteNonQueryAsync(IDbCommand command)
-        {
-            return await this.DoExecuteAsync<int>(command, async p => await p.ExecuteNonQueryAsync(), command.Transaction == null);
-        }
+        public async Task<int> ExecuteNonQueryAsync(IDbCommand command) 
+            => await this.DoExecuteAsync<int>(command, async p => await p.ExecuteNonQueryAsync(), command.Transaction == null);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
@@ -88,20 +86,15 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public async Task<object> ExecuteScalarAsync(List<DbRawCommand> sqlList)
-        {
-            return await this.DoExecuteAsync<object>(sqlList, this.ExecuteScalarAsync);
-        }
+        public async Task<object> ExecuteScalarAsync(List<DbRawCommand> sqlList) => await this.DoExecuteAsync<object>(sqlList, this.ExecuteScalarAsync);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回查询所返回的结果集中第一行的第一列。忽略额外的列或行
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public async Task<object> ExecuteScalarAsync(IDbCommand command)
-        {
-            return await this.DoExecuteAsync<object>(command, async p => await p.ExecuteScalarAsync(), command.Transaction == null);
-        }
+        public async Task<object> ExecuteScalarAsync(IDbCommand command) 
+            => await this.DoExecuteAsync<object>(command, async p => await p.ExecuteScalarAsync(), command.Transaction == null);
 
         /// <summary>
         /// 执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
@@ -123,20 +116,16 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="sqlList">SQL 命令</param>
         /// <returns></returns>
-        public async Task<IDataReader> ExecuteReaderAsync(List<DbRawCommand> sqlList)
-        {
-            return await this.DoExecuteAsync<DbDataReader>(sqlList, async command => await this.ExecuteReaderAsync(command) as DbDataReader);
-        }
+        public async Task<IDataReader> ExecuteReaderAsync(List<DbRawCommand> sqlList) 
+            => await this.DoExecuteAsync<DbDataReader>(sqlList, async command => await this.ExecuteReaderAsync(command) as DbDataReader);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回 <see cref="IDataReader"/> 对象
         /// </summary>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public async Task<IDataReader> ExecuteReaderAsync(IDbCommand command)
-        {
-            return await this.DoExecuteAsync<DbDataReader>(command, async p => await p.ExecuteReaderAsync(CommandBehavior.SequentialAccess), false);
-        }
+        public async Task<IDataReader> ExecuteReaderAsync(IDbCommand command) 
+            => await this.DoExecuteAsync<DbDataReader>(command, async p => await p.ExecuteReaderAsync(CommandBehavior.SequentialAccess), false);
 
         /// <summary>
         /// 异步执行SQL 语句，并返回由 T 指定的对象
@@ -173,10 +162,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
-        public virtual async Task<T> ExecuteAsync<T>(List<DbRawCommand> sqlList)
-        {
-            return await this.DoExecuteAsync<T>(sqlList, async p => await this.ExecuteAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapInfo) as IMapInfo));
-        }
+        public virtual async Task<T> ExecuteAsync<T>(List<DbRawCommand> sqlList) 
+            => await this.DoExecuteAsync<T>(sqlList, async p => await this.ExecuteAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapInfo) as IMapInfo));
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -185,10 +172,7 @@ namespace Riz.XFramework.Data
         /// <param name="sqlList">查询语句</param>
         /// <param name="action">执行SQL命令动作</param>
         /// <returns></returns>
-        public virtual async Task<T> ExecuteAsync<T>(List<DbRawCommand> sqlList, Func<IDbCommand, Task<T>> action)
-        {
-            return await this.DoExecuteAsync<T>(sqlList, action);
-        }
+        public virtual async Task<T> ExecuteAsync<T>(List<DbRawCommand> sqlList, Func<IDbCommand, Task<T>> action) => await this.DoExecuteAsync<T>(sqlList, action);
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -196,10 +180,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T">基元类型、单实体、列表（List&lt;T&gt;）、DataTable、DataSet</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <returns></returns>
-        public virtual async Task<T> ExecuteAsync<T>(IDbCommand command)
-        {
-            return await this.ExecuteAsync<T>(command, null);
-        }
+        public virtual async Task<T> ExecuteAsync<T>(IDbCommand command) => await this.ExecuteAsync<T>(command, null);
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
