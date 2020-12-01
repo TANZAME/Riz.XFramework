@@ -17,7 +17,7 @@ namespace Riz.XFramework.Data
         private string _escCharQuote;
         private StringBuilder _innerBuilder = null;
         private ITranslateContext _context = null;
-        private DbConstor _constParser = null;
+        private DbConstor _constor = null;
 
         /// <summary>
         /// TAB 制表符
@@ -78,7 +78,7 @@ namespace Riz.XFramework.Data
             _innerBuilder = new StringBuilder(128);
 
             var provider = _context.Provider;
-            _constParser = ((DbQueryProvider)provider).Constor;
+            _constor = ((DbQueryProvider)provider).Constor;
             _escCharLeft = provider.QuotePrefix;
             _escCharRight = provider.QuoteSuffix;
             _escCharQuote = provider.SingleQuoteChar;
@@ -99,7 +99,7 @@ namespace Riz.XFramework.Data
             if (expression.CanEvaluate())
             {
                 ConstantExpression c = expression.Evaluate();
-                string value = _constParser.GetSqlValue(c.Value, _context);
+                string value = _constor.GetSqlValue(c.Value, _context);
                 _innerBuilder.Append(value);
                 return value;
             }
@@ -204,7 +204,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         public ISqlBuilder Append(object value, MemberVisitedStack.VisitedMember m)
         {
-            var sqlExpression = _constParser.GetSqlValue(value, _context, m);
+            var sqlExpression = _constor.GetSqlValue(value, _context, m);
             return this.Append(sqlExpression);
         }
 

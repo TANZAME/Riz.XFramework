@@ -12,9 +12,6 @@ namespace Riz.XFramework.Data
     {
         private readonly IDbContext _context = null;
         private readonly DbQueryProvider _provider = null;
-        private readonly DbConstor _constParser = null;
-        //private DbExpressionType? _srcDbExpressionType = null;
-        //private bool? _srcIsOutQuery = null;
 
         /// <summary>
         /// 当前正在翻译的表达式类型
@@ -57,7 +54,6 @@ namespace Riz.XFramework.Data
             XFrameworkException.Check.NotNull(context, nameof(context));
             _context = context;
             _provider = (DbQueryProvider)_context.Provider;
-            _constParser = _provider.Constor;
         }
 
         /// <summary>

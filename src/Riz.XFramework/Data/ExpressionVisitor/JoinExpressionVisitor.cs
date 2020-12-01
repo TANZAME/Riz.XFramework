@@ -63,6 +63,8 @@ namespace Riz.XFramework.Data
         {
             _builder.Append(' ');
             DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            dbQuery.Parameterized = _builder.Parameterized;
+            
             if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];

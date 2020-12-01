@@ -938,7 +938,7 @@ namespace Riz.XFramework.UnitTest
                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-             var result = query.ToList();
+            var result = query.ToList();
             query = from a in context.GetTable<Model.Client>()
                     join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                     select a;
@@ -1777,6 +1777,23 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             context.Database.ExecuteNonQuery(query.Sql);
             //var result10 = query.ToPagedList(1, 20);
+
+            //var ids = new[] { 1, 2, 3 };
+            //var newestQuery =
+            //    context.GetTable<Model.Server>()
+            //    .Where(a => a.CloudServerId == 0 || ids.Contains(a.CloudServerId))
+            //    .Select(a => new
+            //    {
+            //        RowNumber = Data.DbFunction.PartitionRowNumber(a.CloudServerId, a.CloudServerCode, OrderBy.DESC),
+            //        a.CloudServerId,
+            //        a.CloudServerCode
+            //    });
+            //newestQuery = newestQuery.AsSubquery().Where(a => a.RowNumber == 1);
+            //query =
+            //    from a in context.GetTable<Model.Client>()
+            //    join b in newestQuery on a.CloudServerId equals b.CloudServerId
+            //    select a;
+            //var sql = query.Sql;
         }
 
         // 新增记录

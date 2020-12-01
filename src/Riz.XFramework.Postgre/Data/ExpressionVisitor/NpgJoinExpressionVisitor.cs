@@ -61,6 +61,8 @@ namespace Riz.XFramework.Data
         private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression)
         {
             DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            dbQuery.Parameterized = jf.Parameterized;
+
             if (!usedKeyword)
             {
                 jf.AppendNewLine();

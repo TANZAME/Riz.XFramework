@@ -14,6 +14,11 @@ namespace Riz.XFramework.Data
         public string Name { get; set; }
 
         /// <summary>
+        /// 架构名称（如dbo），默认为空
+        /// </summary>
+        public string Scheme { get; set; }
+
+        /// <summary>
         /// 是否临时表
         /// </summary>
         public bool IsTemporary  { get; set; }

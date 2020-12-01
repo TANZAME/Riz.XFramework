@@ -48,13 +48,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 类型对应的数据表名，如果没有指定Table特性，则使用类型名称做为表名
         /// </summary>
-        public string TableName
-        {
-            get
-            {
-                return this.Table != null && !string.IsNullOrEmpty(Table.Name) ? Table.Name : this._type.Name;
-            }
-        }
+        public string TableName => this.Table != null && !string.IsNullOrEmpty(this.Table.Name) ? this.Table.Name : this._type.Name;
+
+        /// <summary>
+        /// 类型对应的数据架构名，如果没有指定Table特性，则默认为空
+        /// </summary>
+        public string SchemeName => this.Table != null ? this.Table.Scheme : string.Empty;
 
         /// <summary>
         /// 是否临时表
