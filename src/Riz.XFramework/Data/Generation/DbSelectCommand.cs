@@ -59,12 +59,12 @@ namespace Riz.XFramework.Data
         /// 选择字段范围
         /// </summary>
         /// <remarks>INSERT 表达式可能用这些字段</remarks>
-        public ColumnDescriptorCollection PickColumns { get; set; }
+        public ColumnDescriptorCollection PickColumns { get; internal set; }
 
         /// <summary>
         /// 选中字段的文本，给 Contains 表达式用
         /// </summary>
-        public string PickColumnText { get; set; }
+        public string PickColumnText { get; internal set; }
 
         /// <summary>
         /// 选中的导航属性描述集合
@@ -72,7 +72,7 @@ namespace Riz.XFramework.Data
         /// 用于实体与 <see cref="IDataRecord"/> 做映射
         /// </para>
         /// </summary>
-        public NavDescriptorCollection PickNavDescriptors { get; set; }
+        public NavDescriptorCollection PickNavDescriptors { get; internal set; }
 
         /// <summary>
         /// 导航属性表达式集合
