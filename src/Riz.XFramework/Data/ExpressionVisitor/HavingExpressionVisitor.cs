@@ -42,7 +42,7 @@ namespace Riz.XFramework.Data
                     var node = d.Expressions[0];
                     if (node.NodeType == ExpressionType.Lambda)
                         node = ((LambdaExpression)node).Body;
-                    node = FixBinary(node);
+                    node = TryFixBinary(node);
 
                     base.Visit(node);
                     if (index < havings.Count - 1) _builder.Append(" AND ");

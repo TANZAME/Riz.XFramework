@@ -1333,7 +1333,7 @@ namespace Riz.XFramework.Data
             else
                 _builder.Append("WHERE ");
 
-            _builder.Append(cmd.PickColumnText);
+            _builder.Append(cmd.SelectedColumnText);
             _builder.Append(" = ");
             _visitor.Visit(m.Arguments[1]);
             _builder.Append(")");

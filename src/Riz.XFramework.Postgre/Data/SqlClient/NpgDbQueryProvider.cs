@@ -110,7 +110,7 @@ namespace Riz.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             var subquery = tree.Subquery as DbQuerySelectTree;
-            if (tree.HasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
+            if (tree.SelectHasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
 
             var srcDbExpressionType = context.DbExpressionType;
             var srcIsOutQuery = context.IsOutQuery;
@@ -125,11 +125,10 @@ namespace Riz.XFramework.Data.SqlClient
             // 第一层的表别名
             string alias = context != null && !string.IsNullOrEmpty(context.AliasPrefix) ? (context.AliasPrefix + "0") : "t0";
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
-            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
+            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.SelectHasMany || (tree.Skip > 0 || tree.Take > 0));
 
             AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, ag);
-            result.HasMany = tree.HasMany;
+            var result = new DbSelectCommand(context, ag, tree.SelectHasMany);
 
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -199,9 +198,9 @@ namespace Riz.XFramework.Data.SqlClient
                     var visitor = new ColumnExpressionVisitor(ag, jf, tree);
                     visitor.Visit(tree.Select);
 
-                    result.PickColumns = visitor.PickColumns;
-                    result.PickColumnText = visitor.PickColumnText;
-                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.SelectedColumns = visitor.SelectedColumns;
+                    result.SelectedColumnText = visitor.SelectedColumnText;
+                    result.SelectedNavDescriptors = visitor.SelectedNavDescriptors;
                     result.AddNavMembers(visitor.NavMembers);
                 }
 
@@ -302,7 +301,7 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery.Aggregate == null &&
+            if (tree.SelectHasMany && subquery.Aggregate == null &&
                 subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 result.CombineFragments();
@@ -449,7 +448,7 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.Append(this.QuoteSuffix);
                 }
             }
-            else if (tree.SelectTree != null)
+            else if (tree.Query != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -459,16 +458,16 @@ namespace Riz.XFramework.Data.SqlClient
                 var srcIsOutQuery = context.IsOutQuery;
                 context.DbExpressionType = DbExpressionType.Insert;
                 context.IsOutQuery = false;
-                var cmd = this.ResolveSelectCommandImpl(tree.SelectTree, 0, false, context) as DbSelectCommand;
+                var cmd = this.ResolveSelectCommandImpl(tree.Query, 0, false, context) as DbSelectCommand;
 
                 context.DbExpressionType = srcDbExpressionType;
                 context.IsOutQuery = srcIsOutQuery;
 
                 int index = 0;
-                foreach (var column in cmd.PickColumns)
+                foreach (var column in cmd.SelectedColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (index < cmd.PickColumns.Count - 1) builder.Append(',');
+                    if (index < cmd.SelectedColumns.Count - 1) builder.Append(',');
                     index++;
                 }
 
@@ -518,22 +517,21 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (tree.SelectTree != null)
+            else if (tree.Query != null)
             {
-                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Delete);
-                cmd.HasMany = tree.SelectTree.HasMany;
+                AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Delete, tree.Query.SelectHasMany);
 
-                if (tree.SelectTree.Joins != null)
+                if (tree.Query.Joins != null)
                 {
                     var visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Delete, cmd);
-                    visitor.Visit(tree.SelectTree.Joins);
+                    visitor.Visit(tree.Query.Joins);
                 }
 
-                if (tree.SelectTree.Wheres != null)
+                if (tree.Query.Wheres != null)
                 {
                     var visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
-                    visitor.Visit(tree.SelectTree.Wheres);
+                    visitor.Visit(tree.Query.Wheres);
                     cmd.AddNavMembers(visitor.NavMembers);
                 }
 
@@ -611,24 +609,22 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.Expression != null)
             {
-                AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
                 DbExpressionVisitor visitor = null;
                 visitor = new NpgUpdateExpressionVisitor(ag, builder);
                 visitor.Visit(tree.Expression);
 
-                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Update);
-                cmd.HasMany = tree.SelectTree.HasMany;
-
-                if (tree.SelectTree.Joins != null)
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Update, tree.Query.SelectHasMany);
+                if (tree.Query.Joins != null)
                 {
                     visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Update, cmd);
-                    visitor.Visit(tree.SelectTree.Joins);
+                    visitor.Visit(tree.Query.Joins);
                 }
 
-                if (tree.SelectTree.Wheres != null)
+                if (tree.Query.Wheres != null)
                 {
                     visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
-                    visitor.Visit(tree.SelectTree.Wheres);
+                    visitor.Visit(tree.Query.Wheres);
                     cmd.AddNavMembers(visitor.NavMembers);
                 }
 

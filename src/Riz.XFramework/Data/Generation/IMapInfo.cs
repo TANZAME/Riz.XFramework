@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
         /// 选择字段范围
         /// </summary>
         /// <remarks>INSERT 表达式可能用这些字段</remarks>
-        ColumnDescriptorCollection PickColumns { get; }
+        ColumnDescriptorCollection SelectedColumns { get; }
 
         /// <summary>
         /// 选中的导航属性描述信息
@@ -18,7 +18,7 @@ namespace Riz.XFramework.Data
         /// 用于实体与 IDataRecord 做映射
         /// </para>
         /// </summary>
-        NavDescriptorCollection PickNavDescriptors { get; }
+        NavDescriptorCollection SelectedNavDescriptors { get; }
 
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性

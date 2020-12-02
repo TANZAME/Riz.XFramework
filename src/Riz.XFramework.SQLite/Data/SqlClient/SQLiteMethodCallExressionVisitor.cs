@@ -446,7 +446,7 @@ namespace Riz.XFramework.Data.SqlClient
                 _builder.Append(" AND ");
             else
                 _builder.Append("WHERE ");
-            _builder.Append(cmd.PickColumnText);
+            _builder.Append(cmd.SelectedColumnText);
             _builder.Append(" = ");
 
             // exists 不能用别名

@@ -20,11 +20,6 @@ namespace Riz.XFramework.Data
         public bool HasAny { get; internal set; }
 
         /// <summary>
-        /// 表达式是否包含 一对多 类型的导航属性
-        /// </summary>
-        public bool HasMany { get; internal set; }
-
-        /// <summary>
         /// 跳过序列中指定数量的元素
         /// </summary>
         public int Skip { get; internal set; }
@@ -43,6 +38,11 @@ namespace Riz.XFramework.Data
         /// SELECT 字段表达式
         /// </summary>
         public DbExpression Select { get; internal set; }
+
+        /// <summary>
+        /// SELECT 语义中是否包含一对多导航属性
+        /// </summary>
+        public bool SelectHasMany { get; internal set; }
 
         /// <summary>
         /// 聚合函数表达式，包括如：COUNT,MAX,MIN,AVG,SUM
@@ -83,11 +83,6 @@ namespace Riz.XFramework.Data
         /// 子查询语义
         /// </summary>
         public DbQuerySelectTree Subquery { get; internal set; }
-
-        /// <summary>
-        /// 是否是由一对多导航产生的嵌套查询
-        /// </summary>
-        public bool ParsedByMany { get; internal set; }
 
         /// <summary>
         /// 并集操作，翻译成 UNION ALL

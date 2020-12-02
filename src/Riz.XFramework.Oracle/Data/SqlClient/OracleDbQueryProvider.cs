@@ -269,7 +269,7 @@ namespace Riz.XFramework.Data.SqlClient
             // 导航属性中有1:n关系，只统计主表
             // 例：AccountList = a.Client.AccountList,
             var subquery = tree.Subquery as DbQuerySelectTree;
-            if (tree.HasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
+            if (tree.SelectHasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
 
             var srcDbExpressionType = context.DbExpressionType;
             var srcIsOutQuery = context.IsOutQuery;
@@ -284,11 +284,10 @@ namespace Riz.XFramework.Data.SqlClient
             // 第一层的表别名
             string alias = context != null && !string.IsNullOrEmpty(context.AliasPrefix) ? (context.AliasPrefix + "0") : "t0";
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
-            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.ParsedByMany || (tree.Skip > 0 || tree.Take > 0));
+            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.SelectHasMany || (tree.Skip > 0 || tree.Take > 0));
 
             AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
-            var result = new DbSelectCommand(context, ag);
-            result.HasMany = tree.HasMany;
+            var result = new DbSelectCommand(context, ag, tree.SelectHasMany);
 
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
@@ -361,9 +360,9 @@ namespace Riz.XFramework.Data.SqlClient
                     var visitor = new OracleColumnExpressionVisitor(ag, sf, tree);
                     visitor.Visit(tree.Select);
 
-                    result.PickColumns = visitor.PickColumns;
-                    result.PickColumnText = visitor.PickColumnText;
-                    result.PickNavDescriptors = visitor.PickNavDescriptors;
+                    result.SelectedColumns = visitor.SelectedColumns;
+                    result.SelectedColumnText = visitor.SelectedColumnText;
+                    result.SelectedNavDescriptors = visitor.SelectedNavDescriptors;
                     result.AddNavMembers(visitor.NavMembers);
 
                     // 分页，产生两层嵌套
@@ -372,12 +371,12 @@ namespace Riz.XFramework.Data.SqlClient
                         // 第一层嵌套
                         int index = 0;
                         jf.AppendNewLine();
-                        foreach (var column in result.PickColumns)
+                        foreach (var column in result.SelectedColumns)
                         {
                             jf.AppendMember(alias, column.Name);
                             jf.AppendAs(column.NewName);
                             index += 1;
-                            if (index < result.PickColumns.Count)
+                            if (index < result.SelectedColumns.Count)
                             {
                                 jf.Append(',');
                                 jf.AppendNewLine();
@@ -397,7 +396,7 @@ namespace Riz.XFramework.Data.SqlClient
                         jf.Append("SELECT");
                         jf.AppendNewLine();
 
-                        foreach (var column in result.PickColumns)
+                        foreach (var column in result.SelectedColumns)
                         {
                             jf.AppendMember(alias, column.NewName);
                             jf.AppendAs(column.NewName);
@@ -509,7 +508,7 @@ namespace Riz.XFramework.Data.SqlClient
             #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
-            if (tree.HasMany && subquery.Aggregate == null &&
+            if (tree.SelectHasMany && subquery.Aggregate == null &&
                 subquery != null && subquery.OrderBys != null && subquery.OrderBys.Count > 0 && !(subquery.Skip > 0 || subquery.Take > 0))
             {
                 // OrderBy("a.CloudServer.CloudServerName");
@@ -745,7 +744,7 @@ namespace Riz.XFramework.Data.SqlClient
                     }
                 }
             }
-            else if (tree.SelectTree != null)
+            else if (tree.Query != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
@@ -756,16 +755,16 @@ namespace Riz.XFramework.Data.SqlClient
                 context.DbExpressionType = DbExpressionType.Insert;
                 context.IsOutQuery = false;
 
-                var cmd = this.TranslateSelectCommand(tree.SelectTree, 0, false, context) as DbSelectCommand;
+                var cmd = this.TranslateSelectCommand(tree.Query, 0, false, context) as DbSelectCommand;
 
                 context.DbExpressionType = srcDbExpressionType;
                 context.IsOutQuery = srcIsOutQuery;
 
                 int index = 0;
-                foreach (var column in cmd.PickColumns)
+                foreach (var column in cmd.SelectedColumns)
                 {
                     builder.AppendMember(column.Name);
-                    if (index < cmd.PickColumns.Count - 1) builder.Append(',');
+                    if (index < cmd.SelectedColumns.Count - 1) builder.Append(',');
                     index++;
                 }
 
@@ -816,14 +815,14 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (tree.SelectTree != null)
+            else if (tree.Query != null)
             {
                 // 解析查询用来确定是否需要嵌套
-                var cmd = this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext)) as DbSelectCommand;
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
+                var cmd = this.TranslateSelectCommand(tree.Query, 0, false, this.CreateTranslateContext(context.DbContext)) as DbSelectCommand;
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Query.Joins != null && tree.Query.Joins.Count > 0))
                 {
                     // 最外层仅选择 RowID 列
-                    var outQuery = tree.SelectTree;
+                    var outQuery = tree.Query;
                     outQuery.Select = new DbExpression(DbExpressionType.Select, Expression.Constant("t0.RowId", typeof(string)));
                     var iterator = outQuery;
                     while (iterator.Subquery != null)
@@ -834,24 +833,24 @@ namespace Riz.XFramework.Data.SqlClient
                     }
 
                     // 解析成 RowId IN 结构
-                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 1, false, context);
+                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Query, 1, false, context);
                     builder.Append("WHERE t0.RowId IN(");
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(')');
                 }
                 else
                 {
-                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
-                    if (tree.SelectTree.Joins != null)
+                    AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
+                    if (tree.Query.Joins != null)
                     {
                         var visitor = new JoinExpressionVisitor(ag, builder);
-                        visitor.Visit(tree.SelectTree.Joins);
+                        visitor.Visit(tree.Query.Joins);
                     }
 
-                    if (tree.SelectTree.Wheres != null)
+                    if (tree.Query.Wheres != null)
                     {
                         var visitor = new WhereExpressionVisitor(ag, builder);
-                        visitor.Visit(tree.SelectTree.Wheres);
+                        visitor.Visit(tree.Query.Wheres);
                     }
                 }
             }
@@ -978,10 +977,10 @@ namespace Riz.XFramework.Data.SqlClient
                 }
 
                 // 解析查询以确定是否需要嵌套
-                tree.SelectTree.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 0, false, this.CreateTranslateContext(context.DbContext));
+                tree.Query.Select = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Query, 0, false, this.CreateTranslateContext(context.DbContext));
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.SelectTree.Joins != null && tree.SelectTree.Joins.Count > 0))
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Query.Joins != null && tree.Query.Joins.Count > 0))
                 {
                     // 无法使用 DISTINCT, GROUP BY 等子句从视图中选择 ROWID 或采样。UPDATE 不能用rowid
                     // 有导航属性或者关联查询，使用 MERGE INTO 语法。要求必须有主键
@@ -995,7 +994,7 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.AppendNewLine(" t0");
                     builder.Append("USING (");
 
-                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.SelectTree, 1, false, context);
+                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Query, 1, false, context);
                     builder.AppendNewLine(cmd.CommandText);
                     builder.Append(") t1 ON (");
                     foreach (var m in typeRuntime.KeyMembers)
@@ -1020,14 +1019,14 @@ namespace Riz.XFramework.Data.SqlClient
                 {
                     // 直接 SQL 的 UPDATE 语法
                     DbExpressionVisitor visitor = null;
-                    AliasGenerator ag = this.PrepareTableAlias(tree.SelectTree, context.AliasPrefix);
+                    AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
                     visitor = new UpdateExpressionVisitor(ag, builder);
                     visitor.Visit(tree.Expression);
 
-                    if (tree.SelectTree.Wheres != null)
+                    if (tree.Query.Wheres != null)
                     {
                         visitor = new WhereExpressionVisitor(ag, builder);
-                        visitor.Visit(tree.SelectTree.Wheres);
+                        visitor.Visit(tree.Query.Wheres);
                     }
                 }
             }

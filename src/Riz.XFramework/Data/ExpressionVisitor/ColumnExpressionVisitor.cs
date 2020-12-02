@@ -18,8 +18,8 @@ namespace Riz.XFramework.Data
         private AliasGenerator _ag = null;
 
         private int _startLength = 0;
-        private string _pickColumnText = null;
-        private ColumnDescriptorCollection _pickColumns = null;
+        private string _selectedColumnText = null;
+        private ColumnDescriptorCollection _selectedColumns = null;
         private List<string> _navDescriptorKeys = null;
         private NavDescriptorCollection _navDescriptors = null;
         private MemberVisitedStack _visitedStack = null;
@@ -27,27 +27,27 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 选中字段，Column 对应实体的原始属性
         /// </summary>
-        public ColumnDescriptorCollection PickColumns => _pickColumns;
+        public ColumnDescriptorCollection SelectedColumns => _selectedColumns;
 
         /// <summary>
         /// 选中字段的文本，给 Contains 表达式用
         /// </summary>
-        public string PickColumnText
+        public string SelectedColumnText
         {
             get
             {
-                if (_pickColumnText == null)
+                if (_selectedColumnText == null)
                 {
                     int count = _builder.Length - _startLength;
                     if (count > 0)
                     {
                         char[] chars = new char[count];
                         _builder.CopyTo(_startLength, chars, 0, count);
-                        _pickColumnText = new String(chars);
+                        _selectedColumnText = new String(chars);
                     }
                 }
 
-                return _pickColumnText;
+                return _selectedColumnText;
             }
         }
 
@@ -58,7 +58,7 @@ namespace Riz.XFramework.Data
         /// </para>
         /// </summary>
         /// <remarks>只有选择语义才需要字段-实体映射描述。所以 Navigations</remarks>
-        public NavDescriptorCollection PickNavDescriptors => _navDescriptors;
+        public NavDescriptorCollection SelectedNavDescriptors => _navDescriptors;
 
         /// <summary>
         /// 初始化 <see cref="ColumnExpressionVisitor"/> 类的新实例
@@ -73,7 +73,7 @@ namespace Riz.XFramework.Data
             _builder = builder;
             _groupBy = tree.GroupBy;
             _includes = tree.Includes;
-            _pickColumns = new ColumnDescriptorCollection();
+            _selectedColumns = new ColumnDescriptorCollection();
             _visitedStack = base.VisitedStack;
         }
 
@@ -128,7 +128,7 @@ namespace Riz.XFramework.Data
                 // 例：a=>1
                 base.Visit(lambda.Body.Evaluate());
                 // 选择字段
-                string newName = _pickColumns.Add(AppConst.CONSTANT_COLUMN_NAME);
+                string newName = _selectedColumns.Add(AppConst.CONSTANT_COLUMN_NAME);
                 // 添加字段别名
                 _builder.AppendAs(newName);
                 return node;
@@ -155,7 +155,7 @@ namespace Riz.XFramework.Data
                         memberName = TypeUtils.GetFieldName(memberExpression.Member, memberExpression.Expression.Type);
                     }
 
-                    string newName = _pickColumns.Add(memberName);
+                    string newName = _selectedColumns.Add(memberName);
                     return newNode;
                 }
             }
@@ -164,10 +164,10 @@ namespace Riz.XFramework.Data
                 // 例：a => a.DemoCode，选择字段仅选一个基元类型字段。
                 // 结果可能返回一个比如字符串类型列表
                 var newNode = base.VisitLambda(node);
-                if (_pickColumns.Count == 0)
+                if (_selectedColumns.Count == 0)
                 {
                     // 选择字段
-                    string newName = _pickColumns.Add(AppConst.CONSTANT_COLUMN_NAME);
+                    string newName = _selectedColumns.Add(AppConst.CONSTANT_COLUMN_NAME);
                     // 添加字段别名
                     _builder.AppendAs(newName);
                 }
@@ -207,7 +207,7 @@ namespace Riz.XFramework.Data
             {
                 this.VisitMemberBinding(m);
                 // 选择字段
-                this.AddPickColumn(m.Member, newType);
+                this.AddSelectedColumn(m.Member, newType);
             }
             else
             {
@@ -234,7 +234,7 @@ namespace Riz.XFramework.Data
                 if (!_navDescriptors.Contains(keyId))
                 {
                     // Fix issue# spliton 列占一个位
-                    nav.StartIndex = _pickColumns.Count;
+                    nav.StartIndex = _selectedColumns.Count;
                     nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
                     _navDescriptors.Add(nav);
                     _navDescriptorKeys.Add(keyId);
@@ -306,7 +306,7 @@ namespace Riz.XFramework.Data
                     for (int i = 0; i < newExpression.Arguments.Count; i++)
                     {
                         base.Visit(newExpression.Arguments[i]);
-                        this.AddPickColumn(newExpression.Members[i], newExpression.Type);
+                        this.AddSelectedColumn(newExpression.Members[i], newExpression.Type);
                     }
                 }
                 else if (expression.NodeType == ExpressionType.MemberInit)
@@ -316,7 +316,7 @@ namespace Riz.XFramework.Data
                     {
                         var binding = initExpression.Bindings[i] as MemberAssignment;
                         base.Visit(binding.Expression);
-                        this.AddPickColumn(binding.Member, initExpression.Type);
+                        this.AddSelectedColumn(binding.Member, initExpression.Type);
                     }
                 }
                 else
@@ -378,7 +378,7 @@ namespace Riz.XFramework.Data
             {
                 //例： DateTime.Now
                 _builder.Append(argument.Evaluate().Value, _visitedStack.Current);
-                this.AddPickColumn(member, newType);
+                this.AddSelectedColumn(member, newType);
             }
             else if (argument.NodeType == ExpressionType.MemberAccess || argument.NodeType == ExpressionType.Call)
             {
@@ -388,14 +388,14 @@ namespace Riz.XFramework.Data
                 {
                     // new Client(a.ClientId)
                     this.Visit(argument);
-                    this.AddPickColumn(member, newType);
+                    this.AddSelectedColumn(member, newType);
                 }
             }
             else
             {
                 if (member == null) throw new XFrameworkException("{0} is not support for NewExpression's arguments.");
                 base.Visit(argument);
-                this.AddPickColumn(member, newType);
+                this.AddSelectedColumn(member, newType);
             }
 
             return argument;
@@ -498,7 +498,7 @@ namespace Riz.XFramework.Data
                     if (m == null || !m.IsDbField) continue;
 
                     _builder.AppendMember(alias, m.Member, type);
-                    this.AddPickColumn(m.Member, type);
+                    this.AddSelectedColumn(m.Member, type);
                 }
             }
 
@@ -588,7 +588,7 @@ namespace Riz.XFramework.Data
                     {
                         // Fix issue# SplitOn 列占一个位
                         var nav = new NavDescriptor(keyId, memberExpression.Member);
-                        nav.StartIndex = index == 0 ? _pickColumns.Count : -1;
+                        nav.StartIndex = index == 0 ? _selectedColumns.Count : -1;
                         nav.FieldCount = index == 0 ? (GetFieldCount(pickExpression == null ? navExpression : pickExpression) + 1) : -1;
                         _navDescriptors.Add(nav);
                     }
@@ -612,14 +612,14 @@ namespace Riz.XFramework.Data
             _builder.Append(" END");
 
             // 选择字段
-            string newName = _pickColumns.Add(AppConst.NAVIGATION_SPLITON_NAME);
+            string newName = _selectedColumns.Add(AppConst.NAVIGATION_SPLITON_NAME);
             _builder.AppendAs(newName);
             _builder.Append(',');
             _builder.AppendNewLine();
         }
 
         // 记录选中字段
-        private void AddPickColumn(MemberInfo m, Type reflectedType)
+        private void AddSelectedColumn(MemberInfo m, Type reflectedType)
         {
             string memberName = m.Name;
             var srcDbExpressionType = _builder.TranslateContext.DbExpressionType;
@@ -631,7 +631,7 @@ namespace Riz.XFramework.Data
                 memberName = TypeUtils.GetFieldName(m, reflectedType);
             }
             // 选择字段
-            string newName = _pickColumns.Add(memberName);
+            string newName = _selectedColumns.Add(memberName);
             _builder.AppendAs(newName);
             _builder.Append(",");
             _builder.AppendNewLine();

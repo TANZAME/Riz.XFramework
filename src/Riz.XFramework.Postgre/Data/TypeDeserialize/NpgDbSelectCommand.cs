@@ -48,11 +48,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 实例化 <see cref="NpgDbSelectCommand" /> 的新实例
         /// </summary>
+        /// <param name="context">解析SQL命令上下文</param>
         /// <param name="aliasGenerator">别名</param>
         /// <param name="dbExpressionType">表达式类型</param>
-        /// <param name="context">解析SQL命令上下文</param>
-        public NpgDbSelectCommand(ITranslateContext context, AliasGenerator aliasGenerator, DbExpressionType dbExpressionType)
-            : base(context, aliasGenerator)
+        /// <param name="hasMany">是否包含一对多导航属性</param>
+        public NpgDbSelectCommand(ITranslateContext context, AliasGenerator aliasGenerator, DbExpressionType dbExpressionType, bool hasMany)
+            : base(context, aliasGenerator, hasMany)
         {
             _aliasGenerator = aliasGenerator;
             _onPhrase = ((DbQueryProvider)context.Provider).CreateSqlBuilder(context);

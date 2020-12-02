@@ -13,6 +13,6 @@
         /// <summary>
         /// 删除语义的查询部分，表示删除范围
         /// </summary>
-        public DbQuerySelectTree SelectTree { get; internal set; }
+        public DbQuerySelectTree Query { get; internal set; }
     }
 }

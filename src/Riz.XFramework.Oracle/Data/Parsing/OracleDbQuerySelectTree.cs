@@ -17,7 +17,7 @@ namespace Riz.XFramework.Data
             this.Includes = source.Includes;
             this.HasDistinct = source.HasDistinct;
             this.HasAny = source.HasAny;
-            this.HasMany = source.HasMany;
+            this.SelectHasMany = source.SelectHasMany;
             this.Skip = source.Skip;
             this.Take = source.Take;
             this.From = source.From;
@@ -27,7 +27,6 @@ namespace Riz.XFramework.Data
             this.Aggregate = source.Aggregate;
             this.GroupBy = source.GroupBy;
             this.Subquery = source.Subquery;
-            this.ParsedByMany = source.ParsedByMany;
             this.Unions = source.Unions;
         }
     }

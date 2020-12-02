@@ -264,7 +264,7 @@ namespace Riz.XFramework.Data
                     result_Update.Entity = constantExpression.Value;
                 else
                     result_Update.Expression = update.Expressions[0];
-                result_Update.SelectTree = result_Query;
+                result_Update.Query = result_Query;
                 return result_Update;
             }
 
@@ -278,7 +278,7 @@ namespace Riz.XFramework.Data
                 var constantExpression = delete.Expressions != null ? delete.Expressions[0] as ConstantExpression : null;
                 if (constantExpression != null)
                     result_Delete.Entity = constantExpression.Value;
-                result_Delete.SelectTree = result_Query;
+                result_Delete.Query = result_Query;
                 return result_Delete;
             }
 
@@ -295,7 +295,7 @@ namespace Riz.XFramework.Data
                     if (insert.Expressions.Length > 1)
                         result_Insert.EntityColumns = (insert.Expressions[1] as ConstantExpression).Value as IList<Expression>;
                 }
-                result_Insert.SelectTree = result_Query;
+                result_Insert.Query = result_Query;
                 result_Insert.Bulk = ((DbQueryable)source).Bulk;
                 return result_Insert;
             }
@@ -307,7 +307,7 @@ namespace Riz.XFramework.Data
             else if (pickExpression != null)
             {
                 // 检查嵌套查询语义
-                result_Query = DbQueryableParser.ParseOutQuery(result_Query);
+                result_Query = DbQueryableParser.TryParseOutQuery(result_Query);
             }
 
             #endregion
@@ -324,26 +324,26 @@ namespace Riz.XFramework.Data
                 var result_Delete = outQueryTree as DbQueryDeleteTree;
                 if (result_Insert != null)
                 {
-                    if (result_Insert.SelectTree != null)
-                        result_Insert.SelectTree.Subquery = result_Query;
+                    if (result_Insert.Query != null)
+                        result_Insert.Query.Subquery = result_Query;
                     else
-                        result_Insert.SelectTree = result_Query;
+                        result_Insert.Query = result_Query;
                     return result_Insert;
                 }
                 else if (result_Update != null)
                 {
-                    if (result_Update.SelectTree != null)
-                        result_Update.SelectTree.Subquery = result_Query;
+                    if (result_Update.Query != null)
+                        result_Update.Query.Subquery = result_Query;
                     else
-                        result_Update.SelectTree = result_Query;
+                        result_Update.Query = result_Query;
                     return result_Update;
                 }
                 else if (result_Delete != null)
                 {
-                    if (result_Delete.SelectTree != null)
-                        result_Delete.SelectTree.Subquery = result_Query;
+                    if (result_Delete.Query != null)
+                        result_Delete.Query.Subquery = result_Query;
                     else
-                        result_Delete.SelectTree = result_Query;
+                        result_Delete.Query = result_Query;
                     return result_Delete;
                 }
                 else
@@ -377,10 +377,8 @@ namespace Riz.XFramework.Data
         }
 
         // 构造由一对多关系产生的嵌套查询
-        private static DbQuerySelectTree ParseOutQuery(DbQuerySelectTree tree)
+        private static DbQuerySelectTree TryParseOutQuery(DbQuerySelectTree tree)
         {
-            // @havePaging 是否有分页信息
-
             if (tree == null || tree.Select == null) return tree;
 
             Expression select = tree.Select.Expressions[0];
@@ -396,13 +394,12 @@ namespace Riz.XFramework.Data
             var newExpression = expression as NewExpression;
 
             bool hasMany = DbQueryableParser.HasMany(includes);
-            if (!hasMany) hasMany = initExpression != null && HasMany(initExpression);
+            if (!hasMany) hasMany = initExpression != null && HasManyNavigation(initExpression);
 
             #region 嵌套语义
 
             if (hasMany)
             {
-
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 if (initExpression != null)
@@ -415,7 +412,6 @@ namespace Riz.XFramework.Data
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     tree.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
-                tree.ParsedByMany = true;
                 tree.Includes = new List<DbExpression>(0);
 
                 var result_Query = new DbQuerySelectTree();
@@ -424,7 +420,7 @@ namespace Riz.XFramework.Data
                 result_Query.Joins = null;
                 result_Query.OrderBys = null;
                 result_Query.Includes = includes;
-                result_Query.HasMany = true;
+                result_Query.SelectHasMany = true;
                 result_Query.Select = new DbExpression(DbExpressionType.Select, select);
 
                 #region 排序
@@ -511,7 +507,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(MemberInitExpression node)
+        private static bool HasManyNavigation(MemberInitExpression node)
         {
             for (int i = 0; i < node.Bindings.Count; i++)
             {
@@ -526,7 +522,7 @@ namespace Riz.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool hasManyNavgation = HasMany(initExpression);
+                    bool hasManyNavgation = HasManyNavigation(initExpression);
                     if (hasManyNavgation) return true;
                 }
             }

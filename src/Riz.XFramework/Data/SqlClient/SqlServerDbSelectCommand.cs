@@ -19,8 +19,9 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <param name="ag">表别名解析器</param>
-        public SqlServerDbSelectCommand(ITranslateContext context, AliasGenerator ag)
-            : base(context, ag)
+        /// <param name="hasMany">是否包含一对多导航属性</param>
+        public SqlServerDbSelectCommand(ITranslateContext context, AliasGenerator ag, bool hasMany)
+            : base(context, ag, hasMany)
         {
             _ag = ag;
 

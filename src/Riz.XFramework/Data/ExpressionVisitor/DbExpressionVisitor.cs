@@ -115,8 +115,8 @@ namespace Riz.XFramework.Data
             if (node.NodeType == ExpressionType.AndAlso || node.NodeType == ExpressionType.OrElse)
             {
                 // expression maybe a.Name == "TAN" && a.Allowused
-                left = FixBinary(node.Left);
-                right = FixBinary(node.Right);
+                left = TryFixBinary(node.Left);
+                right = TryFixBinary(node.Right);
 
                 if (left != node.Left || right != node.Right)
                 {
@@ -145,7 +145,7 @@ namespace Riz.XFramework.Data
         {
             // 例： a.Name == null ? "TAN" : a.Name => CASE WHEN a.Name IS NULL THEN 'TAN' ELSE a.Name End
 
-            Expression testExpression = this.FixBinary(node.Test);
+            Expression testExpression = this.TryFixBinary(node.Test);
 
             _builder.Append("(CASE WHEN ");
             this.Visit(testExpression);
@@ -407,7 +407,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="expression">将要转换的表达式</param>
         /// <returns></returns>
-        protected Expression FixBinary(Expression expression)
+        protected Expression TryFixBinary(Expression expression)
         {
             if (expression.Type != typeof(bool)) return expression;
             //else if (expression.NodeType == ExpressionType.Constant && ignoreConst) return expression;

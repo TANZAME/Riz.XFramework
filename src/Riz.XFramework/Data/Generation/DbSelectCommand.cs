@@ -12,22 +12,13 @@ namespace Riz.XFramework.Data
     /// </summary>
     public class DbSelectCommand : DbRawCommand, IMapInfo
     {
-        private bool _haveManyNavigation = false;
+        private bool _hasMany = false;
         private bool _hasCombine = false;
         private ISqlBuilder _joinFragment = null;
         private ISqlBuilder _whereFragment = null;
         private ITranslateContext _context = null;
         private AliasGenerator _ag = null;
         private HashCollection<NavMember> _navMembers = null;
-
-        /// <summary>
-        /// 表达式是否包含 一对多 类型的导航属性
-        /// </summary>
-        public bool HasMany
-        {
-            get { return _haveManyNavigation; }
-            set { _haveManyNavigation = value; }
-        }
 
         /// <summary>
         /// 合并外键、WHERE、JOIN
@@ -56,15 +47,20 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 选择字段范围
+        /// SELECT 字段范围
         /// </summary>
         /// <remarks>INSERT 表达式可能用这些字段</remarks>
-        public ColumnDescriptorCollection PickColumns { get; internal set; }
+        public ColumnDescriptorCollection SelectedColumns { get; internal set; }
 
         /// <summary>
-        /// 选中字段的文本，给 Contains 表达式用
+        /// SELECT 字段的文本，给 Contains 表达式用
         /// </summary>
-        public string PickColumnText { get; internal set; }
+        public string SelectedColumnText { get; internal set; }
+
+        /// <summary>
+        /// 表达式是否包含 一对多 类型的导航属性
+        /// </summary>
+        public bool HasMany => _hasMany;
 
         /// <summary>
         /// 选中的导航属性描述集合
@@ -72,7 +68,7 @@ namespace Riz.XFramework.Data
         /// 用于实体与 <see cref="IDataRecord"/> 做映射
         /// </para>
         /// </summary>
-        public NavDescriptorCollection PickNavDescriptors { get; internal set; }
+        public NavDescriptorCollection SelectedNavDescriptors { get; internal set; }
 
         /// <summary>
         /// 导航属性表达式集合
@@ -97,11 +93,13 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="context">解析SQL命令上下文</param>
         /// <param name="ag">别名</param>
-        public DbSelectCommand(ITranslateContext context, AliasGenerator ag)
+        /// <param name="hasMany">是否包含一对多导航属性</param>
+        public DbSelectCommand(ITranslateContext context, AliasGenerator ag, bool hasMany)
             : base(string.Empty, context != null ? context.Parameters : null, System.Data.CommandType.Text)
         {
             _ag = ag;
             _context = context;
+            _hasMany = hasMany;
 
             var provider = (DbQueryProvider)_context.DbContext.Provider;
             _joinFragment = provider.CreateSqlBuilder(context);
