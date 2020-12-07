@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
-		<Authors>NaiXiang Tian</Authors>
-		<Company>NaiXiang Tian</Company>
-		<Description>PostgreSQL/Npgsql provider for Riz.XFramework.</Description>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<Version>2.4.1</Version>
-		<Copyright>NaiXiang Tian</Copyright>
-		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-		<AssemblyVersion>2.4.1</AssemblyVersion>
-		<FileVersion>2.4.1</FileVersion>
-		<RepositoryType>git</RepositoryType>
-		<PackageTags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</PackageTags>
-	</PropertyGroup>
-	<!--
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
+    <Authors>NaiXiang Tian</Authors>
+    <Company>NaiXiang Tian</Company>
+    <Description>PostgreSQL/Npgsql provider for Riz.XFramework.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>2.4.2</Version>
+    <Copyright>NaiXiang Tian</Copyright>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <AssemblyVersion>2.4.2</AssemblyVersion>
+    <FileVersion>2.4.2</FileVersion>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>.NET PostgreSQL Npgsql Database Data O/RM ADO.NET</PackageTags>
+  </PropertyGroup>
+  <!--
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
@@ -32,58 +32,54 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   -->
-	<!-- 编译输出路径 -->
-	<PropertyGroup>
-		<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-	</PropertyGroup>
-
-	<!-- 定义条件编译符 -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<DefineConstants>netcore</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-		<DefineConstants>net45</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-		<DefineConstants>net40</DefineConstants>
-	</PropertyGroup>
-
-	<!-- 包括特定于目标框架的内容和程序集到包中 -->
-	<PropertyGroup>
-		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludePackageFile</TargetsForTfmSpecificBuildOutput>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
-	</ItemGroup>
-
-	<!--
+  <!-- 编译输出路径 -->
+  <PropertyGroup>
+    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  <!-- 定义条件编译符 -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>netcore</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>net45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <DefineConstants>net40</DefineConstants>
+  </PropertyGroup>
+  <!-- 包括特定于目标框架的内容和程序集到包中 -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludePackageFile</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Riz.XFramework\Riz.XFramework.csproj" />
+  </ItemGroup>
+  <!--
       参考：
 	  https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
       https://stackoverflow.com/questions/41979310/including-referenced-project-dlls-in-nuget-package-net-core-rc3-csproj-file
       -->
-	<Target Name="IncludePackageFile">
-		<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-			<BuildOutputInPackage Include="..\..\lib\Postgre\net40\Mono.Security.dll" />
-			<BuildOutputInPackage Include="..\..\lib\Postgre\net40\Npgsql.dll" />
-		</ItemGroup>
-		<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-			<BuildOutputInPackage Include="..\..\lib\Postgre\net45\Mono.Security.dll" />
-			<BuildOutputInPackage Include="..\..\lib\Postgre\net45\Npgsql.dll" />
-		</ItemGroup>
-	</Target>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-		<Reference Include="Npgsql">
-			<HintPath>..\..\lib\Postgre\net40\Npgsql.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-		<Reference Include="Npgsql">
-			<HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<PackageReference Include="Npgsql" Version="4.1.1" />
-	</ItemGroup>
+  <Target Name="IncludePackageFile">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+      <BuildOutputInPackage Include="..\..\lib\Postgre\net40\Mono.Security.dll" />
+      <BuildOutputInPackage Include="..\..\lib\Postgre\net40\Npgsql.dll" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+      <BuildOutputInPackage Include="..\..\lib\Postgre\net45\Mono.Security.dll" />
+      <BuildOutputInPackage Include="..\..\lib\Postgre\net45\Npgsql.dll" />
+    </ItemGroup>
+  </Target>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Reference Include="Npgsql">
+      <HintPath>..\..\lib\Postgre\net40\Npgsql.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="Npgsql">
+      <HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Npgsql" Version="4.1.1" />
+  </ItemGroup>
 </Project>

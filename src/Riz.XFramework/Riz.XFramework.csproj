@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<!-- 
+  <!-- 
   参考：
   https://docs.microsoft.com/zh-cn/visualstudio/msbuild/project-element-msbuild?view=vs-2019 
   https://blog.csdn.net/WPwalter/article/details/80371265
   https://docs.microsoft.com/zh-cn/nuget/reference/msbuild-targets#packing-using-a-nuspec
   -->
-	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
-		<Authors>NaiXiang Tian</Authors>
-		<Company>NaiXiang Tian</Company>
-		<Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the native Entity Framework api.</Description>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>2.4.1</AssemblyVersion>
-		<FileVersion>2.4.1</FileVersion>
-		<Version>2.4.1</Version>
-		<Copyright>NaiXiang Tian</Copyright>
-		<PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
-		<PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
-		<PackageTags>.NET SqlServer Database Data O/RM ADO.NET</PackageTags>
-	</PropertyGroup>
-	<!--
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
+    <Authors>NaiXiang Tian</Authors>
+    <Company>NaiXiang Tian</Company>
+    <Description>Riz.XFramework is a lightweight and high performance object-relational mapper for .NET use the native Entity Framework api.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyVersion>2.4.2</AssemblyVersion>
+    <FileVersion>2.4.2</FileVersion>
+    <Version>2.4.2</Version>
+    <Copyright>NaiXiang Tian</Copyright>
+    <PackageReleaseNotes>Copyright 2019</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/TANZAME/Riz.XFramework</PackageProjectUrl>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/a82c03402497b2e58fd65038a3699b30</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/TANZAME/Riz.XFramework</RepositoryUrl>
+    <PackageTags>.NET SqlServer Database Data O/RM ADO.NET</PackageTags>
+  </PropertyGroup>
+  <!--
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
@@ -38,45 +38,40 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   -->
-	<!-- 编译输出路径 -->
-	<PropertyGroup>
-		<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-		<DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-	</PropertyGroup>
-
-	<!-- 定义条件编译符 -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<DefineConstants>netcore</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-		<DefineConstants>net45</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-		<DefineConstants>net40</DefineConstants>
-	</PropertyGroup>
-
-	<!-- net4.0 和 net45 的引用的 dll -->
-	<ItemGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
-		<Reference Include="System.ComponentModel.DataAnnotations" />
-		<Reference Include="System.Configuration" />
-		<Reference Include="System.Web" />
-	</ItemGroup>
-
-	<!-- net45 引用的包 -->
-	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-		<PackageReference Include="System.Net.Http" Version="4.0.0" />
-	</ItemGroup>
-
-	<!-- netcore 引用的包 -->
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-		<PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Remove="lib\**" />
-		<EmbeddedResource Remove="lib\**" />
-		<None Remove="lib\**" />
-	</ItemGroup>
+  <!-- 编译输出路径 -->
+  <PropertyGroup>
+    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+    <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  <!-- 定义条件编译符 -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>netcore</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>net45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <DefineConstants>net40</DefineConstants>
+  </PropertyGroup>
+  <!-- net4.0 和 net45 的引用的 dll -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <!-- net45 引用的包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Net.Http" Version="4.0.0" />
+  </ItemGroup>
+  <!-- netcore 引用的包 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="lib\**" />
+    <EmbeddedResource Remove="lib\**" />
+    <None Remove="lib\**" />
+  </ItemGroup>
 </Project>
