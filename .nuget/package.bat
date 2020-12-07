@@ -4,7 +4,7 @@
 :: 4. 
 
 @echo off
-set api_key=oy2mplddogiirxvcnakqntqjnxretk5unl2rwaaz7asuam
+set api_key=
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
@@ -17,7 +17,8 @@ dotnet pack --configuration Release --output %startup_dir%\.nuget\ %startup_dir%
 
 :: 批量推送包 
 for /R %cd% %%f in (*.nupkg) do ( 
-dotnet nuget push %%f -k %api_key% -s %source_api_uri%
+::dotnet nuget push %%f -k %api_key% -s %source_api_uri%
+echo=
 )
 
 echo=
