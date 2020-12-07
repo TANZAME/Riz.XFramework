@@ -4,7 +4,7 @@
 :: 4. 
 
 @echo off
-set api_key=oy2hxwpdgniqql255qsq2y7pzybtupiu7omuwzrmp42p4i
+set api_key=oy2mplddogiirxvcnakqntqjnxretk5unl2rwaaz7asuam
 set source_api_uri=https://api.nuget.org/v3/index.json
 set startup_dir=%~dp0
 cd ..\
