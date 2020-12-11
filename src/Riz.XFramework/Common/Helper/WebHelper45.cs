@@ -216,9 +216,8 @@ namespace Riz.XFramework
 
             try
             {
-                var response = await client.SendAsync(request);
+                var response = await client.SendAsync(request);//.ConfigureAwait(false);
                 return response;
-
             }
             catch (WebException we)
             {
