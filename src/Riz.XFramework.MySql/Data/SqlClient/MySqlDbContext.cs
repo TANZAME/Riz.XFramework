@@ -8,6 +8,16 @@ namespace Riz.XFramework.Data.SqlClient
     /// </summary>
     public class MySqlDbContext : DbContextBase
     {
+        ///// <summary>
+        ///// 无阻塞 WITH(NOLOCK)
+        ///// </summary>
+        //public bool NoLock { get; set; }
+
+        //SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+        //SELECT* FROM bas_client;
+        //SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
         /// <summary>
         /// 查询语义提供者
         /// </summary>

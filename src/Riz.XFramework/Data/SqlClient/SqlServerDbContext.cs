@@ -12,21 +12,6 @@ namespace Riz.XFramework.Data.SqlClient
     /// </summary>
     public class SqlServerDbContext : DbContextBase
     {
-        private string _version = null;
-
-        /// <summary>
-        /// 数据库版本号
-        /// </summary>
-        public string Version
-        {
-            get
-            {
-                if (_version == null)
-                    _version = this.Database.Execute<string>("SELECT SERVERPROPERTY('ProductVersion')");
-                return _version;
-            }
-        }
-
         /// <summary>
         /// 无阻塞 WITH(NOLOCK)
         /// </summary>

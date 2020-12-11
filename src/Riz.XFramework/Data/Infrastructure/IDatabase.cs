@@ -41,6 +41,11 @@ namespace Riz.XFramework.Data
         /// </summary>
         IDbTransaction Transaction { get; set; }
 
+        ///// <summary>
+        ///// 版本号
+        ///// </summary>
+        //string Version { get; }
+
         /// <summary>
         /// 创建数据库连接
         /// </summary>

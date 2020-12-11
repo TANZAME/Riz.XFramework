@@ -82,6 +82,11 @@ namespace Riz.XFramework.Data
             }
         }
 
+        ///// <summary>
+        ///// 版本号
+        ///// </summary>
+        //public virtual string Version => throw new NotImplementedException();
+
         #endregion
 
         #region 构造函数
