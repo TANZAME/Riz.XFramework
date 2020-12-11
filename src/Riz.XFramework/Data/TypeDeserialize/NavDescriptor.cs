@@ -15,28 +15,19 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 导航属性名称
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                return this.Member.Name;
-            }
-        }
+        public string Name => this.Member.Name;
 
         private string _key;
         /// <summary>
         /// 全名称
         /// </summary>
-        public string Key { get { return _key; } }
+        public string Key => _key;
 
         private MemberInfo _navMember = null;
         /// <summary>
         /// 导航属性对应
         /// </summary>
-        public MemberInfo Member
-        {
-            get { return _navMember; }
-        }
+        public MemberInfo Member => _navMember;
 
         /// <summary>
         /// 对应 <see cref="IDataRecord"/> 的索引

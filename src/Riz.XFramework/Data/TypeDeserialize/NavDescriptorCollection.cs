@@ -13,7 +13,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 所有导航属性的最小开始索引
         /// </summary>
-        public int MinIndex { get { return _minIndex == null ? 0 : _minIndex.Value; } }
+        public int MinIndex => _minIndex == null ? 0 : _minIndex.Value;
 
         /// <summary>
         /// 在集合中添加一个带有所提供的键和值的元素

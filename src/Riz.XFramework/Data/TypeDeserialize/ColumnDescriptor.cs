@@ -9,7 +9,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 唯一键
         /// </summary>
-        public string Key { get { return this.NewName; } }
+        public string Key => this.NewName;
 
         /// <summary>
         /// 列名

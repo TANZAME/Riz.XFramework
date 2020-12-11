@@ -90,36 +90,25 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 判断给定类型是否是ORM支持的基元类型
         /// </summary>
-        public static bool IsPrimitiveType(Type type)
-        {
-            return _primitiveTypes.Contains(type);
-        }
+        public static bool IsPrimitiveType(Type type) => _primitiveTypes.Contains(type);
 
         /// <summary>
         /// 判断给定类型是否是数字类型
         /// </summary>
-        public static bool IsNumberType(Type type)
-        {
-            return _numberTypes.Contains(type);
-        }
+        public static bool IsNumberType(Type type) => _numberTypes.Contains(type);
 
         /// <summary>
         /// 判断给定类型是否是数值类型，即有小数位的数值
         /// </summary>
-        public static bool IsNumericType(Type type)
-        {
-            return _numericTypes.Contains(type);
-        }
+        public static bool IsNumericType(Type type) => _numericTypes.Contains(type);
 
         /// <summary>
         /// 判断给定类型是否是匿名类
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsAnonymousType(Type type)
-        {
-            return type != null && type.Name.Length > 18 && type.Name.IndexOf("AnonymousType", 5, StringComparison.InvariantCulture) == 5;
-        }
+        public static bool IsAnonymousType(Type type) 
+            => type != null && type.Name.Length > 18 && type.Name.IndexOf("AnonymousType", 5, StringComparison.InvariantCulture) == 5;
 
         /// <summary>
         /// 判断给定类型是否是ORM支持的泛型列表类型  IList 接口及其继承类

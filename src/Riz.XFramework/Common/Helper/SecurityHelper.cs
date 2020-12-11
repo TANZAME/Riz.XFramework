@@ -18,10 +18,7 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="str">要解密的字符串</param>
         /// <returns></returns>
-        public static string DESDecrypt(string str)
-        {
-            return DESDecrypt(str, _rgbKey);
-        }
+        public static string DESDecrypt(string str) => DESDecrypt(str, _rgbKey);
 
         /// <summary>
         /// DES解密
@@ -60,10 +57,7 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="str">要加密的字符串</param>
         /// <returns></returns>
-        public static string DESEncrypt(string str)
-        {
-            return DESEncrypt(str, _rgbKey);
-        }
+        public static string DESEncrypt(string str) => DESEncrypt(str, _rgbKey);
 
         /// <summary>
         /// DES加密字符串，用 Base64 数字编码的等效字符串表示形式

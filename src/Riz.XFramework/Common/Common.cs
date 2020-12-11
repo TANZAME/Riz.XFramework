@@ -142,8 +142,7 @@ namespace Riz.XFramework
         }
 
         /// <summary>
-        /// 判断是否为空日期
-        /// </summary>
+        /// 判断是否为空日期（0001-01-01 00:00:00，1900-01-01 00:00:00，1970-01-01 00:00:00）
         /// <param name="source">来源日期</param>
         /// <returns></returns>
         public static bool IsEmptyDate(DateTime source)
@@ -404,10 +403,7 @@ namespace Riz.XFramework
         /// <param name="rowCount">数据总数</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
-        public static int Page(int rowCount, int pageSize)
-        {
-            return ~~((rowCount - 1) / pageSize) + 1;
-        }
+        public static int Page(int rowCount, int pageSize) => ~~((rowCount - 1) / pageSize) + 1;
 
         /// <summary>
         /// 根据IP地址转换为long类型
@@ -449,10 +445,7 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="text">来源字符串</param>
         /// <returns></returns>
-        public static ulong ConvertHashToUInt64(string text)
-        {
-            return Common.HashToUInt64(SHA256.Create(), text);
-        }
+        public static ulong ConvertHashToUInt64(string text) => Common.HashToUInt64(SHA256.Create(), text);
 
         /// <summary>
         /// 使用指定哈希算法将字符串转 64 位整数

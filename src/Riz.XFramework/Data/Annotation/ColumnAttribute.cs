@@ -63,10 +63,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 DbType 字段是否已设置
         /// </summary>
-        public bool HasSetDbType
-        {
-            get { return _hasSetDbType; }
-        }
+        public bool HasSetDbType => _hasSetDbType;
 
         /// <summary>
         /// 精度（字段长度）
@@ -85,10 +82,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 Size 字段是否已设置
         /// </summary>
-        public bool HasSetSize
-        {
-            get { return _hasSetSize; }
-        }
+        public bool HasSetSize => _hasSetSize;
 
         /// <summary>
         /// 精度（字段长度）
@@ -106,10 +100,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 Precision 字段是否已设置
         /// </summary>
-        public bool HasSetPrecision
-        {
-            get { return _hasSetPrecision; }
-        }
+        public bool HasSetPrecision => _hasSetPrecision;
 
         /// <summary>
         /// 范围（小数位数）
@@ -127,10 +118,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 Scale 字段是否已设置
         /// </summary>
-        public bool HasSetScale
-        {
-            get { return _hasSetScale; }
-        }
+        public bool HasSetScale => _hasSetScale;
 
         /// <summary>
         /// 参数方向
@@ -148,10 +136,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 指示 Direction 字段是否已设置
         /// </summary>
-        public bool HasSetDirection
-        {
-            get { return _hasSetDirection; }
-        }
+        public bool HasSetDirection => _hasSetDirection;
 
 
         /// <summary>

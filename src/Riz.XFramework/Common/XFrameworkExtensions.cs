@@ -17,20 +17,12 @@ namespace Riz.XFramework
         /// <summary>
         /// 返回真表达式
         /// </summary>
-        public static Expression<Func<T, bool>> True<T>()
-            where T : class
-        {
-            return f => true;
-        }
+        public static Expression<Func<T, bool>> True<T>() where T : class => f => true;
 
         /// <summary>
         /// 返回假表达式
         /// </summary>
-        public static Expression<Func<T, bool>> False<T>()
-            where T : class
-        {
-            return f => false;
-        }
+        public static Expression<Func<T, bool>> False<T>() where T : class => f => false;
 
         /// <summary>
         /// 拼接真表达式
