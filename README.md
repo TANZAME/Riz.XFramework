@@ -1,7 +1,7 @@
 ## :cn: Riz.XFramework
 
 [![NuGet](https://img.shields.io/nuget/vpre/Riz.XFramework.svg)](https://www.nuget.org/packages/Riz.XFramework)
-[![stats](https://img.shields.io/nuget/dt/TZM.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/TZM.XFramework?groupby=Version) 
+[![stats](https://img.shields.io/nuget/dt/Riz.XFramework?style=flat-square)](https://www.nuget.org/stats/packages/Riz.XFramework?groupby=Version) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/TANZAME/Riz.XFramework/blob/master/LICENSE.txt)
 
 Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 EntiryFramework 的设计思想，保留大量原汁原味的微软API，支持 Fx 4.0+ 和 DotNetCore3.1+。
@@ -14,7 +14,7 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 - 支持 SqlServer、MySql、Postgre、Oracle、SQLite 等多种数据库
 - 支持 Postgre、Oracle 大小写敏感
 - 支持无限级一对一、一对多导航属性和延迟加载
-- 支持不同字段类型之间的智能映射
+- 支持实体属性类型与数据库字段类型自动映射
 - 支持实体属性名称和数据库字段名称映射
 - 支持原生 Ado.Net、临时表、表变量、AOP操作
 
