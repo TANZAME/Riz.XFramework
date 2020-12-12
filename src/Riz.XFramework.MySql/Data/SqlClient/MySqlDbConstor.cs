@@ -1,8 +1,11 @@
 ﻿
 using System;
 using System.Data;
-using System.Collections.Generic;
+#if net40
 using MySql.Data.MySqlClient;
+#else
+using MySqlConnector;
+#endif
 
 namespace Riz.XFramework.Data.SqlClient
 {

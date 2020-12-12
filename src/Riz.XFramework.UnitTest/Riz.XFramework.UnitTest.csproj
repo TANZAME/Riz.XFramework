@@ -76,7 +76,7 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+		<PackageReference Include="MySqlConnector" Version="1.2.0" />
 		<PackageReference Include="Oracle.ManagedDataAccess" Version="19.9.0" />
 		<Reference Include="Npgsql">
 			<HintPath>..\..\lib\Postgre\net45\Npgsql.dll</HintPath>
@@ -86,7 +86,7 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
-		<PackageReference Include="MySqlConnector" Version="0.60.0" />
+		<PackageReference Include="MySqlConnector" Version="1.2.0" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.91" />
 		<PackageReference Include="Npgsql" Version="4.1.1" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />

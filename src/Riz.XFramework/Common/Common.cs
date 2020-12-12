@@ -143,6 +143,7 @@ namespace Riz.XFramework
 
         /// <summary>
         /// 判断是否为空日期（0001-01-01 00:00:00，1900-01-01 00:00:00，1970-01-01 00:00:00）
+        /// </summary>
         /// <param name="source">来源日期</param>
         /// <returns></returns>
         public static bool IsEmptyDate(DateTime source)

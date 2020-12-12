@@ -11,9 +11,14 @@ using Riz.XFramework.Data.SqlClient;
 
 namespace Riz.XFramework.UnitTest.MySql
 {
-    public class MySqlTest : TestBase<MySqlModel.MySqlDemo>
+    public class MySqlTest : TestBase<MySqlModel.Demo>
     {
+#if net40
         const string connString = "Host=localhost;Database=Riz_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
+#else
+        // https://mysqlconnector.net/api/mysqlconnector/mysqlbulkcopytype/
+        const string connString = "Host=localhost;Database=Riz_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;AllowLoadLocalInfile=True;";
+#endif
 
         public override IDbContext CreateDbContext()
         {
@@ -32,14 +37,14 @@ namespace Riz.XFramework.UnitTest.MySql
 
             // 构造函数
             var query =
-                 from a in context.GetTable<MySqlModel.MySqlDemo>()
+                 from a in context.GetTable<MySqlModel.Demo>()
                  where a.DemoId <= 10
-                 select new MySqlModel.MySqlDemo(a);
+                 select new MySqlModel.Demo(a);
             var r1 = query.ToList();
             query =
-               from a in context.GetTable<MySqlModel.MySqlDemo>()
+               from a in context.GetTable<MySqlModel.Demo>()
                where a.DemoId <= 10
-               select new MySqlModel.MySqlDemo(a.DemoId, a.DemoName);
+               select new MySqlModel.Demo(a.DemoId, a.DemoName);
             r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -55,10 +60,10 @@ namespace Riz.XFramework.UnitTest.MySql
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<MySqlModel.MySqlDemo>();
+            var demos = new List<MySqlModel.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                MySqlModel.MySqlDemo d = new MySqlModel.MySqlDemo
+                MySqlModel.Demo d = new MySqlModel.Demo
                 {
                     DemoCode = "D0000001",
                     DemoName = "N0000001",
@@ -86,16 +91,16 @@ namespace Riz.XFramework.UnitTest.MySql
                 };
                 demos.Add(d);
             }
-            context.Insert<MySqlModel.MySqlDemo>(demos);
+            context.Insert<MySqlModel.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<MySqlModel.MySqlDemo>()
+                .GetTable<MySqlModel.Demo>()
                 .OrderByDescending(x => x.DemoId)
                 .Take(5).ToList();
             Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
-            var demo = new MySqlModel.MySqlDemo
+            var demo = new MySqlModel.Demo
             {
                 DemoCode = "D0000001",
                 DemoName = "N0000001",
@@ -124,13 +129,47 @@ namespace Riz.XFramework.UnitTest.MySql
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<MySqlModel.MySqlDemo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
+            demo = context.GetTable<MySqlModel.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
-                .GetTable<MySqlModel.MySqlDemo>()
+                .GetTable<MySqlModel.Demo>()
                 .Where(x => x.DemoId == demo.DemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();
+
+#if !net40
+            context.Delete<Model.Client>(x => x.ClientId >= 2000);
+            context.SubmitChanges();
+            var query =
+                from a in context.GetTable<Model.Client>()
+                where a.ClientId <= 10
+                select a;
+
+            var table = query.ToDataTable<Model.Client>();
+            table.TableName = "Bas_Client";
+            table.Rows.Clear();
+            int maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            for (int i = 1; i <= 10; i++)
+            {
+                var row = table.NewRow();
+                row["ClientId"] = maxId + i;
+                row["ClientCode"] = "C" + i;
+                row["ClientName"] = "N" + i;
+                row["CloudServerId"] = 0;
+                row["ActiveDate"] = DateTime.Now;
+                row["Qty"] = 0;
+                row["State"] = 1;
+                row["Remark"] = string.Empty;
+                table.Rows.Add(row);
+            }
+            table.AcceptChanges();
+
+            DateTime sDate2 = DateTime.Now;
+            ((MySqlDbContext)context).BulkCopy(table);
+            var ms = (DateTime.Now - sDate2).TotalMilliseconds;
+            // 10w   300ms
+            // 100w  4600ms
+#endif
         }
     }
 }

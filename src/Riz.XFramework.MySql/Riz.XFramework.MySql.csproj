@@ -70,9 +70,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
+    <PackageReference Include="MySqlConnector" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="MySqlConnector" Version="0.60.0" />
+    <PackageReference Include="MySqlConnector" Version="1.2.0" />
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ using Riz.XFramework.Data.SqlClient;
 
 namespace Riz.XFramework.UnitTest.MySql
 {
-    public class MySqlTest_NA : TestBase_NA<MySqlModel_NA.MySqlDemo>
+    public class MySqlTest_NA : TestBase_NA<MySqlModel_NA.Demo>
     {
         const string connString = "Host=localhost;Database=Riz_XFramework;uid=root;pwd=123456;Pooling=true;Min Pool Size=1;Max Pool Size=1;Connection Lifetime=;";
 
@@ -32,14 +32,14 @@ namespace Riz.XFramework.UnitTest.MySql
 
             // 构造函数
             var query =
-                 from a in context.GetTable<MySqlModel_NA.MySqlDemo>()
+                 from a in context.GetTable<MySqlModel_NA.Demo>()
                  where a.RizDemoId <= 10
-                 select new MySqlModel_NA.MySqlDemo(a);
+                 select new MySqlModel_NA.Demo(a);
             var r1 = query.ToList();
             query =
-               from a in context.GetTable<MySqlModel_NA.MySqlDemo>()
+               from a in context.GetTable<MySqlModel_NA.Demo>()
                where a.RizDemoId <= 10
-               select new MySqlModel_NA.MySqlDemo(a.RizDemoId, a.RizDemoName);
+               select new MySqlModel_NA.Demo(a.RizDemoId, a.RizDemoName);
             r1 = query.ToList();
             //SQL=> 
             //SELECT 
@@ -55,10 +55,10 @@ namespace Riz.XFramework.UnitTest.MySql
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var demos = new List<MySqlModel_NA.MySqlDemo>();
+            var demos = new List<MySqlModel_NA.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                MySqlModel_NA.MySqlDemo d = new MySqlModel_NA.MySqlDemo
+                MySqlModel_NA.Demo d = new MySqlModel_NA.Demo
                 {
                     RizDemoCode = "D0000001",
                     RizDemoName = "N0000001",
@@ -86,16 +86,16 @@ namespace Riz.XFramework.UnitTest.MySql
                 };
                 demos.Add(d);
             }
-            context.Insert<MySqlModel_NA.MySqlDemo>(demos);
+            context.Insert<MySqlModel_NA.Demo>(demos);
             context.SubmitChanges();
             var myList = context
-                .GetTable<MySqlModel_NA.MySqlDemo>()
+                .GetTable<MySqlModel_NA.Demo>()
                 .OrderByDescending(x => x.RizDemoId)
                 .Take(5).ToList();
             Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
 
             // byte[]
-            var demo = new MySqlModel_NA.MySqlDemo
+            var demo = new MySqlModel_NA.Demo
             {
                 RizDemoCode = "D0000001",
                 RizDemoName = "N0000001",
@@ -124,10 +124,10 @@ namespace Riz.XFramework.UnitTest.MySql
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<MySqlModel_NA.MySqlDemo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
+            demo = context.GetTable<MySqlModel_NA.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
             Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
-                .GetTable<MySqlModel_NA.MySqlDemo>()
+                .GetTable<MySqlModel_NA.Demo>()
                 .Where(x => x.RizDemoId == demo.RizDemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();

@@ -4,7 +4,11 @@ using System.Linq.Expressions;
 
 using System.Data.Common;
 using System.Collections.Generic;
+#if net40
 using MySql.Data.MySqlClient;
+#else
+using MySqlConnector;
+#endif
 
 namespace Riz.XFramework.Data.SqlClient
 {
@@ -18,10 +22,17 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         public static MySqlDbQueryProvider Instance = new MySqlDbQueryProvider();
 
+#if net40
         /// <summary>
         /// 数据源类的提供程序实现的实例
         /// </summary>
         public override DbProviderFactory DbProvider => MySqlClientFactory.Instance;
+#else
+        /// <summary>
+        /// 数据源类的提供程序实现的实例
+        /// </summary>
+        public override DbProviderFactory DbProvider => MySqlConnectorFactory.Instance;
+#endif
 
         /// <summary>
         /// 常量值转SQL表达式解析器
@@ -138,7 +149,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             jf.Indent = indent;
 
-            #region 嵌套查询
+#region 嵌套查询
 
             if (useAggregate && useSubquery)
             {
@@ -160,9 +171,9 @@ namespace Riz.XFramework.Data.SqlClient
                 context.IsOutQuery = false;
             }
 
-            #endregion
+#endregion
 
-            #region 选择子句
+#region 选择子句
 
             // SELECT 子句
             if (jf.Indent > 0) jf.AppendNewLine();
@@ -190,7 +201,7 @@ namespace Riz.XFramework.Data.SqlClient
                 // DISTINCT 子句
                 if (tree.HasDistinct) jf.Append("DISTINCT ");
 
-                #region 选择字段
+#region 选择字段
 
                 if (!tree.HasAny)
                 {
@@ -253,12 +264,12 @@ namespace Riz.XFramework.Data.SqlClient
                     }
                 }
 
-                #endregion
+#endregion
             }
 
-            #endregion
+#endregion
 
-            #region 顺序解析
+#region 顺序解析
 
             // FROM 子句
             jf.AppendNewLine();
@@ -324,9 +335,9 @@ namespace Riz.XFramework.Data.SqlClient
                 result.AddNavMembers(visitor.NavMembers);
             }
 
-            #endregion
+#endregion
 
-            #region 分页查询
+#region 分页查询
 
             // LIMIT 子句可以被用于强制 SELECT 语句返回指定的记录数。
             // LIMIT 接受一个或两个数字参数。参数必须是一个整数常量。如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
@@ -339,9 +350,9 @@ namespace Riz.XFramework.Data.SqlClient
                 wf.AppendFormat(" OFFSET {0}", this.Constor.GetSqlValue(tree.Skip, context));
             }
 
-            #endregion
+#endregion
 
-            #region 嵌套查询
+#region 嵌套查询
 
             if (useAggregate && useSubquery)
             {
@@ -353,9 +364,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
             }
 
-            #endregion
+#endregion
 
-            #region 嵌套导航
+#region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
             //if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
@@ -367,9 +378,9 @@ namespace Riz.XFramework.Data.SqlClient
                 visitor.Visit(subquery.OrderBys);
             }
 
-            #endregion
+#endregion
 
-            #region 并集查询
+#region 并集查询
 
             // UNION 子句
             if (tree.Unions != null && tree.Unions.Count > 0)
@@ -385,9 +396,9 @@ namespace Riz.XFramework.Data.SqlClient
                 }
             }
 
-            #endregion
+#endregion
 
-            #region 分页查询
+#region 分页查询
 
             if (sf != null)
             {
@@ -410,9 +421,9 @@ namespace Riz.XFramework.Data.SqlClient
                 }
             }
 
-            #endregion
+#endregion
 
-            #region Any 子句
+#region Any 子句
 
             // 'Any' 子句
             if (tree.HasAny)
@@ -433,14 +444,14 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
             }
 
-            #endregion
+#endregion
 
-            #region 还原状态
+#region 还原状态
 
             context.DbExpressionType = srcDbExpressionType;
             context.IsOutQuery = srcIsOutQuery;
 
-            #endregion
+#endregion
 
             return result;
         }

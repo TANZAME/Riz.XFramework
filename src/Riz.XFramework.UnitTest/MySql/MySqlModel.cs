@@ -1,29 +1,32 @@
 ﻿
 using System;
-
 using Riz.XFramework.Data;
-using MySql.Data.MySqlClient;
 using System.Text;
+#if net40
+using MySql.Data.MySqlClient;
+#else
+using MySqlConnector;
+#endif
 
 namespace Riz.XFramework.UnitTest.MySql
 {
     public class MySqlModel
     {
         [Table(Name = "Sys_Demo")]
-        public class MySqlDemo : Model.Demo
+        public class Demo : Model.Demo
         {
-            public MySqlDemo()
+            public Demo()
                 : base()
             {
             }
 
-            public MySqlDemo(int demoId, string demoName)
+            public Demo(int demoId, string demoName)
                 : base(demoId, demoName)
             {
 
             }
 
-            public MySqlDemo(MySqlDemo model)
+            public Demo(Demo model)
                 : base(model)
             {
 
