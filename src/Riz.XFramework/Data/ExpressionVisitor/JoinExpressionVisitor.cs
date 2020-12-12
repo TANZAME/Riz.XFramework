@@ -64,12 +64,12 @@ namespace Riz.XFramework.Data
             _builder.Append(' ');
             DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
             dbQuery.Parameterized = _builder.Parameterized;
-            
+
             if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
             }
             else
             {
@@ -140,7 +140,7 @@ namespace Riz.XFramework.Data
             Type type = lambdaExp.Parameters[1].Type;
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             _builder.Append(' ');
-            _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
 
             string alias = _ag.GetTableAlias(lambdaExp.Parameters[1]);
             _builder.Append(' ');

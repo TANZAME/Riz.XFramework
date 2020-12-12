@@ -258,7 +258,7 @@ namespace Riz.XFramework.Data
         private void PrepareJoinAlias(DbExpression dbExpression, AliasGenerator ag)
         {
             Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
-            string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableName;
+            string name = TypeRuntimeInfoCache.GetRuntimeInfo(type).TableFullName;
             string outerAlias = null;
 
             // on a.Name equals b.Name 或 on new{ Name = a.Name,Id=a.Id } equals new { Name = b.Name,Id=b.Id }

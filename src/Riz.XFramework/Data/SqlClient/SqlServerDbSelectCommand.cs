@@ -63,7 +63,7 @@ namespace Riz.XFramework.Data
                     MemberExpression mLeft = null;
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
-                    string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableName;
+                    string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableFullName;
                     innerAlias = _ag.GetJoinTableAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
@@ -83,7 +83,7 @@ namespace Riz.XFramework.Data
                 Type type = m.Type;
                 if (type.IsGenericType) type = type.GetGenericArguments()[0];
                 var typeRuntime2 = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                builder.AppendMember(typeRuntime2.TableName, !typeRuntime2.IsTemporary);
+                builder.AppendTable(typeRuntime2.TableSchema, typeRuntime2.TableFullName, typeRuntime2.IsTemporary);
                 builder.Append(" ");
                 builder.Append(alias2);
 

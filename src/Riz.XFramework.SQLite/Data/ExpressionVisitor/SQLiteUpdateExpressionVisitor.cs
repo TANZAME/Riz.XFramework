@@ -125,7 +125,7 @@ namespace Riz.XFramework.Data
             {
                 _builder.AppendMember("s0", m.Member, typeRuntime.Type);
                 _builder.Append(" = ");
-                _builder.AppendMember(typeRuntime.TableName);
+                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 _builder.Append('.');
                 _builder.AppendMember(null, m.Member, typeRuntime.Type);
                 _builder.Append(" AND ");

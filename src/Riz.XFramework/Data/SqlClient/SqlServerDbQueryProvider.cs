@@ -220,7 +220,7 @@ namespace Riz.XFramework.Data.SqlClient
             else
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.From);
-                jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 jf.Append(' ');
                 jf.Append(alias);
                 jf.Append(' ');
@@ -422,7 +422,7 @@ namespace Riz.XFramework.Data.SqlClient
                 if (tree.Bulk == null || !tree.Bulk.OnlyValue)
                 {
                     builder.Append("INSERT INTO ");
-                    builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                    builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                     builder.Append('(');
                     builder.Append(columnsBuilder);
                     builder.Append(')');
@@ -457,7 +457,7 @@ namespace Riz.XFramework.Data.SqlClient
             else if (tree.Query != null)
             {
                 builder.Append("INSERT INTO ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 builder.Append('(');
 
                 var srcDbExpressionType = context.DbExpressionType;
@@ -498,7 +498,7 @@ namespace Riz.XFramework.Data.SqlClient
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
             builder.Append("DELETE t0 FROM ");
-            builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
             builder.Append(" t0 ");
 
             if (tree.Entity != null)
@@ -610,7 +610,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 builder.AppendNewLine();
                 builder.Append("FROM ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 builder.Append(" t0");
 
                 builder.AppendNewLine();
@@ -626,7 +626,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 builder.AppendNewLine();
                 builder.Append("FROM ");
-                builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 builder.AppendAs("t0");
 
                 var cmd = new SqlServerDbSelectCommand(context, ag, tree.Query.SelectHasMany);

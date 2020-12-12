@@ -378,7 +378,7 @@ namespace Riz.XFramework.Data
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，检查查询表达式是否显示指定该表关联
-                        alias = _ag.GetJoinTableAlias(typeRuntime.TableName);
+                        alias = _ag.GetJoinTableAlias(typeRuntime.TableFullName);
                     }
                     if (string.IsNullOrEmpty(alias))
                     {

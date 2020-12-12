@@ -80,7 +80,7 @@ namespace Riz.XFramework.Data
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
             }
             else
             {
@@ -157,7 +157,7 @@ namespace Riz.XFramework.Data
             LambdaExpression lambda = dbExpression.Expressions[1] as LambdaExpression;
             Type type = lambda.Parameters[1].Type;
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-            jf.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
 
             string alias = _ag.GetTableAlias(lambda.Parameters[1]);
             jf.Append(' ');

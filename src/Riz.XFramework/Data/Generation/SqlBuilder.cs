@@ -157,12 +157,32 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 在此实例的结尾追加 AS
+        /// 追加 AS
         /// </summary>
         public virtual ISqlBuilder AppendAs(string name)
         {
             _innerBuilder.Append(" AS ");
             return this.AppendMember(name);
+        }
+
+        /// <summary>
+        /// 追加表名名称
+        /// </summary>
+        /// <param name="schema">架构名称</param>
+        /// <param name="name">成员名称</param>
+        /// <param name="isTemporary">是否临时表</param>
+        /// <returns></returns>
+        public virtual ISqlBuilder AppendTable(string schema, string name, bool isTemporary)
+        {
+            if (!isTemporary && !string.IsNullOrEmpty(schema))
+            {
+                _innerBuilder.Append(_escCharLeft);
+                _innerBuilder.Append(schema);
+                _innerBuilder.Append(_escCharRight);
+                _innerBuilder.Append('.');
+            }
+
+            return this.AppendMember(name, !isTemporary);
         }
 
         /// <summary>

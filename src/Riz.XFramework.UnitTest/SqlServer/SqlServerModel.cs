@@ -14,6 +14,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
             DBNull = 127
         }
 
+        //[Table(Name = "Sys_Demo", Schema = "riz")]
         [Table(Name = "Sys_Demo")]
         public class Demo : Model.Demo
         {

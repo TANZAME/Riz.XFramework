@@ -44,7 +44,7 @@ namespace Riz.XFramework.Data
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
 
                 withNoLock = !typeRuntime.IsTemporary && _isNoLock && !string.IsNullOrEmpty(_withNoLock);
             }
@@ -123,7 +123,7 @@ namespace Riz.XFramework.Data
             bool withNoLock = !typeRuntime.IsTemporary && _isNoLock && !string.IsNullOrEmpty(_withNoLock);
 
             _builder.Append(' ');
-            _builder.AppendMember(typeRuntime.TableName, !typeRuntime.IsTemporary);
+            _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
 
             string alias = _ag.GetTableAlias(lambdaExp.Parameters[1]);
             _builder.Append(' ');

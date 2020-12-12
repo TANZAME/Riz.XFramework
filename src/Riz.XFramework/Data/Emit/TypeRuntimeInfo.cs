@@ -22,6 +22,7 @@ namespace Riz.XFramework.Data
         private bool? _isCompilerGenerated = null;
         private bool? _isPrimitiveType = null;
         private bool? _isCollectionType = null;
+        private string _tableFullName = null;
 
         private object _lock = new object();
         private bool _isInitialize = false;
@@ -53,7 +54,20 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 类型对应的数据架构名，如果没有指定Table特性，则默认为空
         /// </summary>
-        public string SchemaName => this.Table != null ? this.Table.Schema : string.Empty;
+        public string TableSchema => this.Table != null ? this.Table.Schema : string.Empty;
+
+        /// <summary>
+        /// 表全名（架构+表名）
+        /// </summary>
+        public string TableFullName
+        {
+            get
+            {
+                if (_tableFullName == null)
+                    _tableFullName = string.IsNullOrEmpty(TableSchema) ? this.TableName : string.Format("{0}.{1}", this.TableSchema, this.TableName);
+                return _tableFullName;
+            }
+        }
 
         /// <summary>
         /// 是否临时表

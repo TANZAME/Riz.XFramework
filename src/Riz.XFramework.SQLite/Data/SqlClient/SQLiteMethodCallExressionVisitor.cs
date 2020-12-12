@@ -453,7 +453,7 @@ namespace Riz.XFramework.Data.SqlClient
             if (isDelete)
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(((MemberExpression)m.Arguments[1]).Expression.Type);
-                _builder.AppendMember(typeRuntime.TableName);
+                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 _builder.Append('.');
             }
 

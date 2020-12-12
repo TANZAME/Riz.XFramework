@@ -83,6 +83,15 @@ namespace Riz.XFramework.Data
         ISqlBuilder AppendAs(string name);
 
         /// <summary>
+        /// 追加表名名称
+        /// </summary>
+        /// <param name="schema">架构名称</param>
+        /// <param name="name">成员名称</param>
+        /// <param name="isTemporary">是否临时表</param>
+        /// <returns></returns>
+        ISqlBuilder AppendTable(string schema, string name, bool isTemporary);
+
+        /// <summary>
         /// 在此实例的结尾追加指定字符串的副本。
         /// </summary>
         ISqlBuilder Append(string value);
