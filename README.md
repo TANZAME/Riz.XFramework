@@ -14,8 +14,8 @@ Riz.XFramework 是一款基于.NET的轻量级高性能 ORM 框架，参考 Enti
 - 支持 SqlServer、MySql、Postgre、Oracle、SQLite 等多种数据库
 - 支持 Postgre、Oracle 大小写敏感
 - 支持无限级一对一、一对多导航属性、延迟加载
-- 支持实体属性类型与数据库字段类型自动映射
-- 支持实体属性名称和数据库字段名称映射
+- 支持实体属性类型与数据库字段不同类型、不同名称映射
+- 支持多架构(schema)设计
 - 支持原生 Ado.Net、临时表、表变量、AOP操作
 
 ## 联系方式
