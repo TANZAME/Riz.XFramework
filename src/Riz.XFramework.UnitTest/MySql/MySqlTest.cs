@@ -138,37 +138,37 @@ namespace Riz.XFramework.UnitTest.MySql
                 .FirstOrDefault();
 
 #if !net40
-            context.Delete<Model.Client>(x => x.ClientId >= 2000);
-            context.SubmitChanges();
-            var query =
-                from a in context.GetTable<Model.Client>()
-                where a.ClientId <= 10
-                select a;
+            //context.Delete<Model.Client>(x => x.ClientId >= 2000);
+            //context.SubmitChanges();
+            //var query =
+            //    from a in context.GetTable<Model.Client>()
+            //    where a.ClientId <= 10
+            //    select a;
 
-            var table = query.ToDataTable<Model.Client>();
-            table.TableName = "Bas_Client";
-            table.Rows.Clear();
-            int maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
-            for (int i = 1; i <= 10; i++)
-            {
-                var row = table.NewRow();
-                row["ClientId"] = maxId + i;
-                row["ClientCode"] = "C" + i;
-                row["ClientName"] = "N" + i;
-                row["CloudServerId"] = 0;
-                row["ActiveDate"] = DateTime.Now;
-                row["Qty"] = 0;
-                row["State"] = 1;
-                row["Remark"] = string.Empty;
-                table.Rows.Add(row);
-            }
-            table.AcceptChanges();
+            //var table = query.ToDataTable<Model.Client>();
+            //table.TableName = "Bas_Client";
+            //table.Rows.Clear();
+            //int maxId = context.GetTable<Model.Client>().Max(x => x.ClientId);
+            //for (int i = 1; i <= 10; i++)
+            //{
+            //    var row = table.NewRow();
+            //    row["ClientId"] = maxId + i;
+            //    row["ClientCode"] = "C" + i;
+            //    row["ClientName"] = "N" + i;
+            //    row["CloudServerId"] = 0;
+            //    row["ActiveDate"] = DateTime.Now;
+            //    row["Qty"] = 0;
+            //    row["State"] = 1;
+            //    row["Remark"] = string.Empty;
+            //    table.Rows.Add(row);
+            //}
+            //table.AcceptChanges();
 
-            DateTime sDate2 = DateTime.Now;
-            ((MySqlDbContext)context).BulkCopy(table);
-            var ms = (DateTime.Now - sDate2).TotalMilliseconds;
-            // 10w   300ms
-            // 100w  4600ms
+            //DateTime sDate2 = DateTime.Now;
+            //((MySqlDbContext)context).BulkCopy(table);
+            //var ms = (DateTime.Now - sDate2).TotalMilliseconds;
+            //// 10w   300ms
+            //// 100w  4600ms
 #endif
         }
     }

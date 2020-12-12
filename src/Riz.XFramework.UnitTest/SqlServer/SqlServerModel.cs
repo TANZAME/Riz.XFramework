@@ -168,6 +168,29 @@ namespace Riz.XFramework.UnitTest.SqlServer
             }
         }
 
+        [Table(Name = "Bas_Client")]
+        public partial class Client : Model.Client
+        {
+            /// <summary>
+            /// 初始化 <see cref="Client"/> 类的新实例
+            /// </summary>
+            public Client() : base()
+            {
+            }
+
+            /// <summary>
+            /// 初始化 <see cref="Client"/> 类的新实例
+            /// </summary>
+            public Client(Client model) : base(model)
+            {
+            }
+
+            [ForeignKey("CloudServerId")]
+            public new Model.Server CloudServer { get; set; }
+
+            public override Model.Server LocalServer { get; set; }
+        }
+
         /// <summary>
         /// 表变量示例
         /// </summary>

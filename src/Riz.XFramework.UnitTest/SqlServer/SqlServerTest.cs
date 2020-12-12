@@ -32,19 +32,19 @@ namespace Riz.XFramework.UnitTest.SqlServer
             var context = _newContext();
 
             // 声明表变量
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel_NA.JoinKey>();
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<SqlServerModel.JoinKey>();
             context.AddQuery(string.Format("DECLARE {0} [{1}]", typeRuntime.TableName, typeRuntime.TableName.TrimStart('@')));
-            List<SqlServerModel_NA.JoinKey> keys = new List<SqlServerModel_NA.JoinKey>
+            List<SqlServerModel.JoinKey> keys = new List<SqlServerModel.JoinKey>
             {
-                new SqlServerModel_NA.JoinKey{ Key1 = 2 },
-                new SqlServerModel_NA.JoinKey{ Key1 = 3 },
+                new SqlServerModel.JoinKey{ Key1 = 2 },
+                new SqlServerModel.JoinKey{ Key1 = 3 },
             };
             // 向表变量写入数据
-            context.Insert<SqlServerModel_NA.JoinKey>(keys);
+            context.Insert<SqlServerModel.JoinKey>(keys);
             // 像物理表一样操作表变量
             var query =
                 from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<SqlServerModel_NA.JoinKey>() on a.ClientId equals b.Key1
+                join b in context.GetTable<SqlServerModel.JoinKey>() on a.ClientId equals b.Key1
                 select a;
             context.AddQuery(query);
             // 提交查询结果
@@ -59,6 +59,24 @@ namespace Riz.XFramework.UnitTest.SqlServer
             context.Delete<SqlServerModel.Demo>(qeury);
             context.SubmitChanges();
             Debug.Assert(context.GetTable<SqlServerModel.Demo>().Count(a => a.DemoId > 100) == 0);
+
+            var query2 =
+                context.GetTable<SqlServerModel.Client>()
+                .Include(a => a.CloudServer)
+                .Include(a => a.LocalServer);
+            var result2 = query2.ToList();
+            query2 =
+                from a in context.GetTable<SqlServerModel.Client>()
+                select new SqlServerModel.Client(a)
+                {
+                    CloudServer = a.CloudServer,
+                    LocalServer = new Model.Server
+                    {
+                        CloudServerId = a.CloudServerId,
+                        CloudServerName = a.LocalServer.CloudServerName,
+                    }
+                };
+            result2 = query2.ToList();
 
             base.Run(dbType);
         }
@@ -103,26 +121,26 @@ namespace Riz.XFramework.UnitTest.SqlServer
             DateTimeOffset sDateOffset = new DateTimeOffset(sDate, new TimeSpan(-7, 0, 0));
 
             // 单个插入
-            var demo = new SqlServerModel_NA.Demo
+            var demo = new SqlServerModel.Demo
             {
-                RizDemoCode = "D0000001",
-                RizDemoName = "N0000001",
-                RizDemoBoolean = true,
-                RizDemoChar = 'A',
-                RizDemoNChar = 'B',
-                RizDemoByte = 128,
-                RizDemoDate = DateTime.Now,
-                RizDemoDateTime = DateTime.Now,
-                RizDemoDateTime2 = DateTime.Now,
-                RizDemoDecimal = 64,
-                RizDemoDouble = 64,
-                RizDemoFloat = 64,
-                RizDemoGuid = Guid.NewGuid(),
-                RizDemoShort = 64,
-                RizDemoInt = 64,
-                RizDemoLong = 64,
-                RizDemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                RizDemoDatetimeOffset_Nullable = DateTimeOffset.Now,
+                DemoCode = "D0000001",
+                DemoName = "N0000001",
+                DemoBoolean = true,
+                DemoChar = 'A',
+                DemoNChar = 'B',
+                DemoByte = 128,
+                DemoDate = DateTime.Now,
+                DemoDateTime = DateTime.Now,
+                DemoDateTime2 = DateTime.Now,
+                DemoDecimal = 64,
+                DemoDouble = 64,
+                DemoFloat = 64,
+                DemoGuid = Guid.NewGuid(),
+                DemoShort = 64,
+                DemoInt = 64,
+                DemoLong = 64,
+                DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
@@ -131,39 +149,39 @@ namespace Riz.XFramework.UnitTest.SqlServer
             context.Insert(demo);
             context.SubmitChanges();
 
-            demo = context.GetTable<SqlServerModel_NA.Demo>().FirstOrDefault(x => x.RizDemoId == demo.RizDemoId);
+            demo = context.GetTable<SqlServerModel.Demo>().FirstOrDefault(x => x.DemoId == demo.DemoId);
             Debug.Assert(demo.DemVarBinary_s == LongText.LONGTEXT);
             var hex = context
-                .GetTable<SqlServerModel_NA.Demo>()
-                .Where(x => x.RizDemoId == demo.RizDemoId)
+                .GetTable<SqlServerModel.Demo>()
+                .Where(x => x.DemoId == demo.DemoId)
                 .Select(x => x.DemoVarBinary_Nullable.ToString())
                 .FirstOrDefault();
 
             // 批量增加
             // 产生 INSERT INTO VALUES(),(),()... 语法。注意这种批量增加的方法并不能给自增列自动赋值
-            var models = new List<SqlServerModel_NA.Demo>();
+            var models = new List<SqlServerModel.Demo>();
             for (int i = 0; i < 5; i++)
             {
-                SqlServerModel_NA.Demo d = new SqlServerModel_NA.Demo
+                SqlServerModel.Demo d = new SqlServerModel.Demo
                 {
-                    RizDemoCode = string.Format("D000000{0}", i + 1),
-                    RizDemoName = string.Format("N000000{0}", i + 1),
-                    RizDemoBoolean = true,
-                    RizDemoChar = 'A',
-                    RizDemoNChar = 'B',
-                    RizDemoByte = 127,
-                    RizDemoDate = DateTime.Now,
-                    RizDemoDateTime = DateTime.Now,
-                    RizDemoDateTime2 = DateTime.Now,
-                    RizDemoDecimal = 64,
-                    RizDemoDouble = 64,
-                    RizDemoFloat = 64,
-                    RizDemoGuid = Guid.NewGuid(),
-                    RizDemoShort = 64,
-                    RizDemoInt = 64,
-                    RizDemoLong = 64,
-                    RizDemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                    RizDemoDatetimeOffset_Nullable = sDateOffset,
+                    DemoCode = string.Format("D000000{0}", i + 1),
+                    DemoName = string.Format("N000000{0}", i + 1),
+                    DemoBoolean = true,
+                    DemoChar = 'A',
+                    DemoNChar = 'B',
+                    DemoByte = 127,
+                    DemoDate = DateTime.Now,
+                    DemoDateTime = DateTime.Now,
+                    DemoDateTime2 = DateTime.Now,
+                    DemoDecimal = 64,
+                    DemoDouble = 64,
+                    DemoFloat = 64,
+                    DemoGuid = Guid.NewGuid(),
+                    DemoShort = 64,
+                    DemoInt = 64,
+                    DemoLong = 64,
+                    DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                    DemoDatetimeOffset_Nullable = sDateOffset,
                     DemoText_Nullable = "TEXT 类型",
                     DemoNText_Nullable = "NTEXT 类型",
                     DemoBinary_Nullable = i % 2 == 0 ? Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式") : null,
@@ -172,35 +190,35 @@ namespace Riz.XFramework.UnitTest.SqlServer
                 models.Add(d);
             }
             // 批量插入
-            context.Insert<SqlServerModel_NA.Demo>(models);
+            context.Insert<SqlServerModel.Demo>(models);
             // 写入数据的同时再查出数据
             var query1 = context
-                .GetTable<SqlServerModel_NA.Demo>()
-                .Where(a => a.RizDemoId > 2)
-                .OrderBy(a => a.RizDemoId)
+                .GetTable<SqlServerModel.Demo>()
+                .Where(a => a.DemoId > 2)
+                .OrderBy(a => a.DemoId)
                 .Take(20);
             context.AddQuery(query1);
             // 单个插入
-            var demo1 = new SqlServerModel_NA.Demo
+            var demo1 = new SqlServerModel.Demo
             {
-                RizDemoCode = "D0000006",
-                RizDemoName = "N0000006",
-                RizDemoBoolean = true,
-                RizDemoChar = 'A',
-                RizDemoNChar = 'B',
-                RizDemoByte = 128,
-                RizDemoDate = DateTime.Now,
-                RizDemoDateTime = DateTime.Now,
-                RizDemoDateTime2 = DateTime.Now,
-                RizDemoDecimal = 64,
-                RizDemoDouble = 64,
-                RizDemoFloat = 64,
-                RizDemoGuid = Guid.NewGuid(),
-                RizDemoShort = 64,
-                RizDemoInt = 64,
-                RizDemoLong = 64,
-                RizDemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
-                RizDemoDatetimeOffset_Nullable = DateTimeOffset.Now,
+                DemoCode = "D0000006",
+                DemoName = "N0000006",
+                DemoBoolean = true,
+                DemoChar = 'A',
+                DemoNChar = 'B',
+                DemoByte = 128,
+                DemoDate = DateTime.Now,
+                DemoDateTime = DateTime.Now,
+                DemoDateTime2 = DateTime.Now,
+                DemoDecimal = 64,
+                DemoDouble = 64,
+                DemoFloat = 64,
+                DemoGuid = Guid.NewGuid(),
+                DemoShort = 64,
+                DemoInt = 64,
+                DemoLong = 64,
+                DemoTime_Nullable = new TimeSpan(0, 10, 10, 10) + TimeSpan.FromTicks(456789 * 10),
+                DemoDatetimeOffset_Nullable = DateTimeOffset.Now,
                 DemoText_Nullable = "TEXT 类型",
                 DemoNText_Nullable = "NTEXT 类型",
                 DemoBinary_Nullable = Encoding.UTF8.GetBytes("表示时区偏移量（分钟）（如果为整数）的表达式"),
@@ -209,19 +227,19 @@ namespace Riz.XFramework.UnitTest.SqlServer
             context.Insert(demo1);
             context.Insert(demo1);
             // 提交修改并查出数据
-            List<SqlServerModel_NA.Demo> result1 = null;
+            List<SqlServerModel.Demo> result1 = null;
             context.SubmitChanges(out result1);
 
             // 断言
             var myList = context
-                .GetTable<SqlServerModel_NA.Demo>()
-                .OrderByDescending(a => a.RizDemoId)
+                .GetTable<SqlServerModel.Demo>()
+                .OrderByDescending(a => a.DemoId)
                 .Take(7)
-                .OrderBy(a => a.RizDemoId)
+                .OrderBy(a => a.DemoId)
                 .ToList();
             Debug.Assert(myList[0].DemVarBinary_s == LongText.LONGTEXT);
-            Debug.Assert(myList[0].RizDemoId == demo.RizDemoId + 1);
-            Debug.Assert(myList[6].RizDemoId == demo.RizDemoId + 7);
+            Debug.Assert(myList[0].DemoId == demo.DemoId + 1);
+            Debug.Assert(myList[6].DemoId == demo.DemoId + 7);
 
 
 
