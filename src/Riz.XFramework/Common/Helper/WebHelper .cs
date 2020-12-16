@@ -298,6 +298,10 @@ namespace Riz.XFramework
 
         /// <summary>
         /// 发起 HTTP，需要调用方自行释放响应对象
+        /// <para>
+        /// 注：4.0 版本的 WebRequest 默认限制连接并发数。
+        /// 如果要提高并发数，需自行设置 ServicePointManager.DefaultConnectionLimit 属性
+        /// </para>
         /// </summary>
         /// <param name="uri">请求路径</param>
         /// <param name="configuration">HTTP 配置</param>
@@ -383,8 +387,8 @@ namespace Riz.XFramework
                 // 创建请求
                 var request = WebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
-                // 默认连接最大数=2，如果没有全局设置，则需要设置并发连接数
-                if (ServicePointManager.DefaultConnectionLimit == 2) request.ServicePoint.ConnectionLimit = 65532;
+                //// 默认连接最大数=2，如果没有全局设置，则需要设置并发连接数
+                //if (ServicePointManager.DefaultConnectionLimit == 2) request.ServicePoint.ConnectionLimit = 65532;
                 if (configuration != null)
                 {
                     request.ContentLength = 0;
