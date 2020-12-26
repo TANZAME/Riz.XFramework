@@ -224,6 +224,11 @@ namespace Riz.XFramework
                 if (!DateTime.TryParse(s, out value)) value = (DateTime)((object)@default);
                 result = (T)((object)value);
             }
+            //else if (TypeUtils.IsCollectionType(typeof(T)))
+            //{
+            //    T value = (T)Newtonsoft.Json.JsonConvert.DeserializeObject(s, typeof(T));
+            //    result = value;
+            //}
 
             return result;
         }
