@@ -631,7 +631,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     DemoId = a.DemoId,
                     Mod = a.DemoId % 2,
-                    Divide = Data.DbFunction.Cast<decimal>(a.DemoId, "decimal") / 2,
+                    Divide = Data.DbFunction.Cast<decimal, int>(a.DemoId, "decimal") / 2,
                     Abs = Math.Abs(a.DemoDecimal),
                     Acos = Math.Acos(a.DemoId / 2.00),
                     Asin = Math.Asin(a.DemoId / 2.00),

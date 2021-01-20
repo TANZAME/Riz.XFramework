@@ -633,7 +633,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     DemoId = a.RizDemoId,
                     Mod = a.RizDemoId % 2,
-                    Divide = Data.DbFunction.Cast<decimal>(a.RizDemoId, "decimal") / 2,
+                    Divide = Data.DbFunction.Cast<decimal, int>(a.RizDemoId, "decimal") / 2,
                     Abs = Math.Abs(a.RizDemoDecimal),
                     Acos = Math.Acos(a.RizDemoId / 2.00),
                     Asin = Math.Asin(a.RizDemoId / 2.00),
@@ -1063,7 +1063,7 @@ namespace Riz.XFramework.UnitTest
             query =
             context
             .GetTable<Model_NA.Client>()
-            .Include(a => a.CloudServer, a => new 
+            .Include(a => a.CloudServer, a => new
             {
                 RizCloudServerId = a.CloudServer.RizCloudServerId,
                 RizCloudServerCode = "5",
