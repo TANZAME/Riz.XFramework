@@ -77,7 +77,7 @@ namespace Riz.XFramework.Data
         /// <param name="keySelector">用于从元素中提取键的函数</param>
         /// <param name="expression">转换成数据库目标类型，如 MSSQL 的 nvarchar(32)</param>
         /// <returns></returns>
-        public static TResult Cast<TResult, TKey>(TKey keySelector, string expression) => default(TResult);
+        public static TResult Cast<TKey, TResult>(TKey keySelector, string expression) => default(TResult);
 
         /// <summary>
         /// 判断函数，如 MSSQL 解析成 CASE WHEN ... THEN ...
