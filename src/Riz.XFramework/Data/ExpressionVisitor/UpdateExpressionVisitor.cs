@@ -40,7 +40,7 @@ namespace Riz.XFramework.Data
                 _builder.Append(" = ");
 
                 // => Name = "Name" 
-                this.VisitWithoutRemark(_ => this.VisitObjectMember(node.Type, m.Member, m.Expression));
+                this.VisitWithoutStack(_ => this.VisitObjectMember(node.Type, m.Member, m.Expression));
 
                 if (index < node.Bindings.Count - 1)
                 {
@@ -69,7 +69,7 @@ namespace Riz.XFramework.Data
                 _builder.Append(" = ");
 
                 // => Name = "Name" 
-                this.VisitWithoutRemark(_ => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index]));
+                this.VisitWithoutStack(_ => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index]));
 
                 if (index < node.Arguments.Count - 1)
                 {

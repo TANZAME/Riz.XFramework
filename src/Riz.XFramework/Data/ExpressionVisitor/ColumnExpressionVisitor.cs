@@ -141,7 +141,7 @@ namespace Riz.XFramework.Data
                 if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _ag.GetTableAlias(lambda.Body), node);
                 else
                 {
-                    var newNode = this.VisitWithoutRemark(_ => base.VisitLambda(node));
+                    var newNode = this.VisitWithoutStack(_ => base.VisitLambda(node));
 
                     var memberExpression = lambda.Body as MemberExpression;
                     string memberName = memberExpression.Member.Name;
@@ -356,7 +356,7 @@ namespace Riz.XFramework.Data
                     var memberExpression = argument as MemberExpression;
                     if (memberExpression != null) member = memberExpression.Member;
                 }
-                this.VisitWithoutRemark(_ => this.VisitNewArgumentImpl(newType, member, argument));
+                this.VisitWithoutStack(_ => this.VisitNewArgumentImpl(newType, member, argument));
             }
 
             return node;
