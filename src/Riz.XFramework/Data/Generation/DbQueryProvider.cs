@@ -245,7 +245,7 @@ namespace Riz.XFramework.Data
             {
                 DbExpression d = tree.Joins[index];
                 // [INNER/LEFT JOIN]
-                if (d.DbExpressionType == DbExpressionType.GroupJoin || d.DbExpressionType == DbExpressionType.Join || d.DbExpressionType == DbExpressionType.GroupRightJoin)
+                if (d.DbExpressionType == DbExpressionType.LeftOuterJoin || d.DbExpressionType == DbExpressionType.Join || d.DbExpressionType == DbExpressionType.RightOuterJoin)
                     this.PrepareJoinAlias(d, ag);
                 else if (d.DbExpressionType == DbExpressionType.SelectMany)
                     this.PrepareCrossAlias(d, ag);

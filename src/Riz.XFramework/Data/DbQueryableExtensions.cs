@@ -369,7 +369,7 @@ namespace Riz.XFramework.Data
         public static IDbQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IDbQueryable<TOuter> outer, IDbQueryable<TInner> inner,
             Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IDbQueryable<TInner>, TResult>> resultSelector)
         {
-            return outer.CreateQuery<TResult>(new DbExpression(DbExpressionType.GroupJoin, new Expression[] {
+            return outer.CreateQuery<TResult>(new DbExpression(DbExpressionType.LeftOuterJoin, new Expression[] {
                 Expression.Constant(inner),
                 outerKeySelector,
                 innerKeySelector,

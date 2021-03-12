@@ -133,8 +133,8 @@ namespace Riz.XFramework.Data
                         continue;
 
                     case DbExpressionType.Join:
-                    case DbExpressionType.GroupJoin:
-                    case DbExpressionType.GroupRightJoin:
+                    case DbExpressionType.LeftOuterJoin:
+                    case DbExpressionType.RightOuterJoin:
                         pickExpression = item.Expressions[3];
 
                         var j = item;
@@ -601,14 +601,14 @@ namespace Riz.XFramework.Data
                         for (int i = start; i < collection.Count; i++)
                         {
                             var item = collection[i];
-                            if (item.DbExpressionType == DbExpressionType.GroupJoin)
+                            if (item.DbExpressionType == DbExpressionType.LeftOuterJoin)
                             {
                                 LambdaExpression lambda = item.Expressions[3] as LambdaExpression;
                                 NewExpression newExpression = lambda.Body as NewExpression;
                                 string pName = (newExpression.Arguments[1] as ParameterExpression).Name;
                                 if (name == pName)
                                 {
-                                    item.DbExpressionType = DbExpressionType.GroupRightJoin;
+                                    item.DbExpressionType = DbExpressionType.RightOuterJoin;
                                     break;
                                 }
                             }

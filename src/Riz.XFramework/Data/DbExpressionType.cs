@@ -64,12 +64,12 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 基于键值等同性对两个序列的元素进行关联，并对结果进行分组。 使用默认的相等比较器对键进行比较（左关联）
         /// </summary>
-        GroupJoin,
+        LeftOuterJoin,
 
         /// <summary>
         /// 基于键值等同性对两个序列的元素进行关联，并对结果进行分组。 使用默认的相等比较器对键进行比较（右关联）
         /// </summary>
-        GroupRightJoin,
+        RightOuterJoin,
 
         /// <summary>
         /// 基于匹配键对两个序列的元素进行关联。 使用默认的相等比较器对键进行比较

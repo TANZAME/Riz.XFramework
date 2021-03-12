@@ -48,7 +48,7 @@ namespace Riz.XFramework.Data
             for (int index = 0; index < (joins != null ? joins.Count : -1); index++)
             {
                 DbExpression d = joins[index];
-                if (d.DbExpressionType == DbExpressionType.GroupJoin || d.DbExpressionType == DbExpressionType.Join || d.DbExpressionType == DbExpressionType.GroupRightJoin)
+                if (d.DbExpressionType == DbExpressionType.LeftOuterJoin || d.DbExpressionType == DbExpressionType.Join || d.DbExpressionType == DbExpressionType.RightOuterJoin)
                     this.AppendLfInJoin(jf, on, d);
                 else if (d.DbExpressionType == DbExpressionType.SelectMany)
                     this.AppendCrossJoin(jf, d);
