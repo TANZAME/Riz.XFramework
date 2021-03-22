@@ -237,6 +237,8 @@ namespace Riz.XFramework.Data
             if (insert == null && delete == null && update == null && pickExpression == null && aggregate == null)
                 pickExpression = Expression.Constant(fromType ?? elmentType);
             DbExpression select = new DbExpression(DbExpressionType.Select, pickExpression);
+            if (fromType == null)
+                fromType = elmentType;
 
             var result_Query = new DbQuerySelectTree();
             result_Query.From = fromType;
