@@ -407,7 +407,7 @@ namespace Riz.XFramework.Data
                 _builder.Append("(");
                 for (int i = 0; i < expressions.Count; i++)
                 {
-                    _visitor.VisitWithoutRemark(_ => this.VisitToStringImpl(expressions[i]));
+                    _visitor.VisitWithoutStack(_ => this.VisitToStringImpl(expressions[i]));
                     if (i < expressions.Count - 1) _builder.Append(" + ");
                 }
                 _builder.Append(")");

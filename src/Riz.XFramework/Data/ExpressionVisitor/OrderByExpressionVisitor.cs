@@ -48,7 +48,7 @@ namespace Riz.XFramework.Data
 
                 for (int i = 0; i < orderBys.Count; i++)
                 {
-                    this.VisitWithoutRemark(_ => this.Visit(orderBys[i].Expressions[0]));
+                    this.VisitWithoutStack(_ => this.Visit(orderBys[i].Expressions[0]));
                     if (orderBys[i].DbExpressionType == DbExpressionType.OrderByDescending || orderBys[i].DbExpressionType == DbExpressionType.ThenByDescending)
                     {
                         _builder.Append(" DESC");

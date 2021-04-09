@@ -49,7 +49,7 @@ namespace Riz.XFramework.Data
             ReadOnlyCollection<Expression> arguments = node.Arguments;
             for (int index = 0; index < arguments.Count; ++index)
             {
-                this.VisitWithoutRemark(_ => this.Visit(arguments[index]));
+                this.VisitWithoutStack(_ => this.Visit(arguments[index]));
                 if (index < arguments.Count - 1) _builder.Append(",");
             }
             return node;
@@ -70,7 +70,7 @@ namespace Riz.XFramework.Data
             // 赋值表达式
             for (int index = 0; index < node.Bindings.Count; index++)
             {
-                this.VisitWithoutRemark(_ => this.Visit(((MemberAssignment)node.Bindings[index]).Expression));
+                this.VisitWithoutStack(_ => this.Visit(((MemberAssignment)node.Bindings[index]).Expression));
                 if (index < node.Bindings.Count - 1) _builder.Append(",");
             }
 

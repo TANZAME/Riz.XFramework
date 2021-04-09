@@ -100,7 +100,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="node">二元表达式</param>
         /// <returns></returns>
-        protected override Expression VisitBinary(BinaryExpression node) => this.VisitWithoutRemark(_ => this.VisitBinaryImpl(node));
+        protected override Expression VisitBinary(BinaryExpression node) => this.VisitWithoutStack(_ => this.VisitBinaryImpl(node));
 
         // 访问二元表达式节点
         private Expression VisitBinaryImpl(BinaryExpression node)
@@ -126,11 +126,13 @@ namespace Riz.XFramework.Data
             }
 
             // 例： a.Name ?? "TAN"
-            if (node.NodeType == ExpressionType.Coalesce) return this.VisitMethodCall(node, MethodCallType.Coalesce);
+            if (node.NodeType == ExpressionType.Coalesce) 
+                return this.VisitMethodCall(node, MethodCallType.Coalesce);
 
             // 例： a.Name == null
             var constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) return this.VisitMethodCall(node, MethodCallType.EqualNull);
+            if (constExpression != null && constExpression.Value == null) 
+                return this.VisitMethodCall(node, MethodCallType.EqualNull);
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
             return this.VisitBinary_Condition(node);
@@ -275,7 +277,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="visit">访问实现</param>
         /// <returns></returns>
-        public Expression VisitWithoutRemark(Func<object, Expression> visit)
+        public Expression VisitWithoutStack(Func<object, Expression> visit)
         {
             int visitedQty = _visitedStack.Count;
             var newNode = visit(null);

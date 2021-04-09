@@ -192,9 +192,11 @@ namespace Riz.XFramework.Data
             // t.t.a
             // t.a.Id
             var memberExpression = expression as MemberExpression;
-            if (memberExpression == null) return AliasGenerator.GetTableAliasKey(expression);
+            if (memberExpression == null) 
+                return AliasGenerator.GetTableAliasKey(expression);
 
-            if (memberExpression.Visitable()) return AliasGenerator.GetTableAliasKey(memberExpression.Expression);
+            if (memberExpression.Visitable()) 
+                return AliasGenerator.GetTableAliasKey(memberExpression.Expression);
 
             return memberExpression.Member.Name;
         }

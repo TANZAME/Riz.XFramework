@@ -54,7 +54,7 @@ namespace Riz.XFramework.Data
                 _builder.Append(" = ");
 
                 if (m.Expression.CanEvaluate())
-                    this.VisitWithoutRemark(_ => this.VisitObjectMember(node.Type, m.Member, m.Expression.Evaluate()));
+                    this.VisitWithoutStack(_ => this.VisitObjectMember(node.Type, m.Member, m.Expression.Evaluate()));
                 else
                     this.VisitArgument(m.Expression);
 
@@ -86,7 +86,7 @@ namespace Riz.XFramework.Data
                 _builder.Append(" = ");
 
                 if (node.Arguments[index].CanEvaluate())
-                    this.VisitWithoutRemark(_ => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index].Evaluate()));
+                    this.VisitWithoutStack(_ => this.VisitObjectMember(node.Type, node.Members[index], node.Arguments[index].Evaluate()));
                 else
                     this.VisitArgument(node.Arguments[index]);
 

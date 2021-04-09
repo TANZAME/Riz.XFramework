@@ -35,13 +35,13 @@ namespace Riz.XFramework.Data
                 DbExpression d = joins[index];
                 _builder.AppendNewLine();
 
-                if (d.DbExpressionType == DbExpressionType.GroupJoin || d.DbExpressionType == DbExpressionType.Join ||
-                    d.DbExpressionType == DbExpressionType.GroupRightJoin)
+                if (d.DbExpressionType == DbExpressionType.LeftOuterJoin || d.DbExpressionType == DbExpressionType.Join ||
+                    d.DbExpressionType == DbExpressionType.RightOuterJoin)
                 {
                     // INNER/LEFT JOIN
                     JoinType joinType = JoinType.InnerJoin;
-                    if (d.DbExpressionType == DbExpressionType.GroupJoin) joinType = JoinType.LeftJoin;
-                    else if (d.DbExpressionType == DbExpressionType.GroupRightJoin) joinType = JoinType.RightJoin;
+                    if (d.DbExpressionType == DbExpressionType.LeftOuterJoin) joinType = JoinType.LeftJoin;
+                    else if (d.DbExpressionType == DbExpressionType.RightOuterJoin) joinType = JoinType.RightJoin;
                     this.AppendJoinType(_builder, joinType);
                     this.AppendLfInJoin(d);
                 }
