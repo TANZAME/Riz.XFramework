@@ -225,6 +225,7 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
                 jf.Append(' ');
 
+                // TODO 1.临时表处理 2.增删改不用nolock
                 bool isNoLock = ((SqlServerDbContext)context.DbContext).NoLock;
                 if (isNoLock && !string.IsNullOrEmpty(this._widthNoLock) && !typeRuntime.IsTemporary) jf.Append(this._widthNoLock);
             }

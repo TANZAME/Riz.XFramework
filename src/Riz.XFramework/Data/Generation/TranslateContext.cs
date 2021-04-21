@@ -68,22 +68,5 @@ namespace Riz.XFramework.Data
             context.AliasPrefix = newPrefix;
             return context;
         }
-
-        ///// <summary>
-        ///// 快照
-        //public void Capture()
-        //{
-        //    _srcDbExpressionType = this.DbExpressionType;
-        //    _srcIsOutQuery = this.IsOutQuery;
-        //}
-
-        ///// <summary>
-        ///// 恢复快照时的状态
-        ///// <returns></returns>
-        //public void Reset()
-        //{
-        //    this.DbExpressionType = _srcDbExpressionType;
-        //    this.IsOutQuery = _srcIsOutQuery;
-        //}
     }
 }

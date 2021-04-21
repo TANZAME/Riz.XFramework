@@ -434,7 +434,9 @@ namespace Riz.XFramework.Data.SqlClient
             DbQueryable subquery = m.Arguments[0].Evaluate().Value as DbQueryable;
             subquery.Parameterized = _builder.Parameterized;
 
-            var clone = context != null ? context.Clone("s") : null;
+            // 可能会有几级嵌套，这里用 Builder.Ident 标记是第几层级
+            string[] subs = new[] { "p", "u", "v", "w", "x" };
+            var clone = context != null ? context.Clone(subs[_builder.Indent]) : null;
             bool isDelete = context != null && ((SQLiteTranslateContext)context).IsDelete;
             var cmd = subquery.Translate(_builder.Indent + 1, false, clone) as DbSelectCommand;
 

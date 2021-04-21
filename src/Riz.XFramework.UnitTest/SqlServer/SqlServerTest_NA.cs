@@ -255,7 +255,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
             table.AcceptChanges();
 
             DateTime sDate2 = DateTime.Now;
-            ((SqlServerDbContext)context).BulkCopy(table, maps);
+            //((SqlServerDbContext)context).BulkCopy(table, maps);
             var ms = (DateTime.Now - sDate2).TotalMilliseconds;
             // 10w   300ms
             // 100w  4600ms
