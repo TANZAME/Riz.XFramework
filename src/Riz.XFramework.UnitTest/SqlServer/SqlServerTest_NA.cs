@@ -22,7 +22,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
             var context = new SqlServerDbContext(connString)
             {
                 IsDebug = base.IsDebug,
-                NoLock = false,
+                NoLock = true,
                 IsolationLevel = System.Data.IsolationLevel.ReadCommitted
             };
             return context;

@@ -21,7 +21,7 @@ namespace Riz.XFramework.UnitTest.SqlServer
             var context = new SqlServerDbContext(connString)
             {
                 IsDebug = base.IsDebug,
-                NoLock = false,
+                NoLock = true,
                 IsolationLevel = System.Data.IsolationLevel.ReadCommitted
             };
             return context;
@@ -42,9 +42,13 @@ namespace Riz.XFramework.UnitTest.SqlServer
             // 向表变量写入数据
             context.Insert<SqlServerModel.JoinKey>(keys);
             // 像物理表一样操作表变量
+            //var query =
+            //    from a in context.GetTable<Model.Client>()
+            //    join b in context.GetTable<SqlServerModel.JoinKey>() on a.ClientId equals b.Key1
+            //    select a;
             var query =
-                from a in context.GetTable<Model.Client>()
-                join b in context.GetTable<SqlServerModel.JoinKey>() on a.ClientId equals b.Key1
+                from b in context.GetTable<SqlServerModel.JoinKey>()
+                join a in context.GetTable<Model.Client>() on b.Key1 equals a.ClientId  
                 select a;
             context.AddQuery(query);
             // 提交查询结果

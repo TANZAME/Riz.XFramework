@@ -226,7 +226,7 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(' ');
 
                 bool isNoLock = ((SqlServerDbContext)context.DbContext).NoLock;
-                if (isNoLock && !string.IsNullOrEmpty(this._widthNoLock)) jf.Append(this._widthNoLock);
+                if (isNoLock && !string.IsNullOrEmpty(this._widthNoLock) && !typeRuntime.IsTemporary) jf.Append(this._widthNoLock);
             }
 
             // LEFT<INNER> JOIN 子句
@@ -370,6 +370,10 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override DbRawCommand TranslateInsertCommand<T>(DbQueryInsertTree tree, ITranslateContext context)
         {
+            // 增删改不用 NOLOCK
+            bool noLock = ((SqlServerDbContext)context.DbContext).NoLock;
+            ((SqlServerDbContext)context.DbContext).NoLock = false;
+
             ISqlBuilder builder = this.CreateSqlBuilder(context);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -483,6 +487,8 @@ namespace Riz.XFramework.Data.SqlClient
                 builder.Append(cmd.CommandText);
             }
 
+            ((SqlServerDbContext)context.DbContext).NoLock = noLock;
+
             return new DbRawCommand(builder.ToString(), builder.TranslateContext != null ? builder.TranslateContext.Parameters : null, System.Data.CommandType.Text);
         }
 
@@ -494,6 +500,10 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override DbRawCommand TranslateDeleteCommand<T>(DbQueryDeleteTree tree, ITranslateContext context)
         {
+            // 增删改不用 NOLOCK
+            bool noLock = ((SqlServerDbContext)context.DbContext).NoLock;
+            ((SqlServerDbContext)context.DbContext).NoLock = false;
+
             ISqlBuilder builder = this.CreateSqlBuilder(context);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -544,6 +554,8 @@ namespace Riz.XFramework.Data.SqlClient
                 builder.Append(cmd.CommandText);
             }
 
+            ((SqlServerDbContext)context.DbContext).NoLock = noLock;
+
             return new DbRawCommand(builder.ToString(), builder.TranslateContext != null ? builder.TranslateContext.Parameters : null, System.Data.CommandType.Text);
         }
 
@@ -555,6 +567,10 @@ namespace Riz.XFramework.Data.SqlClient
         /// <returns></returns>
         protected override DbRawCommand TranslateUpdateCommand<T>(DbQueryUpdateTree tree, ITranslateContext context)
         {
+            // 增删改不用 NOLOCK
+            bool noLock = ((SqlServerDbContext)context.DbContext).NoLock;
+            ((SqlServerDbContext)context.DbContext).NoLock = false;
+
             ISqlBuilder builder = this.CreateSqlBuilder(context);
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
 
@@ -645,6 +661,8 @@ namespace Riz.XFramework.Data.SqlClient
 
                 builder.Append(cmd.CommandText);
             }
+
+            ((SqlServerDbContext)context.DbContext).NoLock = noLock;
 
             return new DbRawCommand(builder.ToString(), builder.TranslateContext != null ? builder.TranslateContext.Parameters : null, System.Data.CommandType.Text);
         }
