@@ -380,12 +380,12 @@ namespace Riz.XFramework.Data
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，检查查询表达式是否显示指定该表关联
-                        alias = _ag.GetJoinTableAlias(typeRuntime.TableFullName);
+                        alias = _ag.GetJoinAlias(typeRuntime.TableFullName);
                     }
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，则使用导航属性别名
-                        alias = _ag.GetNavTableAlias(nav.Key);
+                        alias = _ag.GetNavAlias(nav.Key);
                         if (!this.NavMembers.Contains(nav.Key)) this.NavMembers.Add(nav);
                     }
 
@@ -396,7 +396,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // => SelectMany 也会产生类似 'b.Client.Address.AddressName' 这样的表达式
-                alias = _ag.GetTableAlias(expression);
+                alias = _ag.GetAlias(expression);
                 _builder.AppendMember(alias, memberName);
             }
 

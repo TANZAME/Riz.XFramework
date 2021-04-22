@@ -119,7 +119,7 @@ namespace Riz.XFramework.Data
             {
                 // 例： a=> a
                 Type type = lambda.Body.Type;
-                string alias = _ag.GetTableAlias(lambda);
+                string alias = _ag.GetAlias(lambda);
                 this.VisitAllMember(type, alias);
                 return node;
             }
@@ -138,7 +138,7 @@ namespace Riz.XFramework.Data
                 // 例： t=> t.a
                 // => SELECT a.ClientId
                 Type type = lambda.Body.Type;
-                if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _ag.GetTableAlias(lambda.Body), node);
+                if (!TypeUtils.IsPrimitiveType(type)) return this.VisitAllMember(type, _ag.GetAlias(lambda.Body), node);
                 else
                 {
                     var newNode = this.VisitWithoutStack(_ => base.VisitLambda(node));
@@ -272,10 +272,10 @@ namespace Riz.XFramework.Data
                     foreach (var nav in this.NavMembers)
                     {
                         index += 1;
-                        if (index < this.NavMembers.Count && index > num) alias = _ag.GetNavTableAlias(nav.Key);
+                        if (index < this.NavMembers.Count && index > num) alias = _ag.GetNavAlias(nav.Key);
                         else
                         {
-                            alias = _ag.GetNavTableAlias(nav.Key);
+                            alias = _ag.GetNavAlias(nav.Key);
                             type = nav.Expression.Type;
                             if (index == this.NavMembers.Count) nav.Predicate = new DbExpression(DbExpressionType.None, predicate);
                         }
@@ -288,7 +288,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // 例： Client = b
-                alias = _ag.GetTableAlias(node);
+                alias = _ag.GetAlias(node);
                 type = node.Type;
             }
 
@@ -371,7 +371,7 @@ namespace Riz.XFramework.Data
             if (argument.NodeType == ExpressionType.Parameter)
             {
                 //例： new Client(a)
-                string alias = _ag.GetTableAlias(argument);
+                string alias = _ag.GetAlias(argument);
                 this.VisitAllMember(argument.Type, alias);
             }
             else if (argument.CanEvaluate())

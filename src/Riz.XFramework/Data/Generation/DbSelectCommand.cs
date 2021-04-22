@@ -155,18 +155,18 @@ namespace Riz.XFramework.Data
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
                     string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableFullName;
-                    innerAlias = _ag.GetJoinTableAlias(name);
+                    innerAlias = _ag.GetJoinAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (_navMembers.Contains(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _ag.GetNavTableAlias(innerKey);
+                        innerAlias = _ag.GetNavAlias(innerKey);
                     }
                 }
 
-                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _ag.GetTableAlias(innerKey);
-                string alias2 = _ag.GetNavTableAlias(outerKey);
+                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _ag.GetAlias(innerKey);
+                string alias2 = _ag.GetNavAlias(outerKey);
 
 
                 builder.AppendNewLine();
@@ -204,7 +204,7 @@ namespace Riz.XFramework.Data
 
                 if (nav.Predicate != null)
                 {
-                    string alias = _ag.GetNavTableAlias(nav.Key);
+                    string alias = _ag.GetNavAlias(nav.Key);
                     var visitor = new NavPredicateExpressionVisitor(_ag, builder, alias);
                     visitor.Visit(nav.Predicate);
                 }

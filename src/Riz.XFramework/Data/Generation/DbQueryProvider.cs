@@ -270,14 +270,14 @@ namespace Riz.XFramework.Data
                 var body2 = right.Body as NewExpression;
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    ag.GetTableAlias(body1.Arguments[index]);
+                    ag.GetAlias(body1.Arguments[index]);
                 }
                 for (int index = 0; index < body2.Arguments.Count; ++index)
                 {
-                    string alias = ag.GetTableAlias(body2.Arguments[index]);
+                    string alias = ag.GetAlias(body2.Arguments[index]);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    ag.AddJoinTableAlias(name, alias);
+                    ag.AddJoinAlias(name, alias);
                 }
             }
             else if (left.Body.NodeType == ExpressionType.MemberInit)
@@ -286,23 +286,23 @@ namespace Riz.XFramework.Data
                 var body2 = right.Body as MemberInitExpression;
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    ag.GetTableAlias((body1.Bindings[index] as MemberAssignment).Expression);
+                    ag.GetAlias((body1.Bindings[index] as MemberAssignment).Expression);
                 }
                 for (int index = 0; index < body2.Bindings.Count; ++index)
                 {
-                    string alias = ag.GetTableAlias((body2.Bindings[index] as MemberAssignment).Expression);
+                    string alias = ag.GetAlias((body2.Bindings[index] as MemberAssignment).Expression);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    ag.AddJoinTableAlias(name, alias);
+                    ag.AddJoinAlias(name, alias);
                 }
             }
             else
             {
-                ag.GetTableAlias(dbExpression.Expressions[1]);
-                string alias = ag.GetTableAlias(dbExpression.Expressions[2]);
+                ag.GetAlias(dbExpression.Expressions[1]);
+                string alias = ag.GetAlias(dbExpression.Expressions[2]);
                 outerAlias = alias;
                 // 记录显示指定的LEFT JOIN 表别名
-                ag.AddJoinTableAlias(name, alias);
+                ag.AddJoinAlias(name, alias);
             }
 
             // 由 GetTable 重载指定的导航属性表别名
@@ -311,10 +311,10 @@ namespace Riz.XFramework.Data
                 if (string.IsNullOrEmpty(outerAlias) || outerAlias == AliasGenerator.EMPTYNAME)
                 {
                     var lambda = dbExpression.Expressions[3] as LambdaExpression;
-                    string alias = ag.GetTableAlias(lambda.Parameters[1]);
+                    string alias = ag.GetAlias(lambda.Parameters[1]);
                     outerAlias = alias;
                     // 记录显示指定的LEFT JOIN 表别名
-                    ag.AddJoinTableAlias(name, alias);
+                    ag.AddJoinAlias(name, alias);
                 }
 
                 var member = (dbExpression.Expressions[4] as LambdaExpression).Body as MemberExpression;
@@ -330,7 +330,7 @@ namespace Riz.XFramework.Data
             var lambda = dbExpression.Expressions[1] as LambdaExpression;
             for (int index = 0; index < lambda.Parameters.Count; ++index)
             {
-                ag.GetTableAlias(lambda.Parameters[index]);
+                ag.GetAlias(lambda.Parameters[index]);
             }
         }
 

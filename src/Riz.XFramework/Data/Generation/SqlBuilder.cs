@@ -106,7 +106,7 @@ namespace Riz.XFramework.Data
             else
             {
                 MemberExpression m = expression.ReduceUnary() as MemberExpression;
-                string alias = ag == null ? null : ag.GetTableAlias(m);
+                string alias = ag == null ? null : ag.GetAlias(m);
                 this.AppendMember(alias, m.Member, m.Expression != null ? m.Expression.Type : null);
                 return alias;
             }

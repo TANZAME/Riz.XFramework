@@ -86,7 +86,7 @@ namespace Riz.XFramework.Data
         /// t=>t.Id
         /// t.Id
         /// </remarks>
-        public string GetTableAlias(Expression expression)
+        public string GetAlias(Expression expression)
         {
             // p=>p.p
             // p=>p.Id
@@ -96,15 +96,15 @@ namespace Riz.XFramework.Data
             // p.t
             // <>h__TransparentIdentifier0.p.Id
             XFrameworkException.Check.NotNull(expression, "expression");
-            string key = AliasGenerator.GetTableAliasKey(expression);
-            return this.GetTableAlias(key);
+            string key = AliasGenerator.GetAliasKey(expression);
+            return this.GetAlias(key);
         }
 
         /// <summary>
         ///  根据指定键值取表别名
         /// </summary>
         /// <param name="key">键值</param>
-        public string GetTableAlias(string key)
+        public string GetAlias(string key)
         {
             return !string.IsNullOrEmpty(key)
                 ? this._globals.GetOrAdd(key, k => (!string.IsNullOrEmpty(_prefix) ? _prefix : "t") + this._globals.Count.ToString())
@@ -115,7 +115,7 @@ namespace Riz.XFramework.Data
         ///  根据指定键值取导航属性对应的表别名
         /// </summary>
         /// <param name="key">键值</param>
-        public string GetNavTableAlias(string key)
+        public string GetNavAlias(string key)
         {
             XFrameworkException.Check.NotNull(key, "key");
             return this._navigations.GetOrAdd(key,
@@ -127,7 +127,7 @@ namespace Riz.XFramework.Data
         ///  由查询表达式中显示指定的 左/内关联提供
         /// </summary>
         /// <param name="name">表名</param>
-        public string GetJoinTableAlias(string name)
+        public string GetJoinAlias(string name)
         {
             string alias = string.Empty;
             this._joins.TryGet(name, out alias);
@@ -141,7 +141,7 @@ namespace Riz.XFramework.Data
         /// <param name="name">表名</param>
         /// <param name="alias">别名（t0,t1）</param>
         /// <returns></returns>
-        public string AddJoinTableAlias(string name, string alias)
+        public string AddJoinAlias(string name, string alias)
         {
             XFrameworkException.Check.NotNull(name, "name");
             return alias == EMPTYNAME ? alias : this._joins.AddOrUpdate(name, k => alias, k => alias);
@@ -170,7 +170,7 @@ namespace Riz.XFramework.Data
             return alias == EMPTYNAME ? alias : this._navGetTables.AddOrUpdate(key, k => alias, k => alias);
         }
 
-        private static string GetTableAliasKey(Expression exp)
+        private static string GetAliasKey(Expression exp)
         {
             if (exp == null) return null;
 
@@ -193,10 +193,10 @@ namespace Riz.XFramework.Data
             // t.a.Id
             var memberExpression = expression as MemberExpression;
             if (memberExpression == null) 
-                return AliasGenerator.GetTableAliasKey(expression);
+                return AliasGenerator.GetAliasKey(expression);
 
             if (memberExpression.Visitable()) 
-                return AliasGenerator.GetTableAliasKey(memberExpression.Expression);
+                return AliasGenerator.GetAliasKey(memberExpression.Expression);
 
             return memberExpression.Member.Name;
         }
