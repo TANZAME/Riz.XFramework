@@ -112,18 +112,18 @@ namespace Riz.XFramework.Data
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
                     string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableFullName;
-                    innerAlias = _aliasGenerator.GetJoinAlias(name);
+                    innerAlias = _aliasGenerator.GetJoinTableAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (this.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _aliasGenerator.GetNavAlias(innerKey);
+                        innerAlias = _aliasGenerator.GetNavTableAlias(innerKey);
                     }
                 }
 
-                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasGenerator.GetAlias(innerKey);
-                string alias2 = _aliasGenerator.GetNavAlias(outerKey);
+                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _aliasGenerator.GetTableAlias(innerKey);
+                string alias2 = _aliasGenerator.GetNavTableAlias(outerKey);
 
                 // 补充与USING字符串同等间距的空白
                 if (_aliasGenerator.ReserveQty > 1 || index > 0) jf.Append(_pad);
@@ -159,7 +159,7 @@ namespace Riz.XFramework.Data
 
                 if (nav.Predicate != null)
                 {
-                    string alias = _aliasGenerator.GetNavAlias(nav.Key);
+                    string alias = _aliasGenerator.GetNavTableAlias(nav.Key);
                     var visitor = new NavPredicateExpressionVisitor(_aliasGenerator, _onPhrase, alias);
                     visitor.Visit(nav.Predicate);
                 }

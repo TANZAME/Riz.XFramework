@@ -48,14 +48,5 @@ namespace Riz.XFramework.Data
         /// <param name="newPrefix">指定一个新的表别名前缀，如果不是嵌套，传 null</param>
         /// <returns></returns>
         ITranslateContext Clone(string newPrefix);
-
-        ///// <summary>
-        ///// 快照
-        //void Capture();
-
-        ///// <summary>
-        ///// 恢复快照时的状态
-        ///// <returns></returns>
-        //void Reset();
     }
 }

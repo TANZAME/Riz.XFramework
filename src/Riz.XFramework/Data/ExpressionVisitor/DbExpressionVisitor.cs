@@ -126,12 +126,12 @@ namespace Riz.XFramework.Data
             }
 
             // 例： a.Name ?? "TAN"
-            if (node.NodeType == ExpressionType.Coalesce) 
+            if (node.NodeType == ExpressionType.Coalesce)
                 return this.VisitMethodCall(node, MethodCallType.Coalesce);
 
             // 例： a.Name == null
             var constExpression = left as ConstantExpression ?? right as ConstantExpression;
-            if (constExpression != null && constExpression.Value == null) 
+            if (constExpression != null && constExpression.Value == null)
                 return this.VisitMethodCall(node, MethodCallType.EqualNull);
 
             // 例： a.Name == a.FullName  or like a.Name == "TAN"
@@ -380,12 +380,12 @@ namespace Riz.XFramework.Data
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，检查查询表达式是否显示指定该表关联
-                        alias = _ag.GetJoinAlias(typeRuntime.TableFullName);
+                        alias = _ag.GetJoinTableAlias(typeRuntime.TableFullName);
                     }
                     if (string.IsNullOrEmpty(alias))
                     {
                         // 如果没有，则使用导航属性别名
-                        alias = _ag.GetNavAlias(nav.Key);
+                        alias = _ag.GetNavTableAlias(nav.Key);
                         if (!this.NavMembers.Contains(nav.Key)) this.NavMembers.Add(nav);
                     }
 
@@ -396,7 +396,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // => SelectMany 也会产生类似 'b.Client.Address.AddressName' 这样的表达式
-                alias = _ag.GetAlias(expression);
+                alias = _ag.GetTableAlias(expression);
                 _builder.AppendMember(alias, memberName);
             }
 

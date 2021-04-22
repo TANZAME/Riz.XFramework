@@ -64,18 +64,18 @@ namespace Riz.XFramework.Data
                     if (m.Expression.NodeType == ExpressionType.MemberAccess) mLeft = m.Expression as MemberExpression;
                     else if (m.Expression.NodeType == ExpressionType.Call) mLeft = (m.Expression as MethodCallExpression).Object as MemberExpression;
                     string name = TypeRuntimeInfoCache.GetRuntimeInfo(mLeft.Type).TableFullName;
-                    innerAlias = _ag.GetJoinAlias(name);
+                    innerAlias = _ag.GetJoinTableAlias(name);
 
                     if (string.IsNullOrEmpty(innerAlias))
                     {
                         string keyLeft = mLeft.GetKeyWidthoutAnonymous();
                         if (base.NavMembers.Contains(keyLeft)) innerKey = keyLeft;
-                        innerAlias = _ag.GetNavAlias(innerKey);
+                        innerAlias = _ag.GetNavTableAlias(innerKey);
                     }
                 }
 
-                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _ag.GetAlias(innerKey);
-                string alias2 = _ag.GetNavAlias(outerKey);
+                string alias1 = !string.IsNullOrEmpty(innerAlias) ? innerAlias : _ag.GetTableAlias(innerKey);
+                string alias2 = _ag.GetNavTableAlias(outerKey);
 
 
                 builder.AppendNewLine();
@@ -120,7 +120,7 @@ namespace Riz.XFramework.Data
 
                 if (nav.Predicate != null)
                 {
-                    string alias = _ag.GetNavAlias(nav.Key);
+                    string alias = _ag.GetNavTableAlias(nav.Key);
                     var visitor = new NavPredicateExpressionVisitor(_ag, builder, alias);
                     visitor.Visit(nav.Predicate);
                 }

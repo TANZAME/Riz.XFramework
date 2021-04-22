@@ -71,10 +71,10 @@ namespace Riz.XFramework.Data
         /// 解析成 SQL 命令
         /// </summary>
         /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
+        /// <param name="isOuterQuery">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        internal abstract DbRawCommand Translate(int indent, bool isOutQuery, ITranslateContext context);
+        internal abstract DbRawCommand Translate(int indent, bool isOuterQuery, ITranslateContext context);
 
         /// <summary>
         /// 执行查询

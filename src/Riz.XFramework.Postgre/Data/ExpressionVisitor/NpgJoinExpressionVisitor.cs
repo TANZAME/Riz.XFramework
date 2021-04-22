@@ -96,8 +96,8 @@ namespace Riz.XFramework.Data
 
             // t0(t1)
             string alias = !(left.Body.NodeType == ExpressionType.New || left.Body.NodeType == ExpressionType.MemberInit)
-                ? _ag.GetAlias(dbExpression.Expressions[2])
-                : _ag.GetAlias(right.Parameters[0]);
+                ? _ag.GetTableAlias(dbExpression.Expressions[2])
+                : _ag.GetTableAlias(right.Parameters[0]);
             jf.Append(' ');
             jf.Append(alias);
 
@@ -159,7 +159,7 @@ namespace Riz.XFramework.Data
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
             jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
 
-            string alias = _ag.GetAlias(lambda.Parameters[1]);
+            string alias = _ag.GetTableAlias(lambda.Parameters[1]);
             jf.Append(' ');
             jf.Append(alias);
         }
