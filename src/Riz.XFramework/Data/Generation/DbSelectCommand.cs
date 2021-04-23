@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 含实体映射信息的SQL命令
     /// </summary>
-    public class DbSelectCommand : DbRawCommand, IMapInfo
+    public class DbSelectCommand : DbRawCommand, IMapDescriptor
     {
         private bool _hasMany = false;
         private bool _hasCombine = false;

@@ -37,7 +37,7 @@ namespace Riz.XFramework.Data
                 var node = dbExpression.Expressions[0];
                 if (node.NodeType == ExpressionType.Lambda)
                     node = ((LambdaExpression)node).Body;
-                node = TryFixBinary(node);
+                node = BooleanUnaryToBinary(node);
 
                 base.Visit(node);
             }

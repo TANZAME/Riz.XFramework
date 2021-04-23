@@ -12,7 +12,7 @@ namespace Riz.XFramework.Data
     /// </summary>
     public sealed class TypeDeserializer
     {
-        private IMapInfo _map = null;
+        private IMapDescriptor _map = null;
         private IDataReader _reader = null;
         private IDbContext _context = null;
 
@@ -22,7 +22,7 @@ namespace Riz.XFramework.Data
         /// <param name="context">当前查询上下文</param>
         /// <param name="reader">DataReader</param>
         /// <param name="map">命令描述对象，用于解析实体的外键</param>
-        public TypeDeserializer(IDbContext context, IDataReader reader, IMapInfo map)
+        public TypeDeserializer(IDbContext context, IDataReader reader, IMapDescriptor map)
         {
             _map = map;
             _reader = reader;

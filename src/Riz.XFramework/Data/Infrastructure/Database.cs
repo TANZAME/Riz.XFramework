@@ -338,7 +338,7 @@ namespace Riz.XFramework.Data
         {
             DbRawCommand command = query.Translate();
             IDbCommand cmd = this.CreateCommand(command);
-            return this.Execute<T>(cmd, command as IMapInfo);
+            return this.Execute<T>(cmd, command as IMapDescriptor);
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace Riz.XFramework.Data
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         public virtual T Execute<T>(List<DbRawCommand> sqlList) 
-            => this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(a => a is IMapInfo) as IMapInfo));
+            => this.DoExecute<T>(sqlList, cmd => this.Execute<T>(cmd, sqlList.FirstOrDefault(a => a is IMapDescriptor) as IMapDescriptor));
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -374,7 +374,7 @@ namespace Riz.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="map">实体映射描述</param>
         /// <returns></returns>
-        protected virtual T Execute<T>(IDbCommand command, IMapInfo map)
+        protected virtual T Execute<T>(IDbCommand command, IMapDescriptor map)
         {
             IDataReader reader = null;
             T result = default(T);
@@ -395,7 +395,7 @@ namespace Riz.XFramework.Data
         }
 
         // datareader 转实体
-        T GetResult<T>(IDataReader reader, IMapInfo map)
+        T GetResult<T>(IDataReader reader, IMapDescriptor map)
         {
             T result = default(T);
             if (typeof(T) == typeof(DataTable))
@@ -427,7 +427,7 @@ namespace Riz.XFramework.Data
         {
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.Execute<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapInfo)));
+                p => this.Execute<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapDescriptor)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -441,7 +441,7 @@ namespace Riz.XFramework.Data
         {
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2, query3 });
             var result = this.DoExecute<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                p => this.Execute<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapInfo)));
+                p => this.Execute<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapDescriptor)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -465,7 +465,7 @@ namespace Riz.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapInfo> maps = null)
+        protected virtual Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>> Execute<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapDescriptor> maps = null)
         {
             IDataReader reader = null;
             List<T1> q1 = null;

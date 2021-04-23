@@ -629,7 +629,7 @@ namespace Riz.XFramework.Data
             IDataReader reader = null;
             List<int> identitys = null;
             List<DbRawCommand> sqlList = this.Translate();
-            List<IMapInfo> maps = sqlList.ToList(a => a is IMapInfo, a => a as IMapInfo);
+            List<IMapDescriptor> maps = sqlList.ToList(a => a is IMapDescriptor, a => a as IMapDescriptor);
 
             Func<IDbCommand, object> doExecute = cmd =>
             {

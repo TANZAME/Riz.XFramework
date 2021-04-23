@@ -153,7 +153,7 @@ namespace Riz.XFramework.Data
         {
             DbRawCommand cmd = query.Translate();
             IDbCommand command = this.CreateCommand(cmd);
-            return await this.ExecuteAsync<T>(command, cmd as IMapInfo);
+            return await this.ExecuteAsync<T>(command, cmd as IMapDescriptor);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Riz.XFramework.Data
         /// <param name="sqlList">查询语句</param>
         /// <returns></returns>
         public virtual async Task<T> ExecuteAsync<T>(List<DbRawCommand> sqlList) 
-            => await this.DoExecuteAsync<T>(sqlList, async p => await this.ExecuteAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapInfo) as IMapInfo));
+            => await this.DoExecuteAsync<T>(sqlList, async p => await this.ExecuteAsync<T>(p, sqlList.FirstOrDefault(x => x is IMapDescriptor) as IMapDescriptor));
 
         /// <summary>
         /// 执行SQL 语句，并返回由 T 指定的对象
@@ -189,7 +189,7 @@ namespace Riz.XFramework.Data
         /// <param name="command">连接到数据源时执行的 SQL 语句</param>
         /// <param name="map">实体映射描述</param>
         /// <returns></returns>
-        protected virtual async Task<T> ExecuteAsync<T>(IDbCommand command, IMapInfo map)
+        protected virtual async Task<T> ExecuteAsync<T>(IDbCommand command, IMapDescriptor map)
         {
             IDataReader reader = null;
             T result = default(T);
@@ -218,7 +218,7 @@ namespace Riz.XFramework.Data
         {
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<None>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-               async p => await this.ExecuteAsync<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapInfo)));
+               async p => await this.ExecuteAsync<T1, T2, None, None, None, None, None>(p, sqlList.ToList(x => x as IMapDescriptor)));
             return new Tuple<List<T1>, List<T2>>(result.Item1, result.Item2);
         }
 
@@ -232,7 +232,7 @@ namespace Riz.XFramework.Data
         {
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2, query3 });
             var result = await this.DoExecuteAsync<Tuple<List<T1>, List<T2>, List<T3>, List<None>, List<None>, List<None>, List<None>>>(sqlList,
-                async p => await this.ExecuteAsync<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapInfo)));
+                async p => await this.ExecuteAsync<T1, T2, T3, None, None, None, None>(p, sqlList.ToList(x => x as IMapDescriptor)));
             return new Tuple<List<T1>, List<T2>, List<T3>>(result.Item1, result.Item2, result.Item3);
         }
 
@@ -265,7 +265,7 @@ namespace Riz.XFramework.Data
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述列表</param>
         /// <returns></returns>
-        protected virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapInfo> maps = null)
+        protected virtual async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapDescriptor> maps = null)
         {
             IDataReader reader = null;
             IDbConnection conn = null;

@@ -17,7 +17,7 @@ namespace Riz.XFramework.Data
     {
         private IDbContext _context = null;
         private IDataRecord _reader = null;
-        private IMapInfo _map = null;
+        private IMapDescriptor _map = null;
         private TypeDeserializerImpl _deserializerImpl = null;
         // 所有反序列化器
         private IDictionary<string, Func<IDataRecord, object>> _deserializers = null;
@@ -40,7 +40,7 @@ namespace Riz.XFramework.Data
         /// <param name="reader">DataReader</param>
         /// <param name="map">SQL 命令描述</param>
         /// <param name="entityType">单个实体类型</param>
-        internal TypeDeserializer_Internal(IDbContext context, IDataReader reader, IMapInfo map, Type entityType)
+        internal TypeDeserializer_Internal(IDbContext context, IDataReader reader, IMapDescriptor map, Type entityType)
         {
             _map = map;
             _reader = reader;

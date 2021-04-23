@@ -38,7 +38,7 @@ namespace Riz.XFramework.Data
             List<T3> q3 = null;
             IDataReader reader = null;
             List<DbRawCommand> sqlList = query1.Provider.Translate(new List<object> { query1, query2, query3 });
-            List<IMapInfo> maps = sqlList.ToList(a => a is IMapInfo, a => a as IMapInfo);
+            List<IMapDescriptor> maps = sqlList.ToList(a => a is IMapDescriptor, a => a as IMapDescriptor);
 
             TypeDeserializer deserializer1 = null;
             TypeDeserializer deserializer2 = null;
@@ -104,7 +104,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T7">第七个列表的元素类型</typeparam>
         /// <param name="command">SQL 命令</param>
         /// <param name="maps">实体映射描述集合</param>
-        protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapInfo> maps = null)
+        protected override async Task<Tuple<List<T1>, List<T2>, List<T3>, List<T4>, List<T5>, List<T6>, List<T7>>> ExecuteAsync<T1, T2, T3, T4, T5, T6, T7>(IDbCommand command, List<IMapDescriptor> maps = null)
         {
             List<T1> q1 = null;
             List<T2> q2 = null;

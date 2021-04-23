@@ -4,7 +4,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 实体映射描述
     /// </summary>
-    public interface IMapInfo
+    public interface IMapDescriptor
     {
         /// <summary>
         /// 选择字段范围
