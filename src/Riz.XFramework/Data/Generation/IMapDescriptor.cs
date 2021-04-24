@@ -18,7 +18,7 @@ namespace Riz.XFramework.Data
         /// 用于实体与 IDataRecord 做映射
         /// </para>
         /// </summary>
-        NavDescriptorCollection SelectedNavDescriptors { get; }
+        NavDescriptorCollection SelectedNavs { get; }
 
         /// <summary>
         /// 表达式是否包含 一对多 类型的导航属性

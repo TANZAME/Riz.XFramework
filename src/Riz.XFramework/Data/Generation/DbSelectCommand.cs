@@ -68,7 +68,7 @@ namespace Riz.XFramework.Data
         /// 用于实体与 <see cref="IDataRecord"/> 做映射
         /// </para>
         /// </summary>
-        public NavDescriptorCollection SelectedNavDescriptors { get; internal set; }
+        public NavDescriptorCollection SelectedNavs { get; internal set; }
 
         /// <summary>
         /// 导航属性表达式集合

@@ -192,7 +192,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                     result.SelectedColumns = visitor.SelectedColumns;
                     result.SelectedColumnText = visitor.SelectedColumnText;
-                    result.SelectedNavDescriptors = visitor.SelectedNavDescriptors;
+                    result.SelectedNavs = visitor.SelectedNavDescriptors;
                     result.AddNavMembers(visitor.NavMembers);
                 }
 
