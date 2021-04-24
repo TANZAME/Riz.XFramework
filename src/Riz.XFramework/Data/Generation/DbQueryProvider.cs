@@ -94,7 +94,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <param name="dbQueryable">查询 语句</param>
         /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
+        /// <param name="isOutQuery">是否外层查询，内层查询不需要结束符(;)</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
         internal DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable, int indent, bool isOutQuery, ITranslateContext context)
