@@ -29,7 +29,7 @@ namespace Riz.XFramework.Data
         public abstract string Sql { get; }
 
         /// <summary>
-        /// 参数化
+        /// 指示当前查询语句翻译时是否需要参数化
         /// </summary>
         internal bool Parameterized
         {
