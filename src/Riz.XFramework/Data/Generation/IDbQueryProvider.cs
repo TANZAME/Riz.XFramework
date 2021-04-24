@@ -16,12 +16,12 @@ namespace Riz.XFramework.Data
         string ProviderName { get; }
 
         /// <summary>
-        /// 获取起始字符或字符指定其名称包含空格或保留的标记等字符的数据库对象 （例如，表或列） 时使用
+        /// 获取起始字符或字符指定其名称包含空格或保留的标记等字符的数据库对象 （例如，表或列） 时使用，如 MSSQLSERVER 用 [
         /// </summary>
         string QuotePrefix { get; }
 
         /// <summary>
-        /// 获取结束字符或字符指定其名称包含空格或保留的标记等字符的数据库对象 （例如，表或列） 时使用。
+        /// 获取结束字符或字符指定其名称包含空格或保留的标记等字符的数据库对象 （例如，表或列） 时使用，如 MSSQLSERVER 用 ]
         /// </summary>
         string QuoteSuffix { get; }
 

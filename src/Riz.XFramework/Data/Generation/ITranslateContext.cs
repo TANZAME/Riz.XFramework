@@ -18,7 +18,7 @@ namespace Riz.XFramework.Data
         /// 当前正在翻译最外层查询。 
         /// SELECT 语义最外层需要区别翻译 MemberInfo.Name 和 ColumnAttribute.Name => ColumnAttribute.Name As [MemberInfo.Name]
         /// </summary>
-        bool? IsOutQuery { get; set; }
+        bool? IsOutermostQuery { get; set; }
 
         /// <summary>
         /// 参数列表

@@ -147,7 +147,7 @@ namespace Riz.XFramework.Data
                     string memberName = memberExpression.Member.Name;
 
                     var srcDbExpressionType = _builder.TranslateContext.DbExpressionType;
-                    var srcIsOutQUery = _builder.TranslateContext.IsOutQuery;
+                    var srcIsOutQUery = _builder.TranslateContext.IsOutermostQuery;
 
                     if (!(srcDbExpressionType != null && srcDbExpressionType == DbExpressionType.Select && srcIsOutQUery != null && srcIsOutQUery.Value))
                     {
@@ -623,7 +623,7 @@ namespace Riz.XFramework.Data
         {
             string memberName = m.Name;
             var srcDbExpressionType = _builder.TranslateContext.DbExpressionType;
-            var srcIsOutQuery = _builder.TranslateContext.IsOutQuery;
+            var srcIsOutQuery = _builder.TranslateContext.IsOutermostQuery;
 
             if (!(srcDbExpressionType == DbExpressionType.Select && srcIsOutQuery == true))
             {

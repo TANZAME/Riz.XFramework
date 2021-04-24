@@ -272,11 +272,11 @@ namespace Riz.XFramework.Data.SqlClient
             if (tree.SelectHasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
 
             var srcDbExpressionType = context.DbExpressionType;
-            var srcIsOutQuery = context.IsOutQuery;
+            var srcIsOutQuery = context.IsOutermostQuery;
             if (srcDbExpressionType == null)
                 context.DbExpressionType = DbExpressionType.Select;
             if (srcIsOutQuery == null || !isOutQuery)
-                context.IsOutQuery = isOutQuery;
+                context.IsOutermostQuery = isOutQuery;
 
             bool useAggregate = tree.Aggregate != null;
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
@@ -315,7 +315,7 @@ namespace Riz.XFramework.Data.SqlClient
                 indent += 1;
                 jf.Indent = indent;
                 (jf as OracleSqlBuilder).UseQuote = false;
-                context.IsOutQuery = false;
+                context.IsOutermostQuery = false;
             }
 
             #endregion
@@ -605,7 +605,7 @@ namespace Riz.XFramework.Data.SqlClient
             #region 还原状态
 
             context.DbExpressionType = srcDbExpressionType;
-            context.IsOutQuery = srcIsOutQuery;
+            context.IsOutermostQuery = srcIsOutQuery;
 
             #endregion
 
@@ -751,14 +751,14 @@ namespace Riz.XFramework.Data.SqlClient
                 builder.Append('(');
 
                 var srcDbExpressionType = context.DbExpressionType;
-                var srcIsOutQuery = context.IsOutQuery;
+                var srcIsOutQuery = context.IsOutermostQuery;
                 context.DbExpressionType = DbExpressionType.Insert;
-                context.IsOutQuery = false;
+                context.IsOutermostQuery = false;
 
                 var cmd = this.TranslateSelectCommand(tree.Query, 0, false, context) as DbSelectCommand;
 
                 context.DbExpressionType = srcDbExpressionType;
-                context.IsOutQuery = srcIsOutQuery;
+                context.IsOutermostQuery = srcIsOutQuery;
 
                 int index = 0;
                 foreach (var column in cmd.SelectedColumns)
