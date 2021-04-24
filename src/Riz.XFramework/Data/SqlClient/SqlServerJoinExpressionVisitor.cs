@@ -37,10 +37,10 @@ namespace Riz.XFramework.Data
         {
             bool withNoLock = false;
             _builder.Append(' ');
-            DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
-            dbQuery.Parameterized = _builder.Parameterized;
+            DbQueryable dbQueryable = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            dbQueryable.Parameterized = _builder.Parameterized;
 
-            if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
+            if (dbQueryable.DbExpressions.Count == 1 && dbQueryable.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
                 Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
@@ -51,7 +51,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // 嵌套
-                var cmd = dbQuery.Translate(_builder.Indent + 1, false, _builder.TranslateContext);
+                var cmd = dbQueryable.Translate(_builder.Indent + 1, false, _builder.TranslateContext);
                 _builder.Append("(");
                 _builder.Append(cmd.CommandText);
                 _builder.AppendNewLine();

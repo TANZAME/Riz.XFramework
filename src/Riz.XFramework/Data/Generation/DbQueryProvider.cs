@@ -92,14 +92,14 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="dbQuery">查询 语句</param>
+        /// <param name="dbQueryable">查询 语句</param>
         /// <param name="indent">缩进</param>
         /// <param name="isOutQuery">是否最外层，内层查询不需要结束符(;)</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        internal DbRawCommand Translate<T>(IDbQueryable<T> dbQuery, int indent, bool isOutQuery, ITranslateContext context)
+        internal DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable, int indent, bool isOutQuery, ITranslateContext context)
         {
-            DbQueryable<T> query = (DbQueryable<T>)dbQuery;
+            DbQueryable<T> query = (DbQueryable<T>)dbQueryable;
             // 当前查询语义如果不设置参数化，默认使用参数化
             if (!query.HasSetParameterized) query.Parameterized = true;
             // 如果解析上下文是空，默认创建一个上下文，用来承载 DbContext （查询上下文）
