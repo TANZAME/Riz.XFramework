@@ -35,6 +35,11 @@ namespace Riz.XFramework.Data
         public Type From { get; internal set; }
 
         /// <summary>
+        /// From 语句来自于SQL字符串
+        /// </summary>
+        public DbRawSql FromSql { get; set; }
+
+        /// <summary>
         /// SELECT 字段表达式
         /// </summary>
         public DbExpression Select { get; internal set; }

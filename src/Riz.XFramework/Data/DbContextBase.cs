@@ -347,7 +347,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T4">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source) 
+        public virtual void Update<T, T1, T2, T3, T4>(Expression<Func<T, T1, T2, T3, T4, object>> updateExpression, IDbQueryable<T> source)
             => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T5">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source) 
+        public virtual void Update<T, T1, T2, T3, T4, T5>(Expression<Func<T, T1, T2, T3, T4, T5, object>> updateExpression, IDbQueryable<T> source)
             => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
@@ -396,7 +396,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T6">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source) 
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6>(Expression<Func<T, T1, T2, T3, T4, T5, T6, object>> updateExpression, IDbQueryable<T> source)
             => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
@@ -422,7 +422,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="T7">其它实体类型</typeparam>
         /// <param name="updateExpression">更新表达式，指定要更新的字段以及这些字段的值</param>
         /// <param name="source">要更新的实体查询语义</param>
-        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source) 
+        public virtual void Update<T, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<T, T1, T2, T3, T4, T5, T6, T7, object>> updateExpression, IDbQueryable<T> source)
             => this.Update<T>((Expression)updateExpression, source);
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 添加额外查询
         /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition={0}
+        /// 例：SELECT FieldName FROM TableName WHERE Condition={0} AND Condition1={1}
         /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
@@ -795,7 +795,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">对象的基类型</typeparam>
         /// <returns></returns>
-        public IDbQueryable<T> GetTable<T>() 
+        public IDbQueryable<T> GetTable<T>()
             => new DbQueryable<T>(this, new List<DbExpression> { new DbExpression(DbExpressionType.GetTable, Expression.Constant(typeof(T))) });
 
         /// <summary>
@@ -806,74 +806,95 @@ namespace Riz.XFramework.Data
         /// </para>
         /// </summary>
         /// <typeparam name="T">元素类型</typeparam>
-        /// <typeparam name="TProperty">导航属性类型</typeparam>
+        /// <typeparam name="TNavMember">导航属性类型</typeparam>
         /// <param name="path">导航属性，注意在一组上下文中第一个 GetTable 的这个参数将被自动忽略</param>
         /// <returns></returns>
-        public IDbQueryable<TProperty> GetTable<T, TProperty>(Expression<Func<T, TProperty>> path)
+        public IDbQueryable<TNavMember> GetTable<T, TNavMember>(Expression<Func<T, TNavMember>> path)
         {
-            DbQueryable<TProperty> query = new DbQueryable<TProperty>(this, new List<DbExpression>
+            DbQueryable<TNavMember> query = new DbQueryable<TNavMember>(this, new List<DbExpression>
             {
-                new DbExpression(DbExpressionType.GetTable, new[]{ Expression.Constant(typeof(TProperty)), (Expression)path }),
-
+                new DbExpression(DbExpressionType.GetTable, new[]{ Expression.Constant(typeof(TNavMember)), (Expression)path }),
             });
             return query;
 
 
-            // var query =
-            //from a in context.GetTable<Client>()
-            //     // 最新订单
-            // join b in newestQuery on a.ClientId equals b.ClientId into u_b
+            //// 在 select 语义保证外键属性不为空，否则在 ko 绑定的时候会产生不可预料的异常
+            //var query =
+            //    from a in context.GetTable<Client>()
+            //        // 最新订单
+            //    join b in newestQuery on a.ClientId equals b.ClientId into u_b
 
-            // // 注册推荐码    
-            // join c in context.GetTable<Client, RecommendationCode>(a => a.RegRecommendationCode) on a.RegRecommendationId equals c.RecommendationId into u_c
-            // // 注册推荐码对应的合作商
-            // from c in u_c.DefaultIfEmpty()
-            //join d in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = c.ServiceAgentId } equals new { A0 = d.PartnerType, B0 = d.PartnerId } into u_d
-            //join e in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = c.SaleAgentId } equals new { A0 = e.PartnerType, B0 = e.PartnerId } into u_e
+            //    // 注册推荐码    
+            //    join c in context.GetTable<Client, RecommendationCode>(a => a.RegRecommendationCode) on a.RegRecommendationId equals c.RecommendationId into u_c
+            //    // 注册推荐码对应的合作商
+            //    from c in u_c.DefaultIfEmpty()
+            //    join d in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = c.ServiceAgentId } equals new { A0 = d.PartnerType, B0 = d.PartnerId } into u_d
+            //    join e in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = c.SaleAgentId } equals new { A0 = e.PartnerType, B0 = e.PartnerId } into u_e
 
-            // // 推荐码    
-            // join f in context.GetTable<Client, RecommendationCode>(a => a.RecommendationCode) on a.RecommendationId equals f.RecommendationId into u_f
-            // // 推荐码对应的合作商
-            // from f in u_f.DefaultIfEmpty()
-            //join g in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = f.ServiceAgentId } equals new { A0 = g.PartnerType, B0 = g.PartnerId } into u_g
-            //join h in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = f.SaleAgentId } equals new { A0 = h.PartnerType, B0 = h.PartnerId } into u_h
+            //    // 推荐码    
+            //    join f in context.GetTable<Client, RecommendationCode>(a => a.RecommendationCode) on a.RecommendationId equals f.RecommendationId into u_f
+            //    // 推荐码对应的合作商
+            //    from f in u_f.DefaultIfEmpty()
+            //    join g in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.ServiceAgent, B0 = f.ServiceAgentId } equals new { A0 = g.PartnerType, B0 = g.PartnerId } into u_g
+            //    join h in context.GetTable<Partner>() on new { A0 = (int)RecommendationType.SaleAgent, B0 = f.SaleAgentId } equals new { A0 = h.PartnerType, B0 = h.PartnerId } into u_h
 
-            //from b in u_b.DefaultIfEmpty()
-            //from d in u_d.DefaultIfEmpty()
-            //from e in u_e.DefaultIfEmpty()
-            //from g in u_g.DefaultIfEmpty()
-            //from h in u_h.DefaultIfEmpty()
-            //select new Client(a)
-            //{
-            //    PartnerShortName = h.PartnerId != null ? h.ShortName : (g.PartnerId != null ? g.ShortName : (e.PartnerId != null ? e.ShortName : d.ShortName)),
-            //    Employee = new Employee { Deletable = canEidtEmployee, EmployeeCode = a.Employee.EmployeeCode, EmployeeName = a.Employee.EmployeeName },
-            //    Operation = new Employee { Deletable = canEidtOperation, EmployeeName = a.Operation.EmployeeName },
-            //    CS = new Employee { Deletable = canEidtCs, EmployeeName = a.CS.EmployeeName },
-            //    Manager = new Employee { EmployeeName = a.Manager.EmployeeName },
-            //    Signature = new Employee { EmployeeName = a.Signature.EmployeeName },
-            //    Package = new Package { PackageType = a.Package.PackageType, PackageCode = a.Package.PackageCode, PackageName = a.Package.PackageName },
-            //    RegRecommendationCode = new RecommendationCode
+            //    from b in u_b.DefaultIfEmpty()
+            //    from d in u_d.DefaultIfEmpty()
+            //    from e in u_e.DefaultIfEmpty()
+            //    from g in u_g.DefaultIfEmpty()
+            //    from h in u_h.DefaultIfEmpty()
+            //    select new Client(a)
             //    {
-            //        SaleType = c.SaleType,
-            //        RecommendationName = c.RecommendationName
-            //    },
-            //    RecommendationCode = new RecommendationCode
-            //    {
-            //        SaleType = f.SaleType,
-            //        RecommendationName = f.RecommendationName
-            //    },
-            //    NewestOrder = new SaleOrder
-            //    {
-            //        OrderId = b.OrderId,
-            //        OrderNo = b.OrderNo,
-            //        EmployeeId = b.EmployeeId,
-            //        EmployeeName = b.EmployeeName,
-            //        PayDate = b.PayDate,
-            //        PayAmount = b.PayAmount,
-            //        ClientId = b.ClientId,
-            //        Currency = b.Currency
-            //    }
-            //};
+            //        PartnerShortName = h.PartnerId != null ? h.ShortName : (g.PartnerId != null ? g.ShortName : (e.PartnerId != null ? e.ShortName : d.ShortName)),
+            //        Employee = new Employee { Deletable = canEidtEmployee, EmployeeCode = a.Employee.EmployeeCode, EmployeeName = a.Employee.EmployeeName },
+            //        Operation = new Employee { Deletable = canEidtOperation, EmployeeName = a.Operation.EmployeeName },
+            //        CS = new Employee { Deletable = canEidtCs, EmployeeName = a.CS.EmployeeName },
+            //        Manager = new Employee { EmployeeName = a.Manager.EmployeeName },
+            //        Signature = new Employee { EmployeeName = a.Signature.EmployeeName },
+            //        Package = new Package { PackageType = a.Package.PackageType, PackageCode = a.Package.PackageCode, PackageName = a.Package.PackageName },
+            //        RegRecommendationCode = new RecommendationCode
+            //        {
+            //            SaleType = c.SaleType,
+            //            RecommendationName = c.RecommendationName
+            //            //RecommendationName = a.RegRecommendationCode.RecommendationName
+            //        },
+            //        RecommendationCode = new RecommendationCode
+            //        {
+            //            SaleType = f.SaleType,
+            //            RecommendationName = f.RecommendationName
+            //            //RecommendationName = a.RecommendationCode.RecommendationName //f.RecommendationName
+            //        },
+            //        NewestOrder = new SaleOrder
+            //        {
+            //            OrderId = b.OrderId,
+            //            OrderNo = b.OrderNo,
+            //            EmployeeId = b.EmployeeId,
+            //            EmployeeName = b.EmployeeName,
+            //            PayDate = b.PayDate,
+            //            PayAmount = b.PayAmount,
+            //            ClientId = b.ClientId,
+            //            Currency = b.Currency
+            //        }
+            //    };
+            //query = query.Where(predicate);
+            //return query;
+        }
+
+        /// <summary>
+        /// 转换字符串为特定类型的查询对象，其中类型由 T 参数定义
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition={0} AND Condition1={1}
+        /// </para>
+        /// </summary>
+        /// <param name="sql">SQL 命令</param>
+        /// <param name="args">参数列表</param>
+        public IDbQueryable<T> GetTable<T>(string sql, params object[] args)
+        {
+            DbQueryable<T> query = new DbQueryable<T>(this, new List<DbExpression>
+            {
+                new DbExpression(DbExpressionType.GetTable, new[]{ Expression.Constant(sql),Expression.Constant(args,typeof(object[])) }),
+            });
+            return query;
         }
 
         /// <summary>

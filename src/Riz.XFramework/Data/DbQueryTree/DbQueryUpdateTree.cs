@@ -19,6 +19,6 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 更新语义的查询部分，表示更新范围
         /// </summary>
-        public DbQuerySelectTree Query { get; internal set; }
+        public DbQuerySelectTree Select { get; internal set; }
     }
 }

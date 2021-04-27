@@ -92,31 +92,39 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 创建 SQL 命令
         /// </summary>
-        /// <param name="dbQueryable">查询 语句</param>
+        /// <param name="source">查询 语句</param>
         /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否外层查询，内层查询不需要结束符(;)</param>
+        /// <param name="isOutermost">是否外层查询，内层查询不需要结束符(;)</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        internal DbRawCommand Translate<T>(IDbQueryable<T> dbQueryable, int indent, bool isOutQuery, ITranslateContext context)
+        internal DbRawCommand Translate<T>(IDbQueryable<T> source, int indent, bool isOutermost, ITranslateContext context)
         {
-            DbQueryable<T> query = (DbQueryable<T>)dbQueryable;
+            DbQueryable<T> dbQueryable = (DbQueryable<T>)source;
+
             // 当前查询语义如果不设置参数化，默认使用参数化
-            if (!query.HasSetParameterized) query.Parameterized = true;
+            if (!dbQueryable.HasSetParameterized)
+                dbQueryable.Parameterized = true;
             // 如果解析上下文是空，默认创建一个上下文，用来承载 DbContext （查询上下文）
-            if (context == null) context = this.CreateTranslateContext(query.DbContext);
+            if (context == null)
+                context = this.CreateTranslateContext(dbQueryable.DbContext);
             // 如果使用参数化查询并且参数列表为空，默认创建了一个新的参数列表
-            if (query.Parameterized && context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
+            if (dbQueryable.Parameterized && context.Parameters == null)
+                context.Parameters = new List<IDbDataParameter>(8);
 
             // 解析查询语义
-            IDbQueryTree tree = DbQueryableParser.Parse<T>(query);
+            IDbQueryTree tree = DbQueryableParser.Parse<T>(dbQueryable);
             // 查询
-            if (tree is DbQuerySelectTree) return this.TranslateSelectCommand((DbQuerySelectTree)tree, indent, isOutQuery, context);
+            if (tree is DbQuerySelectTree)
+                return this.TranslateSelectCommand((DbQuerySelectTree)tree, indent, isOutermost, context);
             // 新增
-            else if (tree is DbQueryInsertTree) return this.TranslateInsertCommand<T>((DbQueryInsertTree)tree, context);
+            else if (tree is DbQueryInsertTree)
+                return this.TranslateInsertCommand<T>((DbQueryInsertTree)tree, context);
             // 更新
-            else if (tree is DbQueryUpdateTree) return this.TranslateUpdateCommand<T>((DbQueryUpdateTree)tree, context);
+            else if (tree is DbQueryUpdateTree)
+                return this.TranslateUpdateCommand<T>((DbQueryUpdateTree)tree, context);
             // 删除
-            else if (tree is DbQueryDeleteTree) return this.TranslateDeleteCommand<T>((DbQueryDeleteTree)tree, context);
+            else if (tree is DbQueryDeleteTree)
+                return this.TranslateDeleteCommand<T>((DbQueryDeleteTree)tree, context);
 
             throw new NotImplementedException();
         }
@@ -158,8 +166,10 @@ namespace Riz.XFramework.Data
                 else if (obj is DbRawSql)
                 {
                     DbRawSql rawSql = (DbRawSql)obj;
-                    if (context == null) context = this.CreateTranslateContext(rawSql.DbContext);
-                    if (context.Parameters == null) context.Parameters = new List<IDbDataParameter>(8);
+                    if (context == null)
+                        context = this.CreateTranslateContext(rawSql.DbContext);
+                    if (context.Parameters == null)
+                        context.Parameters = new List<IDbDataParameter>(8);
 
                     // 解析参数
                     object[] args = null;

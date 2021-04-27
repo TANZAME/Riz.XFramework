@@ -12,13 +12,13 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前正在翻译的表达式类型
         /// </summary>
-        DbExpressionType? DbExpressionType { get; set; }
+        DbExpressionType? CurrentExpressionType { get; set; }
 
         /// <summary>
         /// 当前正在翻译最外层查询。 
         /// SELECT 语义最外层需要区别翻译 MemberInfo.Name 和 ColumnAttribute.Name => ColumnAttribute.Name As [MemberInfo.Name]
         /// </summary>
-        bool? IsOutermostQuery { get; set; }
+        bool? CurrentIsOutermost { get; set; }
 
         /// <summary>
         /// 参数列表

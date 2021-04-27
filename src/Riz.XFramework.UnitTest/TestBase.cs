@@ -932,13 +932,39 @@ namespace Riz.XFramework.UnitTest
             Console.WriteLine("3. Join ");
             var context = _newContext();
 
-            // INNER JOIN
-            var query =
-                from a in context.GetTable<Model.Client>()
+            string commandText = "SELECT * FROM Bas_Client WHERE ClientID > {0}";
+            var query = context.GetTable<Model.Client>(commandText, 0);
+            var result = query.ToList();
+
+            query = context.GetTable<Model.Client>(commandText, 0);
+            query = query.Select(a => new Model.Client
+            {
+                ClientCode = a.ClientCode
+            });
+            result = query.ToList();
+
+            query =
+                from a in context.GetTable<Model.Client>("SELECT * FROM Bas_Client WHERE ClientID > 10")
                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-            var result = query.ToList();
+            result = query.ToList();
+
+            query =
+                from a in context.GetTable<Model.Server>() 
+                join b in context.GetTable<Model.Client>(commandText, 102) on a.CloudServerId equals b.CloudServerId
+                where b.ClientId > 0
+                select b;
+            result = query.ToList();
+
+
+            // INNER JOIN
+            query =
+                 from a in context.GetTable<Model.Client>()
+                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+                 where a.ClientId > 0
+                 select a;
+            result = query.ToList();
             query = from a in context.GetTable<Model.Client>()
                     join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                     select a;
@@ -961,8 +987,21 @@ namespace Riz.XFramework.UnitTest
             query =
                 from a in context.GetTable<Model.Client>()
                 join b in context.GetTable<Model.Client, Model.Server>(a => a.CloudServer) on a.CloudServerId equals b.CloudServerId
+                join c in context.GetTable<Model.Client, Model.Server>(a => a.LocalServer) on a.CloudServerId equals c.CloudServerId
                 where a.ClientId > 0
-                select a;
+                select new Model.Client(a)
+                {
+                    CloudServer = new Model.Server
+                    {
+                        CloudServerId = b.CloudServerId,
+                        CloudServerCode = a.CloudServer.CloudServerCode,
+                    },
+                    LocalServer = new Model.Server
+                    {
+                        CloudServerId = c.CloudServerId,
+                        CloudServerCode = a.LocalServer.CloudServerCode,
+                    }
+                };
             result = query.ToList();
             //SQL=>
             //SELECT

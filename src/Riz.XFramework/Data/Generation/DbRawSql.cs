@@ -9,7 +9,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前查询上下文
         /// </summary>
-        public IDbContext DbContext { get; private set; }
+        public IDbContext DbContext { get; internal set; }
 
         /// <summary>
         /// SQL 脚本

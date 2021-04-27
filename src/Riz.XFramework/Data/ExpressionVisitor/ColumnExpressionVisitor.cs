@@ -146,10 +146,10 @@ namespace Riz.XFramework.Data
                     var memberExpression = lambda.Body as MemberExpression;
                     string memberName = memberExpression.Member.Name;
 
-                    var srcDbExpressionType = _builder.TranslateContext.DbExpressionType;
-                    var srcIsOutQUery = _builder.TranslateContext.IsOutermostQuery;
+                    var srcDbExpressionType = _builder.TranslateContext.CurrentExpressionType;
+                    var srcIsOutermost = _builder.TranslateContext.CurrentIsOutermost;
 
-                    if (!(srcDbExpressionType != null && srcDbExpressionType == DbExpressionType.Select && srcIsOutQUery != null && srcIsOutQUery.Value))
+                    if (!(srcDbExpressionType != null && srcDbExpressionType == DbExpressionType.Select && srcIsOutermost != null && srcIsOutermost.Value))
                     {
                         // 非外层字段，SELECT xx As name 的 name 使用数据库原生字段
                         memberName = TypeUtils.GetFieldName(memberExpression.Member, memberExpression.Expression.Type);
@@ -622,10 +622,10 @@ namespace Riz.XFramework.Data
         private void AddSelectedColumn(MemberInfo m, Type reflectedType)
         {
             string memberName = m.Name;
-            var srcDbExpressionType = _builder.TranslateContext.DbExpressionType;
-            var srcIsOutQuery = _builder.TranslateContext.IsOutermostQuery;
+            var srcDbExpressionType = _builder.TranslateContext.CurrentExpressionType;
+            var srcIsOutermost = _builder.TranslateContext.CurrentIsOutermost;
 
-            if (!(srcDbExpressionType == DbExpressionType.Select && srcIsOutQuery == true))
+            if (!(srcDbExpressionType == DbExpressionType.Select && srcIsOutermost == true))
             {
                 // 非外层字段，SELECT xx As name 的 name 使用数据库原生字段
                 memberName = TypeUtils.GetFieldName(m, reflectedType);

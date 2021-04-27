@@ -16,13 +16,13 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 当前正在翻译的表达式类型
         /// </summary>
-        public DbExpressionType? DbExpressionType { get; set; }
+        public DbExpressionType? CurrentExpressionType { get; set; }
 
         /// <summary>
         /// 当前正在翻译最外层查询。 
         /// SELECT 语义最外层需要区别翻译 MemberInfo.Name 和 ColumnAttribute.Name => ColumnAttribute.Name As [MemberInfo.Name]
         /// </summary>
-        public bool? IsOutermostQuery { get; set; }
+        public bool? CurrentIsOutermost { get; set; }
 
         /// <summary>
         /// 参数列表
@@ -66,6 +66,9 @@ namespace Riz.XFramework.Data
             var context = _provider.CreateTranslateContext(_context);
             context.Parameters = this.Parameters;
             context.AliasPrefix = newPrefix;
+            context.CurrentExpressionType = this.CurrentExpressionType;
+            context.CurrentIsOutermost = this.CurrentIsOutermost;
+
             return context;
         }
     }

@@ -28,6 +28,11 @@ namespace Riz.XFramework.Data
         /// </summary>
         public abstract string Sql { get; }
 
+        ///// <summary>
+        ///// 来源字符串，表示通过字符串对象转化成的查询对象的来源字符串
+        ///// </summary>
+        //internal DbRawSql RawSql { get; set; }
+
         /// <summary>
         /// 指示当前查询语句翻译时是否需要参数化
         /// </summary>

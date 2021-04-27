@@ -96,7 +96,7 @@ namespace Riz.XFramework.Data.SqlClient
         }
 
         // 创建 SELECT 命令
-        DbRawCommand ResolveSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        DbRawCommand ResolveSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutermost, ITranslateContext context)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -112,12 +112,12 @@ namespace Riz.XFramework.Data.SqlClient
             var subquery = tree.Subquery as DbQuerySelectTree;
             if (tree.SelectHasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
 
-            var srcDbExpressionType = context.DbExpressionType;
-            var srcIsOutQuery = context.IsOutermostQuery;
+            var srcDbExpressionType = context.CurrentExpressionType;
+            var srcIsOutermost = context.CurrentIsOutermost;
             if (srcDbExpressionType == null)
-                context.DbExpressionType = DbExpressionType.Select;
-            if (srcIsOutQuery == null || !isOutQuery)
-                context.IsOutermostQuery = isOutQuery;
+                context.CurrentExpressionType = DbExpressionType.Select;
+            if (srcIsOutermost == null || !isOutermost)
+                context.CurrentIsOutermost = isOutermost;
 
             bool useAggregate = tree.Aggregate != null;
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
@@ -132,7 +132,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             ISqlBuilder jf = result.JoinFragment;
             ISqlBuilder wf = result.WhereFragment;
-            (jf as NpgSqlBuilder).UseQuote = isOutQuery;
+            (jf as NpgSqlBuilder).UseQuote = isOutermost;
 
             jf.Indent = indent;
 
@@ -156,7 +156,7 @@ namespace Riz.XFramework.Data.SqlClient
                 indent += 1;
                 jf.Indent = indent;
                 (jf as NpgSqlBuilder).UseQuote = false;
-                context.IsOutermostQuery = false;
+                context.CurrentIsOutermost = false;
             }
 
             #endregion
@@ -322,7 +322,7 @@ namespace Riz.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    DbRawCommand cmd2 = this.ResolveSelectCommandImpl(tree.Unions[index], indent, isOutQuery, context);
+                    DbRawCommand cmd2 = this.ResolveSelectCommandImpl(tree.Unions[index], indent, isOutermost, context);
                     jf.Append(cmd2.CommandText);
                 }
             }
@@ -355,8 +355,8 @@ namespace Riz.XFramework.Data.SqlClient
 
             #region 还原状态
 
-            context.DbExpressionType = srcDbExpressionType;
-            context.IsOutermostQuery = srcIsOutQuery;
+            context.CurrentExpressionType = srcDbExpressionType;
+            context.CurrentIsOutermost = srcIsOutermost;
 
             #endregion
 
@@ -448,20 +448,20 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.Append(this.QuoteSuffix);
                 }
             }
-            else if (tree.Query != null)
+            else if (tree.Select != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 builder.Append('(');
 
-                var srcDbExpressionType = context.DbExpressionType;
-                var srcIsOutQuery = context.IsOutermostQuery;
-                context.DbExpressionType = DbExpressionType.Insert;
-                context.IsOutermostQuery = false;
-                var cmd = this.ResolveSelectCommandImpl(tree.Query, 0, false, context) as DbSelectCommand;
+                var srcDbExpressionType = context.CurrentExpressionType;
+                var srcIsOutermost = context.CurrentIsOutermost;
+                context.CurrentExpressionType = DbExpressionType.Insert;
+                context.CurrentIsOutermost = false;
+                var cmd = this.ResolveSelectCommandImpl(tree.Select, 0, false, context) as DbSelectCommand;
 
-                context.DbExpressionType = srcDbExpressionType;
-                context.IsOutermostQuery = srcIsOutQuery;
+                context.CurrentExpressionType = srcDbExpressionType;
+                context.CurrentIsOutermost = srcIsOutermost;
 
                 int index = 0;
                 foreach (var column in cmd.SelectedColumns)
@@ -517,21 +517,21 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (tree.Query != null)
+            else if (tree.Select != null)
             {
-                AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
-                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Delete, tree.Query.SelectHasMany);
+                AliasGenerator ag = this.PrepareTableAlias(tree.Select, context.AliasPrefix);
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Delete, tree.Select.SelectHasMany);
 
-                if (tree.Query.Joins != null)
+                if (tree.Select.Joins != null)
                 {
                     var visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Delete, cmd);
-                    visitor.Visit(tree.Query.Joins);
+                    visitor.Visit(tree.Select.Joins);
                 }
 
-                if (tree.Query.Wheres != null)
+                if (tree.Select.Wheres != null)
                 {
                     var visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
-                    visitor.Visit(tree.Query.Wheres);
+                    visitor.Visit(tree.Select.Wheres);
                     cmd.AddNavMembers(visitor.NavMembers);
                 }
 
@@ -609,22 +609,22 @@ namespace Riz.XFramework.Data.SqlClient
             }
             else if (tree.Expression != null)
             {
-                AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
+                AliasGenerator ag = this.PrepareTableAlias(tree.Select, context.AliasPrefix);
                 DbExpressionVisitor visitor = null;
                 visitor = new NpgUpdateExpressionVisitor(ag, builder);
                 visitor.Visit(tree.Expression);
 
-                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Update, tree.Query.SelectHasMany);
-                if (tree.Query.Joins != null)
+                var cmd = new NpgDbSelectCommand(context, ag, DbExpressionType.Update, tree.Select.SelectHasMany);
+                if (tree.Select.Joins != null)
                 {
                     visitor = new NpgJoinExpressionVisitor(ag, cmd.JoinFragment, DbExpressionType.Update, cmd);
-                    visitor.Visit(tree.Query.Joins);
+                    visitor.Visit(tree.Select.Joins);
                 }
 
-                if (tree.Query.Wheres != null)
+                if (tree.Select.Wheres != null)
                 {
                     visitor = new NpgWhereExpressionVisitor(ag, cmd.WhereFragment);
-                    visitor.Visit(tree.Query.Wheres);
+                    visitor.Visit(tree.Select.Wheres);
                     cmd.AddNavMembers(visitor.NavMembers);
                 }
 

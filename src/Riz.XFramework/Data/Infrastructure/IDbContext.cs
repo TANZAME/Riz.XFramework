@@ -291,7 +291,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 添加额外查询
         /// <para>
-        /// 例：SELECT FieldName FROM TableName WHERE Condition={0}
+        /// 例：SELECT FieldName FROM TableName WHERE Condition={0} AND Condition1={1}
         /// </para>
         /// </summary>
         /// <param name="sql">SQL 命令</param>
@@ -397,6 +397,16 @@ namespace Riz.XFramework.Data
         /// <param name="path">导航属性，注意在一组上下文中第一个 GetTable 的这个参数将被自动忽略</param>
         /// <returns></returns>
         IDbQueryable<TProperty> GetTable<T, TProperty>(Expression<Func<T, TProperty>> path);
+
+        /// <summary>
+        /// 转换字符串为特定类型的查询对象，其中类型由 T 参数定义
+        /// <para>
+        /// 例：SELECT FieldName FROM TableName WHERE Condition={0} AND Condition1={1}
+        /// </para>
+        /// </summary>
+        /// <param name="sql">SQL 命令</param>
+        /// <param name="args">参数列表</param>
+        IDbQueryable<T> GetTable<T>(string sql, params object[] args);
 
         /// <summary>
         /// 解析 SQL 命令

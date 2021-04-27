@@ -109,8 +109,8 @@ namespace Riz.XFramework.Data
         internal void VisitArgument(Expression expression, bool isFilter = false)
         {
             ITranslateContext context = _builder.TranslateContext;
-            _tree.Query.Select = new DbExpression(DbExpressionType.Select, expression);
-            var cmd = Translator.Invoke(_tree.Query, 1, false, context.Clone("s")) as DbSelectCommand;
+            _tree.Select.Select = new DbExpression(DbExpressionType.Select, expression);
+            var cmd = Translator.Invoke(_tree.Select, 1, false, context.Clone("s")) as DbSelectCommand;
 
             _builder.Append('(');
             _builder.Append(cmd.CommandText.Trim());
@@ -120,7 +120,7 @@ namespace Riz.XFramework.Data
             else
                 _builder.Append("WHERE ");
 
-            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_tree.Entity != null ? _tree.Entity.GetType() : _tree.Query.From);
+            var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_tree.Entity != null ? _tree.Entity.GetType() : _tree.Select.From);
             foreach (var m in typeRuntime.KeyMembers)
             {
                 _builder.AppendMember("s0", m.Member, typeRuntime.Type);

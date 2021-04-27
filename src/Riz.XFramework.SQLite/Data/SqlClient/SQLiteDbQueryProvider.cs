@@ -89,19 +89,19 @@ namespace Riz.XFramework.Data.SqlClient
         /// </summary>
         /// <param name="tree">查询语义</param>
         /// <param name="indent">缩进</param>
-        /// <param name="isOutQuery">是否是最外层查询</param>
+        /// <param name="isOutermost">是否是最外层查询</param>
         /// <param name="context">解析SQL命令上下文</param>
         /// <returns></returns>
-        protected override DbRawCommand TranslateSelectCommand(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        protected override DbRawCommand TranslateSelectCommand(DbQuerySelectTree tree, int indent, bool isOutermost, ITranslateContext context)
         {
-            var cmd = (DbSelectCommand)this.TranslateSelectCommandImpl(tree, indent, isOutQuery, context);
+            var cmd = (DbSelectCommand)this.TranslateSelectCommandImpl(tree, indent, isOutermost, context);
             cmd.CombineFragments();
-            if (isOutQuery) cmd.JoinFragment.Append(';');
+            if (isOutermost) cmd.JoinFragment.Append(';');
             return cmd;
         }
 
         // 创建 SELECT 命令
-        private DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutQuery, ITranslateContext context)
+        private DbRawCommand TranslateSelectCommandImpl(DbQuerySelectTree tree, int indent, bool isOutermost, ITranslateContext context)
         {
             // 说明：
             // 1.OFFSET 前必须要有 'ORDER BY'，即 'Skip' 子句前必须使用 'OrderBy' 子句
@@ -117,12 +117,12 @@ namespace Riz.XFramework.Data.SqlClient
             var subquery = tree.Subquery as DbQuerySelectTree;
             if (tree.SelectHasMany && subquery != null && subquery.Aggregate != null) tree = subquery;
 
-            var srcDbExpressionType = context.DbExpressionType;
-            var srcIsOutQuery = context.IsOutermostQuery;
+            var srcDbExpressionType = context.CurrentExpressionType;
+            var srcIsOutermost = context.CurrentIsOutermost;
             if (srcDbExpressionType == null)
-                context.DbExpressionType = DbExpressionType.Select;
-            if (srcIsOutQuery == null || !isOutQuery)
-                context.IsOutermostQuery = isOutQuery;
+                context.CurrentExpressionType = DbExpressionType.Select;
+            if (srcIsOutermost == null || !isOutermost)
+                context.CurrentIsOutermost = isOutermost;
 
             bool useAggregate = tree.Aggregate != null;
             // 没有聚合函数或者使用 'Skip' 子句，则解析OrderBy
@@ -159,7 +159,7 @@ namespace Riz.XFramework.Data.SqlClient
 
                 indent += 1;
                 jf.Indent = indent;
-                context.IsOutermostQuery = false;
+                context.CurrentIsOutermost = false;
             }
 
             #endregion
@@ -326,7 +326,7 @@ namespace Riz.XFramework.Data.SqlClient
                     jf.AppendNewLine();
                     jf.Append("UNION ALL");
                     if (indent == 0) jf.AppendNewLine();
-                    DbRawCommand cmd = this.TranslateSelectCommand(tree.Unions[index], indent, isOutQuery, context);
+                    DbRawCommand cmd = this.TranslateSelectCommand(tree.Unions[index], indent, isOutermost, context);
                     jf.Append(cmd.CommandText);
                 }
             }
@@ -359,8 +359,8 @@ namespace Riz.XFramework.Data.SqlClient
 
             #region 还原状态
 
-            context.DbExpressionType = srcDbExpressionType;
-            context.IsOutermostQuery = srcIsOutQuery;
+            context.CurrentExpressionType = srcDbExpressionType;
+            context.CurrentIsOutermost = srcIsOutermost;
 
             #endregion
 
@@ -452,21 +452,21 @@ namespace Riz.XFramework.Data.SqlClient
                     builder.Append(this.QuoteSuffix);
                 }
             }
-            else if (tree.Query != null)
+            else if (tree.Select != null)
             {
                 builder.Append("INSERT INTO ");
                 builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 builder.Append('(');
 
-                var srcDbExpressionType = context.DbExpressionType;
-                var srcIsOutQuery = context.IsOutermostQuery;
-                context.DbExpressionType = DbExpressionType.Insert;
-                context.IsOutermostQuery = false;
+                var srcDbExpressionType = context.CurrentExpressionType;
+                var srcIsOutermost = context.CurrentIsOutermost;
+                context.CurrentExpressionType = DbExpressionType.Insert;
+                context.CurrentIsOutermost = false;
 
-                var cmd = this.TranslateSelectCommandImpl(tree.Query, 0, false, context) as DbSelectCommand;
+                var cmd = this.TranslateSelectCommandImpl(tree.Select, 0, false, context) as DbSelectCommand;
 
-                context.DbExpressionType = srcDbExpressionType;
-                context.IsOutermostQuery = srcIsOutQuery;
+                context.CurrentExpressionType = srcDbExpressionType;
+                context.CurrentIsOutermost = srcIsOutermost;
 
                 int index = 0;
                 foreach (var column in cmd.SelectedColumns)
@@ -522,20 +522,20 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 builder.Length -= 5;
             }
-            else if (tree.Query != null)
+            else if (tree.Select != null)
             {
                 // 解析查询用来确定是否需要嵌套
-                var cmd = this.TranslateSelectCommand(tree.Query, 0, false, this.CreateTranslateContext(context.DbContext)) as DbSelectCommand;
+                var cmd = this.TranslateSelectCommand(tree.Select, 0, false, this.CreateTranslateContext(context.DbContext)) as DbSelectCommand;
 
                 // 标记当前解析上下文是删除语句产生的
                 var isDelete = ((SQLiteTranslateContext)context).IsDelete;
                 if (context != null)
                     ((SQLiteTranslateContext)context).IsDelete = true;
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Query.Joins != null && tree.Query.Joins.Count > 0))
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Select.Joins != null && tree.Select.Joins.Count > 0))
                 {
                     // 最外层仅选择 RowID 列
-                    var outQuery = tree.Query;
+                    var outQuery = tree.Select;
                     outQuery.Select = new DbExpression(DbExpressionType.Select, Expression.Constant("t0.RowId", typeof(string)));
                     var iterator = outQuery;
                     while (iterator.Subquery != null)
@@ -546,7 +546,7 @@ namespace Riz.XFramework.Data.SqlClient
                     }
 
                     // 解析成 RowId IN 结构
-                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Query, 1, false, context);
+                    cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Select, 1, false, context);
                     builder.Append("WHERE ");
                     builder.AppendMember("RowID");
                     builder.Append(" IN(");
@@ -555,17 +555,17 @@ namespace Riz.XFramework.Data.SqlClient
                 }
                 else
                 {
-                    AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
-                    if (tree.Query.Joins != null)
+                    AliasGenerator ag = this.PrepareTableAlias(tree.Select, context.AliasPrefix);
+                    if (tree.Select.Joins != null)
                     {
                         var visitor = new JoinExpressionVisitor(ag, builder);
-                        visitor.Visit(tree.Query.Joins);
+                        visitor.Visit(tree.Select.Joins);
                     }
 
-                    if (tree.Query.Wheres != null)
+                    if (tree.Select.Wheres != null)
                     {
                         var visitor = new WhereExpressionVisitor(null, builder);
-                        visitor.Visit(tree.Query.Wheres);
+                        visitor.Visit(tree.Select.Wheres);
                     }
                 }
 
@@ -688,10 +688,10 @@ namespace Riz.XFramework.Data.SqlClient
                 }
 
                 // 解析查询以确定是否需要嵌套
-                tree.Query.Select = new DbExpression(DbExpressionType.Select, expression);
-                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Query, 0, false, this.CreateTranslateContext(context.DbContext));
+                tree.Select.Select = new DbExpression(DbExpressionType.Select, expression);
+                var cmd = (DbSelectCommand)this.TranslateSelectCommand(tree.Select, 0, false, this.CreateTranslateContext(context.DbContext));
 
-                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Query.Joins != null && tree.Query.Joins.Count > 0))
+                if ((cmd.NavMembers != null && cmd.NavMembers.Count > 0) || (tree.Select.Joins != null && tree.Select.Joins.Count > 0))
                 {
                     if (typeRuntime.KeyMembers == null || typeRuntime.KeyMembers.Count == 0)
                         throw new XFrameworkException("Update<T>(Expression<Func<T, object>> updateExpression) require entity must have key column.");
@@ -704,21 +704,21 @@ namespace Riz.XFramework.Data.SqlClient
                     // WHERE部分
                     builder.AppendNewLine();
                     builder.Append("WHERE EXISTS");
-                    visitor.VisitArgument(tree.Query.Select.Expressions[0], true);
+                    visitor.VisitArgument(tree.Select.Select.Expressions[0], true);
                 }
                 else
                 {
                     // 直接 SQL 的 UPDATE 语法
                     DbExpressionVisitor visitor = null;
-                    AliasGenerator ag = this.PrepareTableAlias(tree.Query, context.AliasPrefix);
+                    AliasGenerator ag = this.PrepareTableAlias(tree.Select, context.AliasPrefix);
                     visitor = new SQLiteUpdateExpressionVisitor(ag, builder, tree, null);
                     ((SQLiteUpdateExpressionVisitor)visitor).Translator = this.TranslateSelectCommand;
                     visitor.Visit(tree.Expression);
 
-                    if (tree.Query.Wheres != null)
+                    if (tree.Select.Wheres != null)
                     {
                         visitor = new WhereExpressionVisitor(null, builder);
-                        visitor.Visit(tree.Query.Wheres);
+                        visitor.Visit(tree.Select.Wheres);
                     }
                 }
             }

@@ -25,6 +25,7 @@ namespace Riz.XFramework.Data
             // 4、uion 后面跟着 WHERE,GROUP BY,SELECT,JOIN语句时需要使用嵌套查询
 
             Type fromType = null;
+            DbRawSql rawSql = null;
             bool isDistinct = false;
             bool isAny = false;
             bool subQuery = false;
@@ -100,6 +101,14 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.GetTable:
                         fromType = (item.Expressions[0] as ConstantExpression).Value as Type;
+
+                        if (fromType == null)
+                        {
+                            string text = (item.Expressions[0] as ConstantExpression).Value as string;
+                            if (text != null)
+                                rawSql = new DbRawSql(null, text, (object[])(item.Expressions[1] as ConstantExpression).Value);
+                        }
+
                         continue;
 
                     case DbExpressionType.Average:
@@ -141,18 +150,21 @@ namespace Riz.XFramework.Data
 
                         // GetTable 的参数
                         var inner = (j.Expressions[0] as ConstantExpression).Value as IDbQueryable;
-                        if (inner.DbExpressions.Count == 1 &&
-                            inner.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable &&
-                            inner.DbExpressions[0].Expressions.Length == 2)
+                        if (inner.DbExpressions.Count == 1 && inner.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
                         {
-                            var expressions = new Expression[item.Expressions.Length + 1];
-                            Array.Copy(item.Expressions, expressions, item.Expressions.Length);
-                            expressions[expressions.Length - 1] = inner.DbExpressions[0].Expressions[1];
-                            j = new DbExpression(item.DbExpressionType, expressions);
+                            // 区别 GetTable 有三个重载，这里处理指定外键路径的重载
+                            if (inner.DbExpressions[0].Expressions.Length == 2 && (inner.DbExpressions[0].Expressions[0] as ConstantExpression).Value is Type)
+                            {
+                                var expressions = new Expression[item.Expressions.Length + 1];
+                                Array.Copy(item.Expressions, expressions, item.Expressions.Length);
+                                expressions[expressions.Length - 1] = inner.DbExpressions[0].Expressions[1];
+                                j = new DbExpression(item.DbExpressionType, expressions);
+                            }
                         }
-                        if (joins == null) joins = new List<DbExpression>();
-                        joins.Add(j);
 
+                        if (joins == null)
+                            joins = new List<DbExpression>();
+                        joins.Add(j);
 
                         continue;
 
@@ -169,7 +181,8 @@ namespace Riz.XFramework.Data
                         pickExpression = item.Expressions[1];
                         if (IsCrossJoin(source.DbExpressions, item, startIndex))
                         {
-                            if (joins == null) joins = new List<DbExpression>();
+                            if (joins == null)
+                                joins = new List<DbExpression>();
                             joins.Add(item);
                         }
                         continue;
@@ -242,6 +255,7 @@ namespace Riz.XFramework.Data
 
             var result_Query = new DbQuerySelectTree();
             result_Query.From = fromType;
+            result_Query.FromSql = rawSql;
             result_Query.HasDistinct = isDistinct;
             result_Query.HasAny = isAny;
             result_Query.Joins = joins;
@@ -266,7 +280,7 @@ namespace Riz.XFramework.Data
                     result_Update.Entity = constantExpression.Value;
                 else
                     result_Update.Expression = update.Expressions[0];
-                result_Update.Query = result_Query;
+                result_Update.Select = result_Query;
                 return result_Update;
             }
 
@@ -280,7 +294,7 @@ namespace Riz.XFramework.Data
                 var constantExpression = delete.Expressions != null ? delete.Expressions[0] as ConstantExpression : null;
                 if (constantExpression != null)
                     result_Delete.Entity = constantExpression.Value;
-                result_Delete.Query = result_Query;
+                result_Delete.Select = result_Query;
                 return result_Delete;
             }
 
@@ -297,7 +311,7 @@ namespace Riz.XFramework.Data
                     if (insert.Expressions.Length > 1)
                         result_Insert.EntityColumns = (insert.Expressions[1] as ConstantExpression).Value as IList<Expression>;
                 }
-                result_Insert.Query = result_Query;
+                result_Insert.Select = result_Query;
                 result_Insert.Bulk = ((DbQueryable)source).Bulk;
                 return result_Insert;
             }
@@ -326,26 +340,26 @@ namespace Riz.XFramework.Data
                 var result_Delete = outQueryTree as DbQueryDeleteTree;
                 if (result_Insert != null)
                 {
-                    if (result_Insert.Query != null)
-                        result_Insert.Query.Subquery = result_Query;
+                    if (result_Insert.Select != null)
+                        result_Insert.Select.Subquery = result_Query;
                     else
-                        result_Insert.Query = result_Query;
+                        result_Insert.Select = result_Query;
                     return result_Insert;
                 }
                 else if (result_Update != null)
                 {
-                    if (result_Update.Query != null)
-                        result_Update.Query.Subquery = result_Query;
+                    if (result_Update.Select != null)
+                        result_Update.Select.Subquery = result_Query;
                     else
-                        result_Update.Query = result_Query;
+                        result_Update.Select = result_Query;
                     return result_Update;
                 }
                 else if (result_Delete != null)
                 {
-                    if (result_Delete.Query != null)
-                        result_Delete.Query.Subquery = result_Query;
+                    if (result_Delete.Select != null)
+                        result_Delete.Select.Subquery = result_Query;
                     else
-                        result_Delete.Query = result_Query;
+                        result_Delete.Select = result_Query;
                     return result_Delete;
                 }
                 else

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Riz.XFramework.Data
@@ -62,19 +64,45 @@ namespace Riz.XFramework.Data
         protected virtual void AppendLfInJoin(DbExpression dbExpression)
         {
             _builder.Append(' ');
-            DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
-            dbQuery.Parameterized = _builder.Parameterized;
+            DbQueryable dbQueryable = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            dbQueryable.Parameterized = _builder.Parameterized;
 
-            if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
+            if (dbQueryable.DbExpressions.Count == 1 && dbQueryable.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
-                Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+                // 区别 GetTable 有三个重载
+                var expressions = dbQueryable.DbExpressions[0].Expressions;
+                if (expressions.Length == 2 && ((expressions[0] as ConstantExpression).Value as string) != null)
+                {
+                    string text = (expressions[0] as ConstantExpression).Value as string;
+                    object[] @params = (expressions[1] as ConstantExpression).Value as object[];
+
+                    var provider = ((DbQueryProvider)_builder.Provider);
+                    var context = _builder.TranslateContext;
+                    // 解析参数
+                    object[] args = null;
+                    if (@params != null)
+                        args = @params.Select(x => provider.Constor.GetSqlValue(x, context)).ToArray();
+                    string sql = text;
+                    if (args != null && args.Length > 0)
+                        sql = string.Format(sql, args);
+
+                    var cmd = new DbRawCommand(sql, context.Parameters, CommandType.Text);
+                    _builder.Append("(");
+                    _builder.Append(cmd.CommandText);
+                    _builder.AppendNewLine();
+                    _builder.Append(')');
+                }
+                else
+                {
+                    Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+                }
             }
             else
             {
                 // 嵌套
-                var cmd = dbQuery.Translate(_builder.Indent + 1, false, _builder.TranslateContext);
+                var cmd = dbQueryable.Translate(_builder.Indent + 1, false, _builder.TranslateContext);
                 _builder.Append("(");
                 _builder.Append(cmd.CommandText);
                 _builder.AppendNewLine();

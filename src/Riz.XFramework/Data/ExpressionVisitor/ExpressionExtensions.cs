@@ -159,6 +159,8 @@ namespace Riz.XFramework.Data
         /// </summary>
         public static ConstantExpression Evaluate(this Expression node)
         {
+            // TODO 缓存常量表达式
+
             ConstantExpression constantExpression = null;
             if (node.NodeType == ExpressionType.Constant) constantExpression = node as ConstantExpression;
             else

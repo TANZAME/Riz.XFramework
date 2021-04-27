@@ -3,6 +3,8 @@ using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Riz.XFramework.Data.SqlClient;
+using System.Linq;
+using System.Data;
 
 namespace Riz.XFramework.Data
 {
@@ -42,11 +44,37 @@ namespace Riz.XFramework.Data
 
             if (dbQueryable.DbExpressions.Count == 1 && dbQueryable.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
-                Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+                // 区别 GetTable 有三个重载
+                var expressions = dbQueryable.DbExpressions[0].Expressions;
+                if (expressions.Length == 2 && ((expressions[0] as ConstantExpression).Value as string) != null)
+                {
+                    string text = (expressions[0] as ConstantExpression).Value as string;
+                    object[] @params = (expressions[1] as ConstantExpression).Value as object[];
 
-                withNoLock = !typeRuntime.IsTemporary && _isNoLock && !string.IsNullOrEmpty(_withNoLock);
+                    var provider = ((DbQueryProvider)_builder.Provider);
+                    var context = _builder.TranslateContext;
+                    // 解析参数
+                    object[] args = null;
+                    if (@params != null)
+                        args = @params.Select(x => provider.Constor.GetSqlValue(x, context)).ToArray();
+                    string sql = text;
+                    if (args != null && args.Length > 0)
+                        sql = string.Format(sql, args);
+
+                    var cmd = new DbRawCommand(sql, context.Parameters, CommandType.Text);
+                    _builder.Append("(");
+                    _builder.Append(cmd.CommandText);
+                    _builder.AppendNewLine();
+                    _builder.Append(')');
+                }
+                else
+                {
+                    Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+
+                    withNoLock = !typeRuntime.IsTemporary && _isNoLock && !string.IsNullOrEmpty(_withNoLock);
+                }
             }
             else
             {
