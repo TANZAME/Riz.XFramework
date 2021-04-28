@@ -436,9 +436,9 @@ namespace Riz.XFramework.Data.SqlClient
 
             // 可能会有几级嵌套，这里用 Builder.Ident 标记是第几层级
             string[] subs = new[] { "p", "u", "v", "w", "x" };
-            var clone = context != null ? context.Clone(subs[_builder.Indent]) : null;
+            var newContext = context != null ? TranslateContext.Copy(context, subs[_builder.Indent]) : null;
             bool isDelete = context != null && ((SQLiteTranslateContext)context).IsDelete;
-            var cmd = subquery.Translate(_builder.Indent + 1, false, clone) as DbSelectCommand;
+            var cmd = subquery.Translate(_builder.Indent + 1, false, newContext) as DbSelectCommand;
 
             if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
             _builder.Append("EXISTS(");

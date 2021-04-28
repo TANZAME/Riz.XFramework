@@ -110,7 +110,11 @@ namespace Riz.XFramework.Data
         {
             ITranslateContext context = _builder.TranslateContext;
             _tree.Select.Select = new DbExpression(DbExpressionType.Select, expression);
-            var cmd = Translator.Invoke(_tree.Select, 1, false, context.Clone("s")) as DbSelectCommand;
+
+            // 可能会有几级嵌套，这里用 Builder.Ident 标记是第几层级
+            string[] subs = new[] { "p", "u", "v", "w", "x" };
+            var newContext = context != null ? TranslateContext.Copy(context, subs[_builder.Indent]) : null;
+            var cmd = Translator.Invoke(_tree.Select, _builder.Indent + 1, false, newContext) as DbSelectCommand;
 
             _builder.Append('(');
             _builder.Append(cmd.CommandText.Trim());
@@ -123,7 +127,7 @@ namespace Riz.XFramework.Data
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(_tree.Entity != null ? _tree.Entity.GetType() : _tree.Select.From);
             foreach (var m in typeRuntime.KeyMembers)
             {
-                _builder.AppendMember("s0", m.Member, typeRuntime.Type);
+                _builder.AppendMember(string.Format("{0}0", subs[_builder.Indent]), m.Member, typeRuntime.Type);
                 _builder.Append(" = ");
                 _builder.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
                 _builder.Append('.');

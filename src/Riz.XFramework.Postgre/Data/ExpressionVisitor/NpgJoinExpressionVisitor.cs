@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Riz.XFramework.Data
@@ -60,8 +62,8 @@ namespace Riz.XFramework.Data
         // LEFT OR INNER JOIN
         private void AppendLfInJoin(ISqlBuilder jf, ISqlBuilder on, DbExpression dbExpression)
         {
-            DbQueryable dbQuery = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
-            dbQuery.Parameterized = jf.Parameterized;
+            DbQueryable dbQueryable = (DbQueryable)((dbExpression.Expressions[0] as ConstantExpression).Value);
+            dbQueryable.Parameterized = jf.Parameterized;
 
             if (!usedKeyword)
             {
@@ -76,16 +78,41 @@ namespace Riz.XFramework.Data
                 jf.Append(_pad);
             }
 
-            if (dbQuery.DbExpressions.Count == 1 && dbQuery.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
+            if (dbQueryable.DbExpressions.Count == 1 && dbQueryable.DbExpressions[0].DbExpressionType == DbExpressionType.GetTable)
             {
-                Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
-                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
-                jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+                // 区别 GetTable 有三个重载
+                var expressions = dbQueryable.DbExpressions[0].Expressions;
+                if (expressions.Length == 2 && ((expressions[0] as ConstantExpression).Value as string) != null)
+                {
+                    string text = (expressions[0] as ConstantExpression).Value as string;
+                    object[] @params = (expressions[1] as ConstantExpression).Value as object[];
+
+                    var provider = ((DbQueryProvider)jf.Provider);
+                    var context = jf.TranslateContext;
+                    // 解析参数
+                    object[] args = null;
+                    if (@params != null)
+                        args = @params.Select(x => provider.Constor.GetSqlValue(x, context)).ToArray();
+                    string sql = text;
+                    if (args != null && args.Length > 0)
+                        sql = string.Format(sql, args);
+
+                    var cmd = new DbRawCommand(sql, context.Parameters, CommandType.Text);
+                    jf.Append("( ");
+                    jf.Append(_dbExpressionType == DbExpressionType.Delete ? cmd.CommandText.TrimStart() : cmd.CommandText);
+                    jf.Append(')');
+                }
+                else
+                {
+                    Type type = dbExpression.Expressions[0].Type.GetGenericArguments()[0];
+                    var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(type);
+                    jf.AppendTable(typeRuntime.TableSchema, typeRuntime.TableName, typeRuntime.IsTemporary);
+                }
             }
             else
             {
                 // 嵌套
-                var cmd = dbQuery.Translate(jf.Indent + _dbExpressionType == DbExpressionType.Delete ? 2 : 1, false, jf.TranslateContext);
+                var cmd = dbQueryable.Translate(jf.Indent + _dbExpressionType == DbExpressionType.Delete ? 2 : 1, false, jf.TranslateContext);
                 jf.Append("( ");
                 jf.Append(_dbExpressionType == DbExpressionType.Delete ? cmd.CommandText.TrimStart() : cmd.CommandText);
                 jf.Append(')');

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Linq;
 #if net40
 using MySql.Data.MySqlClient;
 #else
@@ -150,7 +151,7 @@ namespace Riz.XFramework.Data.SqlClient
 
             jf.Indent = indent;
 
-#region 嵌套查询
+            #region 嵌套查询
 
             if (useAggregate && useSubquery)
             {
@@ -172,9 +173,9 @@ namespace Riz.XFramework.Data.SqlClient
                 context.CurrentIsOutermost = false;
             }
 
-#endregion
+            #endregion
 
-#region 选择子句
+            #region 选择子句
 
             // SELECT 子句
             if (jf.Indent > 0) jf.AppendNewLine();
@@ -202,7 +203,7 @@ namespace Riz.XFramework.Data.SqlClient
                 // DISTINCT 子句
                 if (tree.HasDistinct) jf.Append("DISTINCT ");
 
-#region 选择字段
+                #region 选择字段
 
                 if (!tree.HasAny)
                 {
@@ -265,12 +266,12 @@ namespace Riz.XFramework.Data.SqlClient
                     }
                 }
 
-#endregion
+                #endregion
             }
 
-#endregion
+            #endregion
 
-#region 顺序解析
+            #region 顺序解析
 
             // FROM 子句
             jf.AppendNewLine();
@@ -280,6 +281,29 @@ namespace Riz.XFramework.Data.SqlClient
                 // 子查询
                 jf.Append("(");
                 var cmd = this.TranslateSelectCommandImpl(tree.Subquery, indent + 1, false, context);
+                jf.Append(cmd.CommandText);
+                jf.AppendNewLine();
+                jf.Append(") ");
+                jf.Append(alias);
+                jf.Append(' ');
+            }
+            else if (tree.FromSql != null)
+            {
+                if (tree.FromSql.DbContext == null)
+                    tree.FromSql.DbContext = context.DbContext;
+                DbRawSql rawSql = tree.FromSql;
+
+                // 解析参数
+                object[] args = null;
+                if (rawSql.Parameters != null)
+                    args = rawSql.Parameters.Select(x => this.Constor.GetSqlValue(x, context)).ToArray();
+                string sql = rawSql.CommandText;
+                if (args != null && args.Length > 0)
+                    sql = string.Format(sql, args);
+
+                // 子查询
+                jf.Append('(');
+                var cmd = new DbRawCommand(sql, context.Parameters, CommandType.Text);
                 jf.Append(cmd.CommandText);
                 jf.AppendNewLine();
                 jf.Append(") ");
@@ -336,9 +360,9 @@ namespace Riz.XFramework.Data.SqlClient
                 result.AddNavMembers(visitor.NavMembers);
             }
 
-#endregion
+            #endregion
 
-#region 分页查询
+            #region 分页查询
 
             // LIMIT 子句可以被用于强制 SELECT 语句返回指定的记录数。
             // LIMIT 接受一个或两个数字参数。参数必须是一个整数常量。如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。
@@ -351,9 +375,9 @@ namespace Riz.XFramework.Data.SqlClient
                 wf.AppendFormat(" OFFSET {0}", this.Constor.GetSqlValue(tree.Skip, context));
             }
 
-#endregion
+            #endregion
 
-#region 嵌套查询
+            #region 嵌套查询
 
             if (useAggregate && useSubquery)
             {
@@ -365,9 +389,9 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
             }
 
-#endregion
+            #endregion
 
-#region 嵌套导航
+            #region 嵌套导航
 
             // TODO Include 从表，没分页，OrderBy 报错
             //if (tree.HasMany && subquery != null && subquery.OrderBys.Count > 0 && subquery.Aggregate == null && !(subquery.Skip > 0 || subquery.Take > 0))
@@ -379,9 +403,9 @@ namespace Riz.XFramework.Data.SqlClient
                 visitor.Visit(subquery.OrderBys);
             }
 
-#endregion
+            #endregion
 
-#region 并集查询
+            #region 并集查询
 
             // UNION 子句
             if (tree.Unions != null && tree.Unions.Count > 0)
@@ -397,9 +421,9 @@ namespace Riz.XFramework.Data.SqlClient
                 }
             }
 
-#endregion
+            #endregion
 
-#region 分页查询
+            #region 分页查询
 
             if (sf != null)
             {
@@ -422,9 +446,9 @@ namespace Riz.XFramework.Data.SqlClient
                 }
             }
 
-#endregion
+            #endregion
 
-#region Any 子句
+            #region Any 子句
 
             // 'Any' 子句
             if (tree.HasAny)
@@ -445,14 +469,14 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
             }
 
-#endregion
+            #endregion
 
-#region 还原状态
+            #region 还原状态
 
             context.CurrentExpressionType = srcDbExpressionType;
             context.CurrentIsOutermost = srcIsOutmost;
 
-#endregion
+            #endregion
 
             return result;
         }

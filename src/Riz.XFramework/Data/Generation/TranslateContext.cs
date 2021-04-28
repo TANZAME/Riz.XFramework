@@ -57,19 +57,23 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 复制一个实例，简化创建代码 
+        /// 使用新的别名拷贝一个新的上下文
         /// </summary>
-        /// <param name="newPrefix">指定一个新的表别名前缀，如果不是嵌套，传 null</param>
+        /// <param name="source"></param>
+        /// <param name="prifix"></param>
         /// <returns></returns>
-        public virtual ITranslateContext Clone(string newPrefix)
+        public static ITranslateContext Copy(ITranslateContext source, string prifix)
         {
-            var context = _provider.CreateTranslateContext(_context);
-            context.Parameters = this.Parameters;
-            context.AliasPrefix = newPrefix;
-            context.CurrentExpressionType = this.CurrentExpressionType;
-            context.CurrentIsOutermost = this.CurrentIsOutermost;
+            var context = source.DbContext;
+            var provider = source.DbContext.Provider;
 
-            return context;
+            var result = ((DbQueryProvider)provider).CreateTranslateContext(context);
+            result.Parameters = source.Parameters;
+            result.AliasPrefix = prifix;
+            result.CurrentExpressionType = source.CurrentExpressionType;
+            result.CurrentIsOutermost = source.CurrentIsOutermost;
+
+            return result;
         }
     }
 }

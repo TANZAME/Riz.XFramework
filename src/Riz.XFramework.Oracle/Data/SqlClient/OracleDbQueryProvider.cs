@@ -439,6 +439,29 @@ namespace Riz.XFramework.Data.SqlClient
                 jf.Append(alias);
                 jf.Append(' ');
             }
+            else if (tree.FromSql != null)
+            {
+                if (tree.FromSql.DbContext == null)
+                    tree.FromSql.DbContext = context.DbContext;
+                DbRawSql rawSql = tree.FromSql;
+
+                // 解析参数
+                object[] args = null;
+                if (rawSql.Parameters != null)
+                    args = rawSql.Parameters.Select(x => this.Constor.GetSqlValue(x, context)).ToArray();
+                string sql = rawSql.CommandText;
+                if (args != null && args.Length > 0)
+                    sql = string.Format(sql, args);
+
+                // 子查询
+                jf.Append('(');
+                var cmd = new DbRawCommand(sql, context.Parameters, CommandType.Text);
+                jf.Append(cmd.CommandText);
+                jf.AppendNewLine();
+                jf.Append(") ");
+                jf.Append(alias);
+                jf.Append(' ');
+            }
             else
             {
                 var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(tree.From);

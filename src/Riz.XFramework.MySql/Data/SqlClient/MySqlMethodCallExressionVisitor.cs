@@ -767,8 +767,8 @@ namespace Riz.XFramework.Data.SqlClient
 
             // 可能会有几级嵌套，这里用 Builder.Ident 标记是第几层级
             string[] subs = new[] { "p", "u", "v", "w", "x" };
-            var clone = context != null ? context.Clone(subs[_builder.Indent]) : null;
-            var cmd = subquery.Translate(_builder.Indent + 1, false, clone) as DbSelectCommand;
+            var newContext = context != null ? TranslateContext.Copy(context, subs[_builder.Indent]) : null;
+            var cmd = subquery.Translate(_builder.Indent + 1, false, newContext) as DbSelectCommand;
             bool isDelete = context != null && ((MySqlTranslateContext)context).IsDelete;
 
             if (this.NotOperands != null && this.NotOperands.Contains(m)) _builder.Append("NOT ");
@@ -778,7 +778,7 @@ namespace Riz.XFramework.Data.SqlClient
             {
                 _builder.Append("SELECT 1 FROM(");
                 _builder.Append(cmd.CommandText);
-                _builder.Append(") s0 WHERE ");
+                _builder.Append(string.Format(") {0}0 WHERE ", subs[_builder.Indent]));
 
                 _builder.Append(cmd.SelectedColumnText);
                 _builder.Append(" = ");

@@ -40,13 +40,5 @@ namespace Riz.XFramework.Data
         /// 查询语义提供者。代理 DbContext 的 Provider
         /// </summary>
         IDbQueryProvider Provider { get; }
-
-        /// <summary>
-        /// 复制一个实例，简化创建代码 
-        /// 注意默认不复制 AliasPrefix 属性
-        /// </summary>
-        /// <param name="newPrefix">指定一个新的表别名前缀，如果不是嵌套，传 null</param>
-        /// <returns></returns>
-        ITranslateContext Clone(string newPrefix);
     }
 }
