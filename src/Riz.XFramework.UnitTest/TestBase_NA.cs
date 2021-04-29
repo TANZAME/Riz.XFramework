@@ -134,7 +134,8 @@ namespace Riz.XFramework.UnitTest
             //WHERE t0.[RizDemoId] <= 10
 
             var result5 = context.GetTable<TDemo>().Where(x => x.RizDemoId <= 10).Select<TDemo, dynamic>(x => x).ToList();
-            if (!this.CaseSensitive) result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
+            if (!this.CaseSensitive) 
+                result5 = context.Database.Execute<List<dynamic>>("SELECT * FROM Sys_Demo WHERE DemoId <= 10");
 
             // Date,DateTime,DateTime2 支持
             var query =
@@ -2831,7 +2832,7 @@ namespace Riz.XFramework.UnitTest
                 //                    }
                 //                }
                 //P_0.Dispose();
-                Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
+                Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), DateTime.Now - sDate));
 
                 // 100w 数据量明显，清掉后内存会及时释放
                 result.Clear();

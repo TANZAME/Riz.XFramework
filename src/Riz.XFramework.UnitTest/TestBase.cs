@@ -948,20 +948,22 @@ namespace Riz.XFramework.UnitTest
                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-            result = query.ToList();
+            if (!this.CaseSensitive)
+                result = query.ToList();
 
             query =
-                from a in context.GetTable<Model.Server>() 
+                from a in context.GetTable<Model.Server>()
                 join b in context.GetTable<Model.Client>(commandText, 102) on a.CloudServerId equals b.CloudServerId
                 where b.ClientId > 0
                 select b;
-            result = query.ToList();
+            if (!this.CaseSensitive)
+                result = query.ToList();
 
 
             // INNER JOIN
             query =
                  from a in context.GetTable<Model.Client>()
-                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
+                 join b in context.GetTable<Model.Server>() on (a.CloudServerId + 3) equals (2 + b.CloudServerId)
                  where a.ClientId > 0
                  select a;
             result = query.ToList();
@@ -2710,7 +2712,7 @@ namespace Riz.XFramework.UnitTest
                 var result = context
                     .GetTable<Model.Rabbit>()
                     .ToList();
-                Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), (DateTime.Now - sDate).TotalMilliseconds / 1000.0));
+                Console.WriteLine(string.Format("第 {0} 次，用时：{1} 秒", (i + 1), DateTime.Now - sDate));
 
                 // 100w 数据量明显，清掉后内存会及时释放
                 result.Clear();

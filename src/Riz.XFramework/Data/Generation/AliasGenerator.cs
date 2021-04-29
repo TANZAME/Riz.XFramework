@@ -170,30 +170,48 @@ namespace Riz.XFramework.Data
             return alias == EMPTYNAME ? alias : this._navGetTables.AddOrUpdate(key, k => alias, k => alias);
         }
 
-        private static string GetTableAliasKey(Expression exp)
+        private static string GetTableAliasKey(Expression node)
         {
-            if (exp == null) return null;
+            if (node == null)
+                return null;
 
-            Expression expression = exp.ReduceUnary();
+            //System.Console.WriteLine(exp);
 
-            //c
-            if (exp.CanEvaluate()) return null;
+            Expression exp = node.ReduceUnary();
 
-            // p
-            var parameter = expression as ParameterExpression;
-            if (parameter != null) return parameter.Name;
+            // 常量表达式 c
+            if (exp.CanEvaluate())
+                return null;
+
+            //  p
+            var parameterExpression = exp as ParameterExpression;
+            if (parameterExpression != null)
+                return parameterExpression.Name;
 
             // a=>a.Id
-            var lambda = expression as LambdaExpression;
-            if (lambda != null) expression = lambda.Body.ReduceUnary();
+            var lambdaExpression = exp as LambdaExpression;
+            if (lambdaExpression != null)
+            {
+                if (lambdaExpression.Parameters != null && lambdaExpression.Parameters.Count == 1)
+                    return AliasGenerator.GetTableAliasKey(lambdaExpression.Parameters[0]);
+                else
+                    exp = lambdaExpression.Body.ReduceUnary();
+            }
+
+            //// a=> 1+a.Id
+            //var binaryExpression = expression as BinaryExpression;
+            //if (binaryExpression != null)
+            //{
+
+            //}
 
             // a.Id
             // t.a
             // t.t.a
             // t.a.Id
-            var memberExpression = expression as MemberExpression;
+            var memberExpression = exp as MemberExpression;
             if (memberExpression == null)
-                return AliasGenerator.GetTableAliasKey(expression);
+                return AliasGenerator.GetTableAliasKey(exp);
 
             if (memberExpression.Visitable())
                 return AliasGenerator.GetTableAliasKey(memberExpression.Expression);

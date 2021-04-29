@@ -139,6 +139,7 @@ namespace Riz.XFramework.Data
             if (node.NodeType == ExpressionType.ListInit) return true;
             if (node.NodeType == ExpressionType.NewArrayInit) return true;
             if (node.NodeType == ExpressionType.NewArrayBounds) return true;
+
             if (node.NodeType != ExpressionType.MemberAccess) return false;
 
             var memberExpression = node as MemberExpression;
@@ -146,7 +147,8 @@ namespace Riz.XFramework.Data
             if (memberExpression.Expression == null)
             {
                 // 排除 DateTime 的几个常量
-                bool isDateTime = memberExpression.Type == typeof(DateTime) && (memberExpression.Member == _dateTimeNow || memberExpression.Member == _dateTimeUtcNow || memberExpression.Member == _dateTimeToday);
+                bool isDateTime = memberExpression.Type == typeof(DateTime) && 
+                    (memberExpression.Member == _dateTimeNow || memberExpression.Member == _dateTimeUtcNow || memberExpression.Member == _dateTimeToday);
                 return !isDateTime;
             }
             if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
@@ -171,7 +173,8 @@ namespace Riz.XFramework.Data
             }
 
             // 枚举要转成 INT
-            if (constantExpression.Type.IsEnum) constantExpression = Expression.Constant(Convert.ToInt32(constantExpression.Value));
+            if (constantExpression.Type.IsEnum) 
+                constantExpression = Expression.Constant(Convert.ToInt32(constantExpression.Value));
             // 返回最终处理的常量表达式s
             return constantExpression;
         }

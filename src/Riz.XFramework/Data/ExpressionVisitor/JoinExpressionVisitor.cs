@@ -132,9 +132,9 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Arguments.Count; ++index)
                 {
-                    _builder.AppendMember(_ag, body1.Arguments[index]);
+                    base.Visit(body1.Arguments[index]);
                     _builder.Append(" = ");
-                    _builder.AppendMember(_ag, body2.Arguments[index]);
+                    base.Visit(body2.Arguments[index]);
                     if (index < body1.Arguments.Count - 1) _builder.Append(" AND ");
                 }
             }
@@ -145,17 +145,17 @@ namespace Riz.XFramework.Data
 
                 for (int index = 0; index < body1.Bindings.Count; ++index)
                 {
-                    _builder.AppendMember(_ag, (body1.Bindings[index] as MemberAssignment).Expression);
+                    base.Visit((body1.Bindings[index] as MemberAssignment).Expression);
                     _builder.Append(" = ");
-                    _builder.AppendMember(_ag, (body2.Bindings[index] as MemberAssignment).Expression);
+                    base.Visit((body2.Bindings[index] as MemberAssignment).Expression);
                     if (index < body1.Bindings.Count - 1) _builder.Append(" AND ");
                 }
             }
             else
             {
-                _builder.AppendMember(_ag, left.Body.ReduceUnary());
+                base.Visit(left.Body.ReduceUnary());
                 _builder.Append(" = ");
-                _builder.AppendMember(_ag, right.Body.ReduceUnary());
+                base.Visit(right.Body.ReduceUnary());
             }
         }
 
