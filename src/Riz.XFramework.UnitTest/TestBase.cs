@@ -28,6 +28,11 @@ namespace Riz.XFramework.UnitTest
         /// </summary>
         public bool CaseSensitive { get; set; }
 
+        /// <summary>
+        /// 属性名称重命名
+        /// </summary>
+        public bool WithNameAttribute { get; set; }
+
         public TestBase()
         {
             _newContext = this.CreateDbContext;
@@ -934,21 +939,24 @@ namespace Riz.XFramework.UnitTest
 
             string commandText = "SELECT * FROM Bas_Client WHERE ClientID > {0}";
             var query = context.GetTable<Model.Client>(commandText, 0);
-            var result = query.ToList();
+            List<Model.Client> result = null;
+            if (!this.CaseSensitive && !this.WithNameAttribute)
+                result = query.ToList();
 
             query = context.GetTable<Model.Client>(commandText, 0);
             query = query.Select(a => new Model.Client
             {
                 ClientCode = a.ClientCode
             });
-            result = query.ToList();
+            if (!this.CaseSensitive && !this.WithNameAttribute)
+                result = query.ToList();
 
             query =
                 from a in context.GetTable<Model.Client>("SELECT * FROM Bas_Client WHERE ClientID > 10")
                 join b in context.GetTable<Model.Server>() on a.CloudServerId equals b.CloudServerId
                 where a.ClientId > 0
                 select a;
-            if (!this.CaseSensitive)
+            if (!this.CaseSensitive && !this.WithNameAttribute)
                 result = query.ToList();
 
             query =
@@ -956,7 +964,7 @@ namespace Riz.XFramework.UnitTest
                 join b in context.GetTable<Model.Client>(commandText, 102) on a.CloudServerId equals b.CloudServerId
                 where b.ClientId > 0
                 select b;
-            if (!this.CaseSensitive)
+            if (!this.CaseSensitive && !this.WithNameAttribute)
                 result = query.ToList();
 
 
@@ -2802,6 +2810,11 @@ namespace Riz.XFramework.UnitTest
         /// 大小写敏感
         /// </summary>
         bool CaseSensitive { get; set; }
+
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        bool WithNameAttribute { get; set; }
 
         /// <summary>
         /// 运行测试

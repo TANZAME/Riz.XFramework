@@ -93,6 +93,7 @@ namespace Riz.XFramework.UnitTest
                     test = (ITest)(obj.Unwrap());
                     test.IsDebug = opt.IsDebug;
                     test.CaseSensitive = opt.CaseSensitive;
+                    test.WithNameAttribute = opt.WithNameAttribute;
 
                     Console.WriteLine("================ " + myDatabaseType + " Begin ================");
                     Console.WriteLine(string.Format("WithNameAttribute => {0}，IsDebug => {1}，CaseSensitive => {2} ", opt.WithNameAttribute, opt.IsDebug, opt.CaseSensitive));

@@ -9,6 +9,10 @@ using System.Reflection;
 
 namespace Riz.XFramework.UnitTest
 {
+    /// <summary>
+    /// 属性使用 Name 特性
+    /// </summary>
+    /// <typeparam name="TDemo"></typeparam>
     public abstract class TestBase_NA<TDemo> : ITest where TDemo : Model_NA.Demo, new()
     {
         private string _demoName = "002F";
@@ -27,6 +31,11 @@ namespace Riz.XFramework.UnitTest
         /// 大小写敏感
         /// </summary>
         public bool CaseSensitive { get; set; }
+
+        /// <summary>
+        /// 大小写敏感
+        /// </summary>
+        public bool WithNameAttribute { get; set; }
 
         public TestBase_NA()
         {
