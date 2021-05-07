@@ -787,7 +787,7 @@ namespace Riz.XFramework.Data
             if (args == null || args.Length == 0) return null;
             XFrameworkException.Check.NotNull(sql, "sql");
 
-            string pattern = string.Format("(?<ParameterName>{0}[0-9a-zA-Z_]+)", _parameterPrefix);
+            string pattern = string.Format("(?<ParameterName>[\\s]+{0}[0-9a-zA-Z_]+)", _parameterPrefix);
             var matches = Regex.Matches(sql, pattern);
             if (matches == null || matches.Count == 0) return null;
             else
@@ -798,7 +798,7 @@ namespace Riz.XFramework.Data
                 for (int i = 0; i < matches.Count; i++)
                 {
                     var m = matches[i];
-                    var parameter = _provider.CreateParameter(string.Format("{0}{1}", _parameterPrefix, m.Groups["ParameterName"].Value), args[i]);
+                    var parameter = _provider.CreateParameter(string.Format("{0}{1}", _parameterPrefix, m.Groups["ParameterName"].Value.Trim()), args[i]);
                     result.Add(parameter);
                 }
                 return result;
