@@ -192,7 +192,7 @@ namespace Riz.XFramework.Data
             var lambdaExpression = exp as LambdaExpression;
             if (lambdaExpression != null)
             {
-                if (lambdaExpression.Parameters != null && lambdaExpression.Parameters.Count == 1)
+                if (lambdaExpression.Parameters != null && lambdaExpression.Parameters.Count == 1 && !ExpressionExtensions.IsAnonymous(lambdaExpression.Parameters[0]))
                     return AliasGenerator.GetTableAliasKey(lambdaExpression.Parameters[0]);
                 else
                     exp = lambdaExpression.Body.ReduceUnary();
