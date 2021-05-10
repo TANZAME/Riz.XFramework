@@ -198,13 +198,6 @@ namespace Riz.XFramework.Data
                     exp = lambdaExpression.Body.ReduceUnary();
             }
 
-            //// a=> 1+a.Id
-            //var binaryExpression = expression as BinaryExpression;
-            //if (binaryExpression != null)
-            //{
-
-            //}
-
             // a.Id
             // t.a
             // t.t.a
