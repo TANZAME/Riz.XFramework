@@ -75,7 +75,7 @@ namespace Riz.XFramework.Data
             bool isThisLine = false;
             var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<T>();
             var modelType = typeRuntime.GenericArguments[0];
-            var member = typeRuntime.GetMember("Add");
+            var addMember = typeRuntime.GetMember("Add");
             var collection = typeRuntime.Constructor.Invoke();
             var deserializer = new TypeDeserializer_Internal(_context, _reader, _map, modelType);
 
@@ -85,7 +85,7 @@ namespace Riz.XFramework.Data
                 if (!isThisLine)
                 {
                     prevLine = model;
-                    member.Invoke(collection, model);
+                    addMember.Invoke(collection, model);
                 }
             }
 
