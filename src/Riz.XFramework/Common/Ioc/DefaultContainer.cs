@@ -14,7 +14,14 @@ namespace Riz.XFramework
         /// <summary>
         /// 简单容器-默认实例
         /// </summary>
-        public static readonly IContainer Default = new DefaultContainer();
+        public static readonly DefaultContainer Instance = new DefaultContainer();
+
+        /// <summary>
+        /// 实例化类 <see cref="DefaultContainer"/> 的新实例
+        /// </summary>
+        private DefaultContainer()
+        { 
+        }
 
         /// <summary>
         /// 向容器注册单例实例
@@ -46,7 +53,7 @@ namespace Riz.XFramework
 
             if (activator.Instance != null) return (T)activator.Instance;
 
-            Func<object> func = activator.Builder;
+            Func<object> func = activator.Creator;
             if (func == null)
                 XFrameworkException.Throw(typeof(T).FullName + " is not registered");
             return (T)func();
@@ -63,10 +70,10 @@ namespace Riz.XFramework
 
             if (activator.Instance != null) return activator.Instance;
 
-            Func<object> func = activator.Builder;
-            if (func == null)
+            Func<object> creator = activator.Creator;
+            if (creator == null)
                 XFrameworkException.Throw(type.FullName + " is not registered");
-            return func();
+            return creator();
         }
 
         /// <summary>
@@ -96,12 +103,12 @@ namespace Riz.XFramework
             /// <summary>
             /// 非单例
             /// </summary>
-            public Func<object> Builder { get; set; }
+            public Func<object> Creator { get; set; }
 
             public Activator(object instance, Func<object> func)
             {
                 this.Instance = instance;
-                this.Builder = func;
+                this.Creator = func;
             }
         }
     }
