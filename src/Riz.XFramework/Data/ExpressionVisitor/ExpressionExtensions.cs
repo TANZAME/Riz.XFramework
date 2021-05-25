@@ -10,7 +10,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表达式扩展方法
     /// </summary>
-    internal static class ExpressionExtensions
+    public static class ExpressionExtensions
     {
         private static readonly string _anonymousName = "<>h__TransparentIdentifier";
         private static readonly Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);

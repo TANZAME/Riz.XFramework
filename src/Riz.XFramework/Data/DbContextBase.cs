@@ -195,7 +195,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">给定实体的类型</typeparam>
         /// <param name="TEntity">要删除的实体</param>
-        public void Delete<T>(T TEntity)
+        public virtual void Delete<T>(T TEntity)
         {
             IDbQueryable<T> query = this.GetTable<T>();
             query = query.CreateQuery<T>(DbExpressionType.Delete, Expression.Constant(TEntity));
@@ -224,7 +224,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">给定实体的类型</typeparam>
         /// <param name="source">要删除的实体查询语义</param>
-        public void Delete<T>(IDbQueryable<T> source)
+        public virtual void Delete<T>(IDbQueryable<T> source)
         {
             source = source.CreateQuery<T>(new DbExpression(DbExpressionType.Delete));
             _dbQueryables.Add(source);
@@ -235,7 +235,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         /// <typeparam name="T">给定实体的类型</typeparam>
         /// <param name="TEntity">要添加的实体</param>
-        public void Update<T>(T TEntity)
+        public virtual void Update<T>(T TEntity)
         {
             IDbQueryable<T> source = this.GetTable<T>();
             this.Update<T>(Expression.Constant(TEntity), source);
