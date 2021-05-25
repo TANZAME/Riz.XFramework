@@ -42,6 +42,8 @@
   <PropertyGroup>
     <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\lib\sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <!-- 定义条件编译符 -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
