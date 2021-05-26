@@ -4,7 +4,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 常量类
     /// </summary>
-    public static class AppConst
+    internal static class AppConst
     {
         /// <summary>
         /// 导航属性分隔符
