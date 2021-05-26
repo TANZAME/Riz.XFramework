@@ -9,7 +9,7 @@ namespace Riz.XFramework
     /// </summary>
     public sealed class DefaultContainer : IContainer
     {
-        private static ICache<string, Activator> _cache = new ReaderWriterCache<string, Activator>(/*MemberInfoComparer<Type>.Default*/);
+        private static ICache<Type, Activator> _cache = new ReaderWriterCache<Type, Activator>(MemberInfoComparer<Type>.Default);
 
         /// <summary>
         /// 简单容器-默认实例
@@ -36,16 +36,20 @@ namespace Riz.XFramework
         /// <summary>
         /// 向容器注册类型
         /// </summary>
-        public void Register(Type type, Func<object> creator, bool isSingleton) => this.Register(type.FullName, creator, isSingleton);
-
-        /// <summary>
-        /// 向容器注册类型
-        /// </summary>
-        public void Register(string typeFullName, Func<object> creator, bool isSingleton)
+        public void Register(Type type, Func<object> creator, bool isSingleton)
         {
             object instance = isSingleton ? creator() : null;
-            _cache.AddOrUpdate(typeFullName, t => new Activator(instance, creator), t => new Activator(instance, creator));
+            _cache.AddOrUpdate(type, t => new Activator(instance, creator), t => new Activator(instance, creator));
         }
+
+        ///// <summary>
+        ///// 向容器注册类型
+        ///// </summary>
+        //public void Register(string typeFullName, Func<object> creator, bool isSingleton)
+        //{
+        //    object instance = isSingleton ? creator() : null;
+        //    _cache.AddOrUpdate(typeFullName, t => new Activator(instance, creator), t => new Activator(instance, creator));
+        //}
 
         /// <summary>
         /// 从容器中解析指定类型
@@ -55,23 +59,18 @@ namespace Riz.XFramework
         /// <summary>
         /// 从容器中解析指定类型
         /// </summary>
-        public object Resolve(Type type) => this.Resolve(type.FullName);
-
-        /// <summary>
-        /// 从容器中解析指定类型
-        /// </summary>
-        public object Resolve(string typeFullName)
+        public object Resolve(Type type)
         {
             Activator activator;
-            if (!_cache.TryGet(typeFullName, out activator))
-                throw new XFrameworkException("{0} is not registered", typeFullName);
+            if (!_cache.TryGet(type, out activator))
+                throw new XFrameworkException("{0} is not registered", type.FullName);
 
             if (activator.Instance != null)
                 return activator.Instance;
 
             Func<object> creator = activator.Creator;
             if (creator == null)
-                throw new XFrameworkException("{0} is not registered", typeFullName);
+                throw new XFrameworkException("{0} is not registered", type.FullName);
 
             return creator();
         }
@@ -84,16 +83,20 @@ namespace Riz.XFramework
         /// <summary>
         /// 返回指定类型是否已经在容器中
         /// </summary>
-        public bool IsRegistered(Type type) => this.IsRegistered(type.FullName);
-
-        /// <summary>
-        /// 返回指定类型是否已经在容器中
-        /// </summary>
-        public bool IsRegistered(string typeFullName)
+        public bool IsRegistered(Type type)
         {
             Activator activator;
-            return _cache.TryGet(typeFullName, out activator);
+            return _cache.TryGet(type, out activator);
         }
+
+        ///// <summary>
+        ///// 返回指定类型是否已经在容器中
+        ///// </summary>
+        //public bool IsRegistered(string typeFullName)
+        //{
+        //    Activator activator;
+        //    return _cache.TryGet(typeFullName, out activator);
+        //}
 
         /// <summary>
         /// 注册器
