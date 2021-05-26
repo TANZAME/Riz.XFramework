@@ -9,7 +9,7 @@ namespace Riz.XFramework
     /// </summary>
     public sealed class DefaultContainer : IContainer
     {
-        private static ICache<Type, Activator> _cache = new ReaderWriterCache<Type, Activator>(MemberInfoComparer<Type>.Default);
+        private static ICache<string, Activator> _cache = new ReaderWriterCache<string, Activator>(/*MemberInfoComparer<Type>.Default*/);
 
         /// <summary>
         /// 简单容器-默认实例
@@ -20,59 +20,59 @@ namespace Riz.XFramework
         /// 实例化类 <see cref="DefaultContainer"/> 的新实例
         /// </summary>
         private DefaultContainer()
-        { 
+        {
         }
 
         /// <summary>
         /// 向容器注册单例实例
         /// </summary>
-        public void Register<T>(Func<T> func) where T : class => this.Register<T>(func, true);
+        public void Register<T>(Func<T> creator) where T : class => this.Register<T>(creator, true);
 
         /// <summary>
         /// 向容器注册类型
         /// </summary>
-        public void Register<T>(Func<T> func, bool isSingleton) where T : class => this.Register(typeof(T), func, isSingleton);
+        public void Register<T>(Func<T> creator, bool isSingleton) where T : class => this.Register(typeof(T), creator, isSingleton);
 
         /// <summary>
         /// 向容器注册类型
         /// </summary>
-        public void Register(Type type, Func<object> func, bool isSingleton)
+        public void Register(Type type, Func<object> creator, bool isSingleton) => this.Register(type.FullName, creator, isSingleton);
+
+        /// <summary>
+        /// 向容器注册类型
+        /// </summary>
+        public void Register(string typeFullName, Func<object> creator, bool isSingleton)
         {
-            object instance = isSingleton ? func() : null;
-            _cache.AddOrUpdate(type, t => new Activator(instance, func), t => new Activator(instance, func));
+            object instance = isSingleton ? creator() : null;
+            _cache.AddOrUpdate(typeFullName, t => new Activator(instance, creator), t => new Activator(instance, creator));
         }
 
         /// <summary>
         /// 从容器中解析指定类型
         /// </summary>
-        public T Resolve<T>() where T : class
-        {
-            Activator activator;
-            if (!_cache.TryGet(typeof(T), out activator))
-                throw new XFrameworkException(typeof(T).FullName + " is not registered");
-
-            if (activator.Instance != null) return (T)activator.Instance;
-
-            Func<object> func = activator.Creator;
-            if (func == null)
-                XFrameworkException.Throw(typeof(T).FullName + " is not registered");
-            return (T)func();
-        }
+        public T Resolve<T>() where T : class => (T)this.Resolve(typeof(T));
 
         /// <summary>
         /// 从容器中解析指定类型
         /// </summary>
-        public object Resolve(Type type)
+        public object Resolve(Type type) => this.Resolve(type.FullName);
+
+        /// <summary>
+        /// 从容器中解析指定类型
+        /// </summary>
+        public object Resolve(string typeFullName)
         {
             Activator activator;
-            if (!_cache.TryGet(type, out activator))
-                throw new XFrameworkException(type.FullName + " is not registered");
+            if (!_cache.TryGet(typeFullName, out activator))
+                throw new XFrameworkException("{0} is not registered", typeFullName);
 
-            if (activator.Instance != null) return activator.Instance;
+            if (activator.Instance != null)
+                return activator.Instance;
 
             Func<object> creator = activator.Creator;
             if (creator == null)
-                XFrameworkException.Throw(type.FullName + " is not registered");
+                throw new XFrameworkException("{0} is not registered", typeFullName);
+
             return creator();
         }
 
@@ -84,10 +84,15 @@ namespace Riz.XFramework
         /// <summary>
         /// 返回指定类型是否已经在容器中
         /// </summary>
-        public bool IsRegistered(Type type)
+        public bool IsRegistered(Type type) => this.IsRegistered(type.FullName);
+
+        /// <summary>
+        /// 返回指定类型是否已经在容器中
+        /// </summary>
+        public bool IsRegistered(string typeFullName)
         {
             Activator activator;
-            return _cache.TryGet(type, out activator);
+            return _cache.TryGet(typeFullName, out activator);
         }
 
         /// <summary>
@@ -105,10 +110,10 @@ namespace Riz.XFramework
             /// </summary>
             public Func<object> Creator { get; set; }
 
-            public Activator(object instance, Func<object> func)
+            public Activator(object instance, Func<object> creator)
             {
                 this.Instance = instance;
-                this.Creator = func;
+                this.Creator = creator;
             }
         }
     }
