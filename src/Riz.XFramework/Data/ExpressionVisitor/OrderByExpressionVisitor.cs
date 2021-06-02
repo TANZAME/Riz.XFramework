@@ -12,6 +12,7 @@ namespace Riz.XFramework.Data
         private string _alias = null;
         private ISqlBuilder _builder = null;
         private DbExpression _groupBy = null;
+        AliasGenerator _ag = null;
 
         /// <summary>
         /// 初始化 <see cref="OrderByExpressionVisitor"/> 类的新实例
@@ -23,6 +24,7 @@ namespace Riz.XFramework.Data
         public OrderByExpressionVisitor(AliasGenerator ag, ISqlBuilder builder, DbExpression groupBy, string alias)
             : base(ag, builder)
         {
+            _ag = ag;
             _alias = alias;
             _builder = builder;
             _groupBy = groupBy;
@@ -58,6 +60,68 @@ namespace Riz.XFramework.Data
             }
 
             return null;
+        }
+
+        public override Expression Visit(Expression node)
+        {
+            if (node == null)
+                return node;
+
+            var propertyExpression = (node as ConstantExpression)?.Value as PropertyExpression;
+            if (propertyExpression == null)
+                return base.Visit(node);
+
+            // Group By 解析 ?? 未测试
+            if (_groupBy != null && node.IsGrouping())
+            {
+                string memberName = propertyExpression.PropertyName;
+
+                // CompanyName = g.Key.Name
+                LambdaExpression keySelector = _groupBy.Expressions[0] as LambdaExpression;
+                Expression exp = null;
+                Expression body = keySelector.Body;
+
+
+                if (body.NodeType == ExpressionType.MemberAccess)
+                {
+                    // group xx by a.CompanyName
+                    exp = body;
+
+                    //
+                    //
+                    //
+                    //
+                }
+                else if (body.NodeType == ExpressionType.New)
+                {
+                    // group xx by new { Name = a.CompanyName  }
+                    NewExpression newExpression = body as NewExpression;
+                    int index = newExpression.Members.IndexOf(x => x.Name == memberName);
+                    exp = newExpression.Arguments[index];
+                }
+                else if (body.NodeType == ExpressionType.MemberInit)
+                {
+                    // group xx by new App { Name = a.CompanyName  }
+                    MemberInitExpression initExpression = body as MemberInitExpression;
+                    int index = initExpression.Bindings.IndexOf(x => x.Member.Name == memberName);
+                    exp = ((MemberAssignment)initExpression.Bindings[index]).Expression;
+                }
+
+                return this.Visit(exp);
+            }
+
+            string alias = _ag.GetTableAlias(propertyExpression.Parameter);
+            if (!string.IsNullOrEmpty(_alias))
+                alias = _alias;
+            _builder.AppendMember(alias, propertyExpression.PropertyName);
+
+            //// 嵌套
+            //if (!string.IsNullOrEmpty(_alias))
+            //    _builder.AppendMember(_alias, node.Member, node.Expression.Type);
+            //else
+            //    base.VisitMember(node);
+
+            return node;
         }
 
         /// <summary>

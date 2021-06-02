@@ -577,14 +577,32 @@ namespace Riz.XFramework.Data
             if (segs.Length <= 1) return source;
 
             ParameterExpression parameterExpression = Expression.Parameter(typeof(TSource), segs[0]);
-            Expression node = parameterExpression;
-            for (int i = 1; i < segs.Length; i++) node = Expression.Property(node, segs[i]);
-
-            LambdaExpression lambdaExpression = Expression.Lambda(node, parameterExpression);
+            Expression orderByExpression = null;
             DbExpressionType dbExpressionType = DbExpressionType.OrderBy;
             if (clauses.Length > 1 && (clauses[1] ?? string.Empty).ToUpper() == "DESC") dbExpressionType = DbExpressionType.OrderByDescending;
 
-            return source.CreateQuery<TSource>(dbExpressionType, lambdaExpression);
+            if (segs.Length == 2)
+            {
+                var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo<TSource>();
+                var member = typeRuntime.GetMember(segs[1]);
+                if (member == null || (member.MemberType != System.Reflection.MemberTypes.Property && member.MemberType != System.Reflection.MemberTypes.Field))
+                {
+                    // a.Name,但是 Name 字段可能并不属于 a
+                    orderByExpression = Expression.Constant(new Data.PropertyExpression(parameterExpression, segs[1]));
+                }
+            }
+
+
+            if (orderByExpression == null)
+            {
+                // a.Product.BuyDate ASC
+                Expression node = parameterExpression;
+                for (int i = 1; i < segs.Length; i++) node = Expression.Property(node, segs[i]);
+
+                orderByExpression = Expression.Lambda(node, parameterExpression);
+            }
+
+            return source.CreateQuery<TSource>(dbExpressionType, orderByExpression);
         }
 
         /// <summary>
