@@ -6,7 +6,7 @@ using System.Text;
 namespace Riz.XFramework.Data
 {
     /// <summary>
-    /// 字段表达式
+    /// 字段表达式。适用于 字段不属于参数实例的场景
     /// </summary>
     public class PropertyExpression
     {
