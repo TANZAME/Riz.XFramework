@@ -1088,7 +1088,7 @@ namespace Riz.XFramework.UnitTest
             //        ClientCode2 = a.ClientCode + "22"
 
             //    };
-            //query = query.AsSubquery().OrderBy(a=>a.ClientCode2);
+            //query = query.AsSubquery(a => new Model.Client { ClientCode2=a.ClientCode2 }).OrderBy(a => a.ClientCode2);
             //query.ToList();
 
             query = context.GetTable<Model.Client>()

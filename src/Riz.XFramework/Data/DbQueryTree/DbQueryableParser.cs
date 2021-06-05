@@ -409,8 +409,8 @@ namespace Riz.XFramework.Data
             var initExpression = expression as MemberInitExpression;
             var newExpression = expression as NewExpression;
 
-            bool hasMany = DbQueryableParser.HasManyNavigation(includes);
-            if (!hasMany) hasMany = initExpression != null && HasManyNavigation(initExpression);
+            bool hasMany = DbQueryableParser.HasMany(includes);
+            if (!hasMany) hasMany = initExpression != null && HasMany(initExpression);
 
             #region 嵌套语义
 
@@ -457,7 +457,7 @@ namespace Riz.XFramework.Data
                         List<DbExpression> innerOrderBy = null;
                         foreach (var dbExpression in tree.OrderBys)
                         {
-                            hasMany = HasManyNavigation(dbExpression.Expressions[0] as LambdaExpression);
+                            hasMany = HasMany(dbExpression.Expressions[0] as LambdaExpression);
                             if (!hasMany)
                             {
                                 if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
@@ -523,7 +523,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasManyNavigation(MemberInitExpression node)
+        private static bool HasMany(MemberInitExpression node)
         {
             for (int i = 0; i < node.Bindings.Count; i++)
             {
@@ -538,7 +538,7 @@ namespace Riz.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool hasManyNavgation = HasManyNavigation(initExpression);
+                    bool hasManyNavgation = HasMany(initExpression);
                     if (hasManyNavgation) return true;
                 }
             }
@@ -547,7 +547,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasManyNavigation(LambdaExpression node)
+        private static bool HasMany(LambdaExpression node)
         {
             bool result = false;
             Expression expression = node.Body;
@@ -573,7 +573,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasManyNavigation(List<DbExpression> includes)
+        private static bool HasMany(List<DbExpression> includes)
         {
             if (includes == null) return false;
 
