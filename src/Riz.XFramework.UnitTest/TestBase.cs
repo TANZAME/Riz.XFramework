@@ -1076,6 +1076,20 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             var single = query.FirstOrDefault();
 
+            //query =
+            //    from a in context.GetTable<Model.Client>()
+            //    where a.ClientId > 0
+            //    orderby a.ClientId
+            //    select new Model.Client(a)
+            //    {
+            //        // CloudServer = a.CloudServer,
+            //        //Accounts = a.Accounts,
+            //        ClientCode = a.ClientCode + "11",
+            //        ClientCode2 = a.ClientCode + "22"
+
+            //    };
+            //query = query.AsSubquery().OrderBy(a=>a.ClientCode2);
+            //query.ToList();
 
             query = context.GetTable<Model.Client>()
                 .Include(a => a.Accounts)

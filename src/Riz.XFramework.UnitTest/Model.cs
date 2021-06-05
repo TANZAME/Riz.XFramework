@@ -265,6 +265,12 @@ namespace Riz.XFramework.UnitTest
             public virtual string ClientCode { get; set; }
 
             /// <summary>
+            /// clientcode
+            /// </summary>
+            [Column(NoMapped =true)]
+            public virtual string ClientCode2 { get; set; }
+
+            /// <summary>
             /// clientname
             /// </summary>
             public virtual string ClientName { get; set; }

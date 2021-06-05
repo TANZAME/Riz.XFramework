@@ -179,7 +179,7 @@ namespace Riz.XFramework.Data
 
                     case DbExpressionType.SelectMany:
                         pickExpression = item.Expressions[1];
-                        if (IsCrossJoin(source.DbExpressions, item, startIndex))
+                        if (IsCrossJoinExression(source.DbExpressions, item, startIndex))
                         {
                             if (joins == null)
                                 joins = new List<DbExpression>();
@@ -409,7 +409,7 @@ namespace Riz.XFramework.Data
             var initExpression = expression as MemberInitExpression;
             var newExpression = expression as NewExpression;
 
-            bool hasMany = DbQueryableParser.HasMany(includes);
+            bool hasMany = DbQueryableParser.HasManyNavigation(includes);
             if (!hasMany) hasMany = initExpression != null && HasManyNavigation(initExpression);
 
             #region 嵌套语义
@@ -457,7 +457,7 @@ namespace Riz.XFramework.Data
                         List<DbExpression> innerOrderBy = null;
                         foreach (var dbExpression in tree.OrderBys)
                         {
-                            hasMany = HasMany(dbExpression.Expressions[0] as LambdaExpression);
+                            hasMany = HasManyNavigation(dbExpression.Expressions[0] as LambdaExpression);
                             if (!hasMany)
                             {
                                 if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
@@ -547,7 +547,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(LambdaExpression node)
+        private static bool HasManyNavigation(LambdaExpression node)
         {
             bool result = false;
             Expression expression = node.Body;
@@ -573,7 +573,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(List<DbExpression> includes)
+        private static bool HasManyNavigation(List<DbExpression> includes)
         {
             if (includes == null) return false;
 
@@ -596,7 +596,7 @@ namespace Riz.XFramework.Data
         }
 
         // 判断表达式是否是 CROSS JOIN
-        private static bool IsCrossJoin(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)
+        private static bool IsCrossJoinExression(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)
         {
             Expression node = dbExpression.Expressions[0];
             if (node.NodeType == ExpressionType.Lambda)
