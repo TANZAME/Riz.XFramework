@@ -1076,6 +1076,8 @@ namespace Riz.XFramework.UnitTest
             result = query.ToList();
             var single = query.FirstOrDefault();
 
+            query = context.GetTable<Model.Client>().Where("ClientID={0}",5);
+            query.ToList();
             //query =
             //    from a in context.GetTable<Model.Client>()
             //    where a.ClientId > 0
@@ -1088,7 +1090,7 @@ namespace Riz.XFramework.UnitTest
             //        ClientCode2 = a.ClientCode + "22"
 
             //    };
-            //query = query.AsSubquery(a => new Model.Client { ClientCode2=a.ClientCode2 }).OrderBy(a => a.ClientCode2);
+            //query = query.AsSubquery(a => a).OrderBy(a => a.ClientCode2);
             //query.ToList();
 
             query = context.GetTable<Model.Client>()
@@ -2734,7 +2736,7 @@ namespace Riz.XFramework.UnitTest
                 var result = context
                     .GetTable<Model.Rabbit>()
                     .ToList();
-                Console.WriteLine(string.Format("第 {0} 次，用时：{1} 秒", (i + 1), DateTime.Now - sDate));
+                Console.WriteLine(string.Format("第 {0} 次，用时：{1}", (i + 1), DateTime.Now - sDate));
 
                 // 100w 数据量明显，清掉后内存会及时释放
                 result.Clear();

@@ -818,6 +818,21 @@ namespace Riz.XFramework.Data
         /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="where">用于测试每个元素是否满足条件的函数。注意格式：Condition={0} AND Condition1={1}</param>
+        /// <param name="args">参数列表</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> Where<TSource>(this IDbQueryable<TSource> source, string where, params object[] args)
+        {
+            return string.IsNullOrEmpty(where)
+                 ? source
+                 : source.CreateQuery<TSource>(DbExpressionType.Where, Expression.Constant(new DbRawSql(((DbQueryable)source).DbContext, where, args)));
+        }
+
+        /// <summary>
+        /// 基于谓词筛选值序列。将在谓词函数的逻辑中使用每个元素的索引
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <typeparam name="TSource2">source 中的关联语义的元素类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>

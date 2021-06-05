@@ -28,7 +28,7 @@ namespace Riz.XFramework.Data
             DbRawSql rawSql = null;
             bool isDistinct = false;
             bool isAny = false;
-            bool subQuery = false;
+            bool isSubquery = false;
             int? skip = null;
             int? take = null;
             int? outerIndex = null;
@@ -51,7 +51,7 @@ namespace Riz.XFramework.Data
                 DbExpression item = source.DbExpressions[index];
 
                 // Take(n)
-                if (take != null || (skip != null && item.DbExpressionType != DbExpressionType.Take) || isDistinct || subQuery)
+                if (take != null || (skip != null && item.DbExpressionType != DbExpressionType.Take) || isDistinct || isSubquery)
                 {
                     outerIndex = index;
                     break;
@@ -75,7 +75,7 @@ namespace Riz.XFramework.Data
                         break;
 
                     case DbExpressionType.AsSubquery:
-                        subQuery = true;
+                        isSubquery = true;
                         continue;
 
                     case DbExpressionType.Union:
@@ -87,7 +87,7 @@ namespace Riz.XFramework.Data
 
                         // 如果下一个不是 union，就使用嵌套
                         if (index + 1 <= source.DbExpressions.Count - 1 && source.DbExpressions[index + 1].DbExpressionType != DbExpressionType.Union)
-                            subQuery = true;
+                            isSubquery = true;
                         continue;
 
                     case DbExpressionType.Include:
@@ -364,20 +364,23 @@ namespace Riz.XFramework.Data
                 }
                 else
                 {
-                    // ?? what
+                    // 指定子查询
                     var iterator = (DbQuerySelectTree)outQueryTree;
                     while (iterator.Subquery != null) iterator = iterator.Subquery;
                     iterator.Subquery = result_Query;
+
+                    //// ?? AsSubquery(a=>a)，那么它所有的外层字段都要基于里层的字段
+                    //if (isSubquery && startIndex == 0)
+                    //    LimitSelector((DbQuerySelectTree)outQueryTree);
 
                     // 如果外层是统计，内层没有分页，则不需要排序
                     iterator = (DbQuerySelectTree)outQueryTree;
                     while (iterator.Subquery != null)
                     {
-                        var myOutQuery = iterator as DbQuerySelectTree;
-                        var mySubquery = iterator.Subquery as DbQuerySelectTree;
                         // 没有分页的嵌套统计，不需要排序
-                        if (myOutQuery.Aggregate != null && !(mySubquery.Take > 0 || mySubquery.Skip > 0) && mySubquery.OrderBys != null && mySubquery.OrderBys.Count > 0)
-                            mySubquery.OrderBys = new List<DbExpression>(0);
+                        if (iterator.Aggregate != null && !(iterator.Subquery.Take > 0 || iterator.Subquery.Skip > 0) && iterator.Subquery.OrderBys != null && iterator.Subquery.OrderBys.Count > 0)
+                            iterator.Subquery.OrderBys = new List<DbExpression>(0);
+
                         // 继续下一轮迭代
                         iterator = iterator.Subquery;
                     }
@@ -639,5 +642,49 @@ namespace Riz.XFramework.Data
             // 根据系统生成的变量名判断 
             return !dbExpression.Expressions[0].IsAnonymous();
         }
+
+        //// AsSubquery(a=>a)，那么它所有的外层字段都要基于里层的字段
+        //private static void LimitSelector(DbQuerySelectTree tree)
+        //{
+        //    var sub = tree.Subquery;
+        //    if (sub == null)
+        //        return;
+
+        //    if (sub.Subquery != null)
+        //        LimitSelector(sub);
+
+
+
+        //    var selctor = tree.Select.Expressions[0] as LambdaExpression;
+        //    if (selctor == null || selctor.Body is ParameterExpression)
+        //    {
+        //        // 重新构造 select 语义，基于 子查询
+        //        ParameterExpression newParameter = null;
+        //        List<DbExpression> dbExpressions = null;
+        //        if (result_Query.Includes != null && result_Query.Includes.Count > 0) dbExpressions = result_Query.Includes;
+        //        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0) dbExpressions = result_Query.OrderBys;
+        //        if (dbExpressions != null && dbExpressions.Count > 0) newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
+
+        //        // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
+        //        var parameterExpression = newParameter != null ? newParameter : Expression.Parameter(newExpression.Type, "__g");
+        //        bindings = bindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(parameterExpression, x.Member)));
+        //        List<Expression> arguments = null;
+        //        if (newExpression.Members != null)
+        //        {
+        //            arguments = new List<Expression>(newExpression.Arguments.Count);
+        //            for (int i = 0; i < newExpression.Arguments.Count; i++)
+        //            {
+        //                var member = newExpression.Members[i];
+        //                var arg = Expression.MakeMemberAccess(parameterExpression, member);
+        //                arguments.Add(arg);
+        //            }
+        //        }
+
+        //        newExpression = Expression.New(newExpression.Constructor, arguments, newExpression.Members);
+        //        initExpression = Expression.MemberInit(newExpression, bindings);
+        //        lambdaExpression = Expression.Lambda(initExpression, parameterExpression);
+        //        result_Query.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
+        //    }
+        //}
     }
 }

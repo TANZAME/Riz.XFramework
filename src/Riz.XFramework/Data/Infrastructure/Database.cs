@@ -768,7 +768,8 @@ namespace Riz.XFramework.Data
             PropertyDescriptorCollection descriptors = TypeDescriptor.GetProperties(component);
             foreach (PropertyDescriptor property in descriptors)
             {
-                if (result == null) result = new List<IDbDataParameter>(descriptors.Count);
+                if (result == null) 
+                    result = new List<IDbDataParameter>(descriptors.Count);
                 object value = property.GetValue(component);
                 result.Add(_provider.CreateParameter(string.Format("{0}{1}", _parameterPrefix, property.Name), value));
             }
