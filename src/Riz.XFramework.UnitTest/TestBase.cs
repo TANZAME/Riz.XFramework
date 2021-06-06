@@ -1441,6 +1441,25 @@ namespace Riz.XFramework.UnitTest
             //LEFT JOIN [Bas_ClientAccount] t2 ON t0.[ClientId] = t2.[ClientId]
             //LEFT JOIN [Bas_ClientAccountMarket] t3 ON t2.[ClientId] = t3.[ClientId] AND t2.[AccountId] = t3.[AccountId]
             //LEFT JOIN [Bas_Client] t4 ON t3.[ClientId] = t4.[ClientId]
+            //query1 =
+            //    from a in
+            //        context
+            //        .GetTable<Model.Client>()
+            //        .Include(a => a.CloudServer)
+            //        //.Include(a => a.Accounts)
+            //        //.Include(a => a.Accounts[0].Markets)
+            //        //.Include(a => a.Accounts[0].Markets[0].Client)
+            //    group a by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
+            //    select new Model.Client
+            //    {
+            //        ClientId = g.Key.ClientId,
+            //        ClientCode = g.Key.ClientCode,
+            //        ClientName = g.Key.ClientName,
+            //        CloudServerId = g.Key.CloudServerId,
+            //        Qty = g.Sum(a => a.Qty),
+            //        State = (byte)(g.Count())
+            //        //Qty = g.Sum(a => a),
+            //    };
             var max1 = query1.Max(a => a.Qty);
             //SQL=>
             //SELECT 
