@@ -554,8 +554,8 @@ namespace Riz.XFramework.Data
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    bool hasManyNavgation = HasMany(initExpression);
-                    if (hasManyNavgation) return true;
+                    if (HasMany(initExpression)) 
+                        return true;
                 }
             }
 
