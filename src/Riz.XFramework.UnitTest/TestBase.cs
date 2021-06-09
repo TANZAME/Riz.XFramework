@@ -1073,7 +1073,7 @@ namespace Riz.XFramework.UnitTest
                     Accounts = a.Accounts,
                     ClientCode = a.ClientCode
                 };
-            result = query.ToList();
+            result = query.Where(a=>a.CloudServer.CloudServerId>0).ToList();
             var single = query.FirstOrDefault();
 
             query = context.GetTable<Model.Client>().Where("ClientID={0}",5);

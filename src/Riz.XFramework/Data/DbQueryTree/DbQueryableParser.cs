@@ -422,7 +422,20 @@ namespace Riz.XFramework.Data
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 if (initExpression != null)
-                    bindings = initExpression.Bindings.ToList(a => TypeUtils.IsPrimitiveType((a.Member as System.Reflection.PropertyInfo).PropertyType));
+                {
+                    bindings = initExpression.Bindings.ToList(a => 
+                    {
+                        var property = a.Member as System.Reflection.PropertyInfo;
+                        if (property != null)
+                            return TypeUtils.IsPrimitiveType(property.PropertyType);
+
+                        var field = a.Member as System.Reflection.FieldInfo;
+                        if(field!=null)
+                            return TypeUtils.IsPrimitiveType(field.FieldType);
+
+                        return false;
+                    });
+                }
 
                 if (newExpression != null || bindings.Count() > 0)
                 {
