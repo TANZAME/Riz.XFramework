@@ -506,19 +506,19 @@ namespace Riz.XFramework.Data
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
                     // demo => line 1280
                     bool newSelector =
-                        simplfyBindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call && 
-                            ExpressionExtensions.Aggregates.Any(a => a.Key.ToString() == ((MemberAssignment)x).Member.Name)) ||
-                        newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call && 
+                        simplfyBindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call &&
+                            ExpressionExtensions.Aggregates.Any(a => a.Key.ToString() == (((MemberAssignment)x).Expression as MethodCallExpression).Method.Name)) ||
+                        newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call &&
                             ExpressionExtensions.Aggregates.Any(a => a.Key.ToString() == (x as MethodCallExpression).Method.Name));
                     if (newSelector)
                     {
                         ParameterExpression newParameter = null;
                         List<DbExpression> dbExpressions = null;
-                        if (result_Query.Includes != null && result_Query.Includes.Count > 0) 
+                        if (result_Query.Includes != null && result_Query.Includes.Count > 0)
                             dbExpressions = result_Query.Includes;
-                        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0) 
+                        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0)
                             dbExpressions = result_Query.OrderBys;
-                        if (dbExpressions != null && dbExpressions.Count > 0) 
+                        if (dbExpressions != null && dbExpressions.Count > 0)
                             newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
 
                         // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
