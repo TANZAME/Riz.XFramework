@@ -412,25 +412,32 @@ namespace Riz.XFramework.Data
             var initExpression = expression as MemberInitExpression;
             var newExpression = expression as NewExpression;
 
-            bool hasMany = DbQueryableParser.HasMany(includes);
-            if (!hasMany) hasMany = initExpression != null && HasMany(initExpression);
+            Navigation navigation = DbQueryableParser.CheckSelectedNavigation(includes);
+            if (navigation != Navigation.All && initExpression != null)
+            {
+                Navigation n = CheckSelectedNavigation(initExpression);
+                if (navigation == Navigation.None)
+                    navigation = n;
+                else
+                    navigation = navigation | n;
+            }
 
             #region 嵌套语义
 
-            if (hasMany)
+            if ((navigation & Navigation.Many) == Navigation.Many || ((navigation & Navigation.One) == Navigation.One && tree.GroupBy != null))
             {
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
                 List<MemberBinding> bindings = new List<MemberBinding>();
                 if (initExpression != null)
                 {
-                    bindings = initExpression.Bindings.ToList(a => 
+                    bindings = initExpression.Bindings.ToList(a =>
                     {
                         var property = a.Member as System.Reflection.PropertyInfo;
                         if (property != null)
                             return TypeUtils.IsPrimitiveType(property.PropertyType);
 
                         var field = a.Member as System.Reflection.FieldInfo;
-                        if(field!=null)
+                        if (field != null)
                             return TypeUtils.IsPrimitiveType(field.FieldType);
 
                         return false;
@@ -470,21 +477,22 @@ namespace Riz.XFramework.Data
                     else
                     {
                         // 如果有分页，只有主表/用到的1:1从表放在内层，其它放在外层
-                        List<DbExpression> innerOrderBy = null;
+                        List<DbExpression> innerOrderBys = null;
                         foreach (var dbExpression in tree.OrderBys)
                         {
-                            hasMany = HasMany(dbExpression.Expressions[0] as LambdaExpression);
-                            if (!hasMany)
+                            bool isOrderByMany = IsOrderByManyMember(dbExpression.Expressions[0] as LambdaExpression);
+                            if (!isOrderByMany)
                             {
-                                if (innerOrderBy == null) innerOrderBy = new List<DbExpression>();
-                                innerOrderBy.Add(dbExpression);
+                                if (innerOrderBys == null)
+                                    innerOrderBys = new List<DbExpression>();
+                                innerOrderBys.Add(dbExpression);
                             }
                         }
 
-                        if (innerOrderBy != null && innerOrderBy.Count > 0)
+                        if (innerOrderBys != null && innerOrderBys.Count > 0)
                         {
                             result_Query.OrderBys = tree.OrderBys;
-                            tree.OrderBys = innerOrderBy;
+                            tree.OrderBys = innerOrderBys;
                         }
                     }
                 }
@@ -538,37 +546,102 @@ namespace Riz.XFramework.Data
             return tree;
         }
 
-        // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(MemberInitExpression node)
+        // 判定当前 select 语义的导航属性
+        private static Navigation CheckSelectedNavigation(MemberInitExpression node)
         {
+            Navigation result = Navigation.None;
+
             for (int i = 0; i < node.Bindings.Count; i++)
             {
                 // primitive 类型
                 Type type = (node.Bindings[i].Member as System.Reflection.PropertyInfo).PropertyType;
                 if (TypeUtils.IsPrimitiveType(type)) continue;
+                // list 类型
+                if (TypeUtils.IsCollectionType(type))
+                {
+                    if (result == Navigation.None)
+                        result = Navigation.Many;
+                    else
+                        result = result | Navigation.Many;
 
-                // complex 类型
-                if (TypeUtils.IsCollectionType(type)) return true;
+                    if (result == Navigation.All)
+                        break;
+                    else
+                        continue;
+                }
 
+                // new Model
                 MemberAssignment memberAssignment = node.Bindings[i] as MemberAssignment;
                 if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberInit)
                 {
                     MemberInitExpression initExpression = memberAssignment.Expression as MemberInitExpression;
-                    if (HasMany(initExpression)) 
-                        return true;
+                    Navigation n = CheckSelectedNavigation(initExpression);
+                    if (result == Navigation.None)
+                        result = n;
+                    else
+                        result = result | n;
+
+                    if (result == Navigation.All)
+                        break;
+                    else
+                        continue;
+                }
+
+                // a.Model
+                if (memberAssignment != null && memberAssignment.Expression.NodeType == ExpressionType.MemberAccess)
+                {
+                    if (result == Navigation.None)
+                        result = Navigation.One;
+                    else
+                        result = result | Navigation.One;
+
+                    if (result == Navigation.All)
+                        break;
+                    else
+                        continue;
                 }
             }
 
-            return false;
+            return result;
         }
 
-        // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(LambdaExpression node)
+        // 判定当前 select 语义的导航属性
+        private static Navigation CheckSelectedNavigation(List<DbExpression> includes)
+        {
+            if (includes == null)
+                return Navigation.None;
+
+            Navigation result = Navigation.None;
+            foreach (DbExpression dbExpression in includes)
+            {
+                Expression expression = dbExpression.Expressions[0];
+                if (expression.NodeType == ExpressionType.Lambda) expression = (expression as LambdaExpression).Body;
+                else if (expression.NodeType == ExpressionType.Call) expression = (expression as MethodCallExpression).Object;
+
+                Navigation n = TypeUtils.IsCollectionType(expression.Type)
+                    ? Navigation.Many
+                    : Navigation.One;
+
+                if (result == Navigation.None)
+                    result = n;
+                else
+                    result = result | n;
+
+                if (result == Navigation.All)
+                    break;
+            }
+
+            return result;
+        }
+
+        // 判定 OrderBy 语义里是否声明了一对多关系的导航
+        private static bool IsOrderByManyMember(LambdaExpression orderByNode)
         {
             bool result = false;
-            Expression expression = node.Body;
-            while (expression.Visitable())
+            Expression expression = orderByNode.Body;
+            while (expression.IsChildNode())
             {
+                // => a.Accounts[0].Member
                 if (expression.NodeType == ExpressionType.MemberAccess) expression = (expression as MemberExpression).Expression;
                 else if (expression.NodeType == ExpressionType.Call)
                 {
@@ -588,27 +661,29 @@ namespace Riz.XFramework.Data
             return result;
         }
 
-        // 判定 MemberInit 绑定是否声明了一对多关系的导航
-        private static bool HasMany(List<DbExpression> includes)
+        // 导航属性
+        [Flags]
+        enum Navigation
         {
-            if (includes == null) return false;
+            /// <summary>
+            /// 无
+            /// </summary>
+            None = 0,
 
-            bool result = false;
-            foreach (DbExpression dbExpression in includes)
-            {
-                Expression expression = dbExpression.Expressions[0];
-                if (expression.NodeType == ExpressionType.Lambda) expression = (expression as LambdaExpression).Body;
-                else if (expression.NodeType == ExpressionType.Call) expression = (expression as MethodCallExpression).Object;
+            /// <summary>
+            /// 1:1导航
+            /// </summary>
+            One = 1,
 
-                // Include 如果包含List<>泛型导航，则可以判定整个查询包含一对多的导航
-                if (TypeUtils.IsCollectionType(expression.Type))
-                {
-                    result = true;
-                    break;
-                }
-            }
+            /// <summary>
+            /// 1：n导航
+            /// </summary>
+            Many = 2,
 
-            return result;
+            /// <summary>
+            /// 1:1导航 以及 1：n导航
+            /// </summary>
+            All = One | Many
         }
 
         // 判断表达式是否是 CROSS JOIN
@@ -655,49 +730,5 @@ namespace Riz.XFramework.Data
             // 根据系统生成的变量名判断 
             return !dbExpression.Expressions[0].IsAnonymous();
         }
-
-        //// AsSubquery(a=>a)，那么它所有的外层字段都要基于里层的字段
-        //private static void LimitSelector(DbQuerySelectTree tree)
-        //{
-        //    var sub = tree.Subquery;
-        //    if (sub == null)
-        //        return;
-
-        //    if (sub.Subquery != null)
-        //        LimitSelector(sub);
-
-
-
-        //    var selctor = tree.Select.Expressions[0] as LambdaExpression;
-        //    if (selctor == null || selctor.Body is ParameterExpression)
-        //    {
-        //        // 重新构造 select 语义，基于 子查询
-        //        ParameterExpression newParameter = null;
-        //        List<DbExpression> dbExpressions = null;
-        //        if (result_Query.Includes != null && result_Query.Includes.Count > 0) dbExpressions = result_Query.Includes;
-        //        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0) dbExpressions = result_Query.OrderBys;
-        //        if (dbExpressions != null && dbExpressions.Count > 0) newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
-
-        //        // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
-        //        var parameterExpression = newParameter != null ? newParameter : Expression.Parameter(newExpression.Type, "__g");
-        //        bindings = bindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(parameterExpression, x.Member)));
-        //        List<Expression> arguments = null;
-        //        if (newExpression.Members != null)
-        //        {
-        //            arguments = new List<Expression>(newExpression.Arguments.Count);
-        //            for (int i = 0; i < newExpression.Arguments.Count; i++)
-        //            {
-        //                var member = newExpression.Members[i];
-        //                var arg = Expression.MakeMemberAccess(parameterExpression, member);
-        //                arguments.Add(arg);
-        //            }
-        //        }
-
-        //        newExpression = Expression.New(newExpression.Constructor, arguments, newExpression.Members);
-        //        initExpression = Expression.MemberInit(newExpression, bindings);
-        //        lambdaExpression = Expression.Lambda(initExpression, parameterExpression);
-        //        result_Query.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
-        //    }
-        //}
     }
 }

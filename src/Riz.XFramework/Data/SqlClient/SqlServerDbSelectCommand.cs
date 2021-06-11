@@ -52,7 +52,7 @@ namespace Riz.XFramework.Data
                 string outerKey = key;
                 string innerAlias = string.Empty;
 
-                if (!m.Expression.Visitable())
+                if (!m.Expression.IsChildNode())
                 {
                     innerKey = m.Expression.NodeType == ExpressionType.Parameter
                         ? (m.Expression as ParameterExpression).Name

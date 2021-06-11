@@ -206,7 +206,7 @@ namespace Riz.XFramework.Data
             if (memberExpression == null)
                 return AliasGenerator.GetTableAliasKey(exp);
 
-            if (memberExpression.Visitable())
+            if (memberExpression.IsChildNode())
                 return AliasGenerator.GetTableAliasKey(memberExpression.Expression);
 
             return memberExpression.Member.Name;

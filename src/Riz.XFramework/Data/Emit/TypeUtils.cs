@@ -88,7 +88,7 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 判断给定类型是否是ORM支持的基元类型
+        /// 判断给定类型是否是ORM支持的基元类型（object 类型除外）
         /// </summary>
         public static bool IsPrimitiveType(Type type) => _primitiveTypes.Contains(type);
 
@@ -111,7 +111,7 @@ namespace Riz.XFramework.Data
             => type != null && type.Name.Length > 18 && type.Name.IndexOf("AnonymousType", 5, StringComparison.InvariantCulture) == 5;
 
         /// <summary>
-        /// 判断给定类型是否是ORM支持的泛型列表类型  IList 接口及其继承类
+        /// 判断给定类型是否是ORM支持的泛型列表类型  ICollection 接口及其继承类
         /// </summary>
         public static bool IsCollectionType(Type type)
         {
@@ -124,7 +124,6 @@ namespace Riz.XFramework.Data
             else if (type2 == typeof(IList<>)) return true;
             else if (type2 == typeof(ICollection<>)) return true;
             else return typeof(ICollection<>).IsAssignableFrom(type.GetGenericTypeDefinition()) || type.GetInterface(typeof(ICollection<>).FullName) != null;
-
         }
 
         /// <summary>

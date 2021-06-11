@@ -312,6 +312,9 @@ namespace Riz.XFramework.UnitTest
             [ForeignKey("ClientId")]
             public virtual IList<Account> Accounts { get; set; }
 
+            //[ForeignKey("ClientId")]
+            //public virtual IEnumerable<Account> Accounts2 { get; set; }
+
             /// <summary>
             /// 构造函数勾子
             /// </summary>

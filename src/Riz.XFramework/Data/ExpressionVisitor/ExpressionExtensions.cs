@@ -10,14 +10,11 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 表达式扩展方法
     /// </summary>
-    public static class ExpressionExtensions
+    internal static class ExpressionExtensions
     {
         private static readonly string _anonymousName = "<>h__TransparentIdentifier";
         private static readonly Func<Type, bool> _isGrouping = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IGrouping<,>);
         private static readonly Func<string, bool> _isAnonymous = name => !string.IsNullOrEmpty(name) && name.StartsWith(_anonymousName, StringComparison.Ordinal);
-        private static readonly MemberInfo _dateTimeNow = typeof(DateTime).GetMember("Now", MemberTypes.Property, BindingFlags.Public | BindingFlags.Static)[0];
-        private static readonly MemberInfo _dateTimeUtcNow = typeof(DateTime).GetMember("UtcNow", MemberTypes.Property, BindingFlags.Public | BindingFlags.Static)[0];
-        private static readonly MemberInfo _dateTimeToday = typeof(DateTime).GetMember("Today", MemberTypes.Property, BindingFlags.Public | BindingFlags.Static)[0];
 
         /// <summary>
         /// 聚合函数方法
@@ -102,87 +99,9 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 判断是否是访问 List`1 类的索引的表达式
+        /// 确定节点是否能够被继续递归访问（非根节点）
         /// </summary>
-        /// <param name="node">表示对静态方法或实例方法的调用表达式</param>
-        /// <returns></returns>
-        public static bool IsCollectionIndex(this MethodCallExpression node)
-        {
-            if (node == null) return false;
-            Expression objExpression = node.Object;
-            bool result = objExpression != null && Data.TypeUtils.IsCollectionType(objExpression.Type) && node.Method.Name == "get_Item";
-            return result;
-        }
-
-        /// <summary>
-        /// 判断表达式链是否能通过动态计算，计算出它的值
-        /// </summary>
-        public static bool CanEvaluate(this Expression node)
-        {
-            // => 5
-            // => a.ActiveDate == DateTime.Now
-            // => a.State == (byte)state
-            // => a.Accounts[0].Markets[0].MarketId
-
-            if (node == null) return false;
-            if (node.NodeType == ExpressionType.Constant) return true;
-            if (node.NodeType == ExpressionType.ArrayIndex) return true;
-            if (node.NodeType == ExpressionType.Call)
-            {
-                // List<int>{0}[]
-                // => a.Accounts[0].Markets[0].MarketId
-                MethodCallExpression methodExpression = node as MethodCallExpression;
-                bool isIndex = methodExpression.IsCollectionIndex();
-                if (isIndex) node = methodExpression.Object;
-            }
-
-            if (node.NodeType == ExpressionType.ListInit) return true;
-            if (node.NodeType == ExpressionType.NewArrayInit) return true;
-            if (node.NodeType == ExpressionType.NewArrayBounds) return true;
-
-            if (node.NodeType != ExpressionType.MemberAccess) return false;
-
-            var memberExpression = node as MemberExpression;
-            if (memberExpression == null) return false;
-            if (memberExpression.Expression == null)
-            {
-                // 排除 DateTime 的几个常量
-                bool isDateTime = memberExpression.Type == typeof(DateTime) && 
-                    (memberExpression.Member == _dateTimeNow || memberExpression.Member == _dateTimeUtcNow || memberExpression.Member == _dateTimeToday);
-                return !isDateTime;
-            }
-            if (memberExpression.Expression.NodeType == ExpressionType.Constant) return true;
-
-            return memberExpression.Expression.CanEvaluate();
-        }
-
-        /// <summary>
-        /// 计算表达式的值
-        /// </summary>
-        public static ConstantExpression Evaluate(this Expression node)
-        {
-            // TODO 缓存常量表达式
-
-            ConstantExpression constantExpression = null;
-            if (node.NodeType == ExpressionType.Constant) constantExpression = node as ConstantExpression;
-            else
-            {
-                LambdaExpression lambda = node is LambdaExpression ? Expression.Lambda(((LambdaExpression)node).Body) : Expression.Lambda(node);
-                Delegate fn = lambda.Compile();
-                constantExpression = Expression.Constant(fn.DynamicInvoke(null), node is LambdaExpression ? ((LambdaExpression)node).Body.Type : node.Type);
-            }
-
-            // 枚举要转成 INT
-            if (constantExpression.Type.IsEnum) 
-                constantExpression = Expression.Constant(Convert.ToInt32(constantExpression.Value));
-            // 返回最终处理的常量表达式s
-            return constantExpression;
-        }
-
-        /// <summary>
-        /// 确定节点是否能够被继续递归访问
-        /// </summary>
-        public static bool Visitable(this Expression node)
+        public static bool IsChildNode(this Expression node)
         {
             // a 
             // <>h__TransparentIdentifier.a
@@ -220,7 +139,7 @@ namespace Riz.XFramework.Data
             members.Add(node.Member.Name);
 
             Expression expression = node.Expression;
-            while (expression.Visitable())
+            while (expression.IsChildNode())
             {
                 MemberExpression m = null;
                 if (expression.NodeType == ExpressionType.MemberAccess) m = (MemberExpression)expression;

@@ -118,7 +118,7 @@ namespace Riz.XFramework.Data.SqlClient
             // 第一层的表别名
             string alias = context != null && !string.IsNullOrEmpty(context.AliasPrefix) ? (context.AliasPrefix + "0") : "t0";
             bool useSubquery = tree.HasDistinct || tree.GroupBy != null || tree.Skip > 0 || tree.Take > 0;
-            bool useOrderBy = (!useAggregate || tree.Skip > 0) && !tree.HasAny && (!tree.SelectHasMany || (tree.Skip > 0 || tree.Take > 0));
+            bool useOrderBy = !tree.HasAny && (!useAggregate || tree.Skip > 0);// && (!tree.SelectHasMany || (tree.Skip > 0 || tree.Take > 0));
 
             AliasGenerator ag = this.PrepareTableAlias(tree, context != null ? context.AliasPrefix : null);
             var result = new SqlServerDbSelectCommand(context, ag, tree.SelectHasMany);

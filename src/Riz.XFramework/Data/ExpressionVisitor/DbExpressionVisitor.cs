@@ -219,7 +219,7 @@ namespace Riz.XFramework.Data
             // => a.Name.Length
             if (TypeUtils.IsPrimitiveType(node.Expression.Type)) return this.VisitMethodCall(node, MethodCallType.MemberMember);
             // => <>h__3.b.ClientName
-            if (!node.Expression.Visitable())
+            if (!node.Expression.IsChildNode())
             {
                 _builder.AppendMember(_ag, node);
                 return node;
@@ -353,7 +353,7 @@ namespace Riz.XFramework.Data
             Expression node = expression;
             Stack<NavMember> navStack = null;
             string alias = string.Empty;
-            while (node != null && node.Visitable())
+            while (node != null && node.IsChildNode())
             {
                 if (node.NodeType != ExpressionType.MemberAccess) break;
 

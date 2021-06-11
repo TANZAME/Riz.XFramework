@@ -212,7 +212,7 @@ namespace Riz.XFramework.Data
             else
             {
                 // 非显式指定的导航属性需要有 ForeignKeyAttribute
-                if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable())
+                if (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.IsChildNode())
                 {
                     var typeRuntime = TypeRuntimeInfoCache.GetRuntimeInfo(newType);
                     var attribute = typeRuntime.GetMemberAttribute<ForeignKeyAttribute>(m.Member.Name);
@@ -235,14 +235,14 @@ namespace Riz.XFramework.Data
                 {
                     // Fix issue# spliton 列占一个位
                     nav.StartIndex = _selectedColumns.Count;
-                    nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.Visitable() ? 1 : 0);
+                    nav.FieldCount = GetFieldCount(m.Expression) + (m.Expression.NodeType == ExpressionType.MemberAccess && m.Expression.IsChildNode() ? 1 : 0);
                     _navDescriptors.Add(nav);
                     _navDescriptorKeys.Add(keyId);
                 }
 
                 // 1.不显式指定导航属性，例：a.Client.ClientList
                 // 2.表达式里显式指定导航属性，例：b
-                if (m.Expression.NodeType == ExpressionType.MemberAccess) this.VisitNavigation(m.Expression as MemberExpression, m.Expression.Visitable());
+                if (m.Expression.NodeType == ExpressionType.MemberAccess) this.VisitNavigation(m.Expression as MemberExpression, m.Expression.IsChildNode());
                 else if (m.Expression.NodeType == ExpressionType.New) this.VisitNewImpl(m.Expression as NewExpression, false);
                 else if (m.Expression.NodeType == ExpressionType.MemberInit) this.VisitMemberInit(m.Expression as MemberInitExpression);
 
@@ -258,7 +258,7 @@ namespace Riz.XFramework.Data
             string alias = string.Empty;
             Type type = node.Type;
 
-            if (node.Visitable())
+            if (node.IsChildNode())
             {
                 // 例： Client = a.Client.CloudServer
                 // Fix issue# Join 表达式显式指定导航属性时时，alias 为空

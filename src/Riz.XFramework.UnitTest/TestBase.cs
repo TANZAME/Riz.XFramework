@@ -1061,7 +1061,11 @@ namespace Riz.XFramework.UnitTest
             //FROM[Bas_Client] t0
             //LEFT JOIN[Sys_CloudServer] t1 ON t0.[CloudServerId] = t1.[CloudServerId]
             //LEFT JOIN[Sys_CloudServer] t2 ON t0.[CloudServerId] = t2.[CloudServerId]
-
+            //query =
+            //    from a in context.GetTable<Model.Client>()
+            //    orderby a.ClientCode descending
+            //    select a;
+            //result = query.ToList();
             // 1：1关系，1：n关系
             query =
                 from a in context.GetTable<Model.Client>()
@@ -1073,10 +1077,11 @@ namespace Riz.XFramework.UnitTest
                     Accounts = a.Accounts,
                     ClientCode = a.ClientCode
                 };
-            result = query.Where(a=>a.CloudServer.CloudServerId>0).ToList();
+            result = query.Where(a => a.CloudServer.CloudServerId > 0).ToList();
             var single = query.FirstOrDefault();
+            // TODO 1:n 的排序问题
 
-            query = context.GetTable<Model.Client>().Where("ClientID={0}",5);
+            query = context.GetTable<Model.Client>().Where("ClientID={0}", 5);
             query.ToList();
             //query =
             //    from a in context.GetTable<Model.Client>()
@@ -1349,6 +1354,17 @@ namespace Riz.XFramework.UnitTest
                select a;
             query = query.OrderBy(a => a.ClientId);
             result = query.ToList();
+
+            query =
+               from a in context
+                   .GetTable<Model.Client>()
+                   //.Include(a => a.CloudServer)
+                   .Include(a => a.Accounts)
+               where a.ClientId > 0
+               select a;
+            query = query.OrderBy(a => a.ClientId);
+            result = query.ToList();
+
             //SQL=>
             //SELECT 
             //t0.[ClientId] AS [ClientId],
@@ -1372,10 +1388,10 @@ namespace Riz.XFramework.UnitTest
                 from a in
                     context
                     .GetTable<Model.Client>()
-                    .Include(a => a.CloudServer)
-                    .Include(a => a.Accounts)
-                    .Include(a => a.Accounts[0].Markets)
-                    .Include(a => a.Accounts[0].Markets[0].Client)
+                    //.Include(a => a.CloudServer)
+                    //.Include(a => a.Accounts)
+                    //.Include(a => a.Accounts[0].Markets)
+                    //.Include(a => a.Accounts[0].Markets[0].Client)
                 group a.Qty by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
                 select new Model.Client
                 {
@@ -1396,6 +1412,66 @@ namespace Riz.XFramework.UnitTest
                 .Take(20)
                 ;
             var result1 = query1.ToList();
+            context.Database.ExecuteNonQuery(query1.Sql);
+
+            query1 =
+                from a in
+                    context
+                    .GetTable<Model.Client>()
+                    .Include(a => a.CloudServer)
+                    //.Include(a => a.Accounts)
+                    //.Include(a => a.Accounts[0].Markets)
+                    //.Include(a => a.Accounts[0].Markets[0].Client)
+                group a.Qty by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
+                select new Model.Client
+                {
+                    ClientId = g.Key.ClientId,
+                    ClientCode = g.Key.ClientCode,
+                    ClientName = g.Key.ClientName,
+                    CloudServerId = g.Key.CloudServerId,
+                    //Qty = g.Sum(a => a.Qty),
+                    //State = (byte)(g.Count())
+                    Qty = g.Sum(a => a),
+                };
+            query1 = query1
+                .Where(a => a.ClientId > 0)
+                .Where(a => a.ClientId > 1)
+                .Where(a => a.ClientId > 2)
+                .OrderBy(a => a.ClientId)
+                .Skip(10)
+                .Take(20)
+                ;
+            result1 = query1.ToList();
+            context.Database.ExecuteNonQuery(query1.Sql);
+
+            query1 =
+               from a in
+                   context
+                   .GetTable<Model.Client>()
+                   .Include(a => a.CloudServer)
+                   .Include(a => a.Accounts)
+                   .Include(a => a.Accounts[0].Markets)
+                   .Include(a => a.Accounts[0].Markets[0].Client)
+               group a.Qty by new { a.ClientId, a.ClientCode, a.ClientName, a.CloudServer.CloudServerId } into g
+               select new Model.Client
+               {
+                   ClientId = g.Key.ClientId,
+                   ClientCode = g.Key.ClientCode,
+                   ClientName = g.Key.ClientName,
+                   CloudServerId = g.Key.CloudServerId,
+                    //Qty = g.Sum(a => a.Qty),
+                    //State = (byte)(g.Count())
+                    Qty = g.Sum(a => a),
+               };
+            query1 = query1
+                .Where(a => a.ClientId > 0)
+                .Where(a => a.ClientId > 1)
+                .Where(a => a.ClientId > 2)
+                .OrderBy(a => a.ClientId)
+                .Skip(10)
+                .Take(20)
+                ;
+            result1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.Sql);
 
             query1 =
