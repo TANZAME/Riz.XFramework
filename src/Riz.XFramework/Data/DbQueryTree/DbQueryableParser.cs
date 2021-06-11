@@ -427,10 +427,10 @@ namespace Riz.XFramework.Data
             if ((navigation & Navigation.Many) == Navigation.Many || ((navigation & Navigation.One) == Navigation.One && tree.GroupBy != null))
             {
                 newExpression = initExpression != null ? initExpression.NewExpression : newExpression;
-                List<MemberBinding> bindings = new List<MemberBinding>();
+                List<MemberBinding> simplfyBindings = new List<MemberBinding>();
                 if (initExpression != null)
                 {
-                    bindings = initExpression.Bindings.ToList(a =>
+                    simplfyBindings = initExpression.Bindings.ToList(a =>
                     {
                         var property = a.Member as System.Reflection.PropertyInfo;
                         if (property != null)
@@ -444,10 +444,10 @@ namespace Riz.XFramework.Data
                     });
                 }
 
-                if (newExpression != null || bindings.Count() > 0)
+                if (newExpression != null || simplfyBindings.Count() > 0)
                 {
                     // 简化内层选择器，只选择最小字段，不选择导航字段，导航字段在外层加进去
-                    initExpression = Expression.MemberInit(newExpression, bindings);
+                    initExpression = Expression.MemberInit(newExpression, simplfyBindings);
                     lambdaExpression = Expression.Lambda(initExpression, lambdaExpression.Parameters);
                     tree.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                 }
@@ -505,18 +505,25 @@ namespace Riz.XFramework.Data
                 {
                     // 查看外层是否需要重新构造选择器。如果有分组并且有聚合函数，则需要重新构造选择器。否则外层解析不了聚合函数
                     // demo => line 1280
-                    bool newSelector = bindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call) || newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call);
+                    bool newSelector =
+                        simplfyBindings.Any(x => ((MemberAssignment)x).Expression.NodeType == ExpressionType.Call && 
+                            ExpressionExtensions.Aggregates.Any(a => a.Key.ToString() == ((MemberAssignment)x).Member.Name)) ||
+                        newExpression.Arguments.Any(x => x.NodeType == ExpressionType.Call && 
+                            ExpressionExtensions.Aggregates.Any(a => a.Key.ToString() == (x as MethodCallExpression).Method.Name));
                     if (newSelector)
                     {
                         ParameterExpression newParameter = null;
                         List<DbExpression> dbExpressions = null;
-                        if (result_Query.Includes != null && result_Query.Includes.Count > 0) dbExpressions = result_Query.Includes;
-                        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0) dbExpressions = result_Query.OrderBys;
-                        if (dbExpressions != null && dbExpressions.Count > 0) newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
+                        if (result_Query.Includes != null && result_Query.Includes.Count > 0) 
+                            dbExpressions = result_Query.Includes;
+                        else if (result_Query.OrderBys != null && result_Query.OrderBys.Count > 0) 
+                            dbExpressions = result_Query.OrderBys;
+                        if (dbExpressions != null && dbExpressions.Count > 0) 
+                            newParameter = (dbExpressions[0].Expressions[0] as LambdaExpression).Parameters[0];
 
                         // 1对多导航嵌套查询外层的的第一个表别名固定t0，参数名可随意
-                        var parameterExpression = newParameter != null ? newParameter : Expression.Parameter(newExpression.Type, "__g");
-                        bindings = bindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(parameterExpression, x.Member)));
+                        var paramExpression = newParameter != null ? newParameter : Expression.Parameter(newExpression.Type, "__g");
+                        simplfyBindings = simplfyBindings.ToList(x => (MemberBinding)Expression.Bind(x.Member, Expression.MakeMemberAccess(paramExpression, x.Member)));
                         List<Expression> arguments = null;
                         if (newExpression.Members != null)
                         {
@@ -524,14 +531,14 @@ namespace Riz.XFramework.Data
                             for (int i = 0; i < newExpression.Arguments.Count; i++)
                             {
                                 var member = newExpression.Members[i];
-                                var arg = Expression.MakeMemberAccess(parameterExpression, member);
+                                var arg = Expression.MakeMemberAccess(paramExpression, member);
                                 arguments.Add(arg);
                             }
                         }
 
                         newExpression = Expression.New(newExpression.Constructor, arguments, newExpression.Members);
-                        initExpression = Expression.MemberInit(newExpression, bindings);
-                        lambdaExpression = Expression.Lambda(initExpression, parameterExpression);
+                        initExpression = Expression.MemberInit(newExpression, simplfyBindings);
+                        lambdaExpression = Expression.Lambda(initExpression, paramExpression);
                         result_Query.Select = new DbExpression(DbExpressionType.Select, lambdaExpression);
                     }
                 }
@@ -661,31 +668,6 @@ namespace Riz.XFramework.Data
             return result;
         }
 
-        // 导航属性
-        [Flags]
-        enum Navigation
-        {
-            /// <summary>
-            /// 无
-            /// </summary>
-            None = 0,
-
-            /// <summary>
-            /// 1:1导航
-            /// </summary>
-            One = 1,
-
-            /// <summary>
-            /// 1：n导航
-            /// </summary>
-            Many = 2,
-
-            /// <summary>
-            /// 1:1导航 以及 1：n导航
-            /// </summary>
-            All = One | Many
-        }
-
         // 判断表达式是否是 CROSS JOIN
         private static bool IsCrossJoinExression(IList<DbExpression> collection, DbExpression dbExpression, int start = 0)
         {
@@ -729,6 +711,31 @@ namespace Riz.XFramework.Data
 
             // 根据系统生成的变量名判断 
             return !dbExpression.Expressions[0].IsAnonymous();
+        }
+
+        // 导航属性
+        [Flags]
+        enum Navigation
+        {
+            /// <summary>
+            /// 无
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// 1:1导航
+            /// </summary>
+            One = 1,
+
+            /// <summary>
+            /// 1：n导航
+            /// </summary>
+            Many = 2,
+
+            /// <summary>
+            /// 1:1导航 以及 1：n导航
+            /// </summary>
+            All = One | Many
         }
     }
 }
