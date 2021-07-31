@@ -460,6 +460,14 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
+        /// 调用泛型序列的每个元素上的转换函数并返回最大结果值。
+        /// </summary>
+        public static TResult Max<TSource, TResult>(this IEnumerable<TSource> source, LambdaExpression lambda)
+        {
+            return default(TResult);
+        }
+
+        /// <summary>
         /// 返回泛型 <see cref="IDbQueryable{TSource}"/> 中的最小值
         /// </summary>
         /// <typeparam name="TSource">source 的元素类型</typeparam>

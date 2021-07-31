@@ -521,6 +521,12 @@ namespace Riz.XFramework.Data
                     : (node.Arguments.Count == 1 ? null : node.Arguments[1]);
                 if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
 
+                // 常量，Lambda lam = value;
+                if (exp.CanEvaluate())
+                {
+                    exp = exp.Evaluate();
+                    if (exp is ConstantExpression) exp = (LambdaExpression)(((ConstantExpression)exp).Value);
+                }
                 // 如果是 a=> a 这种表达式，那么一定会指定 elementSelector
                 if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[1];
                 if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;

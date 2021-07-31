@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Riz.XFramework.Data;
 using System.Data;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Riz.XFramework.UnitTest
 {
@@ -1044,15 +1045,20 @@ namespace Riz.XFramework.UnitTest
                     }
                 };
 
+
+            ParameterExpression @parameter = Expression.Parameter(typeof(Model.Server), "a");
+            MemberExpression @property = Expression.Property(@parameter, "CloudServerCode");
+            LambdaExpression keyAggregate = Expression.Lambda(@property, @parameter);
+
             var groupQuery = (
-                from a in query.AsSubquery(a => new { a.CloudServerId })
+                from a in query.AsSubquery(a => new Model.Server { CloudServerId = a.CloudServerId })
                 group a by a.CloudServerId into g
                 select new
                 {
                     CloudServerId = g.Key,
-                    Max = g.Max(a => a.CloudServerId)
+                    Max = g.Max<Model.Server, int>(keyAggregate)
                 });
-
+            groupQuery.ToList();
             //var query9 =
             //    from a in query
             //    join b in groupQuery on a.CloudServerId equals b.CloudServerId
