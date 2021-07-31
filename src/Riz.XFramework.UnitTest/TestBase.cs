@@ -1033,6 +1033,7 @@ namespace Riz.XFramework.UnitTest
             // 不同于 LocalServer = new Model.CloudServer 语法，这种语法导航属性一定不为空
             query =
                 from a in context.GetTable<Model.Client>()
+                join b in context.GetTable<Model.Client>() on a.ClientId equals b.ClientId
                 select new Model.Client(a)
                 {
                     CloudServer = a.CloudServer,
@@ -1042,6 +1043,22 @@ namespace Riz.XFramework.UnitTest
                         CloudServerName = a.LocalServer.CloudServerName,
                     }
                 };
+
+            var groupQuery = (
+                from a in query.AsSubquery(a => new { a.CloudServerId })
+                group a by a.CloudServerId into g
+                select new
+                {
+                    CloudServerId = g.Key,
+                    Max = g.Max(a => a.CloudServerId)
+                });
+
+            //var query9 =
+            //    from a in query
+            //    join b in groupQuery on a.CloudServerId equals b.CloudServerId
+            //    select a;
+
+            //result = query9.ToList();
             result = query.ToList();
             result = query.OrderBy(a => a.ClientCode).ToList();
             if (result.Count > 0)
@@ -1459,9 +1476,9 @@ namespace Riz.XFramework.UnitTest
                    ClientCode = g.Key.ClientCode,
                    ClientName = g.Key.ClientName,
                    CloudServerId = g.Key.CloudServerId,
-                    //Qty = g.Sum(a => a.Qty),
-                    //State = (byte)(g.Count())
-                    Qty = g.Sum(a => a),
+                   //Qty = g.Sum(a => a.Qty),
+                   //State = (byte)(g.Count())
+                   Qty = g.Sum(a => a),
                };
             query1 = query1
                 .Where(a => a.ClientId > 0)
