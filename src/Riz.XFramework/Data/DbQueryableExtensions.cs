@@ -521,6 +521,12 @@ namespace Riz.XFramework.Data
             => source.CreateQuery<TSource>(DbExpressionType.OrderBy, keySelector);
 
         /// <summary>
+        /// 调用泛型序列的每个元素上的转换函数并返回最大结果值。
+        /// </summary>
+        public static IDbQueryable<TSource> OrderBy<TSource>(this IDbQueryable<TSource> source, LambdaExpression lambda)
+         => source.CreateQuery<TSource>(DbExpressionType.OrderBy, lambda);
+
+        /// <summary>
         ///  根据键按升序对序列的元素排序
         ///  <para>
         ///  示例： source = source.Where(predicate).OrderBy&lt;TSource, TSource2, int&gt;((a, b) => b.UserId != null ? b.Sequence : a.Sequence);
@@ -639,6 +645,16 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         public static IDbQueryable<TSource> OrderByDescending<TSource, TKey>(this IDbQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
             => source.CreateQuery<TSource>(DbExpressionType.OrderByDescending, keySelector);
+
+        /// <summary>
+        ///  根据键按降序对序列的元素排序
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="lambda">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static IDbQueryable<TSource> OrderByDescending<TSource>(this IDbQueryable<TSource> source, LambdaExpression lambda)
+            => source.CreateQuery<TSource>(DbExpressionType.OrderByDescending, lambda);
 
         ///// <summary>
         /////  通过合并元素的索引将序列的每个元素投影到新表中
