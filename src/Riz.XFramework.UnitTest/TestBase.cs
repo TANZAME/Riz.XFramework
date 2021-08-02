@@ -1047,7 +1047,7 @@ namespace Riz.XFramework.UnitTest
 
 
             ParameterExpression @parameter = Expression.Parameter(typeof(Model.Server), "a");
-            MemberExpression @property = Expression.Property(@parameter, "CloudServerCode");
+            MemberExpression @property = Expression.Property(@parameter, "CloudServerId");
             LambdaExpression keyAggregate = Expression.Lambda(@property, @parameter);
 
             var groupQuery = (

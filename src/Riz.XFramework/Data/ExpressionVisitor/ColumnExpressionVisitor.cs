@@ -522,7 +522,7 @@ namespace Riz.XFramework.Data
                 if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
 
                 // 常量，Lambda lam = value;
-                if (exp.CanEvaluate())
+                if (exp.CanEvaluate() && dbExpressionType != DbExpressionType.Count)
                 {
                     exp = exp.Evaluate();
                     if (exp is ConstantExpression) exp = (LambdaExpression)(((ConstantExpression)exp).Value);

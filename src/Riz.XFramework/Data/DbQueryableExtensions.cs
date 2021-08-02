@@ -52,8 +52,9 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         public static IDbQueryable<TResult> AsSubquery<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
         {
-            var query = source.CreateQuery<TResult>(DbExpressionType.AsSubquery, null);
-            query = query.CreateQuery<TResult>(DbExpressionType.Select, keySelector);
+            var query = source
+                .CreateQuery<TResult>(DbExpressionType.AsSubquery, null)
+                .CreateQuery<TResult>(DbExpressionType.Select, keySelector);
             return query;
         }
 
