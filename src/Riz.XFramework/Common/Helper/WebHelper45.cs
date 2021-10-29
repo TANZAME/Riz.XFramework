@@ -209,7 +209,7 @@ namespace Riz.XFramework
                     if (token != null)
                     {
                         if (scheme == null) scheme = "Basic";
-                        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
+                        request.Headers.Authorization = new AuthenticationHeaderValue(scheme, token);
                     }
                 }
             }
