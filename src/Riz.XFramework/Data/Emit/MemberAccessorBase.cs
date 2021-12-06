@@ -36,7 +36,7 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
-        /// 成员长名称
+        /// 成员长名称，所在类型+成员名称
         /// </summary>
         public string FullName => string.Concat(_member.ReflectedType, ".", _member.Name);
 
