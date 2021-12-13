@@ -31,5 +31,10 @@ namespace Riz.XFramework.Caching
         /// 移除指定键值的缓存项
         /// </summary>
         void Remove(TKey key);
+
+        /// <summary>
+        /// 移除所有键值的缓存项
+        /// </summary>
+        void Clear();
     }
 }

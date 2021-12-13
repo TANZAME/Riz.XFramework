@@ -9,17 +9,17 @@ namespace Riz.XFramework.Caching
     /// </summary>
     public class NormalCache<TKey, TValue> : ICache<TKey, TValue>
     {
-        private readonly Dictionary<TKey, TValue> _cache;
+        private readonly Dictionary<TKey, TValue> _innerCache;
 
         /// <summary>
         /// 缓存项目计数
         /// </summary>
-        public int Count => this._cache.Count;
+        public int Count => this._innerCache.Count;
 
         /// <summary>
         /// 实例化 SimpleCache 类的新实例
         /// </summary>
-        public NormalCache() => this._cache = new Dictionary<TKey, TValue>();
+        public NormalCache() => this._innerCache = new Dictionary<TKey, TValue>();
 
         /// <summary>
         /// 尝试获取指定键值的缓存项，若缓存项不存在，则使用指定委托创建
@@ -27,11 +27,11 @@ namespace Riz.XFramework.Caching
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> creator = null)
         {
             TValue obj1;
-            if (this._cache.TryGetValue(key, out obj1) || creator == null)
+            if (this._innerCache.TryGetValue(key, out obj1) || creator == null)
                 return obj1;
 
             TValue obj2 = creator(key);
-            this._cache[key] = obj2;
+            this._innerCache[key] = obj2;
             return obj2;
         }
 
@@ -41,13 +41,13 @@ namespace Riz.XFramework.Caching
         public TValue AddOrUpdate(TKey key, Func<TKey, TValue> creator, Func<TKey, TValue> updator = null)
         {
             TValue value;
-            if (!this._cache.TryGetValue(key, out value))
+            if (!this._innerCache.TryGetValue(key, out value))
             {
                 if (creator == null)
                     return default(TValue);
 
                 TValue obj1 = creator(key);
-                this._cache[key] = obj1;
+                this._innerCache[key] = obj1;
                 return obj1;
             }
             else
@@ -56,7 +56,7 @@ namespace Riz.XFramework.Caching
                     return default(TValue);
 
                 TValue obj2 = updator(key);
-                this._cache[key] = obj2;
+                this._innerCache[key] = obj2;
                 return obj2;
             }
         }
@@ -64,11 +64,16 @@ namespace Riz.XFramework.Caching
         /// <summary>
         /// 尝试获取指定键值的缓存项
         /// </summary>
-        public bool TryGet(TKey key, out TValue value) => this._cache.TryGetValue(key, out value);
+        public bool TryGet(TKey key, out TValue value) => this._innerCache.TryGetValue(key, out value);
 
         /// <summary>
         /// 移除指定键值的缓存项
         /// </summary>
-        public void Remove(TKey key) => this._cache.Remove(key);
+        public void Remove(TKey key) => this._innerCache.Remove(key);
+
+        /// <summary>
+        /// 移除所有键值的缓存项
+        /// </summary>
+        public void Clear() => this._innerCache.Clear();
     }
 }
