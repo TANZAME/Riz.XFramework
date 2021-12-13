@@ -269,9 +269,9 @@ namespace Riz.XFramework
         /// </summary>
         /// <param name="source">来源字符串</param>
         /// <param name="encoding">编码，如果不传则使用 UTF8</param>
-        /// <param name="upper">转为大写形式</param>
+        /// <param name="toUpperCase">转为大写形式</param>
         /// <returns></returns>
-        public static string StringToHex(string source, Encoding encoding = null, bool upper = false)
+        public static string StringToHex(string source, Encoding encoding = null, bool toUpperCase = false)
         {
             byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(source);
 
@@ -280,7 +280,7 @@ namespace Riz.XFramework
             {
                 string hex = Convert.ToString(c, 16);
                 if (hex.Length == 1) builder.Append("0");
-                builder.Append(upper ? hex.ToUpper() : hex);
+                builder.Append(toUpperCase ? hex.ToUpper() : hex);
             }
 
             return builder.ToString();
