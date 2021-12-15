@@ -204,6 +204,11 @@ namespace Riz.XFramework.Caching
             if (disposing) this._timer.Dispose();
         }
 
+        /// <summary>
+        /// 移除所有键值的缓存项
+        /// </summary>
+        public override void Clear() => this._innerCache.Clear();
+
         // 清除过期的缓存
         private void ClearExpired(object state)
         {

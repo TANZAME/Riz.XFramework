@@ -9,6 +9,8 @@ namespace Riz.XFramework.Caching
     /// </summary>
     public class ReaderWriterCache<TKey, TValue> : ICache<TKey, TValue>, IDisposable
     {
+        //private bool _isDisposed = false;
+
         /// <summary>
         /// 管理资源访问的锁定状态
         /// </summary>
@@ -164,6 +166,12 @@ namespace Riz.XFramework.Caching
                 this._rwLock.ExitWriteLock();
             }
         }
+
+
+        /// <summary>
+        /// 移除所有键值的缓存项
+        /// </summary>
+        public virtual void Clear() => this._innerCache.Clear();
 
         /// <summary>
         /// 执行与释放或重置非托管资源相关的应用程序定义的任务。
