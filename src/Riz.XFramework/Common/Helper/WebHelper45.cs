@@ -257,7 +257,7 @@ namespace Riz.XFramework
                 //return WebHelper.ReadAsResult<T>(stream, encoding, deserializer);
 
                 if (!response.IsSuccessStatusCode)
-                    throw new XFrameworkException(response.Content != null ? await response.Content.ReadAsStringAsync() : response.ToString());
+                    throw new XFrameworkHttpResponseException(response);
 
                 var content = response.Content;
                 var conf = configuration as HttpConfiguration<T>;
