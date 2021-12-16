@@ -1,5 +1,8 @@
 ﻿using System;
+#if !net40
 using System.Net.Http;
+using System.Net.Http.Headers;
+#endif
 
 namespace Riz.XFramework
 {
