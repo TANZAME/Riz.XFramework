@@ -1252,7 +1252,11 @@ namespace Riz.XFramework.Data
             _builder.Append('(');
 
             for (int index = 1; index < m.Arguments.Count; index++)
+            {
                 _visitor.Visit(m.Arguments[index]);
+                if(index<m.Arguments.Count-1)
+                    _builder.Append(',');
+            }
 
             _builder.Append(')');
 
