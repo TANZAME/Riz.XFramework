@@ -1243,6 +1243,23 @@ namespace Riz.XFramework.Data
         }
 
         /// <summary>
+        /// 访问标值函数方法
+        /// </summary>
+        /// <param name="m">方法表达式</param>
+        protected virtual Expression VisitScalarValuedFunction(MethodCallExpression m)
+        {
+            _builder.Append(m.Arguments[0].Evaluate().Value);
+            _builder.Append('(');
+
+            for (int index = 1; index < m.Arguments.Count; index++)
+                _builder.Append(m.Arguments[index]);
+
+            _builder.Append(')');
+
+            return m;
+        }
+
+        /// <summary>
         /// 访问 new Guid 方法
         /// </summary>
         /// <param name="m">方法表达式</param>

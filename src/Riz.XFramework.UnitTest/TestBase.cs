@@ -192,7 +192,7 @@ namespace Riz.XFramework.UnitTest
                     DemoDate = a.DemoDateTime2_Nullable.Value,
                     DemoId = a.DemoId,
                     DemoCode = Data.DbFunction.CaseWhen(a.DemoName == "张1", "李1").When(a.DemoName == "张2", "李2").End("李李"), //a.DemoName == "张三" ? "李四" : "王五",
-                    DemoName = a.DemoCode == "张三" ? "李四" : "王五",
+                    //DemoName = Data.DbFunction.ScalarValuedFunction<string, string>("dbo.fn_GetName",a.DemoCode) == "张三" ? "李四" : "王五",
                     DemoChar = 'A',
                     DemoNChar = 'B',
                     DemoDateTime_Nullable = a.DemoDateTime_Nullable,

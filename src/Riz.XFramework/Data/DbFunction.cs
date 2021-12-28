@@ -79,6 +79,34 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         public static TResult Cast<TKey, TResult>(TKey keySelector, string expression) => default(TResult);
 
+
+        /// <summary>
+        /// 标值函数
+        /// </summary>
+        /// <param name="name">函数名称</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static TResult ScalarValuedFunction<TKey, TResult>(string name, TKey keySelector) => default(TResult);
+
+        /// <summary>
+        /// 标值函数
+        /// </summary>
+        /// <param name="name">函数名称</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <param name="keySelector2">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static TResult ScalarValuedFunction<TKey, TKey2, TResult>(string name, TKey keySelector, TKey2 keySelector2) => default(TResult);
+
+        /// <summary>
+        /// 标值函数
+        /// </summary>
+        /// <param name="name">函数名称</param>
+        /// <param name="keySelector">用于从元素中提取键的函数</param>
+        /// <param name="keySelector2">用于从元素中提取键的函数</param>
+        /// <param name="keySelector3">用于从元素中提取键的函数</param>
+        /// <returns></returns>
+        public static TResult ScalarValuedFunction<TKey, TKey2, TKey3, TResult>(string name, TKey keySelector, TKey2 keySelector2, TKey3 keySelector3) => default(TResult);
+
         /// <summary>
         /// 判断函数，如 MSSQL 解析成 CASE WHEN ... THEN ...
         /// 此函数必须以 .End() 结束。
