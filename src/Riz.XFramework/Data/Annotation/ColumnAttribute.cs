@@ -6,7 +6,7 @@ namespace Riz.XFramework.Data
     /// <summary>
     /// 数据列特性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class ColumnAttribute : Attribute
     {
         private object _dbType;
