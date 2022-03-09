@@ -211,7 +211,7 @@ namespace Riz.XFramework
             else if ((collection as T[]) != null) rowCount = (collection as T[]).Length;
             else rowCount = collection.Count();
 
-            return ~~((rowCount - 1) / pageSize) + 1;
+            return rowCount % pageSize == 0 ? rowCount / pageSize : (rowCount / pageSize + 1);  //~~((rowCount - 1) / pageSize) + 1;
         }
 
         /// <summary>
