@@ -33,6 +33,7 @@ namespace Riz.XFramework.Data
         /// </summary>
         public static bool IsGrouping(this Expression node)
         {
+            //g.Key.ToString()
             //g.Key
             //g.Key.CompanyName
             //g.Max()
@@ -42,28 +43,35 @@ namespace Riz.XFramework.Data
 
             // g | g=>g.xx
             Expression exp = node;
-            ParameterExpression parameterExpression = exp.NodeType == ExpressionType.Lambda
+            ParameterExpression param_exp = exp.NodeType == ExpressionType.Lambda
                 ? (node as LambdaExpression).Parameters[0]
                 : exp as ParameterExpression;
-            if (parameterExpression != null) return _isGrouping(parameterExpression.Type);
+            if (param_exp != null) return _isGrouping(param_exp.Type);
 
             // g.Max
-            MethodCallExpression methodExpression = exp as MethodCallExpression;
-            if (methodExpression != null) return _isGrouping(methodExpression.Arguments[0].Type);
+            MethodCallExpression method_exp = exp as MethodCallExpression;
+            if (method_exp != null) 
+            {
+                string name = method_exp.Method.Name.ToUpper();
+                if (Aggregates.Any(item => item.Value == name))
+                    return _isGrouping(method_exp.Arguments[0].Type);
+                else
+                    return ExpressionExtensions.IsGrouping(method_exp.Object);
+            }
 
 
-            MemberExpression memExpression = exp as MemberExpression;
-            if (memExpression != null)
+            MemberExpression mem_exp = exp as MemberExpression;
+            if (mem_exp != null)
             {
                 // g.Key
-                var g = memExpression.Member.Name == "Key" && _isGrouping(memExpression.Expression.Type);
+                var g = mem_exp.Member.Name == "Key" && _isGrouping(mem_exp.Expression.Type);
                 if (g) return g;
 
                 // g.Key.Length | g.Key.Company | g.Key.CompanyId.Length
-                memExpression = memExpression.Expression as MemberExpression;
-                if (memExpression != null)
+                mem_exp = mem_exp.Expression as MemberExpression;
+                if (mem_exp != null)
                 {
-                    g = memExpression.Member.Name == "Key" && _isGrouping(memExpression.Expression.Type);// && memExpression.Type.Namespace == null; //匿名类没有命令空间
+                    g = mem_exp.Member.Name == "Key" && _isGrouping(mem_exp.Expression.Type);// && memExpression.Type.Namespace == null; //匿名类没有命令空间
                     if (g) return g;
                 }
             }

@@ -444,6 +444,7 @@ namespace Riz.XFramework.Data
                 LambdaExpression keySelector = _groupBy.Expressions[0] as LambdaExpression;
                 Expression exp = null;
                 Expression body = keySelector.Body;
+                exp = body;
 
                 if (body.NodeType == ExpressionType.MemberAccess)
                 {
