@@ -646,7 +646,7 @@ namespace Riz.XFramework.Data
         {
             bool result = false;
             Expression expression = orderByNode.Body;
-            while (expression.IsChildNode())
+            while (expression.CanBeRecurse())
             {
                 // => a.Accounts[0].Member
                 if (expression.NodeType == ExpressionType.MemberAccess) expression = (expression as MemberExpression).Expression;
