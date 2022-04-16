@@ -120,8 +120,8 @@ namespace Riz.XFramework.Caching
                 else
                 {
                     if (updator == null)
-                        return default(TValue);
-                    
+                        updator = creator;
+
                     TValue obj2 = updator(key);
                     this._innerCache[key] = obj2;
                     return obj2;

@@ -154,7 +154,7 @@ namespace Riz.XFramework.Caching
                 else
                 {
                     if (updator == null)
-                        return default(TValue);
+                        updator = creator;
 
                     TValue obj2 = updator(key);
                     obj.Value = default(TValue);
