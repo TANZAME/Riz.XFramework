@@ -108,11 +108,16 @@ namespace Riz.XFramework
         //}
 
         /// <summary>
-        /// 转为 16 进制表示的 md5加密的字符串
+        /// 转为 16 进制表示的 md5加密的字符串(32位)
         /// </summary>
         /// <returns></returns>
         public static string Md5(string str, bool toUpperCase = true, Encoding encoding = null)
         {
+            //MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            //string t2 = BitConverter.ToString(md5.ComputeHash(UTF8Encoding.Default.GetBytes(ConvertString)), 4, 8);
+            //t2 = t2.Replace("-", "");
+            //return t2;
+
             MD5 md5 = new MD5CryptoServiceProvider();
             byte[] buffer = md5.ComputeHash((encoding ?? Encoding.UTF8).GetBytes(str));
 
