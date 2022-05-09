@@ -96,7 +96,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <returns>如果源序列中存在元素通过了指定谓词中的测试，则为 true；否则为 false</returns>
-        public static async Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source) => await source.AnyAsync(null);
+        public static Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source) => source.AnyAsync(null);
 
         /// <summary>
         /// 确定序列是否包含任何元素
@@ -106,10 +106,10 @@ namespace Riz.XFramework.Data
         /// <returns></returns>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns>如果源序列中存在元素通过了指定谓词中的测试，则为 true；否则为 false</returns>
-        public static async Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        public static Task<bool> AnyAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             DbQueryable<bool> query = (DbQueryable<bool>)source.CreateQuery<bool>(DbExpressionType.Any, predicate);
-            return await query.ExecuteAsync<bool>();
+            return query.ExecuteAsync<bool>();
         }
 
         /// <summary>
@@ -127,10 +127,10 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static async Task<int> CountAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        public static Task<int> CountAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             DbQueryable<int> query = (DbQueryable<int>)source.CreateQuery<int>(DbExpressionType.Count, predicate);
-            return await query.ExecuteAsync<int>();
+            return query.ExecuteAsync<int>();
         }
 
         /// <summary>
@@ -153,11 +153,10 @@ namespace Riz.XFramework.Data
         /// <param name="pageIndex">页码</param>
         /// <param name="pageSize">页长</param>
         /// <returns></returns>
-        public static async Task<TSource[]> ToArrayAsync<TSource>(this IDbQueryable<TSource> source, int pageIndex, int pageSize)
+        public static Task<TSource[]> ToArrayAsync<TSource>(this IDbQueryable<TSource> source, int pageIndex, int pageSize)
         {
             if (pageIndex < 1) pageIndex = 1;
-            TSource[] arrayAsync = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
-            return arrayAsync;
+            return source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
         }
 
         /// <summary>
@@ -166,8 +165,8 @@ namespace Riz.XFramework.Data
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <returns></returns>
-        public static async Task<List<TSource>> ToListAsync<TSource>(this IDbQueryable<TSource> source)
-            => await ((DbQueryable)source).DbContext.Database.ExecuteAsync<List<TSource>>(source);
+        public static Task<List<TSource>> ToListAsync<TSource>(this IDbQueryable<TSource> source)
+            => ((DbQueryable)source).DbContext.Database.ExecuteAsync<List<TSource>>(source);
 
         /// <summary>
         ///  从 <see cref="IDbQueryable{TSource}"/> 创建 <see cref="List{TSource}"/>
@@ -189,7 +188,7 @@ namespace Riz.XFramework.Data
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <returns></returns>
-        public static async Task<DataTable> ToDataTableAsync<TSource>(this IDbQueryable<TSource> source) => await ((DbQueryable)source).ExecuteAsync<DataTable>();
+        public static Task<DataTable> ToDataTableAsync<TSource>(this IDbQueryable<TSource> source) => ((DbQueryable)source).ExecuteAsync<DataTable>();
 
         /// <summary>
         /// 异步从 <see cref="IDbQueryable{TSource}"/> 创建分页记录 <see cref="PagedList{TSource}"/>
@@ -275,10 +274,10 @@ namespace Riz.XFramework.Data
         /// <param name="source">查询序列</param>
         /// <param name="predicate">用于测试每个元素是否满足条件的函数</param>
         /// <returns></returns>
-        public static async Task<TSource> FirstOrDefaultAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate = null)
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IDbQueryable<TSource> source, Expression<Func<TSource, bool>> predicate = null)
         {
             DbQueryable<TSource> query = (DbQueryable<TSource>)source.CreateQuery<TSource>(DbExpressionType.FirstOrDefault, predicate);
-            return await query.ExecuteAsync<TSource>();
+            return query.ExecuteAsync<TSource>();
         }
 
         /// <summary>
@@ -287,7 +286,63 @@ namespace Riz.XFramework.Data
         /// <typeparam name="TSource">source 的元素类型</typeparam>
         /// <param name="source">查询序列</param>
         /// <returns></returns>
-        public static async Task<DataSet> ToDataSetAsync<TSource>(this IDbQueryable<TSource> source) => await ((DbQueryable<TSource>)source).ExecuteAsync<DataSet>();
+        public static Task<DataSet> ToDataSetAsync<TSource>(this IDbQueryable<TSource> source) => ((DbQueryable<TSource>)source).ExecuteAsync<DataSet>();
+
+        /// <summary>
+        /// 返回泛型 <see cref="IDbQueryable{TSource}"/> 中的最大值
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TResult">keySelector 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        public static Task<TResult> MaxAsync<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            DbQueryable<TResult> query = (DbQueryable<TResult>)source.CreateQuery<TResult>(DbExpressionType.Max, keySelector);
+            return query.ExecuteAsync<TResult>();
+        }
+
+        /// <summary>
+        /// 返回泛型 <see cref="IDbQueryable{TSource}"/> 中的最小值
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TResult">keySelector 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        public static Task<TResult> MinAsync<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            DbQueryable<TResult> query = (DbQueryable<TResult>)source.CreateQuery<TResult>(DbExpressionType.Min, keySelector);
+            return query.ExecuteAsync<TResult>();
+        }
+
+        /// <summary>
+        /// 返回泛型 <see cref="IDbQueryable{TSource}"/> 中的平均值
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TResult">keySelector 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        public static Task<TResult> AverageAsync<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            DbQueryable<TResult> query = (DbQueryable<TResult>)source.CreateQuery<TResult>(DbExpressionType.Average, keySelector);
+            return query.ExecuteAsync<TResult>();
+        }
+
+        /// <summary>
+        /// 返回泛型 <see cref="IDbQueryable{TSource}"/> 中的所有值之和
+        /// </summary>
+        /// <typeparam name="TSource">source 的元素类型</typeparam>
+        /// <typeparam name="TResult">keySelector 的元素类型</typeparam>
+        /// <param name="source">查询序列</param>
+        /// <param name="keySelector">应用于每个元素的转换函数</param>
+        /// <returns></returns>
+        public static Task<TResult> SumAsync<TSource, TResult>(this IDbQueryable<TSource> source, Expression<Func<TSource, TResult>> keySelector)
+        {
+            DbQueryable<TResult> query = (DbQueryable<TResult>)source.CreateQuery<TResult>(DbExpressionType.Sum, keySelector);
+            return query.ExecuteAsync<TResult>();
+        }
 
 #endif
 

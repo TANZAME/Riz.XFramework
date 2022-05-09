@@ -109,7 +109,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 确定节点是否能够被继续递归访问（非根节点）
         /// </summary>
-        public static bool IsChildNode(this Expression node)
+        public static bool CanBeRecurse(this Expression node)
         {
             // a 
             // <>h__TransparentIdentifier.a
@@ -147,7 +147,7 @@ namespace Riz.XFramework.Data
             members.Add(node.Member.Name);
 
             Expression expression = node.Expression;
-            while (expression.IsChildNode())
+            while (expression.CanBeRecurse())
             {
                 MemberExpression m = null;
                 if (expression.NodeType == ExpressionType.MemberAccess) m = (MemberExpression)expression;
