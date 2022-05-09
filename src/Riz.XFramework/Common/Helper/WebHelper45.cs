@@ -185,8 +185,8 @@ namespace Riz.XFramework
 
                 string content = null;
                 if (configuration.Content != null && configuration.Content is string) content = (string)configuration.Content;
-                else if (configuration.Content != null) content = SerializeHelper.SerializeToJson(configuration.Content);
                 else if (configuration.Content != null && configuration.Content is HttpContent) request.Content = (HttpContent)configuration.Content;
+                else if (configuration.Content != null) content = SerializeHelper.SerializeToJson(configuration.Content);
                 if (content != null)
                 {
                     var encoding = configuration.Encoding ?? Encoding.UTF8;

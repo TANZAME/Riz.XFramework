@@ -2750,6 +2750,11 @@ namespace Riz.XFramework.UnitTest
             tuple2 = context.Database.ExecuteAsync<int, int, int>(query3, query4, query4).Result;
             string strAsync = WebHelper.GetAsync<string>("https://www.baidu.com/").Result;
             Debug.Assert(str == strAsync);
+
+            var mfdc = new System.Net.Http.MultipartFormDataContent();
+            mfdc.Headers.Add("ContentType", "multipart/form-data");//声明头部
+            mfdc.Add(new System.Net.Http.StringContent("223.104.64.213"), "log_ip");//参数, 内容在前,参数名称在后
+            var string2 = WebHelper.PostAsync<string>("https://imageselmuch.selmuch.com/index.php/index/index/getLog", new WebHelper.HttpConfiguration { Content = mfdc }).Result;
 #endif
 
 
