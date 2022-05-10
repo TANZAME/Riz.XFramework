@@ -7,6 +7,8 @@ using Riz.XFramework.Data;
 using System.Data;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Text;
+using System.IO;
 
 namespace Riz.XFramework.UnitTest
 {
@@ -2751,12 +2753,36 @@ namespace Riz.XFramework.UnitTest
             string strAsync = WebHelper.GetAsync<string>("https://www.baidu.com/").Result;
             Debug.Assert(str == strAsync);
 
-            var string2 = WebHelper.Post<string>("https://imageselmuch.selmuch.com/index.php/index/index/getLog", new { log_ip = "223.104.64.213" });
+            var string2 = WebHelper.Post<string>("https://imageselmuch.selmuch.com/index.php/index/index/getLog", "{ \"log_ip\":\"223.104.64.213\" }");
 
-            var mfdc = new System.Net.Http.MultipartFormDataContent();
-            mfdc.Headers.Add("ContentType", "multipart/form-data");//声明头部
-            mfdc.Add(new System.Net.Http.StringContent("223.104.64.213"), "log_ip");//参数, 内容在前,参数名称在后
-            string2 = WebHelper.PostAsync<string>("https://imageselmuch.selmuch.com/index.php/index/index/getLog", new WebHelper.HttpConfiguration { Content = mfdc }).Result;
+
+            //// 4.0 版本 form-data 示例 file必须是最后一个
+            //string boundary = string.Format("----WebKitFormBoundary{0}", DateTime.Now.Ticks.ToString("x"));
+            //byte[] beginBoundaryBytes = Encoding.UTF8.GetBytes("--" + boundary + "\r\n");     // 边界符开始，右侧必须要有 \r\n 
+            //byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n"); // 边界符结束，两侧必须要有 --\r\n 
+            //byte[] newLineBytes = Encoding.UTF8.GetBytes("\r\n"); //换一行
+            //MemoryStream memoryStream = new MemoryStream();
+
+            //// 键值对
+            //string formDataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n" +
+            //                          "{1}\r\n";
+            ////string formItem = string.Format(formDataTemplate, key.Replace(StringUtils.Symbol.KEY_SUFFIX, String.Empty), kVDatas[key]);
+            //string formItem = string.Format(formDataTemplate, "log_ip", "223.104.64.213");
+            //byte[] formItemBytes = Encoding.UTF8.GetBytes(formItem);
+            //memoryStream.Write(beginBoundaryBytes, 0, beginBoundaryBytes.Length); // 1.1 写入FormData项的开始边界符
+            //memoryStream.Write(formItemBytes, 0, formItemBytes.Length);           // 1.2 将键值对写入FormData项中
+
+
+            //const string filePartHeaderTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
+            //                                      "Content-Type: application/octet-stream\r\n\r\n";
+            //memoryStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);       // 2.4 写入FormData的结束边界符
+
+            // 4.5 版本 form-data 示例
+            var content = new System.Net.Http.MultipartFormDataContent();
+            content.Headers.Add("ContentType", "multipart/form-data");//声明头部
+            content.Add(new System.Net.Http.StringContent("223.104.64.213"), "log_ip");//参数, 内容在前,参数名称在后
+            //content.Add(new System.Net.Http.StreamContent("223.104.64.213"), "log_ip");//参数, 内容在前,参数名称在后
+            string2 = WebHelper.PostAsync<string>("https://imageselmuch.selmuch.com/index.php/index/index/getLog", new WebHelper.HttpConfiguration { Content = content }).Result;
 #endif
 
 

@@ -387,6 +387,16 @@ namespace Riz.XFramework
                 // 创建请求
                 var request = WebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
+                if (configuration != null)
+                {
+                    if (configuration.Method == HttpMethod.Get) request.Method = "GET";
+                    else if (configuration.Method == HttpMethod.Post) request.Method = "POST";
+                    else if (configuration.Method == HttpMethod.Put) request.Method = "PUT";
+                    else if (configuration.Method == HttpMethod.Delete) request.Method = "DELETE";
+                    else if (configuration.Method == HttpMethod.Head) request.Method = "HEAD";
+                    else if (configuration.Method == HttpMethod.Trace) request.Method = "TRACE";
+                    else if (configuration.Method == HttpMethod.Options) request.Method = "OPTIONS";
+                }
                 //// 默认连接最大数=2，如果没有全局设置，则需要设置并发连接数
                 //if (ServicePointManager.DefaultConnectionLimit == 2) request.ServicePoint.ConnectionLimit = 65532;
                 if (configuration != null)
@@ -399,8 +409,26 @@ namespace Riz.XFramework
                     if (configuration.UserAgent != null) request.UserAgent = configuration.UserAgent;
                     if (configuration.KeepAlive != null) request.KeepAlive = configuration.KeepAlive.Value;
                     if (configuration.Proxy != null) request.Proxy = configuration.Proxy;
-                    if (configuration.Headers != null) foreach (var kv in configuration.Headers) request.Headers.Add(kv.Key, kv.Value);
                     if (configuration.CookieContainer != null) request.CookieContainer = configuration.CookieContainer;
+
+                    if (configuration.Headers != null)
+                    {
+                        // Authorization TODO
+                        string scheme = null;
+                        string token = null;
+                        foreach (var kv in configuration.Headers)
+                        {
+                            if (string.Equals(kv.Key, "scheme", StringComparison.CurrentCultureIgnoreCase)) scheme = kv.Key;
+                            else if (string.Equals(kv.Key, "token", StringComparison.CurrentCultureIgnoreCase)) token = kv.Key;
+                            else request.Headers.Add(kv.Key, kv.Value);
+                        }
+
+                        if (token != null)
+                        {
+                            if (scheme == null) scheme = "Basic";
+                            request.Headers.Add("authorization", string.Format("{0} {1}", scheme, token));
+                        }
+                    }
 
                     // 写入参数
                     string content = null;
@@ -450,13 +478,13 @@ namespace Riz.XFramework
                 Encoding encoding = configuration.Encoding;
                 if (encoding == null)
                 {
-                    encoding = !string.IsNullOrEmpty(response.CharacterSet) 
-                        ? Encoding.GetEncoding(response.CharacterSet) 
+                    encoding = !string.IsNullOrEmpty(response.CharacterSet)
+                        ? Encoding.GetEncoding(response.CharacterSet)
                         : null;
                 }
 
                 stream = response.GetResponseStream();
-                if (response.ContentEncoding == "gzip") 
+                if (response.ContentEncoding == "gzip")
                     stream = new GZipStream(stream, CompressionMode.Decompress);
                 else if (response.ContentEncoding == "deflate")
                     stream = new DeflateStream(stream, CompressionMode.Decompress);
@@ -560,6 +588,16 @@ namespace Riz.XFramework
 
             /// <summary>
             /// 提交内容
+            /// <code>
+            /// 4.0 版本用法
+            /// </code>
+            /// <code>
+            /// 4.5 版本用法
+            /// var content = new System.Net.Http.MultipartFormDataContent();
+            /// content.Headers.Add("ContentType", "multipart/form-data"); --声明头部
+            /// content.Add(new System.Net.Http.StringContent("223.104.64.213"), "log_ip");--参数, 内容在前,参数名称在后
+            /// var string2 = WebHelper.PostAsync&lt;string&gt;(uri, new WebHelper.HttpConfiguration { Content = content  }).Result;
+            /// </code>
             /// </summary>
             public object Content { get; set; }
 
@@ -640,6 +678,212 @@ namespace Riz.XFramework
             /// </summary>
             public Func<string, T> Deserializer { get; set; }
         }
+
+        #endregion
+
+        #region 他山之石
+
+        ///// <summary>
+        ///// HTTP请求(包含多分部数据,multipart/form-data)。
+        ///// 将多个文件以及多个参数以多分部数据表单方式上传到指定url的服务器
+        ///// </summary>
+        ///// <param name="url">请求目标URL</param>
+        ///// <param name="fileFullNames">待上传的文件列表(包含全路径的完全限定名)。如果某个文件不存在，则忽略不上传</param>
+        ///// <param name="kVDatas">请求时表单键值对数据。</param>
+        ///// <param name="method">请求的方法。请使用 HttpMethod 的枚举值</param>
+        ///// <param name="timeOut">获取或设置 <see cref="M:System.Net.HttpWebRequest.GetResponse" /> 和
+        /////                       <see cref="M:System.Net.HttpWebRequest.GetRequestStream" /> 方法的超时值（以毫秒为单位）。
+        /////                       -1 表示永不超时
+        ///// </param>
+        ///// <returns></returns>
+        //public HttpResult UploadFormByMultipart(string url, string[] fileFullNames, NameValueCollection kVDatas = null, string method = HttpMethod.POST, int timeOut = -1)
+        //{
+        //    #region 说明
+        //    /* 阿里云文档：https://www.alibabacloud.com/help/zh/doc-detail/42976.htm
+        //       C# 示例：  https://github.com/aliyun/aliyun-oss-csharp-sdk/blob/master/samples/Samples/PostPolicySample.cs?spm=a2c63.p38356.879954.18.7f3f7c34W3bR9U&file=PostPolicySample.cs
+        //                 (C#示例中仅仅是把文件中的文本内容当做 FormData 中的项，与文件流是不一样的。本方法展示的是文件流，更通用)
+        //      */
+
+        //    /* 说明：multipart/form-data 方式提交文件
+        //     *     (1) Header 一定要有 Content-Type: multipart/form-data; boundary={boundary}。
+        //     *     (2) Header 和bod y之间由 \r\n--{boundary} 分割。
+        //     *     (3) 表单域格式 ：Content-Disposition: form-data; name="{key}"\r\n\r\n
+        //     *                   {value}\r\n
+        //     *                   --{boundary}
+        //     *     (4)表单域名称大小写敏感，如policy、key、file、OSSAccessKeyId、OSSAccessKeyId、Content-Disposition。
+        //     *     (5)注意:表单域 file 必须为最后一个表单域。即必须放在最后写。
+        //     */
+        //    #endregion
+
+        //    #region ContentType 说明
+        //    /* 该ContentType的属性包含请求的媒体类型。分配给ContentType属性的值在请求发送Content-typeHTTP标头时替换任何现有内容。
+               
+        //       要清除Content-typeHTTP标头，请将ContentType属性设置为null。
+               
+        //     * 注意：此属性的值存储在WebHeaderCollection中。如果设置了WebHeaderCollection，则属性值将丢失。
+        //     *      所以放置在Headers 属性之后设置
+        //     */
+        //    #endregion
+
+        //    #region Method 说明
+        //    /* 如果 ContentLength 属性设置为-1以外的任何值，则必须将 Method 属性设置为上载数据的协议属性。 */
+        //    #endregion
+
+        //    #region HttpWebRequest.CookieContainer 在 .NET3.5 与 .NET4.0 中的不同
+        //    /* 请参考：https://www.crifan.com/baidu_emulate_login_for_dotnet_4_0_error_the_fisrt_two_args_should_be_string_type_0_1/ */
+        //    #endregion
+
+        //    HttpResult httpResult = new HttpResult();
+
+        //    #region 校验
+
+        //    if (fileFullNames == null || fileFullNames.Length == 0)
+        //    {
+        //        httpResult.Status = HttpResult.STATUS_FAIL;
+
+        //        httpResult.RefCode = (int)HttpStatusCode2.USER_FILE_NOT_EXISTS;
+        //        httpResult.RefText = HttpStatusCode2.USER_FILE_NOT_EXISTS.GetCustomAttributeDescription();
+
+        //        return httpResult;
+        //    }
+
+        //    List<string> lstFiles = new List<string>();
+        //    foreach (string fileFullName in fileFullNames)
+        //    {
+        //        if (File.Exists(fileFullName))
+        //        {
+        //            lstFiles.Add(fileFullName);
+        //        }
+        //    }
+
+        //    if (lstFiles.Count == 0)
+        //    {
+        //        httpResult.Status = HttpResult.STATUS_FAIL;
+
+        //        httpResult.RefCode = (int)HttpStatusCode2.USER_FILE_NOT_EXISTS;
+        //        httpResult.RefText = HttpStatusCode2.USER_FILE_NOT_EXISTS.GetCustomAttributeDescription();
+
+        //        return httpResult;
+        //    }
+
+        //    #endregion
+
+        //    string boundary = CreateFormDataBoundary();                                         // 边界符
+        //    byte[] beginBoundaryBytes = Encoding.UTF8.GetBytes("--" + boundary + "\r\n");     // 边界符开始。【☆】右侧必须要有 \r\n 。
+        //    byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n"); // 边界符结束。【☆】两侧必须要有 --\r\n 。
+        //    byte[] newLineBytes = Encoding.UTF8.GetBytes("\r\n"); //换一行
+        //    MemoryStream memoryStream = new MemoryStream();
+
+        //    HttpWebRequest httpWebRequest = null;
+        //    try
+        //    {
+        //        httpWebRequest = WebRequest.Create(url) as HttpWebRequest; // 创建请求
+        //        httpWebRequest.ContentType = string.Format(HttpContentType.MULTIPART_FORM_DATA + "; boundary={0}", boundary);
+        //        //httpWebRequest.Referer = "http://bimface.com/user-console";
+        //        httpWebRequest.Method = method;
+        //        httpWebRequest.KeepAlive = true;
+        //        httpWebRequest.Timeout = timeOut;
+        //        httpWebRequest.UserAgent = GetUserAgent();
+
+        //        #region 步骤1：写入键值对
+        //        if (kVDatas != null)
+        //        {
+        //            string formDataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n" +
+        //                                      "{1}\r\n";
+
+        //            foreach (string key in kVDatas.Keys)
+        //            {
+        //                string formItem = string.Format(formDataTemplate, key.Replace(StringUtils.Symbol.KEY_SUFFIX, String.Empty), kVDatas[key]);
+        //                byte[] formItemBytes = Encoding.UTF8.GetBytes(formItem);
+
+        //                memoryStream.Write(beginBoundaryBytes, 0, beginBoundaryBytes.Length); // 1.1 写入FormData项的开始边界符
+        //                memoryStream.Write(formItemBytes, 0, formItemBytes.Length);           // 1.2 将键值对写入FormData项中
+        //            }
+        //        }
+        //        #endregion
+
+        //        #region 步骤2：写入文件(表单域 file 必须为最后一个表单域)
+
+        //        const string filePartHeaderTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
+        //                                              "Content-Type: application/octet-stream\r\n\r\n";
+
+        //        int i = 0;
+        //        foreach (var fileFullName in lstFiles)
+        //        {
+        //            FileInfo fileInfo = new FileInfo(fileFullName);
+        //            string fileName = fileInfo.Name;
+
+        //            string fileHeaderItem = string.Format(filePartHeaderTemplate, "file", fileName);
+        //            byte[] fileHeaderItemBytes = Encoding.UTF8.GetBytes(fileHeaderItem);
+
+        //            if (i > 0)
+        //            {
+        //                // 第一笔及第一笔之后的数据项之间要增加一个换行 
+        //                memoryStream.Write(newLineBytes, 0, newLineBytes.Length);
+        //            }
+        //            memoryStream.Write(beginBoundaryBytes, 0, beginBoundaryBytes.Length);      // 2.1 写入FormData项的开始边界符
+        //            memoryStream.Write(fileHeaderItemBytes, 0, fileHeaderItemBytes.Length);    // 2.2 将文件头写入FormData项中
+
+        //            int bytesRead;
+        //            byte[] buffer = new byte[1024];
+
+        //            FileStream fileStream = new FileStream(fileFullName, FileMode.Open, FileAccess.Read);
+        //            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+        //            {
+        //                memoryStream.Write(buffer, 0, bytesRead);                              // 2.3 将文件流写入FormData项中
+        //            }
+
+        //            i++;
+        //        }
+
+        //        memoryStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);             // 2.4 写入FormData的结束边界符
+
+        //        #endregion
+
+        //        #region 步骤3：将表单域(内存流)写入 httpWebRequest 的请求流中，并发起请求
+
+        //        /*  在 http1.1 以上中，如果使用 post，并且 body 中非空时，必须要有 content-length 的标头。
+        //         *  并且，如果字符中存在汉字，那么在 utf-8 编码模式下，其长度应该采用编码后的字符长度，也就是 byte 数组的长度，而不是原始字符串的长度。
+        //         */
+        //        httpWebRequest.ContentLength = memoryStream.Length;
+
+        //        Stream requestStream = httpWebRequest.GetRequestStream();
+
+        //        memoryStream.Position = 0;
+        //        byte[] tempBuffer = new byte[memoryStream.Length];
+        //        memoryStream.Read(tempBuffer, 0, tempBuffer.Length);
+        //        memoryStream.Close();
+
+        //        requestStream.Write(tempBuffer, 0, tempBuffer.Length);        // 将内存流中的字节写入 httpWebRequest 的请求流中
+        //        requestStream.Close();
+        //        #endregion
+
+        //        HttpWebResponse httpWebResponse = httpWebRequest.GetResponse() as HttpWebResponse; // 获取响应
+        //        if (httpWebResponse != null)
+        //        {
+        //            //GetHeaders(ref httpResult, httpWebResponse);
+        //            GetResponse(ref httpResult, httpWebResponse);
+        //            httpWebResponse.Close();
+        //        }
+        //    }
+        //    catch (WebException webException)
+        //    {
+        //        GetWebExceptionResponse(ref httpResult, webException);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        GetExceptionResponse(ref httpResult, ex, method, HttpContentType.MULTIPART_FORM_DATA);
+        //    }
+        //    finally
+        //    {
+        //        if (httpWebRequest != null)
+        //        {
+        //            httpWebRequest.Abort();
+        //        }
+        //    }
+
+        //    return httpResult;
+        //}
 
         #endregion
     }
