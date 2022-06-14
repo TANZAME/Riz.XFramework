@@ -166,71 +166,90 @@ namespace Riz.XFramework
         public static T TryParse<T>(string s, T @default)
             where T : struct
         {
-            if (string.IsNullOrEmpty(s)) 
+            if (typeof(T) == typeof(object))
+                throw new Exception("无法为T分配object类型，请明确指定一种返回类型");
+
+            if (string.IsNullOrEmpty(s))
                 return @default;
 
-            T result = @default;
-            if (typeof(T) == typeof(short))
+            Type t = typeof(T);
+            if (Data.TypeUtils.IsPrimitiveType(t))
             {
-                short value;
-                if (!short.TryParse(s, out value)) value = (short)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(int))
-            {
-                int value;
-                if (!int.TryParse(s, out value)) value = (int)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(long))
-            {
-                long value;
-                if (!long.TryParse(s, out value)) value = (long)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                float value;
-                if (!float.TryParse(s, out value)) value = (float)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(double))
-            {
-                double value;
-                if (!double.TryParse(s, out value)) value = (double)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(decimal))
-            {
-                decimal value;
-                if (!decimal.TryParse(s, out value)) value = (decimal)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(byte))
-            {
-                byte value;
-                if (!byte.TryParse(s, out value)) value = (byte)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                bool value;
-                if (!bool.TryParse(s, out value)) value = (bool)((object)@default);
-                result = (T)((object)value);
-            }
-            else if (typeof(T) == typeof(DateTime))
-            {
-                DateTime value;
-                if (!DateTime.TryParse(s, out value)) value = (DateTime)((object)@default);
-                result = (T)((object)value);
-            }
-            //else if (TypeUtils.IsCollectionType(typeof(T)))
-            //{
-            //    T value = (T)Newtonsoft.Json.JsonConvert.DeserializeObject(s, typeof(T));
-            //    result = value;
-            //}
+                // 可能是可空类型 -> Nullable<int>
+                Type underlyingType = Nullable.GetUnderlyingType(t);
+                return (T)Convert.ChangeType(s, underlyingType != null ? underlyingType : t);
 
-            return result;
+            }
+            else
+            {
+                return SerializeHelper.DeserializeFromJson<T>(s);
+            }
+
+            //if (string.IsNullOrEmpty(s)) 
+            //    return @default;
+
+            //T result = @default;
+            //if (typeof(T) == typeof(short))
+            //{
+            //    short value;
+            //    if (!short.TryParse(s, out value)) value = (short)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(int))
+            //{
+            //    int value;
+            //    if (!int.TryParse(s, out value)) value = (int)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(long))
+            //{
+            //    long value;
+            //    if (!long.TryParse(s, out value)) value = (long)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(float))
+            //{
+            //    float value;
+            //    if (!float.TryParse(s, out value)) value = (float)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(double))
+            //{
+            //    double value;
+            //    if (!double.TryParse(s, out value)) value = (double)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(decimal))
+            //{
+            //    decimal value;
+            //    if (!decimal.TryParse(s, out value)) value = (decimal)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(byte))
+            //{
+            //    byte value;
+            //    if (!byte.TryParse(s, out value)) value = (byte)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(bool))
+            //{
+            //    bool value;
+            //    if (!bool.TryParse(s, out value)) value = (bool)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            //else if (typeof(T) == typeof(DateTime))
+            //{
+            //    DateTime value;
+            //    if (!DateTime.TryParse(s, out value)) value = (DateTime)((object)@default);
+            //    result = (T)((object)value);
+            //}
+            ////else if (TypeUtils.IsCollectionType(typeof(T)))
+            ////{
+            ////    T value = (T)Newtonsoft.Json.JsonConvert.DeserializeObject(s, typeof(T));
+            ////    result = value;
+            ////}
+
+            //return result;
         }
 
         /// <summary>
