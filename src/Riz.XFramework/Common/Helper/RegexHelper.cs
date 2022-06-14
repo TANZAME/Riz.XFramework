@@ -13,6 +13,11 @@ namespace Riz.XFramework
     public class RegexHelper
     {
         ///// <summary>
+        ///// 邮箱正则
+        ///// </summary>
+        //public const string Email = @"[A-Za-z0-9](([_\.\-]?[a-zA-Z0-9]+)*)@([A-Za-z0-9]+)(([\.\-]?[a-zA-Z0-9]+)*)\.([A-Za-z]{2,})";
+
+        ///// <summary>
         ///// 验证邮箱
         ///// </summary>
         //public static bool IsEmail(string source)
@@ -111,7 +116,7 @@ namespace Riz.XFramework
         ////}
         ////#endregion
         ////#region 验证身份证是否有效
-        
+
         ///// <summary>
         ///// 验证身份证是否有效
         ///// </summary>
@@ -161,7 +166,7 @@ namespace Riz.XFramework
         //    }
         //    return true;//符合GB11643-1999标准
         //}
-       
+
         //private static bool IsIDCard15(string Id)
         //{
         //    long n = 0;

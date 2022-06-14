@@ -40,15 +40,13 @@ namespace Riz.XFramework
                 byte[] rgbIv = Encoding.UTF8.GetBytes(key);
 
                 using (MemoryStream ms = new MemoryStream())
+                using (CryptoStream cs = new CryptoStream(ms, provider.CreateDecryptor(rgbKey, rgbIv), CryptoStreamMode.Write))
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, provider.CreateDecryptor(rgbKey, rgbIv), CryptoStreamMode.Write))
-                    {
-                        cs.Write(buffer, 0, buffer.Length);
-                        cs.FlushFinalBlock();
-                        string result = Encoding.UTF8.GetString(ms.ToArray());
-                        //p = p.Replace("\0", ""); // php~去掉这些空白字符.
-                        return result;
-                    }
+                    cs.Write(buffer, 0, buffer.Length);
+                    cs.FlushFinalBlock();
+                    string result = Encoding.UTF8.GetString(ms.ToArray());
+                    //p = p.Replace("\0", ""); // php~去掉这些空白字符.
+                    return result;
                 }
             }
 
@@ -81,13 +79,11 @@ namespace Riz.XFramework
                 byte[] rgbIv = Encoding.UTF8.GetBytes(key);
 
                 using (MemoryStream ms = new MemoryStream())
+                using (CryptoStream cs = new CryptoStream(ms, provider.CreateEncryptor(rgbKey, rgbIv), CryptoStreamMode.Write))
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, provider.CreateEncryptor(rgbKey, rgbIv), CryptoStreamMode.Write))
-                    {
-                        cs.Write(buffer, 0, buffer.Length);
-                        cs.FlushFinalBlock();
-                        return Convert.ToBase64String(ms.ToArray());
-                    }
+                    cs.Write(buffer, 0, buffer.Length);
+                    cs.FlushFinalBlock();
+                    return Convert.ToBase64String(ms.ToArray());
                 }
             }
         }
