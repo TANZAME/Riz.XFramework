@@ -11,8 +11,6 @@ namespace Riz.XFramework
     /// </summary>  
     public class GZipHelper
     {
-        private static MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
-
         /// <summary>
         /// 压缩字符串，压缩后的字节数组转为 base64
         /// </summary>
@@ -108,8 +106,6 @@ namespace Riz.XFramework
             }
         }
 
-        
-
         /// <summary>  
         /// 解压文件  
         /// </summary>  
@@ -140,5 +136,7 @@ namespace Riz.XFramework
                 }
             }
         }
+
+        // 压缩/解压整个目录# https://blog.csdn.net/weixin_34167043/article/details/94505403
     }
 }
