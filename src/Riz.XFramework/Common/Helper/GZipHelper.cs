@@ -138,5 +138,211 @@ namespace Riz.XFramework
         }
 
         // 压缩/解压整个目录# https://blog.csdn.net/weixin_34167043/article/details/94505403
+        // ICSharpCode.SharpZipLib.dll
+        ///// <summary>
+        ///// 读取 zip 文件中的其中一个文件
+        ///// </summary>
+        ///// <param name="zipFileName">zip 文件完全路径</param>
+        ///// <param name="entryName">zip 里的文件,a/b/c.json</param>
+        //public static T ReadZipFile<T>(string zipFileName, string entryName, Func<Stream, T> method)
+        //{
+        //    using (MemoryStream ms = (MemoryStream)ReadZipFile(zipFileName, entryName))
+        //    {
+        //        return method(ms);
+        //    }
+        //}
+
+        ///// <summary>
+        ///// 读取 zip 文件中的其中一个文件
+        ///// </summary>
+        ///// <param name="zipFileName">zip 文件完全路径</param>
+        ///// <param name="entryName">zip 里的文件,a/b/c.json</param>
+        //public static Stream ReadZipFile(string zipFileName, string entryName)
+        //{
+        //    // https://github.com/icsharpcode/SharpZipLib/wiki/Unpack-a-zip-using-ZipInputStream
+        //    using (var fs = File.OpenRead(zipFileName))
+        //    using (var zip = new ZipInputStream(fs))
+        //    {
+        //        ZipEntry entry;
+        //        byte[] data = new byte[2048];
+        //        MemoryStream ms = new MemoryStream();
+
+        //        while ((entry = zip.GetNextEntry()) != null)
+        //        {
+        //            if (!entry.IsFile) continue;
+        //            if (string.Compare(entry.Name, entryName, true) == 0)
+        //            {
+        //                StreamUtils.Copy(zip, ms, data);
+        //                break;
+        //            }
+        //        }
+
+        //        return ms;
+        //    }
+        //}
+
+        ///// <summary>
+        ///// 将多个文件打包
+        ///// </summary>
+        ///// <param name="zipFullName">目标文件（.zip）路径</param>
+        ///// <param name="sources">多个源文件路径</param>
+        //public static void CreateZipFile(string zipFullName, params string[] sources)
+        //{
+        //    if (sources == null || sources.Length == 0) return;
+        //    using (var fs = File.Create(zipFullName))
+        //    using (ZipOutputStream zip = new ZipOutputStream(fs))
+        //    {
+        //        //var crc = new Crc32();
+        //        zip.SetLevel(3);
+        //        foreach (string s in sources)
+        //        {
+        //            CreateZipFileImpl(s, zip, sources.Length > 1 && Directory.Exists(s) ? s.Substring(s.LastIndexOf("\\") + 1) + '\\' : string.Empty);
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// 压缩文件夹
+        ///// </summary>
+        ///// <param name="source">待压缩的文件或文件夹路径</param>
+        ///// <param name="zipFileName">打包结果的zip文件路径（类似 D:\WorkSpace\a.zip）,全路径包括文件名和.zip扩展名</param>
+        ///// <param name="segBytes">分卷大小（字节）</param>
+        //public static int CreateZipFile(string source, string zipFileName, int segBytes)
+        //{
+        //    // https://bbs.csdn.net/topics/390791210
+        //    // 分卷压缩
+
+        //    var num = 0;
+        //    long length = 0;
+        //    using (var fs = File.Create(zipFileName))
+        //    {
+        //        using (ZipOutputStream zip = new ZipOutputStream(fs))
+        //        {
+        //            //var crc = new Crc32();
+        //            //0-9, 9 being the highest level of compression
+        //            zip.SetLevel(3);
+        //            CreateZipFileImpl(source, zip, string.Empty);
+
+        //            length = fs.Length;
+        //        }
+        //    }
+
+        //    // 分段
+        //    if (segBytes > 0 && length > segBytes)
+        //    {
+        //        using (FileStream sourceStream = File.OpenRead(zipFileName))
+        //        {
+        //            byte[] buffer = new byte[4096];
+        //            int readSize;
+        //            do
+        //            {
+        //                num++;
+        //                using (var fs = File.Create(string.Format("{0}.{1}", zipFileName, num.ToString().PadLeft(3, '0'))))
+        //                {
+        //                    do
+        //                    {
+        //                        readSize = sourceStream.Read(buffer, 0, buffer.Length);
+        //                        fs.Write(buffer, 0, readSize);
+        //                    } while (fs.Length + buffer.Length <= segBytes && readSize > 0);
+        //                }
+        //            } while (readSize > 0);
+        //        }
+        //    }
+
+        //    return num == 0 ? 1 : num;
+        //}
+
+        //// 递归压缩文件
+        //static void CreateZipFileImpl(string source, ZipOutputStream zip, string folder)
+        //{
+        //    string[] entryFullNames = File.Exists(source)
+        //        ? new[] { source }
+        //        : Directory.GetFileSystemEntries(source);
+
+        //    if (entryFullNames.Length == 0 && !string.IsNullOrEmpty(folder))
+        //    {
+        //        //  空文件夹
+        //        ZipEntry newEntry = new ZipEntry(folder);
+        //        newEntry.DateTime = DateTime.Now;
+        //        byte[] buffer = new byte[0];
+
+        //        //crc.Reset();
+        //        //crc.Update(buffer);
+
+        //        //entry.Crc = crc.Value;
+        //        //zip.UseZip64 = UseZip64.Off;
+        //        zip.PutNextEntry(newEntry);
+
+        //        //zip.Write(buffer, 0, buffer.Length);
+        //        zip.CloseEntry();
+        //    }
+        //    else
+        //    {
+        //        foreach (string fullName in entryFullNames)
+        //        {
+        //            if (Directory.Exists(fullName))
+        //            {
+        //                //如果当前是文件夹，递归
+        //                string name = folder;
+        //                name += fullName.Substring(fullName.LastIndexOf("\\") + 1);
+        //                name += "\\";
+        //                CreateZipFileImpl(fullName, zip, name);
+        //            }
+        //            else
+        //            {
+        //                var fi = new FileInfo(fullName);
+        //                string entryName = folder + fullName.Substring(fullName.LastIndexOf("\\") + 1);
+        //                // Remove drive from name and fix slash direction
+        //                entryName = ZipEntry.CleanName(entryName);
+        //                var newEntry = new ZipEntry(entryName);
+        //                // Note the zip format stores 2 second granularity
+        //                newEntry.DateTime = fi.LastWriteTime;
+        //                // To permit the zip to be unpacked by built-in extractor in WinXP and Server2003,
+        //                // WinZip 8, Java, and other older code, you need to do one of the following: 
+        //                // Specify UseZip64.Off, or set the Size.
+        //                // If the file may be bigger than 4GB, or you do not need WinXP built-in compatibility, 
+        //                // you do not need either, but the zip will be in Zip64 format which
+        //                // not all utilities can understand.
+        //                //   zipStream.UseZip64 = UseZip64.Off;
+        //                newEntry.Size = fi.Length;
+        //                zip.PutNextEntry(newEntry);
+        //                // Zip the file in buffered chunks
+        //                // the "using" will close the stream even if an exception occurs
+        //                var buffer = new byte[4096];
+        //                using (FileStream fs = File.OpenRead(fullName))
+        //                {
+        //                    StreamUtils.Copy(fs, zip, buffer);
+        //                }
+        //                zip.CloseEntry();
+
+        //                ////如果是文件，开始压缩
+        //                //using (FileStream fs = File.OpenRead(fullName))
+        //                //{
+        //                //    var fi = new FileInfo(fullName);
+        //                //    byte[] buffer = new byte[fs.Length];
+        //                //    fs.Read(buffer, 0, buffer.Length);
+
+        //                //    string entryName = folder + fullName.Substring(fullName.LastIndexOf("\\") + 1);
+        //                //    // Remove drive from name and fix slash direction
+        //                //    entryName = ZipEntry.CleanName(entryName); 
+        //                //    ZipEntry newEntry = new ZipEntry(entryName);
+
+        //                //    newEntry.DateTime = DateTime.Now;
+        //                //    newEntry.Size = fs.Length;
+
+        //                //    fs.Close();
+
+        //                //    crc.Reset();
+        //                //    crc.Update(buffer);
+
+        //                //    newEntry.Crc = crc.Value;
+        //                //    zip.PutNextEntry(newEntry);
+
+        //                //    zip.Write(buffer, 0, buffer.Length);
+        //                //}
+        //            }
+        //        }
+        //    }
+        //}
     }
 }
