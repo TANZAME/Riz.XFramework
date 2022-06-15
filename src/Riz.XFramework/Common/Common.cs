@@ -164,7 +164,6 @@ namespace Riz.XFramework
         /// <param name="default">传入的默认值</param>
         /// <returns></returns>
         public static T TryParse<T>(string s, T @default)
-            where T : struct
         {
             if (typeof(T) == typeof(object))
                 throw new Exception("无法为T分配object类型，请明确指定一种返回类型");
@@ -411,15 +410,37 @@ namespace Riz.XFramework
         /// <summary>
         /// 格式化容量
         /// </summary>
-        /// <param name="volume">容量</param>
+        /// <param name="bytes">容量，字节为单位</param>
         /// <param name="scale">小数位</param>
-        public static string FormatVolume(decimal volume, int scale = 1)
+        public static string FormatByteSize(decimal bytes, int scale = 1)
         {
-            if (volume > 1024 * 1024 * 1024)
-                return Convert.ToString(Math.Round(volume / (1024 * 1024 * 1024), scale)) + " G";
-            else if (volume > 1024 * 1024)
-                return Convert.ToString(Math.Round(volume / (1024 * 1024), scale)) + " M";
-            else return Convert.ToString(Math.Round(volume / 1024, scale)) + " KB";
+            if (bytes > 1024 * 1024 * 1024)
+                return Convert.ToString(Math.Round(bytes / (1024 * 1024 * 1024), scale)) + " G";
+            else if (bytes > 1024 * 1024)
+                return Convert.ToString(Math.Round(bytes / (1024 * 1024), scale)) + " M";
+            else return Convert.ToString(Math.Round(bytes / 1024, scale)) + " KB";
+        }
+
+        /// <summary>
+        /// 格式化时间
+        /// </summary>
+        /// <param name="milliseconds">毫秒</param>
+        /// <returns></returns>
+        public static string FormatMillisecond(long milliseconds)
+        {
+            long sec = milliseconds / 1000;
+            string h = sec / 3600 > 0 ? string.Format("{0}时", sec / 3600) : string.Empty;
+            string m = (sec % 3600) / 60 > 0 ? string.Format("{0}分", (sec % 3600) / 60) : string.Empty;
+            string s = (sec % 3600) % 60 > 0 ? string.Format("{0}秒", (sec % 3600) % 60) : string.Empty;
+            string d = milliseconds % 1000 > 0 ? string.Format("{0}毫秒", milliseconds % 1000) : string.Empty;
+
+            string result = string.Empty;
+            if (!string.IsNullOrEmpty(h)) result = result + h;
+            if (!string.IsNullOrEmpty(m)) result = result + m;
+            if (!string.IsNullOrEmpty(s)) result = result + s;
+            if (!string.IsNullOrEmpty(d)) result = result + d;
+
+            return result;
         }
 
         /// <summary>
@@ -428,7 +449,7 @@ namespace Riz.XFramework
         /// <param name="rowCount">数据总数</param>
         /// <param name="pageSize">页码</param>
         /// <returns></returns>
-        public static int Page(int rowCount, int pageSize) => ~~((rowCount - 1) / pageSize) + 1;
+        public static int Page(int rowCount, int pageSize) => rowCount == 0 ? 0 : (~~((rowCount - 1) / pageSize) + 1);
 
         /// <summary>
         /// 根据IP地址转换为long类型
