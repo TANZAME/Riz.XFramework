@@ -38,13 +38,13 @@ namespace Riz.XFramework.UnitTest
 
         public TestBase()
         {
-            string s = @"C:\Users\it0160\Desktop\亿数通\AdData.ReceiveData2.txt";
-            string d = @"C:\Users\it0160\Desktop\亿数通\AdData.ReceiveData.gz";
+            //string s = @"C:\Users\it0160\Desktop\亿数通\AdData.ReceiveData2.txt";
+            //string d = @"C:\Users\it0160\Desktop\亿数通\AdData.ReceiveData.gz";
             //    d = GZipHelper.Compress(s);
             //d =    GZipHelper.Decompress(d);
             //GZipHelper.Decompress(d,s);
 
-            var v = Common.TryParse<int?>(s, null);
+            //var v = Common.TryParse<int?>(s, null);
             _newContext = this.CreateDbContext;
         }
 
