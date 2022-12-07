@@ -1836,7 +1836,7 @@ namespace Riz.XFramework.UnitTest
                  from a in context.GetTable<Model.Client>()
                  where a.ClientName == "TAN"
                  group a by new Model.Client { ClientId = a.ClientId, ClientName = a.ClientName } into g
-                 where g.Key.ClientId > 0
+                 where g.Key.ClientId > 0 && g.Count()>1
                  orderby g.Key.ClientName
                  select new
                  {

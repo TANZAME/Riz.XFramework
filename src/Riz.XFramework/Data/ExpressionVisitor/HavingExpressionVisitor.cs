@@ -1,6 +1,7 @@
 ﻿
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System;
 
 namespace Riz.XFramework.Data
 {
@@ -50,6 +51,43 @@ namespace Riz.XFramework.Data
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 访问方法表达式，如 g.Max(a=>a.Level)
+        /// </summary>
+        /// <param name="node">方法表达式</param>
+        /// <returns></returns>
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (_groupBy != null && node.IsGrouping())
+            {
+                DbExpressionType dbExpressionType = DbExpressionType.None;
+                Enum.TryParse(node.Method.Name, out dbExpressionType);
+                Expression exp = dbExpressionType == DbExpressionType.Count
+                    ? Expression.Constant(1)
+                    : (node.Arguments.Count == 1 ? null : node.Arguments[1]);
+                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
+
+                // 常量，Lambda lam = value;
+                if (exp.CanEvaluate() && dbExpressionType != DbExpressionType.Count)
+                {
+                    exp = exp.Evaluate();
+                    if (exp is ConstantExpression) exp = (LambdaExpression)(((ConstantExpression)exp).Value);
+                }
+                // 如果是 a=> a 这种表达式，那么一定会指定 elementSelector
+                if (exp.NodeType == ExpressionType.Parameter) exp = _groupBy.Expressions[1];
+                if (exp.NodeType == ExpressionType.Lambda) exp = (exp as LambdaExpression).Body;
+
+                _builder.Append(ExpressionExtensions.Aggregates[dbExpressionType]);
+                _builder.Append("(");
+                this.Visit(exp);
+                _builder.Append(")");
+
+                return node;
+            }
+
+            return base.VisitMethodCall(node);
         }
 
         /// <summary>
