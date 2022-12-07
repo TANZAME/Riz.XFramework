@@ -197,7 +197,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     RizDemoDate = a.RizDemoDateTime2_Nullable.Value,
                     RizDemoId = a.RizDemoId,
-                    RizDemoCode = Data.DbFunction.CaseWhen(a.RizDemoName == "张1", "李1").When(a.RizDemoName == "张2", "李2").End("李李"), //a.DemoName == "张三" ? "李四" : "王五",
+                    RizDemoCode = Data.DbFunctions.CaseWhen(a.RizDemoName == "张1", "李1").When(a.RizDemoName == "张2", "李2").Else("李李"), //a.DemoName == "张三" ? "李四" : "王五",
                     RizDemoName = a.RizDemoCode == "张三" ? "李四" : "王五",
                     RizDemoChar = 'A',
                     RizDemoNChar = 'B',
@@ -464,7 +464,7 @@ namespace Riz.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = Data.DbFunction.RowNumber(a.RizDemoCode)
+                    RowNumber = Data.DbFunctions.RowNumber(a.RizDemoCode)
                 });
             var reuslt1 = query1.ToList();
             Debug.Assert(reuslt1[0].RowNumber == 1 && (reuslt1.Count > 1 ? reuslt1[1].RowNumber == 2 : true));
@@ -478,7 +478,7 @@ namespace Riz.XFramework.UnitTest
                 .GetTable<TDemo>()
                 .Select(a => new
                 {
-                    RowNumber = Data.DbFunction.RowNumber<long, string>(a.RizDemoCode, OrderBy.DESC)
+                    RowNumber = Data.DbFunctions.RowNumber<long, string>(a.RizDemoCode, OrderBy.DESC)
                 });
             var result2_0 = query2.ToList();
 
@@ -487,7 +487,7 @@ namespace Riz.XFramework.UnitTest
             .GetTable<Model_NA.Account>()
             .Select(a => new
             {
-                RowNumber = Data.DbFunction.PartitionRowNumber(a.RizClientId, a.RizAccountId)
+                RowNumber = Data.DbFunctions.PartitionRowNumber(a.RizClientId, a.RizAccountId)
             });
             reuslt1 = query1.ToList();
             context.Database.ExecuteNonQuery(query1.Sql);
@@ -496,7 +496,7 @@ namespace Riz.XFramework.UnitTest
             .GetTable<Model_NA.Account>()
                 .Select(a => new
                 {
-                    RowNumber = Data.DbFunction.PartitionRowNumber<long, int, string>(a.RizClientId, a.RizAccountId, OrderBy.DESC)
+                    RowNumber = Data.DbFunctions.PartitionRowNumber<long, int, string>(a.RizClientId, a.RizAccountId, OrderBy.DESC)
                 });
             result2_0 = query2.ToList();
 
@@ -643,7 +643,7 @@ namespace Riz.XFramework.UnitTest
                 {
                     DemoId = a.RizDemoId,
                     Mod = a.RizDemoId % 2,
-                    Divide = Data.DbFunction.Cast<int, decimal>(a.RizDemoId, "decimal") / 2,
+                    Divide = Data.DbFunctions.Cast<int, decimal>(a.RizDemoId, "decimal") / 2,
                     Abs = Math.Abs(a.RizDemoDecimal),
                     Acos = Math.Acos(a.RizDemoId / 2.00),
                     Asin = Math.Asin(a.RizDemoId / 2.00),
@@ -1981,7 +1981,7 @@ namespace Riz.XFramework.UnitTest
                 where a.RizClientId <= 5
                 select new Model_NA.Client
                 {
-                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 2),
+                    RizClientId = Data.DbFunctions.RowNumber<int>(a.RizClientId) + (max + 2),
                     RizClientCode = "ABC2",
                     RizClientName = "啊啵呲2",
                     RizCloudServerId = 3,
@@ -2011,7 +2011,7 @@ namespace Riz.XFramework.UnitTest
                 where b.RizClientId == null
                 select new Model_NA.Client
                 {
-                    RizClientId = Data.DbFunction.RowNumber<int>(a.RizClientId) + (max + 1),
+                    RizClientId = Data.DbFunctions.RowNumber<int>(a.RizClientId) + (max + 1),
                     RizClientCode = "XFramework100+",
                     RizClientName = "XFramework100+",
                     RizCloudServerId = 3,

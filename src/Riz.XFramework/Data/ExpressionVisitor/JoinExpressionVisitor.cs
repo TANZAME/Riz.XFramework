@@ -37,8 +37,7 @@ namespace Riz.XFramework.Data
                 DbExpression d = joins[index];
                 _builder.AppendNewLine();
 
-                if (d.DbExpressionType == DbExpressionType.LeftOuterJoin || d.DbExpressionType == DbExpressionType.Join ||
-                    d.DbExpressionType == DbExpressionType.RightOuterJoin)
+                if (d.DbExpressionType == DbExpressionType.LeftOuterJoin || d.DbExpressionType == DbExpressionType.Join || d.DbExpressionType == DbExpressionType.RightOuterJoin)
                 {
                     // INNER/LEFT JOIN
                     JoinType joinType = JoinType.InnerJoin;

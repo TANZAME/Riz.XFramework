@@ -146,8 +146,10 @@ namespace Riz.XFramework.Data
         protected Expression VisitMethodCall(MethodCallExpression node)
         {
             MemberAccessorBase m = null;
-            if (node.Method.Name == "Concat") m = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
-            else m = this.TypeRuntime.GetMember("Visit" + node.Method.Name);
+            if (node.Method.Name == "Concat") 
+                m = this.TypeRuntime.GetMethod("Visit" + node.Method.Name, new[] { typeof(MethodCallExpression) });
+            else 
+                m = this.TypeRuntime.GetMember("Visit" + node.Method.Name);
 
             if (m == null) throw new XFrameworkException("{0}.{1} is not supported.", node.Method.DeclaringType, node.Method.Name);
             else
@@ -1206,7 +1208,7 @@ namespace Riz.XFramework.Data
         /// 访问 CASE WHEN 方法
         /// </summary>
         /// <param name="m">方法表达式</param>
-        protected virtual Expression VisitEnd(MethodCallExpression m)
+        protected virtual Expression VisitElse(MethodCallExpression m)
         {
             var stack = new Stack<MethodCallExpression>();
             stack.Push(m);
