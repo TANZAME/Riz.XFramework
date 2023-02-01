@@ -817,6 +817,7 @@ namespace Riz.XFramework.Data
             });
             return query;
 
+            // 保证 c.RecommendationName 和 a.RegRecommendationCode.RecommendationName 输出一致
 
             //// 在 select 语义保证外键属性不为空，否则在 ko 绑定的时候会产生不可预料的异常
             //var query =
