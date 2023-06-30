@@ -11,6 +11,8 @@ namespace Riz.XFramework.UnitTest
     {
         // 如果在尝试进行 COM 上下文转换期间检测到一个死锁，将激活 contextSwitchDeadlock 托管调试助手 (MDA)。
         // https://docs.microsoft.com/zh-cn/dotnet/framework/debug-trace-profile/contextswitchdeadlock-mda
+        // .net core 3.1 下载链接
+        // https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1
 
         [MTAThread]
         //[STAThread]

@@ -53,6 +53,12 @@ namespace Riz.XFramework.UnitTest
         public virtual void Run(DatabaseType dbType)
         {
             _databaseType = dbType;
+
+            string url = "https://alidocs.dingtalk.com/i/nodes/20eMKjyp81Rk4yOQHg5ydGLqWxAZB1Gv?doc_type=wiki_doc";
+            var container = new System.Net.CookieContainer();
+            container.Add(new System.Net.Cookie("doc_atoken", "MTU0MzY2MDg3XZtsCTjBokRrsDHTKihQjoPaXfLAlatp", "/", ".dingtalk.com"));
+            string html = WebHelper.Get<string>(url, new WebHelper.HttpConfiguration { CookieContainer = container });
+
             Query();
             DbFunction();
             Join();

@@ -409,6 +409,16 @@ namespace Riz.XFramework
                     if (configuration.UserAgent != null) request.UserAgent = configuration.UserAgent;
                     if (configuration.KeepAlive != null) request.KeepAlive = configuration.KeepAlive.Value;
                     if (configuration.Proxy != null) request.Proxy = configuration.Proxy;
+                    //if (!string.IsNullOrEmpty(configuration.Cookies))
+                    //{
+                    //    string[] cookies = configuration.Cookies.Split(';');
+                    //    foreach (var c in cookies)
+                    //    {
+                    //        if (configuration.CookieContainer == null)
+                    //            configuration.CookieContainer = new CookieContainer();
+                    //        configuration.CookieContainer.Add
+                    //    }
+                    //}
                     if (configuration.CookieContainer != null) request.CookieContainer = configuration.CookieContainer;
 
                     if (configuration.Headers != null)
@@ -656,6 +666,11 @@ namespace Riz.XFramework
             //CookieContainer container = new CookieContainer();
             //container.Add(new Cookie("__zlcmid", "qShxFslerMOiOr", path, domain));
             //container.Add(new Cookie("_ga", "GA1.2.1649633403.1547951981", path, domain));
+
+            /// <summary>
+            /// 字符串形式的cokkie，自动转成 CookieContainer
+            /// </summary>
+            public string Cookies { get; set; }
 
             /// <summary>
             /// 请求出错时重试次数
