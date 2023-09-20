@@ -75,5 +75,6 @@ data = context
 ```
 #### :pushpin: 更详细教程 [Wiki](https://github.com/TANZAME/Riz.XFramework/wiki)
 > #### 支持作者
-![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
+:thumbsup:
+--![RUNOOB 图标](https://github.com/TANZAME/Riz.XFramework/blob/master/.resource/wechatpay.jpg)
 
