@@ -417,6 +417,13 @@ namespace Riz.XFramework.Data
             Expression left = null;
             Expression right = null;
 
+            if (expression.NodeType == ExpressionType.Invoke && ((InvocationExpression)expression).Expression != null)
+            {
+                expression = ((InvocationExpression)expression).Expression;
+                if(expression.NodeType == ExpressionType.Lambda)
+                    expression = ((LambdaExpression)expression).Body;
+            }
+
             if (expression.NodeType == ExpressionType.Constant)
             {
                 // true => 1=2
