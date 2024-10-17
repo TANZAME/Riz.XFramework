@@ -132,13 +132,17 @@ namespace Riz.XFramework.Data
 
         /// <summary>
         /// 创建事务
+        /// 如果指定事务等级则使用指定的等级，否则用 IsolationLevel 属性，如果IsolationLevel为空则默认使用IsolationLevel.ReadCommitted
         /// </summary>
-        public IDbTransaction BeginTransaction()
+        public IDbTransaction BeginTransaction(IsolationLevel? il = null)
         {
             if (_transaction == null)
             {
                 this.CreateConnection(true);
-                _transaction = _connection.BeginTransaction(this.IsolationLevel != null ? this.IsolationLevel.Value : System.Data.IsolationLevel.ReadCommitted);
+                IsolationLevel @level = System.Data.IsolationLevel.ReadCommitted;
+                if (il != null) @level = il.Value;
+                else if (this.IsolationLevel != null) @level = this.IsolationLevel.Value;
+                _transaction = _connection.BeginTransaction(@level);
             }
             return _transaction;
         }

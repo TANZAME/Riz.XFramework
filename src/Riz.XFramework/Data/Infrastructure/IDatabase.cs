@@ -56,7 +56,7 @@ namespace Riz.XFramework.Data
         /// <summary>
         /// 开启新事务
         /// </summary>
-        IDbTransaction BeginTransaction();
+        IDbTransaction BeginTransaction(IsolationLevel? il = null);
 
         /// <summary>
         /// 创建 SQL 命令
