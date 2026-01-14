@@ -2,7 +2,11 @@
 using System;
 using System.Text;
 using System.Diagnostics;
+#if NET10_0
+using Microsoft.Data.SqlClient;
+#else 
 using System.Data.SqlClient;
+#endif
 using System.Collections.Generic;
 using Riz.XFramework.Data;
 using Riz.XFramework.Data.SqlClient;

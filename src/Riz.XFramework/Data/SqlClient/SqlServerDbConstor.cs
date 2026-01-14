@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Data;
 using System.Collections.Generic;
+#if NET10_0
+using Microsoft.Data.SqlClient;
+#else 
 using System.Data.SqlClient;
+#endif
 
 namespace Riz.XFramework.Data.SqlClient
 {

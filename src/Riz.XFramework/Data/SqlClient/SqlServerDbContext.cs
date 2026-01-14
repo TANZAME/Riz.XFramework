@@ -1,7 +1,11 @@
 ﻿
 using System.Linq;
 using System.Data;
+#if NET10_0
+using Microsoft.Data.SqlClient;
+#else 
 using System.Data.SqlClient;
+#endif
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
