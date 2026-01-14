@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net40;net45</TargetFrameworks>
+    <TargetFrameworks>net10.0;net40;net45</TargetFrameworks>
     <Authors>NaiXiang Tian</Authors>
     <Company>NaiXiang Tian</Company>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -23,12 +23,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;netcore</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>bin\Debug\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\net10.0\Riz.XFrameworkCore.xml</DocumentationFile>
     <NoWarn />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;netcore</DefineConstants>
-    <DocumentationFile>bin\Release\netcoreapp3.1\Riz.XFrameworkCore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\net10.0\Riz.XFrameworkCore.xml</DocumentationFile>
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   -->
@@ -40,7 +40,7 @@
     <AssemblyOriginatorKeyFile>..\..\lib\sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <!-- 定义条件编译符 -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <DefineConstants>netcore</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
@@ -74,7 +74,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="Oracle.ManagedDataAccess" Version="19.9.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.91" />
   </ItemGroup>
 </Project>
